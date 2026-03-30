@@ -1,0 +1,5 @@
+[
+  { "id": 1, "word": "Apple", "translation": "Яблоко", "example": "I eat an apple." },
+  { "id": 2, "word": "Book", "translation": "Книга", "example": "Read a book." },
+  { "id": 3, "word": "Code", "translation": "Код", "example": "Write code." }
+]
