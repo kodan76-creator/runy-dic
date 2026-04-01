@@ -17,7 +17,7 @@ function App() {
     <div className="container">
       {/* Логотип вверху слева */}
       <img 
-        src="/images/run_r.png" 
+        src="/run_r.png" 
         alt="Logo" 
         className="logo"
       />
