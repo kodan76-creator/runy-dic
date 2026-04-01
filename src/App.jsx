@@ -16,7 +16,7 @@ function App() {
     <div className="container">
       {/* Логотип вверху слева */}
       <img 
-        src="/run_r.png" 
+        src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
         alt="Logo" 
         className="logo"
         width="130"
