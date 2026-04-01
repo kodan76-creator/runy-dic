@@ -27,9 +27,6 @@ function App() {
         {filteredData.length > 0 ? (
           filteredData.map(item => (
             <div key={item.id} className="card">
-              // <h3>{item.word}</h3>
-              // <p>{item.translation}</p>
-              // <small>{item.example}</small>
               <h3 className="word">{item.word}</h3>
               <p className="translation">{item.translation}</p>
               <small className="example">{item.example}</small>
