@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import dictionary from './data/dictionary.json'
 import './App.css'
+import logo from './assets/run_r.png'
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -20,6 +21,7 @@ function App() {
         alt="Logo" 
         className="logo"
       />
+      <img src={logo} alt="Logo" className="logo" />
       
       <h1>Мой Словарь</h1>
       <input 
