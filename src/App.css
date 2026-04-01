@@ -1,3 +1,12 @@
+/* Фон страницы */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #aa3bff40;
+  min-height: 100vh;
+}
+
+/* Логотип */
 .logo {
   position: absolute;
   top: 20px;
@@ -8,7 +17,7 @@
   z-index: 100;
 }
 
-/* Сдвинем основной контент, чтобы не перекрывался логотипом */
+/* Контейнер */
 .container {
   padding-top: 160px;
   padding-left: 20px;
@@ -17,43 +26,45 @@
   margin: 0 auto;
 }
 
+/* Поле поиска */
 .search-input {
   width: 100%;
   padding: 12px;
   font-size: 16px;
-  border: 2px solid #ddd;
+  border: 2px solid #aa3bff;
   border-radius: 8px;
   margin-bottom: 20px;
   box-sizing: border-box;
+  background-color: #ffffffcc; /* Полупрозрачный белый для читаемости */
 }
 
-.results {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+/* Карточка слова */
 .card {
-  background: #f8f9fa;
+  background-color: #ffffffcc;
   padding: 16px;
   border-radius: 8px;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #aa3bff;
+  margin-bottom: 12px;
 }
 
+/* Слово (шрифт Dao Rus, жёлтый) */
 .word {
   font-family: 'Dao Rus', sans-serif;
   font-weight: normal;
   font-size: 24px;
   color: #FFD700;
   margin: 0 0 8px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Перевод */
 .translation {
   font-size: 18px;
   color: #34495e;
   margin: 0 0 8px 0;
 }
 
+/* Пример */
 .example {
   font-style: italic;
   color: #7f8c8d;
