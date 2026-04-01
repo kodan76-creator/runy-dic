@@ -5,7 +5,6 @@ import './App.css'
 function App() {
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Логика поиска: фильтруем словарь при вводе
   const filteredData = useMemo(() => {
     return dictionary.filter(item =>
       item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -15,7 +14,14 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Словарь рунных слов</h1>
+      {/* Логотип вверху слева */}
+      <img 
+        src="/images/run_r.png" 
+        alt="Logo" 
+        className="logo"
+      />
+      
+      <h1>Мой Словарь</h1>
       <input 
         type="text" 
         placeholder="Поиск слова..." 
