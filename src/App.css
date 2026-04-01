@@ -6,6 +6,9 @@
   height: 119px;
   object-fit: contain;
   z-index: 100;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Сдвинем основной контент, чтобы не перекрывался логотипом */
