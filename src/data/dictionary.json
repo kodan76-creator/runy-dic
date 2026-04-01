@@ -1,6 +1,6 @@
 [
-  { "id": 1, "word": "Apple", "translation": "Яблоко", "example": "I eat an apple." },
-  { "id": 2, "word": "Book", "translation": "Книга", "example": "Read a book." },
-  { "id": 3, "word": "Code", "translation": "Код", "example": "Write code." },
+  { "id": 1, "word": "ЪО", "translation": "Бог", "example": "С нами Бог." },
+  { "id": 2, "word": "лалъ", "translation": "Семья", "example": "Это моя семья." },
+  { "id": 3, "word": "ранко", "translation": "Утро", "example": "Утро начинается." },
   { "id": 4, "word": "жъ", "translation": "День", "example": "Сегодня хороший день!" }
 ]
