@@ -15,7 +15,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Мой Словарь</h1>
+      <h1>Словарь рунных слов</h1>
       <input 
         type="text" 
         placeholder="Поиск слова..." 
