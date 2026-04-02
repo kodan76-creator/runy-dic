@@ -49,6 +49,12 @@ body {
   margin-bottom: 20px;
   box-sizing: border-box;
   background-color: #ffffffcc;
+  color: #000000;  /* Чёрный цвет текста */
+}
+
+/* Цвет placeholder (подсказки) */
+.search-input::placeholder {
+  color: #666666;  /* Серый цвет для подсказки */
 }
 
 /* Карточка слова */
