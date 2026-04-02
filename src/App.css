@@ -7,11 +7,11 @@ body {
   font-family: sans-serif;
 }
 
-/* Главный контейнер - выстраиваем всё в ряд */
+/* Главный контейнер */
 .container {
   display: flex;
-  align-items: flex-start; /* Выравнивание по верхнему краю */
-  gap: 40px; /* Расстояние между логотипом и контентом */
+  align-items: flex-start;
+  gap: 40px;
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
@@ -22,21 +22,13 @@ body {
   width: 130px;
   height: 119px;
   object-fit: contain;
-  flex-shrink: 0; /* Запрещаем сжатие логотипа */
+  flex-shrink: 0;
 }
 
-/* Блок с контентом (заголовок, поиск, карточки) */
+/* Блок с контентом */
 .content {
-  flex: 1; /* Занимает всё оставшееся место */
+  flex: 1;
   max-width: 800px;
-}
-
-/* Заголовок */
-.content h1 {
-  color: #ffffff;
-  font-size: 48px;
-  margin: 0 0 20px 0;
-  text-align: left;
 }
 
 /* Поле поиска */
@@ -49,21 +41,29 @@ body {
   margin-bottom: 20px;
   box-sizing: border-box;
   background-color: #ffffffcc;
-  color: #000000;  /* Чёрный цвет текста */
+  color: #000000;
+  outline: none; /* Убираем стандартную обводку */
 }
 
-/* Цвет placeholder (подсказки) */
+/* Бордюр при фокусе (чтобы не исчезал) */
+.search-input:focus {
+  border: 2px solid #aa3bff; /* Оставляем тот же цвет */
+  box-shadow: 0 0 8px rgba(170, 59, 255, 0.5); /* Добавляем свечение */
+}
+
+/* Цвет placeholder */
 .search-input::placeholder {
-  color: #666666;  /* Серый цвет для подсказки */
+  color: #666666;
 }
 
 /* Карточка слова */
 .card {
-  background-color: #ffffffcc;
+  background-color: #c084fc; /* Новый фиолетовый фон */
   padding: 16px;
   border-radius: 8px;
   border-left: 4px solid #aa3bff;
   margin-bottom: 12px;
+  color: #ffffff; /* Белый текст для контраста */
 }
 
 /* Слово (шрифт Dao Rus, жёлтый) */
@@ -73,26 +73,27 @@ body {
   font-size: 24px;
   color: #FFD700;
   margin: 0 0 8px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Усилили тень для контраста */
 }
 
 /* Перевод */
 .translation {
   font-size: 18px;
-  color: #34495e;
+  color: #ffffff; /* Белый текст */
   margin: 0 0 8px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Пример */
 .example {
   font-style: italic;
-  color: #7f8c8d;
+  color: #e9d5ff; /* Светло-фиолетовый для примера */
 }
 
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
-    flex-direction: column; /* На телефонах логотип сверху */
+    flex-direction: column;
     align-items: center;
     padding: 20px;
   }
