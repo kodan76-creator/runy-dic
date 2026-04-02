@@ -15,18 +15,17 @@ function App() {
   return (
     <div className="container">
       {/* Логотип вверху слева */}
-      <img 
-        src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
-        alt="Logo" 
+      <img
+        src="https://kodan76-creator.github.io/runy-dic/run_r.png"
+        alt="Logo"
         className="logo"
         width="130"
         height="119"
       />
-      
-      {/* <h1>Мой Словарь</h1> */}
-      <input 
-        type="text" 
-        placeholder="Поиск слова..." 
+
+      <input
+        type="text"
+        placeholder="Поиск слова..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
@@ -37,7 +36,15 @@ function App() {
             <div key={item.id} className="card">
               <h3 className="word">{item.word}</h3>
               <p className="translation">{item.translation}</p>
-              <small className="example">{item.example}</small>
+              <div className="examples">
+                <span className="example">{item.example}</span>
+                {item.example2 && (
+                  <>
+                    <span className="dash"> — </span>
+                    <span className="example2">{item.example2}</span>
+                  </>
+                )}
+              </div>
             </div>
           ))
         ) : (

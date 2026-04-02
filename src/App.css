@@ -86,11 +86,33 @@ body {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Пример */
+/* Контейнер для примеров */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Первый пример */
 .example {
   font-style: italic;
-  color: #9c27b0; /* ← Новый цвет */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Лёгкая тень */
+  color: #9c27b0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Тире между примерами */
+.dash {
+  color: #9c27b0;
+  font-weight: bold;
+}
+
+/* Второй пример (шрифт Dao Rus) */
+.example2 {
+  font-family: 'Dao Rus', sans-serif;
+  font-style: italic;
+  color: #9c27b0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Контейнер для результатов */
