@@ -106,7 +106,7 @@ body {
 /* Тире между примерами */
 .dash {
   color: #9c27b0;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 /* Второй пример (шрифт Dao Rus) */
