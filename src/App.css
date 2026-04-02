@@ -28,7 +28,6 @@ body {
 /* Блок с контентом */
 .content {
   flex: 1;
-  max-width: 800px;
 }
 
 /* Поле поиска */
@@ -42,16 +41,16 @@ body {
   box-sizing: border-box;
   background-color: #ffffffcc;
   color: #000000;
-  outline: none; /* Убираем стандартную обводку */
+  outline: none;
 }
 
-/* Бордюр при фокусе (чтобы не исчезал) */
+/* Бордюр при фокусе */
 .search-input:focus {
-  border: 2px solid #aa3bff; /* Оставляем тот же цвет */
-  box-shadow: 0 0 8px rgba(170, 59, 255, 0.5); /* Добавляем свечение */
+  border: 2px solid #aa3bff;
+  box-shadow: 0 0 8px rgba(170, 59, 255, 0.5);
 }
 
-/* Цвет placeholder */
+/* Placeholder */
 .search-input::placeholder {
   color: #666666;
 }
@@ -64,19 +63,12 @@ body {
   border-left: 4px solid #aa3bff;
   margin-bottom: 12px;
   color: #ffffff;
-  width: fit-content; /* Ширина по контенту */
-  min-width: 300px; /* Минимальная ширина */
-  max-width: 100%; /* Не шире контейнера */
+  width: fit-content;
+  min-width: 300px;
+  max-width: 100%;
 }
 
-/* Убедитесь, что текст не переносится, если нужно */
-.word,
-.translation,
-.example {
-  white-space: nowrap; /* Текст в одну строку */
-}
-
-/* Или если хотите перенос только для длинных слов */
+/* Слово (шрифт Dao Rus, жёлтый) */
 .word {
   font-family: 'Dao Rus', sans-serif;
   font-weight: normal;
@@ -86,6 +78,7 @@ body {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Перевод */
 .translation {
   font-size: 18px;
   color: #ffffff;
@@ -93,9 +86,10 @@ body {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Пример */
 .example {
   font-style: italic;
-  color: #e9d5ff;
+  color: #9c27b0; /* ← Новый цвет */
 }
 
 /* Контейнер для результатов */
@@ -103,13 +97,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: fit-content; /* Контейнер тоже по контенту */
-}
-
-/* Блок с контентом */
-.content {
-  flex: 1;
-  /* Убираем max-width, чтобы карточки могли расширяться */
+  width: fit-content;
 }
 
 /* Адаптивность для мобильных */
@@ -118,9 +106,5 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-  }
-  
-  .content h1 {
-    text-align: center;
   }
 }
