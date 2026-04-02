@@ -58,36 +58,58 @@ body {
 
 /* Карточка слова */
 .card {
-  background-color: #c084fc; /* Новый фиолетовый фон */
+  background-color: #c084fc;
   padding: 16px;
   border-radius: 8px;
   border-left: 4px solid #aa3bff;
   margin-bottom: 12px;
-  color: #ffffff; /* Белый текст для контраста */
+  color: #ffffff;
+  width: fit-content; /* Ширина по контенту */
+  min-width: 300px; /* Минимальная ширина */
+  max-width: 100%; /* Не шире контейнера */
 }
 
-/* Слово (шрифт Dao Rus, жёлтый) */
+/* Убедитесь, что текст не переносится, если нужно */
+.word,
+.translation,
+.example {
+  white-space: nowrap; /* Текст в одну строку */
+}
+
+/* Или если хотите перенос только для длинных слов */
 .word {
   font-family: 'Dao Rus', sans-serif;
   font-weight: normal;
   font-size: 24px;
   color: #FFD700;
   margin: 0 0 8px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Усилили тень для контраста */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Перевод */
 .translation {
   font-size: 18px;
-  color: #ffffff; /* Белый текст */
+  color: #ffffff;
   margin: 0 0 8px 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Пример */
 .example {
   font-style: italic;
-  color: #e9d5ff; /* Светло-фиолетовый для примера */
+  color: #e9d5ff;
+}
+
+/* Контейнер для результатов */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: fit-content; /* Контейнер тоже по контенту */
+}
+
+/* Блок с контентом */
+.content {
+  flex: 1;
+  /* Убираем max-width, чтобы карточки могли расширяться */
 }
 
 /* Адаптивность для мобильных */
