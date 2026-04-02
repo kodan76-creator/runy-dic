@@ -23,7 +23,7 @@ function App() {
         height="119"
       />
       
-      <h1>Мой Словарь</h1>
+      {/* <h1>Мой Словарь</h1> */}
       <input 
         type="text" 
         placeholder="Поиск слова..." 
