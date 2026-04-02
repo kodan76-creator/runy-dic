@@ -4,26 +4,39 @@ body {
   padding: 0;
   background-color: #aa3bff40;
   min-height: 100vh;
+  font-family: sans-serif;
+}
+
+/* Главный контейнер - выстраиваем всё в ряд */
+.container {
+  display: flex;
+  align-items: flex-start; /* Выравнивание по верхнему краю */
+  gap: 40px; /* Расстояние между логотипом и контентом */
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Логотип */
 .logo {
-  position: absolute;
-  top: 20px;
-  left: 20px;
   width: 130px;
   height: 119px;
   object-fit: contain;
-  z-index: 100;
+  flex-shrink: 0; /* Запрещаем сжатие логотипа */
 }
 
-/* Контейнер */
-.container {
-  padding-top: 160px;
-  padding-left: 20px;
-  padding-right: 20px;
+/* Блок с контентом (заголовок, поиск, карточки) */
+.content {
+  flex: 1; /* Занимает всё оставшееся место */
   max-width: 800px;
-  margin: 0 auto;
+}
+
+/* Заголовок */
+.content h1 {
+  color: #ffffff;
+  font-size: 48px;
+  margin: 0 0 20px 0;
+  text-align: left;
 }
 
 /* Поле поиска */
@@ -35,7 +48,7 @@ body {
   border-radius: 8px;
   margin-bottom: 20px;
   box-sizing: border-box;
-  background-color: #ffffffcc; /* Полупрозрачный белый для читаемости */
+  background-color: #ffffffcc;
 }
 
 /* Карточка слова */
@@ -68,4 +81,17 @@ body {
 .example {
   font-style: italic;
   color: #7f8c8d;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* На телефонах логотип сверху */
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .content h1 {
+    text-align: center;
+  }
 }
