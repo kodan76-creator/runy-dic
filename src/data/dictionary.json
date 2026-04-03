@@ -36,15 +36,43 @@
   },
   {
     "id": 6,
+    "word": "ю",
+    "translation": "Форма, формирование. Яйцо, глина.",
+    "example": "",
+    "example2": ""
+  },
+  {
+    "id": 7,
     "word": "б",
     "translation": "Духовный рост. Все движения вверх, полет, парение, дух, птицы.",
     "example": "",
     "example2": ""
   },
   {
-    "id": 7,
+    "id": 8,
     "word": "ь",
     "translation": "Знания, радость. Познание.",
+    "example": "",
+    "example2": ""
+  },
+  {
+    "id": 9,
+    "word": "ы",
+    "translation": "Перемены.",
+    "example": "",
+    "example2": ""
+  },
+  {
+    "id": 10,
+    "word": "в",
+    "translation": "Материя, принципы материального. Материальное, земля.",
+    "example": "",
+    "example2": ""
+  },
+  {
+    "id": 11,
+    "word": "о",
+    "translation": "Единство. Начало.",
     "example": "",
     "example2": ""
   }
