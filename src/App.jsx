@@ -13,7 +13,11 @@ function Home() {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'dictionary'))
+        const querySnapshot = await getDocs(
+          collection(db, 'dictionary'),
+          // Сортировка по дате создания (старые сначала → новые в конце)
+          (q) => q.orderBy('createdAt', 'asc')
+        )
         const wordsList = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -24,7 +28,7 @@ function Home() {
       }
       setLoading(false)
     }
-    
+
     loadWords()
   }, [])
 
@@ -39,16 +43,16 @@ function Home() {
     return (
       <div className="container">
         <div className="header">
-          <img 
-            src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
-            alt="Logo" 
+          <img
+            src="https://kodan76-creator.github.io/runy-dic/run_r.png"
+            alt="Logo"
             className="logo"
             width="130"
             height="119"
           />
-          <input 
-            type="text" 
-            placeholder="Поиск слова..." 
+          <input
+            type="text"
+            placeholder="Поиск слова..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -62,22 +66,22 @@ function Home() {
   return (
     <div className="container">
       <div className="header">
-        <img 
-          src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
-          alt="Logo" 
+        <img
+          src="https://kodan76-creator.github.io/runy-dic/run_r.png"
+          alt="Logo"
           className="logo"
           width="130"
           height="119"
         />
-        <input 
-          type="text" 
-          placeholder="Поиск слова..." 
+        <input
+          type="text"
+          placeholder="Поиск слова..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
       </div>
-      
+
       <div className="results">
         {filteredData.length > 0 ? (
           filteredData.map(item => (

@@ -64,33 +64,32 @@ function AdminPanel() {
   }
 
   // Добавление/редактирование
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setError('')
+  setLoading(true)
 
-    try {
-      if (editingId) {
-        // Редактирование
-        const wordRef = doc(db, 'dictionary', editingId)
-        await updateDoc(wordRef, formData)
-      } else {
-        // Добавление
-        await addDoc(collection(db, 'dictionary'), {
-          ...formData,
-          createdAt: new Date().toISOString()
-        })
-      }
-      
-      // Очистка формы и перезагрузка
-      setFormData({ word: '', translation: '', example: '', example2: '' })
-      setEditingId(null)
-      await loadWords()
-    } catch (err) {
-      setError('Ошибка сохранения: ' + err.message)
+  try {
+    if (editingId) {
+      // Редактирование (не меняем createdAt)
+      const wordRef = doc(db, 'dictionary', editingId)
+      await updateDoc(wordRef, formData)
+    } else {
+      // Добавление нового слова
+      await addDoc(collection(db, 'dictionary'), {
+        ...formData,
+        createdAt: new Date().toISOString()  // ← Дата создания
+      })
     }
-    setLoading(false)
+    
+    setFormData({ word: '', translation: '', example: '', example2: '' })
+    setEditingId(null)
+    await loadWords()
+  } catch (err) {
+    setError('Ошибка сохранения: ' + err.message)
   }
+  setLoading(false)
+}
 
   // Редактирование
   const handleEdit = (word) => {
