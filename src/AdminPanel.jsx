@@ -168,27 +168,27 @@ function AdminPanel() {
           <form onSubmit={handleSubmit} className="word-form">
             <input
               type="text"
-              placeholder="Word (слово на руническом)"
+              placeholder="Слово на рунном языке"
               value={formData.word}
               onChange={(e) => setFormData({...formData, word: e.target.value})}
               required
             />
             <input
               type="text"
-              placeholder="Translation (перевод)"
+              placeholder="Перевод (на русском языке)"
               value={formData.translation}
               onChange={(e) => setFormData({...formData, translation: e.target.value})}
               required
             />
             <input
               type="text"
-              placeholder="Example (пример 1)"
+              placeholder="Пример (на русском языке)"
               value={formData.example}
               onChange={(e) => setFormData({...formData, example: e.target.value})}
             />
             <input
               type="text"
-              placeholder="Example2 (пример 2)"
+              placeholder="Пример (на рунном языке)"
               value={formData.example2}
               onChange={(e) => setFormData({...formData, example2: e.target.value})}
             />
