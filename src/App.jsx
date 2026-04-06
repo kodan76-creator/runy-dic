@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'  // ← HashRouter
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from './firebase'
 import AdminPanel from './AdminPanel'
@@ -105,7 +105,7 @@ function Home() {
 
 function App() {
   return (
-    <Router basename="/runy-dic">  {/* ← ДОБАВЛЕНО basename */}
+    <Router>  {/* ← HashRouter не требует basename! */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<AdminPanel />} />
