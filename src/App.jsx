@@ -35,7 +35,9 @@ function Home() {
   const filteredData = useMemo(() => {
     return words.filter(item =>
       item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation.toLowerCase().includes(searchTerm.toLowerCase())
+      item.translation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }, [searchTerm, words])
 
