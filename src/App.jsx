@@ -14,22 +14,25 @@ function App() {
 
   return (
     <div className="container">
-      {/* Логотип вверху слева */}
-      <img
-        src="https://kodan76-creator.github.io/runy-dic/run_r.png"
-        alt="Logo"
-        className="logo"
-        width="130"
-        height="119"
-      />
-
-      <input
-        type="text"
-        placeholder="Поиск слова..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
-      />
+      {/* Верхняя часть: логотип + поиск по центру */}
+      <div className="header">
+        <img 
+          src="/run_r.png" 
+          alt="Logo" 
+          className="logo"
+          width="130"
+          height="119"
+        />
+        <input 
+          type="text" 
+          placeholder="Поиск слова..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
+      
+      {/* Карточки слов */}
       <div className="results">
         {filteredData.length > 0 ? (
           filteredData.map(item => (

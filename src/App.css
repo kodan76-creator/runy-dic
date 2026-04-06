@@ -10,11 +10,21 @@ body {
 /* Главный контейнер */
 .container {
   display: flex;
-  align-items: flex-start;
-  gap: 40px;
-  padding: 40px;
+  flex-direction: column;
+  align-items: center; /* Всё по центру */
+  padding: 40px 20px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Верхняя часть: логотип + поиск */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  width: 100%;
 }
 
 /* Логотип */
@@ -22,22 +32,16 @@ body {
   width: 130px;
   height: 119px;
   object-fit: contain;
-  flex-shrink: 0;
-}
-
-/* Блок с контентом */
-.content {
-  flex: 1;
 }
 
 /* Поле поиска */
 .search-input {
   width: 100%;
+  max-width: 600px; /* Ограничиваем ширину поиска */
   padding: 12px;
   font-size: 16px;
   border: 2px solid #aa3bff;
   border-radius: 8px;
-  margin-bottom: 20px;
   box-sizing: border-box;
   background-color: #ffffffcc;
   color: #000000;
@@ -55,27 +59,36 @@ body {
   color: #666666;
 }
 
+/* Контейнер для результатов */
+.results {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Карточки по центру */
+  gap: 12px;
+  width: 100%;
+}
+
 /* Карточка слова */
 .card {
   background-color: #c084fc;
   padding: 16px;
   border-radius: 8px;
   border-left: 4px solid #aa3bff;
-  margin-bottom: 12px;
   color: #ffffff;
-  width: fit-content;
-  min-width: 300px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 600px; /* Все карточки одинаковой ширины */
+  box-sizing: border-box;
 }
 
-/* Слово (шрифт Dao Rus, жёлтый) */
+/* Слово (шрифт Dao Rus, жёлтый, размер 35px) */
 .word {
   font-family: 'Dao Rus', sans-serif;
   font-weight: normal;
-  font-size: 35px;
+  font-size: 35px; /* ← Увеличенный размер */
   color: #FFD700;
   margin: 0 0 8px 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: center; /* По центру */
 }
 
 /* Перевод */
@@ -84,15 +97,16 @@ body {
   color: #ffffff;
   margin: 0 0 8px 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 /* Контейнер для примеров */
 .examples {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 4px;
-  font-size: 18px;
 }
 
 /* Первый пример */
@@ -100,13 +114,12 @@ body {
   font-style: italic;
   color: #9c27b0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 16px;
 }
 
 /* Тире между примерами */
 .dash {
   color: #9c27b0;
-  /* font-weight: bold; */
+  font-weight: bold;
 }
 
 /* Второй пример (шрифт Dao Rus) */
@@ -115,22 +128,20 @@ body {
   font-style: italic;
   color: #9c27b0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 22px;
-}
-
-/* Контейнер для результатов */
-.results {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: fit-content;
 }
 
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
+    padding: 20px 10px;
+  }
+  
+  .search-input,
+  .card {
+    max-width: 100%;
+  }
+  
+  .word {
+    font-size: 28px; /* Чуть меньше на мобильных */
   }
 }
