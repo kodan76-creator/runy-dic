@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from './firebase'
 import AdminPanel from './AdminPanel'
@@ -10,8 +10,7 @@ function Home() {
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Загрузка слов из Firebase при старте
-  useMemo(() => {
+  useEffect(() => {
     const loadWords = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'dictionary'))
@@ -39,6 +38,22 @@ function Home() {
   if (loading) {
     return (
       <div className="container">
+        <div className="header">
+          <img 
+            src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
+            alt="Logo" 
+            className="logo"
+            width="130"
+            height="119"
+          />
+          <input 
+            type="text" 
+            placeholder="Поиск слова..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
         <div className="loading">Загрузка словаря...</div>
       </div>
     )
@@ -88,10 +103,9 @@ function Home() {
   )
 }
 
-// Главный компонент с роутингом
 function App() {
   return (
-    <Router>
+    <Router basename="/runy-dic">  {/* ← ДОБАВЛЕНО basename */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<AdminPanel />} />
