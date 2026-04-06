@@ -30,8 +30,10 @@ body {
   align-items: center;
   gap: 20px;
   padding: 20px;
-  background-color: #aa3bff40; /* Тот же цвет что у body */
+  background-color: #aa3bff;   /* Или полностью непрозрачный: background-color: #aa3bff; */
+  backdrop-filter: blur(10px); /* ← Размытие фона (опционально) */
   z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ← Тень для разделения */
 }
 
 /* Логотип */
