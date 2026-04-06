@@ -1,20 +1,51 @@
 import { useState, useMemo } from 'react'
-import dictionary from './data/dictionary.json'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from './firebase'
+import AdminPanel from './AdminPanel'
 import './App.css'
 
-function App() {
+function Home() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [words, setWords] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Загрузка слов из Firebase при старте
+  useMemo(() => {
+    const loadWords = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'dictionary'))
+        const wordsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        setWords(wordsList)
+      } catch (err) {
+        console.error('Ошибка загрузки:', err)
+      }
+      setLoading(false)
+    }
+    
+    loadWords()
+  }, [])
 
   const filteredData = useMemo(() => {
-    return dictionary.filter(item =>
+    return words.filter(item =>
       item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.translation.toLowerCase().includes(searchTerm.toLowerCase())
     )
-  }, [searchTerm])
+  }, [searchTerm, words])
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="loading">Загрузка словаря...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="container">
-      {/* Верхняя часть: логотип + поиск по центру */}
       <div className="header">
         <img 
           src="https://kodan76-creator.github.io/runy-dic/run_r.png" 
@@ -32,7 +63,6 @@ function App() {
         />
       </div>
       
-      {/* Карточки слов */}
       <div className="results">
         {filteredData.length > 0 ? (
           filteredData.map(item => (
@@ -55,6 +85,18 @@ function App() {
         )}
       </div>
     </div>
+  )
+}
+
+// Главный компонент с роутингом
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<AdminPanel />} />
+      </Routes>
+    </Router>
   )
 }
 
