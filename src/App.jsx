@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'  // ← HashRouter
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'  // ← Добавьте orderBy
 import { db } from './firebase'
 import AdminPanel from './AdminPanel'
 import './App.css'
@@ -13,11 +13,11 @@ function Home() {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const querySnapshot = await getDocs(
+        const q = query(
           collection(db, 'dictionary'),
-          // Сортировка по дате создания (старые сначала → новые в конце)
-          (q) => q.orderBy('createdAt', 'asc')
+          orderBy('createdAt')  // ← Сортировка: старые → новые
         )
+        const querySnapshot = await getDocs(q)
         const wordsList = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
