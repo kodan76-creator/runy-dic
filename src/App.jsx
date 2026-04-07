@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'  // ← HashRouter
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'  // ← Добавьте orderBy
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from './firebase'
 import AdminPanel from './AdminPanel'
 import './App.css'
@@ -15,7 +15,7 @@ function Home() {
       try {
         const q = query(
           collection(db, 'dictionary'),
-          orderBy('createdAt')  // ← Сортировка: старые → новые
+          orderBy('createdAt', 'asc')
         )
         const querySnapshot = await getDocs(q)
         const wordsList = querySnapshot.docs.map(doc => ({
@@ -28,16 +28,17 @@ function Home() {
       }
       setLoading(false)
     }
-
     loadWords()
   }, [])
 
   const filteredData = useMemo(() => {
     return words.filter(item =>
-      item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase()))
+      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }, [searchTerm, words])
 
@@ -88,7 +89,12 @@ function Home() {
         {filteredData.length > 0 ? (
           filteredData.map(item => (
             <div key={item.id} className="card">
-              <h3 className="word">{item.word}</h3>
+              <div className="word-row">
+                <h3 className="word">{item.word}</h3>
+                {item.transcription && (
+                  <span className="transcription">[{item.transcription}]</span>
+                )}
+              </div>
               <p className="translation">{item.translation}</p>
               <div className="examples">
                 <span className="example">{item.example}</span>
@@ -96,6 +102,9 @@ function Home() {
                   <>
                     <span className="dash"> — </span>
                     <span className="example2">{item.example2}</span>
+                    {item.transcription2 && (
+                      <span className="transcription2"> [{item.transcription2}]</span>
+                    )}
                   </>
                 )}
               </div>
@@ -111,7 +120,7 @@ function Home() {
 
 function App() {
   return (
-    <Router>  {/* ← HashRouter не требует basename! */}
+    <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<AdminPanel />} />

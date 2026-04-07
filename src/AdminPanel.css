@@ -175,41 +175,114 @@
 .word-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   background: #c084fc;
   padding: 20px;
   border-radius: 8px;
   border-left: 4px solid #7b1fa2;
+  line-height: 1.5;
 }
 
 .word-content {
   flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Строка с word и transcription */
+.word-item .word-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  line-height: 1.5;
+  width: 100%;
 }
 
 .word-title {
-  margin: 0 0 8px 0;
-  font-size: 24px;
+  margin: 0;
+  font-size: 45px;
   color: #FFD700;
   font-family: 'Dao Rus', sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
+}
+
+.word-transcription {
+  margin: 0;
+  color: #e9d5ff;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.5;
 }
 
 .word-translation {
   margin: 0 0 8px 0;
   color: white;
   font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.5;
 }
 
-.word-example,
-.word-example2 {
-  margin: 4px 0;
-  color: #e9d5ff;
+/* Контейнер для примеров */
+.word-item .examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.5;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.word-example {
+  margin: 0;
+  color: #9c27b0;
   font-style: italic;
-  font-size: 14px;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1.5;
+}
+
+.word-dash {
+  color: #9c27b0;
+  font-weight: bold;
+  margin: 0 4px;
+}
+
+.word-example2 {
+  margin: 0;
+  font-family: 'Dao Rus', sans-serif;
+  font-style: italic;
+  color: #9c27b0;
+  font-size: 25px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  line-height: 1.3;
+}
+
+/* Транскрипция примера 2 */
+.word-transcription2 {
+  margin: 0 0 0 8px;
+  font-family: sans-serif;
+  font-size: 18px;
+  color: #9c27b0;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .word-actions {
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .edit-btn,
@@ -263,12 +336,21 @@
   
   .word-item {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
   }
   
   .word-actions {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
+  }
+  
+  .word-title {
+    font-size: 32px;
+  }
+  
+  .word-example2,
+  .word-transcription2 {
+    font-size: 20px;
   }
 }
