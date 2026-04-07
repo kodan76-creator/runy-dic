@@ -392,7 +392,7 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
-    padding-top: 250px; /* ← ИЗМЕНЕНО с 330px на 270px */
+    padding-top: 230px; /* ← ИЗМЕНЕНО с 330px на 270px */
     padding-left: 10px;
     padding-right: 10px;
   }
