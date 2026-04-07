@@ -216,7 +216,7 @@
 .words-list {
   background: white;
   padding: 30px;
-  padding-top: 180px; /* ← ИЗМЕНЕНО с 310px на 180px */
+  padding-top: 310px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -434,7 +434,7 @@
   }
   
   .words-list {
-    padding-top: 200px; /* ← Уменьшено пропорционально для мобильных */
+    padding-top: 180px; /* ← ИЗМЕНЕНО с 350px на 180px */
   }
   
   .word-item {
