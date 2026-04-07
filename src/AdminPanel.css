@@ -61,7 +61,7 @@
   min-height: 100vh;
   background-color: #aa3bff40;
   padding: 20px;
-  padding-top: 270px; /* ← ИЗМЕНЕНО с 340px на 270px */
+  padding-top: 270px;
 }
 
 /* ЕДИНЫЙ ФИКСИРОВАННЫЙ КОНТЕЙНЕР (шапка + форма) */
@@ -392,7 +392,7 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
-    padding-top: 330px; /* ← Уменьшено пропорционально */
+    padding-top: 300px; /* ← ИЗМЕНЕНО с 330px на 300px */
     padding-left: 10px;
     padding-right: 10px;
   }
