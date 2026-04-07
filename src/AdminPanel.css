@@ -119,8 +119,8 @@
 /* Форма внутри фиксированного контейнера */
 .form-section {
   background: white;
-  padding: 10px; /* ← ИЗМЕНЕНО с 20px на 10px */
-  padding-bottom: 0; /* ← ДОБАВЛЕНО */
+  padding: 20px;
+  padding-bottom: 10px; /* ← ДОБАВЛЕНО */
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 3px solid #7b1fa2;
@@ -142,7 +142,6 @@
   text-align: center;
   font-size: 18px;
   padding-top: 15px;
-  padding-bottom: 10px; /* ← Отступ снизу для компенсации */
 }
 
 /* Поля ввода как в поиске */
@@ -394,7 +393,7 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
-    padding-top: 180px; /* ← ИЗМЕНЕНО с 330px на 180px */
+    padding-top: 350px; /* ← ИЗМЕНЕНО с 330px на 350px */
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -412,7 +411,7 @@
   }
   
   .form-section {
-    padding: 10px; /* ← ИЗМЕНЕНО */
+    padding: 10px; /* ← ИЗМЕНЕНО с 15px на 10px */
     padding-bottom: 0; /* ← ДОБАВЛЕНО */
     border-radius: 0 0 12px 12px;
   }
@@ -432,11 +431,10 @@
     font-size: 16px;
     margin-top: 15px;
     padding-top: 12px;
-    padding-bottom: 8px; /* ← Отступ снизу для мобильных */
   }
   
   .words-list {
-    padding-top: 350px; /* ← Пропорционально уменьшено */
+    padding-top: 350px;
   }
   
   .word-item {
