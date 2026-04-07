@@ -21,6 +21,7 @@ function AdminPanel() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Проверка авторизации
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
@@ -31,6 +32,7 @@ function AdminPanel() {
     return () => unsubscribe()
   }, [])
 
+  // Загрузка слов из Firebase
   const loadWords = async () => {
     setLoading(true)
     try {
@@ -46,6 +48,7 @@ function AdminPanel() {
     setLoading(false)
   }
 
+  // Вход в систему
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -56,11 +59,13 @@ function AdminPanel() {
     }
   }
 
+  // Выход
   const handleLogout = async () => {
     await signOut(auth)
     setWords([])
   }
 
+  // Добавление/редактирование
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -68,15 +73,18 @@ function AdminPanel() {
 
     try {
       if (editingId) {
+        // Редактирование (не меняем createdAt)
         const wordRef = doc(db, 'dictionary', editingId)
         await updateDoc(wordRef, formData)
       } else {
+        // Добавление нового слова
         await addDoc(collection(db, 'dictionary'), {
           ...formData,
           createdAt: new Date().toISOString()
         })
       }
       
+      // Очистка формы и перезагрузка
       setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
       setEditingId(null)
       await loadWords()
@@ -86,6 +94,7 @@ function AdminPanel() {
     setLoading(false)
   }
 
+  // Редактирование
   const handleEdit = (word) => {
     setEditingId(word.id)
     setFormData({
@@ -98,6 +107,7 @@ function AdminPanel() {
     })
   }
 
+  // Удаление
   const handleDelete = async (id) => {
     if (window.confirm('Удалить эту карточку?')) {
       try {
@@ -109,19 +119,33 @@ function AdminPanel() {
     }
   }
 
+  // Отмена редактирования
   const handleCancel = () => {
     setEditingId(null)
     setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
   }
 
+  // Форма входа
   if (!user) {
     return (
       <div className="admin-login">
         <div className="login-box">
           <h2>🔐 Админ-панель</h2>
           <form onSubmit={handleLogin}>
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
             {error && <div className="error">{error}</div>}
             <button type="submit" className="login-btn">Войти</button>
           </form>
@@ -130,38 +154,83 @@ function AdminPanel() {
     )
   }
 
+  // Админ-панель
   return (
     <div className="admin-panel">
-      <div className="admin-header">
-        <h2>⚙️ Управление словарём</h2>
-        <div className="admin-info">
-          <span>{user.email}</span>
-          <button onClick={handleLogout} className="logout-btn">Выйти</button>
+      {/* ЕДИНЫЙ ФИКСИРОВАННЫЙ КОНТЕЙНЕР */}
+      <div className="admin-fixed-container">
+        {/* Шапка */}
+        <div className="admin-header">
+          <h2>⚙️ Управление словарём</h2>
+          <div className="admin-info">
+            <span>{user.email}</span>
+            <button onClick={handleLogout} className="logout-btn">Выйти</button>
+          </div>
         </div>
-      </div>
 
-      <div className="admin-content">
+        {/* Форма */}
         <div className="form-section">
           <h3>{editingId ? '✏️ Редактировать' : '➕ Добавить слово'}</h3>
           <form onSubmit={handleSubmit} className="word-form">
-            <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={(e) => setFormData({...formData, word: e.target.value})} required />
-            <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={(e) => setFormData({...formData, transcription: e.target.value})} />
-            <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={(e) => setFormData({...formData, translation: e.target.value})} required />
-            <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={(e) => setFormData({...formData, example: e.target.value})} />
-            <input type="text" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={(e) => setFormData({...formData, example2: e.target.value})} />
-            <input type="text" placeholder="Транскрипция примера 2" value={formData.transcription2} onChange={(e) => setFormData({...formData, transcription2: e.target.value})} />
+            <input
+              type="text"
+              placeholder="Слово на рунном языке"
+              value={formData.word}
+              onChange={(e) => setFormData({...formData, word: e.target.value})}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Транскрипция"
+              value={formData.transcription}
+              onChange={(e) => setFormData({...formData, transcription: e.target.value})}
+            />
+            <input
+              type="text"
+              placeholder="Перевод (на русском языке)"
+              value={formData.translation}
+              onChange={(e) => setFormData({...formData, translation: e.target.value})}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Пример (на русском языке)"
+              value={formData.example}
+              onChange={(e) => setFormData({...formData, example: e.target.value})}
+            />
+            <input
+              type="text"
+              placeholder="Пример (на рунном языке)"
+              value={formData.example2}
+              onChange={(e) => setFormData({...formData, example2: e.target.value})}
+            />
+            <input
+              type="text"
+              placeholder="Транскрипция примера 2"
+              value={formData.transcription2}
+              onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
+            />
             <div className="form-buttons">
               <button type="submit" className="save-btn" disabled={loading}>
                 {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
               </button>
-              {editingId && <button type="button" onClick={handleCancel} className="cancel-btn">Отмена</button>}
+              {editingId && (
+                <button type="button" onClick={handleCancel} className="cancel-btn">
+                  Отмена
+                </button>
+              )}
             </div>
             {error && <div className="error">{error}</div>}
           </form>
+          
+          {/* Счётчик слов под кнопкой "Добавить" */}
+          <h3 className="words-count">📚 Все слова ({words.length})</h3>
         </div>
+      </div>
 
+      {/* Прокручиваемый контент */}
+      <div className="admin-content">
         <div className="words-list">
-          <h3>📚 Все слова ({words.length})</h3>
           {loading && !editingId && <div className="loading">Загрузка...</div>}
           <div className="words-grid">
             {words.map(word => (
@@ -188,8 +257,12 @@ function AdminPanel() {
                   </div>
                 </div>
                 <div className="word-actions">
-                  <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-                  <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
+                  <button onClick={() => handleEdit(word)} className="edit-btn">
+                    ✏️
+                  </button>
+                  <button onClick={() => handleDelete(word.id)} className="delete-btn">
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))}
