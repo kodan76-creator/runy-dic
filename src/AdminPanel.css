@@ -120,7 +120,7 @@
 .form-section {
   background: white;
   padding: 20px;
-  padding-bottom: 10px; /* ← ДОБАВЛЕНО */
+  padding-bottom: 10px;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 3px solid #7b1fa2;
@@ -216,7 +216,7 @@
 .words-list {
   background: white;
   padding: 30px;
-  padding-top: 310px;
+  padding-top: 180px; /* ← ИЗМЕНЕНО с 310px на 180px */
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -393,7 +393,7 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
-    padding-top: 350px; /* ← ИЗМЕНЕНО с 330px на 350px */
+    padding-top: 350px;
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -411,8 +411,8 @@
   }
   
   .form-section {
-    padding: 10px; /* ← ИЗМЕНЕНО с 15px на 10px */
-    padding-bottom: 0; /* ← ДОБАВЛЕНО */
+    padding: 10px;
+    padding-bottom: 0;
     border-radius: 0 0 12px 12px;
   }
   
@@ -434,7 +434,7 @@
   }
   
   .words-list {
-    padding-top: 180px;
+    padding-top: 200px; /* ← Уменьшено пропорционально для мобильных */
   }
   
   .word-item {
