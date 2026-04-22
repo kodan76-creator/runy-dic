@@ -180,7 +180,17 @@ function AdminPanel() {
 
         {/* Форма */}
         <div className="form-section">
-          {/* ← УБРАН ЗАГОЛОВОК h3 */}
+          {/* ← Поле поиска ПЕРЕМЕЩЕНО НАВЕРХ */}
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="🔍 Поиск слова..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
           <form onSubmit={handleSubmit} className="word-form">
             <input
               type="text"
@@ -235,17 +245,6 @@ function AdminPanel() {
           
           {/* Счётчик слов под кнопкой "Добавить" */}
           <h3 className="words-count">📚 Все слова ({words.length})</h3>
-          
-          {/* Поле поиска */}
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="🔍 Поиск слова..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
         </div>
       </div>
 
