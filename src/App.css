@@ -12,7 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 241px;
+  padding-top: 280px;
   padding-left: 20px;
   padding-right: 20px;
   max-width: 1200px;
@@ -81,7 +81,7 @@ body {
 /* Карточка слова */
 .card {
   background-color: #c084fc;
-  padding: 16px;
+  padding: 20px; /* ← Увеличено с 16px */
   border-radius: 8px;
   border-left: 6px solid #7b1fa2;
   border: 2px solid #7b1fa2;
@@ -89,26 +89,48 @@ body {
   width: 100%;
   max-width: 600px;
   box-sizing: border-box;
+  line-height: 1.6; /* ← Общий межстрочный интервал */
 }
 
-/* Слово (шрифт Dao Rus, жёлтый, размер 35px) */
+/* Строка с word и transcription */
+.word-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px; /* ← Увеличено */
+  flex-wrap: wrap;
+  line-height: 1.5; /* ← Межстрочный интервал */
+}
+
+/* Слово (шрифт Dao Rus, жёлтый, размер 45px) */
 .word {
   font-family: 'Dao Rus', sans-serif;
   font-weight: normal;
   font-size: 45px;
   color: #FFD700;
-  margin: 0 0 8px 0;
+  margin: 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   text-align: center;
+  line-height: 1.4; /* ← Межстрочный интервал для рунического текста */
+}
+
+/* Транскрипция слова */
+.transcription {
+  font-size: 20px;
+  color: #e9d5ff;
+  font-style: italic;
+  line-height: 1.5;
 }
 
 /* Перевод */
 .translation {
   font-size: 18px;
   color: #ffffff;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0; /* ← Увеличено */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   text-align: center;
+  line-height: 1.6; /* ← Межстрочный интервал */
 }
 
 /* Контейнер для примеров */
@@ -118,6 +140,8 @@ body {
   justify-content: center;
   align-items: center;
   gap: 4px;
+  line-height: 1.6; /* ← Межстрочный интервал */
+  margin-top: 12px;
 }
 
 /* Первый пример */
@@ -126,6 +150,7 @@ body {
   color: #9c27b0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   font-size: 18px;
+  line-height: 1.6; /* ← Межстрочный интервал */
 }
 
 /* Тире между примерами */
@@ -138,26 +163,11 @@ body {
 .example2 {
   font-family: 'Dao Rus', sans-serif;
   font-style: italic;
-  color: #FFD700;
+  color: #9c27b0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   font-size: 25px;
-  transform: translateY(-2px); /* ← Приподнять на 2px */
-}
-
-.word-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-
-/* Транскрипция слова */
-.transcription {
-  font-size: 20px;
-  color: #e9d5ff;
-  font-style: italic;
+  transform: translateY(-2px);
+  line-height: 1.4; /* ← Межстрочный интервал для рунического текста */
 }
 
 /* Транскрипция примера 2 */
@@ -167,12 +177,13 @@ body {
   color: #9c27b0;
   font-style: italic;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1.6;
 }
 
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
-    padding-top: 240px;
+    padding-top: 300px;
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -188,5 +199,9 @@ body {
   
   .word {
     font-size: 32px;
+  }
+  
+  .card {
+    padding: 15px;
   }
 }
