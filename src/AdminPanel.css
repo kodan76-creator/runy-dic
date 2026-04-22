@@ -1,12 +1,31 @@
-/* Секция поиска */
-.search-section {
-  position: relative;
-  margin-bottom: 20px;
+/* Страница входа */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #aa3bff40;
 }
 
-.search-input {
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   width: 100%;
-  padding: 12px 45px 12px 15px;
+  max-width: 400px;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #aa3bff;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
   border: 3px solid #7b1fa2;
   border-radius: 8px;
   font-size: 16px;
@@ -14,66 +33,427 @@
   background-color: #ffffff;
   color: #000000;
   outline: none;
-  transition: all 0.3s;
 }
 
-.search-input:focus {
-  border: 3px solid #aa3bff;
-  box-shadow: 0 0 12px rgba(170, 59, 255, 0.4);
+.login-box input:focus {
+  border: 3px solid #7b1fa2;
+  box-shadow: 0 0 12px rgba(123, 31, 162, 0.6);
 }
 
-.search-input::placeholder {
-  color: #999999;
-}
-
-.clear-search {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #f44336;
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #aa3bff;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
+  border-radius: 8px;
   font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-btn:hover {
+  background: #7b1fa2;
+}
+
+/* Админ-панель */
+.admin-panel {
+  min-height: 100vh;
+  background-color: #aa3bff40;
+  padding: 20px;
+  padding-top: 270px;
+}
+
+/* ЕДИНЫЙ ФИКСИРОВАННЫЙ КОНТЕЙНЕР (шапка + форма) */
+.admin-fixed-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  z-index: 1000;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Шапка внутри фиксированного контейнера */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #aa3bff;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-bottom: 3px solid #7b1fa2;
+}
+
+.admin-header h2 {
+  margin: 0;
+  color: white;
+}
+
+.admin-info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  gap: 15px;
+  color: white;
 }
 
-.clear-search:hover {
-  background: #d32f2f;
-  transform: translateY(-50%) scale(1.1);
+.logout-btn {
+  padding: 8px 16px;
+  background: #7b1fa2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.found-words {
-  margin: 20px 0;
+.logout-btn:hover {
+  background: #5e1780;
+}
+
+/* Форма внутри фиксированного контейнера */
+.form-section {
+  background: white;
+  padding: 20px;
+  padding-bottom: 10px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 3px solid #7b1fa2;
+  border-top: none;
+}
+
+.form-section h3 {
+  margin-top: 0;
+  color: #aa3bff;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 20px;
+}
+
+/* Счётчик слов под кнопкой "Добавить" */
+.words-count {
+  margin: 20px 0 0 0;
   color: #aa3bff;
   text-align: center;
   font-size: 18px;
+  padding-top: 15px;
 }
 
-.no-results {
-  text-align: center;
-  padding: 40px;
+/* Поля ввода как в поиске */
+.word-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 3px solid #7b1fa2;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.word-form input:focus {
+  border: 3px solid #7b1fa2;
+  box-shadow: 0 0 12px rgba(123, 31, 162, 0.6);
+}
+
+.word-form input::placeholder {
   color: #666666;
-  font-size: 18px;
 }
 
-/* Адаптивность для поиска */
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.save-btn {
+  background: #aa3bff;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #7b1fa2;
+}
+
+.save-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: #9e9e9e;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #757575;
+}
+
+/* Контент */
+.admin-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Список слов */
+.words-list {
+  background: white;
+  padding: 30px;
+  padding-top: 310px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.words-list h3 {
+  margin-top: 0;
+  color: #aa3bff;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.words-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.word-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #c084fc;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #7b1fa2;
+  border-left: 6px solid #7b1fa2;
+  line-height: 1.5;
+}
+
+.word-content {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Строка с word и transcription */
+.word-item .word-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  line-height: 1.5;
+  width: 100%;
+}
+
+.word-title {
+  margin: 0;
+  font-size: 45px;
+  color: #FFD700;
+  font-family: 'Dao Rus', sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
+}
+
+/* Транскрипция слова - смещена на 2px вниз */
+.word-transcription {
+  margin: 0;
+  color: #e9d5ff;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.5;
+  transform: translateY(2px);
+}
+
+.word-translation {
+  margin: 0 0 8px 0;
+  color: white;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.5;
+}
+
+/* Контейнер для примеров */
+.word-item .examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.5;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.word-example {
+  margin: 0;
+  color: #9c27b0;
+  font-style: italic;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1.5;
+}
+
+.word-dash {
+  color: #9c27b0;
+  font-weight: bold;
+  margin: 0 4px;
+}
+
+.word-example2 {
+  margin: 0;
+  font-family: 'Dao Rus', sans-serif;
+  font-style: italic;
+  color: #FFD700;
+  font-size: 25px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  line-height: 1.3;
+}
+
+/* Транскрипция примера 2 */
+.word-transcription2 {
+  margin: 0 0 0 8px;
+  font-family: sans-serif;
+  font-size: 18px;
+  color: #9c27b0;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.word-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.edit-btn {
+  background: #2196f3;
+}
+
+.edit-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background: #f44336;
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Ошибки и загрузка */
+.error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
-  .search-input {
-    padding: 10px 40px 10px 12px;
-    font-size: 14px;
+  .admin-panel {
+    padding-top: 350px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
-  .clear-search {
-    width: 28px;
-    height: 28px;
-    right: 8px;
+  .admin-fixed-container {
+    padding: 0 10px;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    border-radius: 12px 12px 0 0;
+    padding: 12px 15px;
+  }
+  
+  .form-section {
+    padding: 10px;
+    padding-bottom: 0;
+    border-radius: 0 0 12px 12px;
+  }
+  
+  .form-section h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  
+  .word-form input {
+    padding: 8px;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  
+  .words-count {
+    font-size: 16px;
+    margin-top: 15px;
+    padding-top: 12px;
+  }
+  
+  .words-list {
+    padding-top: 180px; /* ← ИЗМЕНЕНО с 350px на 180px */
+  }
+  
+  .word-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .word-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .word-title {
+    font-size: 32px;
+  }
+  
+  .word-example2,
+  .word-transcription2 {
+    font-size: 20px;
   }
 }

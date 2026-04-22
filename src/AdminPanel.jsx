@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from './firebase'
@@ -20,7 +20,6 @@ function AdminPanel() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [searchTerm, setSearchTerm] = useState('') // ← Добавлено состояние для поиска
 
   // Проверка авторизации
   useEffect(() => {
@@ -125,21 +124,6 @@ function AdminPanel() {
     setEditingId(null)
     setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
   }
-
-  // Фильтрация слов по поиску
-  const filteredWords = useMemo(() => {
-    if (!searchTerm.trim()) return words
-    
-    const term = searchTerm.toLowerCase()
-    return words.filter(word =>
-      word.word?.toLowerCase().includes(term) ||
-      word.translation?.toLowerCase().includes(term) ||
-      word.transcription?.toLowerCase().includes(term) ||
-      word.example?.toLowerCase().includes(term) ||
-      word.example2?.toLowerCase().includes(term) ||
-      word.transcription2?.toLowerCase().includes(term)
-    )
-  }, [words, searchTerm])
 
   // Форма входа
   if (!user) {
@@ -247,75 +231,41 @@ function AdminPanel() {
       {/* Прокручиваемый контент */}
       <div className="admin-content">
         <div className="words-list">
-          {/* ← ДОБАВЛЕНО: Поле поиска */}
-          <div className="search-section">
-            <input
-              type="text"
-              placeholder="🔍 Поиск слова..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button 
-                onClick={() => setSearchTerm('')} 
-                className="clear-search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          
           {loading && !editingId && <div className="loading">Загрузка...</div>}
-          
-          {/* Показываем количество найденных слов */}
-          <h3 className="found-words">
-            {searchTerm 
-              ? `🔍 Найдено: ${filteredWords.length}` 
-              : `📚 Все слова (${words.length})`
-            }
-          </h3>
-          
           <div className="words-grid">
-            {filteredWords.length > 0 ? (
-              filteredWords.map(word => (
-                <div key={word.id} className="word-item">
-                  <div className="word-content">
-                    <div className="word-row">
-                      <h4 className="word-title">{word.word}</h4>
-                      {word.transcription && (
-                        <span className="word-transcription">[{word.transcription}]</span>
-                      )}
-                    </div>
-                    <p className="word-translation">{word.translation}</p>
-                    <div className="examples">
-                      {word.example && <span className="word-example">{word.example}</span>}
-                      {word.example2 && (
-                        <>
-                          <span className="word-dash"> — </span>
-                          <span className="word-example2">{word.example2}</span>
-                        </>
-                      )}
-                      {word.transcription2 && (
-                        <span className="word-transcription2">[{word.transcription2}]</span>
-                      )}
-                    </div>
+            {words.map(word => (
+              <div key={word.id} className="word-item">
+                <div className="word-content">
+                  <div className="word-row">
+                    <h4 className="word-title">{word.word}</h4>
+                    {word.transcription && (
+                      <span className="word-transcription">[{word.transcription}]</span>
+                    )}
                   </div>
-                  <div className="word-actions">
-                    <button onClick={() => handleEdit(word)} className="edit-btn">
-                      ✏️
-                    </button>
-                    <button onClick={() => handleDelete(word.id)} className="delete-btn">
-                      🗑️
-                    </button>
+                  <p className="word-translation">{word.translation}</p>
+                  <div className="examples">
+                    {word.example && <span className="word-example">{word.example}</span>}
+                    {word.example2 && (
+                      <>
+                        <span className="word-dash"> — </span>
+                        <span className="word-example2">{word.example2}</span>
+                      </>
+                    )}
+                    {word.transcription2 && (
+                      <span className="word-transcription2">[{word.transcription2}]</span>
+                    )}
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="no-results">
-                {searchTerm ? '😕 Ничего не найдено' : '📭 Слова ещё не добавлены'}
+                <div className="word-actions">
+                  <button onClick={() => handleEdit(word)} className="edit-btn">
+                    ✏️
+                  </button>
+                  <button onClick={() => handleDelete(word.id)} className="delete-btn">
+                    🗑️
+                  </button>
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>
