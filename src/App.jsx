@@ -32,39 +32,34 @@ function Home() {
     loadWords()
   }, [])
 
-  // ← Функция воспроизведения аудио
-  const playAudio = (wordId, audioFile) => {
-    if (!audioFile) return
-    
-    // Если уже играет этот файл - останавливаем
-    if (playingId === wordId) {
-      const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
-      if (existingAudio) {
-        existingAudio.pause()
-        existingAudio.currentTime = 0
-      }
-      setPlayingId(null)
-      return
+const playAudio = (wordId, audioFile) => {
+  if (!audioFile) return
+  
+  if (playingId === wordId) {
+    const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
+    if (existingAudio) {
+      existingAudio.pause()
+      existingAudio.currentTime = 0
     }
-    
-    // Останавливаем предыдущее воспроизведение
-    const allAudios = document.querySelectorAll('audio')
-    allAudios.forEach(audio => {
-      audio.pause()
-      audio.currentTime = 0
-    })
-    
-    // Воспроизводим новый файл
-    const audio = new Audio(`/runy-dic/audio/${audioFile}`)
-    audio.dataset.id = wordId
-    audio.play()
-    setPlayingId(wordId)
-    
-    // Сбрасываем состояние после окончания
-    audio.onended = () => {
-      setPlayingId(null)
-    }
+    setPlayingId(null)
+    return
   }
+  
+  const allAudios = document.querySelectorAll('audio')
+  allAudios.forEach(audio => {
+    audio.pause()
+    audio.currentTime = 0
+  })
+  
+  const audio = new Audio(`/audio/${audioFile}`)  // ← Исправленный путь
+  audio.dataset.id = wordId
+  audio.play()
+  setPlayingId(wordId)
+  
+  audio.onended = () => {
+    setPlayingId(null)
+  }
+}
 
   const filteredData = useMemo(() => {
     return words.filter(item =>
