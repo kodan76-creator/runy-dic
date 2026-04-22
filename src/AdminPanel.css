@@ -426,6 +426,14 @@
   font-size: 18px;
 }
 
+/* ← Audio файл в списке слов */
+.word-audio {
+  margin: 8px 0 0 0;
+  color: #e9d5ff;
+  font-size: 14px;
+  font-style: italic;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {

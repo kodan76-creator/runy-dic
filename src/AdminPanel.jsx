@@ -16,7 +16,8 @@ function AdminPanel() {
     translation: '',
     example: '',
     example2: '',
-    transcription2: ''
+    transcription2: '',
+    audio: ''  // ← Добавлено поле audio
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -95,7 +96,7 @@ function AdminPanel() {
         })
       }
       
-      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
+      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '' })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -113,7 +114,8 @@ function AdminPanel() {
       translation: word.translation || '',
       example: word.example || '',
       example2: word.example2 || '',
-      transcription2: word.transcription2 || ''
+      transcription2: word.transcription2 || '',
+      audio: word.audio || ''
     })
   }
 
@@ -132,7 +134,7 @@ function AdminPanel() {
   // Отмена редактирования
   const handleCancel = () => {
     setEditingId(null)
-    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
+    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '' })
   }
 
   // Форма входа
@@ -180,7 +182,7 @@ function AdminPanel() {
 
         {/* Форма */}
         <div className="form-section">
-          {/* ← Поле поиска ПЕРЕМЕЩЕНО НАВЕРХ */}
+          {/* Поле поиска */}
           <div className="search-container">
             <input
               type="text"
@@ -230,6 +232,12 @@ function AdminPanel() {
               value={formData.transcription2}
               onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
             />
+            <input
+              type="text"
+              placeholder="Audio файл (например: word1.mp3)"
+              value={formData.audio}
+              onChange={(e) => setFormData({...formData, audio: e.target.value})}
+            />
             <div className="form-buttons">
               <button type="submit" className="save-btn" disabled={loading}>
                 {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
@@ -276,6 +284,9 @@ function AdminPanel() {
                         <span className="word-transcription2">[{word.transcription2}]</span>
                       )}
                     </div>
+                    {word.audio && (
+                      <p className="word-audio"> {word.audio}</p>
+                    )}
                   </div>
                   <div className="word-actions">
                     <button onClick={() => handleEdit(word)} className="edit-btn">

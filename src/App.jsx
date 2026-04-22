@@ -9,7 +9,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [playingId, setPlayingId] = useState(null) // ← ID воспроизводимого слова
+  const [playingId, setPlayingId] = useState(null) // ← Для отслеживания воспроизведения
 
   useEffect(() => {
     const loadWords = async () => {
@@ -32,6 +32,40 @@ function Home() {
     loadWords()
   }, [])
 
+  // ← Функция воспроизведения аудио
+  const playAudio = (wordId, audioFile) => {
+    if (!audioFile) return
+    
+    // Если уже играет этот файл - останавливаем
+    if (playingId === wordId) {
+      const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
+      if (existingAudio) {
+        existingAudio.pause()
+        existingAudio.currentTime = 0
+      }
+      setPlayingId(null)
+      return
+    }
+    
+    // Останавливаем предыдущее воспроизведение
+    const allAudios = document.querySelectorAll('audio')
+    allAudios.forEach(audio => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+    
+    // Воспроизводим новый файл
+    const audio = new Audio(`/runy-dic/audio/${audioFile}`)
+    audio.dataset.id = wordId
+    audio.play()
+    setPlayingId(wordId)
+    
+    // Сбрасываем состояние после окончания
+    audio.onended = () => {
+      setPlayingId(null)
+    }
+  }
+
   const filteredData = useMemo(() => {
     return words.filter(item =>
       item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,18 +76,6 @@ function Home() {
       (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }, [searchTerm, words])
-
-  // Функция воспроизведения аудио
-  const playAudio = (word) => {
-    if (word.audio) {
-      const audio = new Audio(word.audio)
-      audio.play()
-      setPlayingId(word.id)
-      audio.onended = () => {
-        setPlayingId(null)
-      }
-    }
-  }
 
   if (loading) {
     return (
@@ -105,11 +127,11 @@ function Home() {
               {/* ← Кнопка воспроизведения в левом верхнем углу */}
               {item.audio && (
                 <button
-                  className={`play-btn ${playingId === item.id ? 'playing' : ''}`}
-                  onClick={() => playAudio(item)}
+                  className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
+                  onClick={() => playAudio(item.id, item.audio)}
                   title="Воспроизвести"
                 >
-                  {playingId === item.id ? '🔊' : '🔈'}
+                  {playingId === item.id ? '⏹️' : '🔊'}
                 </button>
               )}
               

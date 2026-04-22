@@ -82,7 +82,6 @@ body {
 .card {
   background-color: #c084fc;
   padding: 20px;
-  padding-top: 50px; /* ← Место для кнопки */
   border-radius: 8px;
   border-left: 6px solid #7b1fa2;
   border: 2px solid #7b1fa2;
@@ -94,11 +93,11 @@ body {
   position: relative; /* ← Для позиционирования кнопки */
 }
 
-/* Кнопка воспроизведения */
-.play-btn {
+/* ← Кнопка воспроизведения аудио */
+.audio-btn {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 10px;
+  left: 10px;
   background: transparent;
   border: 2px solid #FFD700;
   border-radius: 50%;
@@ -110,27 +109,25 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  color: #FFD700;
+  padding: 0;
 }
 
-.play-btn:hover {
+.audio-btn:hover {
   background: #FFD700;
-  color: #7b1fa2;
   transform: scale(1.1);
 }
 
-.play-btn.playing {
+.audio-btn.playing {
   background: #FFD700;
-  color: #7b1fa2;
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
   0%, 100% {
-    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
   }
   50% {
-    transform: scale(1.15);
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
   }
 }
 
@@ -245,14 +242,13 @@ body {
   
   .card {
     padding: 15px;
-    padding-top: 45px;
   }
   
-  .play-btn {
+  .audio-btn {
     width: 35px;
     height: 35px;
     font-size: 18px;
-    top: 10px;
-    left: 10px;
+    top: 8px;
+    left: 8px;
   }
 }
