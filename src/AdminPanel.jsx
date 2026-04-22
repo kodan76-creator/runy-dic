@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from './firebase'
@@ -16,10 +16,12 @@ function AdminPanel() {
     translation: '',
     example: '',
     example2: '',
-    transcription2: ''
+    transcription2: '',
+    audioUrl: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [playingId, setPlayingId] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
   // Проверка авторизации
@@ -50,7 +52,7 @@ function AdminPanel() {
   }
 
   // Фильтрация слов по поиску
-  const filteredWords = useMemo(() => {
+  const filteredWords = useState(() => {
     return words.filter(item =>
       item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,6 +62,15 @@ function AdminPanel() {
       (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }, [searchTerm, words])
+
+  // Воспроизведение аудио
+  const playAudio = (word) => {
+    const audioUrl = word.audioUrl || `/audio/${word.word}.mp3`
+    const audio = new Audio(audioUrl)
+    audio.play()
+    setPlayingId(word.id)
+    audio.onended = () => setPlayingId(null)
+  }
 
   // Вход в систему
   const handleLogin = async (e) => {
@@ -95,7 +106,7 @@ function AdminPanel() {
         })
       }
       
-      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
+      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audioUrl: '' })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -113,7 +124,8 @@ function AdminPanel() {
       translation: word.translation || '',
       example: word.example || '',
       example2: word.example2 || '',
-      transcription2: word.transcription2 || ''
+      transcription2: word.transcription2 || '',
+      audioUrl: word.audioUrl || ''
     })
   }
 
@@ -132,7 +144,7 @@ function AdminPanel() {
   // Отмена редактирования
   const handleCancel = () => {
     setEditingId(null)
-    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
+    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audioUrl: '' })
   }
 
   // Форма входа
@@ -180,7 +192,7 @@ function AdminPanel() {
 
         {/* Форма */}
         <div className="form-section">
-          {/* ← Поле поиска ПЕРЕМЕЩЕНО НАВЕРХ */}
+          {/* Поле поиска */}
           <div className="search-container">
             <input
               type="text"
@@ -230,6 +242,12 @@ function AdminPanel() {
               value={formData.transcription2}
               onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
             />
+            <input
+              type="text"
+              placeholder="URL аудио (mp3)"
+              value={formData.audioUrl}
+              onChange={(e) => setFormData({...formData, audioUrl: e.target.value})}
+            />
             <div className="form-buttons">
               <button type="submit" className="save-btn" disabled={loading}>
                 {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
@@ -256,6 +274,15 @@ function AdminPanel() {
             {filteredWords.length > 0 ? (
               filteredWords.map(word => (
                 <div key={word.id} className="word-item">
+                  {/* Кнопка воспроизведения */}
+                  <button 
+                    className="audio-btn"
+                    onClick={() => playAudio(word)}
+                    title="Воспроизвести"
+                  >
+                    {playingId === word.id ? '🔊' : '🔉'}
+                  </button>
+                  
                   <div className="word-content">
                     <div className="word-row">
                       <h4 className="word-title">{word.word}</h4>
