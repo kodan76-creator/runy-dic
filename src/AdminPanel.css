@@ -390,6 +390,56 @@
   color: #666;
 }
 
+/* Контейнер поиска */
+.search-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #c084fc;
+}
+
+/* Поле поиска */
+.search-input {
+  width: 100%;
+  padding: 12px;
+  border: 3px solid #7b1fa2;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.search-input:focus {
+  border: 3px solid #7b1fa2;
+  box-shadow: 0 0 12px rgba(123, 31, 162, 0.6);
+}
+
+.search-input::placeholder {
+  color: #666666;
+}
+
+/* Сообщение "ничего не найдено" */
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 18px;
+}
+
+/* Адаптивность для поиска */
+@media (max-width: 768px) {
+  .search-container {
+    margin-top: 15px;
+    padding-top: 12px;
+  }
+  
+  .search-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from './firebase'
@@ -20,6 +20,7 @@ function AdminPanel() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('') // ← Добавлено
 
   // Проверка авторизации
   useEffect(() => {
@@ -47,6 +48,18 @@ function AdminPanel() {
     }
     setLoading(false)
   }
+
+  // Фильтрация слов по поиску
+  const filteredWords = useMemo(() => {
+    return words.filter(item =>
+      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  }, [searchTerm, words])
 
   // Вход в систему
   const handleLogin = async (e) => {
@@ -225,6 +238,17 @@ function AdminPanel() {
           
           {/* Счётчик слов под кнопкой "Добавить" */}
           <h3 className="words-count">📚 Все слова ({words.length})</h3>
+          
+          {/* ← Поле поиска */}
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="🔍 Поиск слова..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
         </div>
       </div>
 
@@ -233,39 +257,45 @@ function AdminPanel() {
         <div className="words-list">
           {loading && !editingId && <div className="loading">Загрузка...</div>}
           <div className="words-grid">
-            {words.map(word => (
-              <div key={word.id} className="word-item">
-                <div className="word-content">
-                  <div className="word-row">
-                    <h4 className="word-title">{word.word}</h4>
-                    {word.transcription && (
-                      <span className="word-transcription">[{word.transcription}]</span>
-                    )}
+            {filteredWords.length > 0 ? (
+              filteredWords.map(word => (
+                <div key={word.id} className="word-item">
+                  <div className="word-content">
+                    <div className="word-row">
+                      <h4 className="word-title">{word.word}</h4>
+                      {word.transcription && (
+                        <span className="word-transcription">[{word.transcription}]</span>
+                      )}
+                    </div>
+                    <p className="word-translation">{word.translation}</p>
+                    <div className="examples">
+                      {word.example && <span className="word-example">{word.example}</span>}
+                      {word.example2 && (
+                        <>
+                          <span className="word-dash"> — </span>
+                          <span className="word-example2">{word.example2}</span>
+                        </>
+                      )}
+                      {word.transcription2 && (
+                        <span className="word-transcription2">[{word.transcription2}]</span>
+                      )}
+                    </div>
                   </div>
-                  <p className="word-translation">{word.translation}</p>
-                  <div className="examples">
-                    {word.example && <span className="word-example">{word.example}</span>}
-                    {word.example2 && (
-                      <>
-                        <span className="word-dash"> — </span>
-                        <span className="word-example2">{word.example2}</span>
-                      </>
-                    )}
-                    {word.transcription2 && (
-                      <span className="word-transcription2">[{word.transcription2}]</span>
-                    )}
+                  <div className="word-actions">
+                    <button onClick={() => handleEdit(word)} className="edit-btn">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDelete(word.id)} className="delete-btn">
+                      🗑️
+                    </button>
                   </div>
                 </div>
-                <div className="word-actions">
-                  <button onClick={() => handleEdit(word)} className="edit-btn">
-                    ✏️
-                  </button>
-                  <button onClick={() => handleDelete(word.id)} className="delete-btn">
-                    🗑️
-                  </button>
-                </div>
+              ))
+            ) : (
+              <div className="no-results">
+                {searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
