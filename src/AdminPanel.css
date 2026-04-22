@@ -24,11 +24,11 @@
 
 .login-box input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  padding: 10px;
+  margin-bottom: 10px;
   border: 3px solid #7b1fa2;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
   box-sizing: border-box;
   background-color: #ffffff;
   color: #000000;
@@ -42,12 +42,12 @@
 
 .login-btn {
   width: 100%;
-  padding: 12px;
+  padding: 10px 20px;
   background: #aa3bff;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background 0.3s;
 }
@@ -119,7 +119,7 @@
 /* Форма внутри фиксированного контейнера */
 .form-section {
   background: white;
-  padding: 20px;
+  padding: 15px;
   padding-bottom: 10px;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -137,18 +137,16 @@
 
 /* Контейнер поиска */
 .search-container {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  /* ← УБРАНА ГОРИЗОНТАЛЬНАЯ ПОЛОСА */
+  margin-bottom: 10px; /* ← Одинаковый отступ как у всех полей */
 }
 
-/* Поле поиска */
+/* Поле поиска - такое же как остальные поля */
 .search-input {
   width: 100%;
-  padding: 12px;
+  padding: 10px; /* ← Как у word-form input */
   border: 3px solid #7b1fa2;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px; /* ← Как у word-form input */
   box-sizing: border-box;
   background-color: #ffffff;
   color: #000000;
@@ -166,22 +164,21 @@
 
 /* Счётчик слов под кнопкой "Добавить" */
 .words-count {
-  margin: 20px 0 0 0;
+  margin: 15px 0 0 0;
   color: #aa3bff;
   text-align: center;
   font-size: 18px;
-  padding-top: 15px;
-  /* ← УБРАНА ГОРИЗОНТАЛЬНАЯ ПОЛОСА */
+  padding-top: 10px;
 }
 
 /* Поля ввода как в поиске */
 .word-form input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
+  padding: 10px; /* ← Одинаковая высота */
+  margin-bottom: 10px; /* ← Одинаковый отступ */
   border: 3px solid #7b1fa2;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 14px; /* ← Одинаковый размер */
   box-sizing: border-box;
   background-color: #ffffff;
   color: #000000;
@@ -201,6 +198,7 @@
   display: flex;
   gap: 10px;
   justify-content: center;
+  margin-top: 10px;
 }
 
 .save-btn,
@@ -460,15 +458,10 @@
   }
   
   .search-container {
-    margin-bottom: 15px;
-    padding-bottom: 12px;
+    margin-bottom: 10px;
   }
   
-  .search-input {
-    padding: 10px;
-    font-size: 14px;
-  }
-  
+  .search-input,
   .word-form input {
     padding: 8px;
     font-size: 13px;
@@ -478,7 +471,7 @@
   .words-count {
     font-size: 16px;
     margin-top: 15px;
-    padding-top: 12px;
+    padding-top: 10px;
   }
   
   .words-list {
