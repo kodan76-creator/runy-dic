@@ -36,8 +36,7 @@ function AdminPanel() {
   const loadWords = async () => {
     setLoading(true)
     try {
-      const querySnapshot = await getDocs(collection(db, 'dictionary'),
-                orderBy('translation', 'asc'))
+      const querySnapshot = await getDocs(collection(db, 'dictionary'))
       const wordsList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
