@@ -20,7 +20,7 @@ function AdminPanel() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [searchTerm, setSearchTerm] = useState('') // ← Добавлено
+  const [searchTerm, setSearchTerm] = useState('')
 
   // Проверка авторизации
   useEffect(() => {
@@ -86,18 +86,15 @@ function AdminPanel() {
 
     try {
       if (editingId) {
-        // Редактирование (не меняем createdAt)
         const wordRef = doc(db, 'dictionary', editingId)
         await updateDoc(wordRef, formData)
       } else {
-        // Добавление нового слова
         await addDoc(collection(db, 'dictionary'), {
           ...formData,
           createdAt: new Date().toISOString()
         })
       }
       
-      // Очистка формы и перезагрузка
       setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '' })
       setEditingId(null)
       await loadWords()
@@ -183,7 +180,7 @@ function AdminPanel() {
 
         {/* Форма */}
         <div className="form-section">
-          <h3>{editingId ? '✏️ Редактировать' : '➕ Добавить слово'}</h3>
+          {/* ← УБРАН ЗАГОЛОВОК h3 */}
           <form onSubmit={handleSubmit} className="word-form">
             <input
               type="text"
@@ -239,7 +236,7 @@ function AdminPanel() {
           {/* Счётчик слов под кнопкой "Добавить" */}
           <h3 className="words-count">📚 Все слова ({words.length})</h3>
           
-          {/* ← Поле поиска */}
+          {/* Поле поиска */}
           <div className="search-container">
             <input
               type="text"
