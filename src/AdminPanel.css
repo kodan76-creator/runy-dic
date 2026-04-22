@@ -267,41 +267,10 @@
   align-items: flex-start;
   background: #c084fc;
   padding: 20px;
-  padding-left: 60px; /* ← Место для кнопки аудио */
   border-radius: 8px;
   border: 2px solid #7b1fa2;
   border-left: 6px solid #7b1fa2;
   line-height: 1.5;
-  position: relative; /* ← Для позиционирования кнопки */
-}
-
-/* Кнопка воспроизведения аудио */
-.audio-btn {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: transparent;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: #FFD700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.audio-btn:hover {
-  background: #FFD700;
-  color: #7b1fa2;
-  transform: scale(1.1);
-}
-
-.audio-btn:active {
-  transform: scale(0.95);
 }
 
 .word-content {
