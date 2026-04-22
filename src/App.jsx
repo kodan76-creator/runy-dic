@@ -9,13 +9,14 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
+  const [playingId, setPlayingId] = useState(null) // ← ID воспроизводимого слова
 
   useEffect(() => {
     const loadWords = async () => {
       try {
         const q = query(
           collection(db, 'dictionary'),
-          orderBy('translation', 'asc')
+          orderBy('createdAt', 'asc')
         )
         const querySnapshot = await getDocs(q)
         const wordsList = querySnapshot.docs.map(doc => ({
@@ -41,6 +42,18 @@ function Home() {
       (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }, [searchTerm, words])
+
+  // Функция воспроизведения аудио
+  const playAudio = (word) => {
+    if (word.audio) {
+      const audio = new Audio(word.audio)
+      audio.play()
+      setPlayingId(word.id)
+      audio.onended = () => {
+        setPlayingId(null)
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -89,6 +102,17 @@ function Home() {
         {filteredData.length > 0 ? (
           filteredData.map(item => (
             <div key={item.id} className="card">
+              {/* ← Кнопка воспроизведения в левом верхнем углу */}
+              {item.audio && (
+                <button
+                  className={`play-btn ${playingId === item.id ? 'playing' : ''}`}
+                  onClick={() => playAudio(item)}
+                  title="Воспроизвести"
+                >
+                  {playingId === item.id ? '🔊' : '🔈'}
+                </button>
+              )}
+              
               <div className="word-row">
                 <h3 className="word">{item.word}</h3>
                 {item.transcription && (

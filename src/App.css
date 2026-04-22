@@ -81,7 +81,8 @@ body {
 /* Карточка слова */
 .card {
   background-color: #c084fc;
-  padding: 20px; /* ← Увеличено с 16px */
+  padding: 20px;
+  padding-top: 50px; /* ← Место для кнопки */
   border-radius: 8px;
   border-left: 6px solid #7b1fa2;
   border: 2px solid #7b1fa2;
@@ -89,7 +90,48 @@ body {
   width: 100%;
   max-width: 600px;
   box-sizing: border-box;
-  line-height: 1.6; /* ← Общий межстрочный интервал */
+  line-height: 1.6;
+  position: relative; /* ← Для позиционирования кнопки */
+}
+
+/* Кнопка воспроизведения */
+.play-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: transparent;
+  border: 2px solid #FFD700;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  color: #FFD700;
+}
+
+.play-btn:hover {
+  background: #FFD700;
+  color: #7b1fa2;
+  transform: scale(1.1);
+}
+
+.play-btn.playing {
+  background: #FFD700;
+  color: #7b1fa2;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
 }
 
 /* Строка с word и transcription */
@@ -98,9 +140,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 12px; /* ← Увеличено */
+  margin-bottom: 12px;
   flex-wrap: wrap;
-  line-height: 1.5; /* ← Межстрочный интервал */
+  line-height: 1.5;
 }
 
 /* Слово (шрифт Dao Rus, жёлтый, размер 45px) */
@@ -112,7 +154,7 @@ body {
   margin: 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   text-align: center;
-  line-height: 1.4; /* ← Межстрочный интервал для рунического текста */
+  line-height: 1.4;
 }
 
 /* Транскрипция слова */
@@ -127,10 +169,10 @@ body {
 .translation {
   font-size: 18px;
   color: #ffffff;
-  margin: 0 0 12px 0; /* ← Увеличено */
+  margin: 0 0 12px 0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   text-align: center;
-  line-height: 1.6; /* ← Межстрочный интервал */
+  line-height: 1.6;
 }
 
 /* Контейнер для примеров */
@@ -140,7 +182,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 4px;
-  line-height: 1.6; /* ← Межстрочный интервал */
+  line-height: 1.6;
   margin-top: 12px;
 }
 
@@ -150,7 +192,7 @@ body {
   color: #9c27b0;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   font-size: 18px;
-  line-height: 1.6; /* ← Межстрочный интервал */
+  line-height: 1.6;
 }
 
 /* Тире между примерами */
@@ -167,7 +209,7 @@ body {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   font-size: 25px;
   transform: translateY(-2px);
-  line-height: 1.4; /* ← Межстрочный интервал для рунического текста */
+  line-height: 1.4;
 }
 
 /* Транскрипция примера 2 */
@@ -203,5 +245,14 @@ body {
   
   .card {
     padding: 15px;
+    padding-top: 45px;
+  }
+  
+  .play-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    top: 10px;
+    left: 10px;
   }
 }
