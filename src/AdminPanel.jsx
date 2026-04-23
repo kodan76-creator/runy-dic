@@ -35,21 +35,25 @@ function AdminPanel() {
     return () => unsubscribe()
   }, [])
 
-  // Загрузка слов из Firebase
-  const loadWords = async () => {
-    setLoading(true)
-    try {
-      const querySnapshot = await getDocs(collection(db, 'dictionary'))
-      const wordsList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      setWords(wordsList)
-    } catch (err) {
-      setError('Ошибка загрузки: ' + err.message)
-    }
-    setLoading(false)
+// Загрузка слов из Firebase
+const loadWords = async () => {
+  setLoading(true)
+  try {
+    const q = query(
+      collection(db, 'dictionary'),
+      orderBy('translation', 'asc')  // ← Сортировка по translation
+    )
+    const querySnapshot = await getDocs(q)
+    const wordsList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    setWords(wordsList)
+  } catch (err) {
+    setError('Ошибка загрузки: ' + err.message)
   }
+  setLoading(false)
+}
 
   // Фильтрация слов по поиску
   const filteredWords = useMemo(() => {

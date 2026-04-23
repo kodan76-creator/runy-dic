@@ -17,7 +17,7 @@ function Home() {
       try {
         const q = query(
           collection(db, 'dictionary'),
-          orderBy('createdAt', 'asc')
+          orderBy('translation', 'asc')
         )
         const querySnapshot = await getDocs(q)
         const wordsList = querySnapshot.docs.map(doc => ({
