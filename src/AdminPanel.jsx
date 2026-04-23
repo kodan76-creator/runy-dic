@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
+import { useState, useEffect } from 'react'
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore'  // ← Добавили query и orderBy
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from './firebase'
 import './AdminPanel.css'
@@ -41,7 +41,7 @@ const loadWords = async () => {
   try {
     const q = query(
       collection(db, 'dictionary'),
-      orderBy('translation', 'asc')  // ← Сортировка по translation
+      orderBy('translation', 'asc')  // Сортировка по translation
     )
     const querySnapshot = await getDocs(q)
     const wordsList = querySnapshot.docs.map(doc => ({
