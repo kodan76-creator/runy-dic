@@ -51,7 +51,9 @@ const playAudio = (wordId, audioFile) => {
     audio.currentTime = 0
   })
   
-  const audio = new Audio(`/audio/${audioFile}`)  // ← Исправленный путь
+  // ← Используйте BASE_URL из Vite
+  const baseUrl = import.meta.env.BASE_URL
+  const audio = new Audio(`${baseUrl}audio/${audioFile}`)
   audio.dataset.id = wordId
   audio.play()
   setPlayingId(wordId)
