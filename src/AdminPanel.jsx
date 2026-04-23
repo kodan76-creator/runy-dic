@@ -17,7 +17,8 @@ function AdminPanel() {
     example: '',
     example2: '',
     transcription2: '',
-    audio: ''  // ← Добавлено поле audio
+    audio: '',
+    audio2: ''  // ← Добавлено поле audio2
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -96,7 +97,7 @@ function AdminPanel() {
         })
       }
       
-      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '' })
+      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -115,7 +116,8 @@ function AdminPanel() {
       example: word.example || '',
       example2: word.example2 || '',
       transcription2: word.transcription2 || '',
-      audio: word.audio || ''
+      audio: word.audio || '',
+      audio2: word.audio2 || ''
     })
   }
 
@@ -134,7 +136,7 @@ function AdminPanel() {
   // Отмена редактирования
   const handleCancel = () => {
     setEditingId(null)
-    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '' })
+    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
   }
 
   // Форма входа
@@ -238,6 +240,12 @@ function AdminPanel() {
               value={formData.audio}
               onChange={(e) => setFormData({...formData, audio: e.target.value})}
             />
+            <input
+              type="text"
+              placeholder="Audio2 файл (пример, например: example1.mp3)"
+              value={formData.audio2}
+              onChange={(e) => setFormData({...formData, audio2: e.target.value})}
+            />
             <div className="form-buttons">
               <button type="submit" className="save-btn" disabled={loading}>
                 {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
@@ -285,7 +293,10 @@ function AdminPanel() {
                       )}
                     </div>
                     {word.audio && (
-                      <p className="word-audio"> {word.audio}</p>
+                      <p className="word-audio">🔊 {word.audio}</p>
+                    )}
+                    {word.audio2 && (
+                      <p className="word-audio">🔊 {word.audio2}</p>
                     )}
                   </div>
                   <div className="word-actions">

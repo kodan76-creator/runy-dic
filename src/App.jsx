@@ -9,7 +9,8 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [playingId, setPlayingId] = useState(null) // ← Для отслеживания воспроизведения
+  const [playingId, setPlayingId] = useState(null)
+  const [playingAudio2, setPlayingAudio2] = useState(null) // ← Для audio2
 
   useEffect(() => {
     const loadWords = async () => {
@@ -32,36 +33,67 @@ function Home() {
     loadWords()
   }, [])
 
-const playAudio = (wordId, audioFile) => {
-  if (!audioFile) return
-  
-  if (playingId === wordId) {
-    const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
-    if (existingAudio) {
-      existingAudio.pause()
-      existingAudio.currentTime = 0
+  // ← Функция воспроизведения audio (верхняя кнопка)
+  const playAudio = (wordId, audioFile) => {
+    if (!audioFile) return
+    
+    if (playingId === wordId) {
+      const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
+      if (existingAudio) {
+        existingAudio.pause()
+        existingAudio.currentTime = 0
+      }
+      setPlayingId(null)
+      return
     }
-    setPlayingId(null)
-    return
+    
+    const allAudios = document.querySelectorAll('audio')
+    allAudios.forEach(audio => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+    
+    const baseUrl = import.meta.env.BASE_URL
+    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
+    audio.dataset.id = wordId
+    audio.play()
+    setPlayingId(wordId)
+    
+    audio.onended = () => {
+      setPlayingId(null)
+    }
   }
-  
-  const allAudios = document.querySelectorAll('audio')
-  allAudios.forEach(audio => {
-    audio.pause()
-    audio.currentTime = 0
-  })
-  
-  // ← Используйте BASE_URL из Vite
-  const baseUrl = import.meta.env.BASE_URL
-  const audio = new Audio(`${baseUrl}audio/${audioFile}`)
-  audio.dataset.id = wordId
-  audio.play()
-  setPlayingId(wordId)
-  
-  audio.onended = () => {
-    setPlayingId(null)
+
+  // ← Функция воспроизведения audio2 (нижняя кнопка)
+  const playAudio2 = (wordId, audioFile) => {
+    if (!audioFile) return
+    
+    if (playingAudio2 === wordId) {
+      const existingAudio = document.querySelector(`audio[data-id2="${wordId}"]`)
+      if (existingAudio) {
+        existingAudio.pause()
+        existingAudio.currentTime = 0
+      }
+      setPlayingAudio2(null)
+      return
+    }
+    
+    const allAudios = document.querySelectorAll('audio')
+    allAudios.forEach(audio => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+    
+    const baseUrl = import.meta.env.BASE_URL
+    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
+    audio.dataset.id2 = wordId
+    audio.play()
+    setPlayingAudio2(wordId)
+    
+    audio.onended = () => {
+      setPlayingAudio2(null)
+    }
   }
-}
 
   const filteredData = useMemo(() => {
     return words.filter(item =>
@@ -121,7 +153,7 @@ const playAudio = (wordId, audioFile) => {
         {filteredData.length > 0 ? (
           filteredData.map(item => (
             <div key={item.id} className="card">
-              {/* ← Кнопка воспроизведения в левом верхнем углу */}
+              {/* ← Кнопка воспроизведения audio (левый верхний угол) */}
               {item.audio && (
                 <button
                   className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
@@ -151,6 +183,17 @@ const playAudio = (wordId, audioFile) => {
                   </>
                 )}
               </div>
+
+              {/* ← Кнопка воспроизведения audio2 (левый нижний угол) */}
+              {item.audio2 && (
+                <button
+                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}
+                  onClick={() => playAudio2(item.id, item.audio2)}
+                  title="Воспроизвести пример"
+                >
+                  {playingAudio2 === item.id ? '⏹️' : '🔊'}
+                </button>
+              )}
             </div>
           ))
         ) : (
