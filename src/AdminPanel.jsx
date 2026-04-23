@@ -35,25 +35,25 @@ function AdminPanel() {
     return () => unsubscribe()
   }, [])
 
-// Загрузка слов из Firebase
-const loadWords = async () => {
-  setLoading(true)
-  try {
-    const q = query(
-      collection(db, 'dictionary'),
-      orderBy('translation', 'asc')  // Сортировка по translation
-    )
-    const querySnapshot = await getDocs(q)
-    const wordsList = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    setWords(wordsList)
-  } catch (err) {
-    setError('Ошибка загрузки: ' + err.message)
+  // Загрузка слов из Firebase
+  const loadWords = async () => {
+    setLoading(true)
+    try {
+      const q = query(
+        collection(db, 'dictionary'),
+        orderBy('translation', 'asc')  // Сортировка по translation
+      )
+      const querySnapshot = await getDocs(q)
+      const wordsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setWords(wordsList)
+    } catch (err) {
+      setError('Ошибка загрузки: ' + err.message)
+    }
+    setLoading(false)
   }
-  setLoading(false)
-}
 
   // Фильтрация слов по поиску
   const filteredWords = useMemo(() => {
@@ -100,7 +100,7 @@ const loadWords = async () => {
           createdAt: new Date().toISOString()
         })
       }
-      
+
       setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null)
       await loadWords()
@@ -198,57 +198,57 @@ const loadWords = async () => {
               className="search-input"
             />
           </div>
-          
+
           <form onSubmit={handleSubmit} className="word-form">
             <input
               type="text"
               placeholder="Слово на рунном языке"
               value={formData.word}
-              onChange={(e) => setFormData({...formData, word: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, word: e.target.value })}
               required
             />
             <input
               type="text"
               placeholder="Транскрипция"
               value={formData.transcription}
-              onChange={(e) => setFormData({...formData, transcription: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, transcription: e.target.value })}
             />
             <input
               type="text"
               placeholder="Перевод (на русском языке)"
               value={formData.translation}
-              onChange={(e) => setFormData({...formData, translation: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, translation: e.target.value })}
               required
             />
             <input
               type="text"
               placeholder="Пример (на русском языке)"
               value={formData.example}
-              onChange={(e) => setFormData({...formData, example: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, example: e.target.value })}
             />
             <input
               type="text"
               placeholder="Пример (на рунном языке)"
               value={formData.example2}
-              onChange={(e) => setFormData({...formData, example2: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, example2: e.target.value })}
             />
             <input
               type="text"
               placeholder="Транскрипция примера 2"
               value={formData.transcription2}
-              onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, transcription2: e.target.value })}
             />
             <input
               type="text"
               placeholder="Audio файл (например: word1.mp3)"
               value={formData.audio}
-              onChange={(e) => setFormData({...formData, audio: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, audio: e.target.value })}
             />
             <input
               type="text"
               placeholder="Audio2 файл (пример, например: example1.mp3)"
               value={formData.audio2}
-              onChange={(e) => setFormData({...formData, audio2: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, audio2: e.target.value })}
             />
             <div className="form-buttons">
               <button type="submit" className="save-btn" disabled={loading}>
@@ -262,7 +262,7 @@ const loadWords = async () => {
             </div>
             {error && <div className="error">{error}</div>}
           </form>
-          
+
           {/* Счётчик слов под кнопкой "Добавить" */}
           <h3 className="words-count">📚 Все слова ({words.length})</h3>
         </div>
