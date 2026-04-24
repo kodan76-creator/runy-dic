@@ -11,7 +11,6 @@ function Home() {
   const [loading, setLoading] = useState(true)
   const [playingId, setPlayingId] = useState(null) // ← Для audio
   const [playingAudio2, setPlayingAudio2] = useState(null) // ← Для audio2
-  const [isPlaying, setIsPlaying] = useState(false) // ← Глобальная блокировка
 
   useEffect(() => {
     const loadWords = async () => {
@@ -34,48 +33,6 @@ function Home() {
     loadWords()
   }, [])
 
-  // ← Функция воспроизведения audio (верхняя кнопка)
-  const playAudio = (wordId, audioFile) => {
-    if (!audioFile || isPlaying) return // ← Блокировка если уже играет
-    
-    // Останавливаем все аудио
-    stopAllAudio()
-    
-    const baseUrl = import.meta.env.BASE_URL
-    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
-    audio.dataset.id = wordId
-    audio.play()
-    setPlayingId(wordId)
-    setPlayingAudio2(null)
-    setIsPlaying(true) // ← Включаем блокировку
-    
-    audio.onended = () => {
-      setPlayingId(null)
-      setIsPlaying(false) // ← Выключаем блокировку
-    }
-  }
-
-  // ← Функция воспроизведения audio2 (нижняя кнопка)
-  const playAudio2 = (wordId, audioFile) => {
-    if (!audioFile || isPlaying) return // ← Блокировка если уже играет
-    
-    // Останавливаем все аудио
-    stopAllAudio()
-    
-    const baseUrl = import.meta.env.BASE_URL
-    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
-    audio.dataset.id2 = wordId
-    audio.play()
-    setPlayingAudio2(wordId)
-    setPlayingId(null)
-    setIsPlaying(true) // ← Включаем блокировку
-    
-    audio.onended = () => {
-      setPlayingAudio2(null)
-      setIsPlaying(false) // ← Выключаем блокировку
-    }
-  }
-
   // ← Остановка всех аудио
   const stopAllAudio = () => {
     const allAudios = document.querySelectorAll('audio')
@@ -85,29 +42,68 @@ function Home() {
     })
     setPlayingId(null)
     setPlayingAudio2(null)
-    setIsPlaying(false)
   }
 
-  // ← Остановка конкретного audio
-  const stopAudio = (wordId) => {
-    const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
-    if (existingAudio) {
-      existingAudio.pause()
-      existingAudio.currentTime = 0
+  // ← Функция воспроизведения/остановки audio (верхняя кнопка)
+  const toggleAudio = (wordId, audioFile) => {
+    if (!audioFile) return
+    
+    // Если этот же файл уже играет - останавливаем
+    if (playingId === wordId) {
+      const existingAudio = document.querySelector(`audio[data-id="${wordId}"]`)
+      if (existingAudio) {
+        existingAudio.pause()
+        existingAudio.currentTime = 0
+      }
+      setPlayingId(null)
+      return
     }
-    setPlayingId(null)
-    setIsPlaying(false)
+    
+    // Останавливаем все остальные аудио
+    stopAllAudio()
+    
+    // Запускаем новое
+    const baseUrl = import.meta.env.BASE_URL
+    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
+    audio.dataset.id = wordId
+    audio.play()
+    setPlayingId(wordId)
+    
+    // Сброс после окончания
+    audio.onended = () => {
+      setPlayingId(null)
+    }
   }
 
-  // ← Остановка конкретного audio2
-  const stopAudio2 = (wordId) => {
-    const existingAudio = document.querySelector(`audio[data-id2="${wordId}"]`)
-    if (existingAudio) {
-      existingAudio.pause()
-      existingAudio.currentTime = 0
+  // ← Функция воспроизведения/остановки audio2 (нижняя кнопка)
+  const toggleAudio2 = (wordId, audioFile) => {
+    if (!audioFile) return
+    
+    // Если этот же файл уже играет - останавливаем
+    if (playingAudio2 === wordId) {
+      const existingAudio = document.querySelector(`audio[data-id2="${wordId}"]`)
+      if (existingAudio) {
+        existingAudio.pause()
+        existingAudio.currentTime = 0
+      }
+      setPlayingAudio2(null)
+      return
     }
-    setPlayingAudio2(null)
-    setIsPlaying(false)
+    
+    // Останавливаем все остальные аудио
+    stopAllAudio()
+    
+    // Запускаем новое
+    const baseUrl = import.meta.env.BASE_URL
+    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
+    audio.dataset.id2 = wordId
+    audio.play()
+    setPlayingAudio2(wordId)
+    
+    // Сброс после окончания
+    audio.onended = () => {
+      setPlayingAudio2(null)
+    }
   }
 
   const filteredData = useMemo(() => {
@@ -171,10 +167,9 @@ function Home() {
               {/* ← Кнопка воспроизведения audio (левый верхний угол) */}
               {item.audio && (
                 <button
-                  className={`audio-btn ${playingId === item.id ? 'playing' : ''} ${isPlaying && playingId !== item.id ? 'disabled' : ''}`}
-                  onClick={() => playingId === item.id ? stopAudio(item.id) : playAudio(item.id, item.audio)}
-                  title="Воспроизвести"
-                  disabled={isPlaying && playingId !== item.id}
+                  className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
+                  onClick={() => toggleAudio(item.id, item.audio)}
+                  title={playingId === item.id ? 'Остановить' : 'Воспроизвести'}
                 >
                   {playingId === item.id ? '⏹️' : '🔊'}
                 </button>
@@ -203,10 +198,9 @@ function Home() {
               {/* ← Кнопка воспроизведения audio2 (левый нижний угол) */}
               {item.audio2 && (
                 <button
-                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''} ${isPlaying && playingAudio2 !== item.id ? 'disabled' : ''}`}
-                  onClick={() => playingAudio2 === item.id ? stopAudio2(item.id) : playAudio2(item.id, item.audio2)}
-                  title="Воспроизвести пример"
-                  disabled={isPlaying && playingAudio2 !== item.id}
+                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}
+                  onClick={() => toggleAudio2(item.id, item.audio2)}
+                  title={playingAudio2 === item.id ? 'Остановить' : 'Воспроизвести'}
                 >
                   {playingAudio2 === item.id ? '⏹️' : '🔊'}
                 </button>
