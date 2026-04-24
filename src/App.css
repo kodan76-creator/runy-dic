@@ -281,7 +281,7 @@ body {
   color: #FFD700;
 }
 
-.audio-btn:hover {
+.audio-btn:hover:not(:disabled) {
   background: #FFD700;
   transform: scale(1.1);
 }
@@ -291,11 +291,10 @@ body {
   animation: pulse 1s infinite;
 }
 
-/* ← Заблокированная кнопка */
-.audio-btn.disabled {
+.audio-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  pointer-events: none;
+  transform: none;
 }
 
 /* ← Кнопка воспроизведения audio2 (нижняя) */
@@ -318,7 +317,7 @@ body {
   color: #ffffff;
 }
 
-.audio-btn-bottom:hover {
+.audio-btn-bottom:hover:not(:disabled) {
   background: #ffffff;
   color: #9c27b0;
   transform: scale(1.1);
@@ -330,11 +329,10 @@ body {
   animation: pulse-white 1s infinite;
 }
 
-/* ← Заблокированная кнопка */
-.audio-btn-bottom.disabled {
+.audio-btn-bottom:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  pointer-events: none;
+  transform: none;
 }
 
 @keyframes pulse {
