@@ -261,6 +261,100 @@ body {
   line-height: 1.6;
 }
 
+/* ← Кнопка воспроизведения audio (верхняя) */
+.audio-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: 2px solid #FFD700;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  padding: 0;
+  color: #FFD700;
+}
+
+.audio-btn:hover {
+  background: #FFD700;
+  transform: scale(1.1);
+}
+
+.audio-btn.playing {
+  background: #FFD700;
+  animation: pulse 1s infinite;
+}
+
+/* ← Заблокированная кнопка */
+.audio-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ← Кнопка воспроизведения audio2 (нижняя) */
+.audio-btn-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  padding: 0;
+  color: #ffffff;
+}
+
+.audio-btn-bottom:hover {
+  background: #ffffff;
+  color: #9c27b0;
+  transform: scale(1.1);
+}
+
+.audio-btn-bottom.playing {
+  background: #ffffff;
+  color: #9c27b0;
+  animation: pulse-white 1s infinite;
+}
+
+/* ← Заблокированная кнопка */
+.audio-btn-bottom.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+}
+
+@keyframes pulse-white {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
