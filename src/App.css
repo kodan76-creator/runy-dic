@@ -26,14 +26,97 @@ body {
   left: 0;
   right: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 20px;
   padding: 20px;
   background-color: #aa3bff;
   z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border-bottom: 3px solid #7b1fa2;
+  flex-wrap: wrap;
+}
+
+/* ← Кнопка "Слушать" */
+.listen-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #FFD700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.listen-btn:hover:not(:disabled) {
+  background: #FFD700;
+  color: #aa3bff;
+  transform: scale(1.05);
+}
+
+.listen-btn.playing {
+  background: #FFD700;
+  color: #aa3bff;
+  animation: pulse-btn 1s infinite;
+}
+
+.listen-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes pulse-btn {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+}
+
+/* ← Радиокнопки выбора режима */
+.play-mode {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.mode-option:hover {
+  color: #FFD700;
+}
+
+.mode-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #FFD700;
+}
+
+.mode-option input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mode-option:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Логотип */
@@ -81,7 +164,7 @@ body {
 /* Карточка слова */
 .card {
   background-color: #c084fc;
-  padding: 20px;
+  padding: 20px 20px 20px 70px;
   border-radius: 8px;
   border-left: 6px solid #7b1fa2;
   border: 2px solid #7b1fa2;
@@ -91,13 +174,6 @@ body {
   box-sizing: border-box;
   line-height: 1.6;
   position: relative;
-}
-
-/* ← Добавлено: сдвиг всего контента вправо */
-.card .word-row,
-.card .translation,
-.card .examples {
-  padding-left: 50px; /* ← Сдвиг вправо на 50px */
 }
 
 /* ← Кнопка воспроизведения audio (верхняя) */
@@ -120,7 +196,7 @@ body {
   color: #FFD700;
 }
 
-.audio-btn:hover {
+.audio-btn:hover:not(:disabled) {
   background: #FFD700;
   transform: scale(1.1);
 }
@@ -128,6 +204,12 @@ body {
 .audio-btn.playing {
   background: #FFD700;
   animation: pulse 1s infinite;
+}
+
+.audio-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ← Кнопка воспроизведения audio2 (нижняя) */
@@ -150,7 +232,7 @@ body {
   color: #ffffff;
 }
 
-.audio-btn-bottom:hover {
+.audio-btn-bottom:hover:not(:disabled) {
   background: #ffffff;
   color: #9c27b0;
   transform: scale(1.1);
@@ -160,6 +242,12 @@ body {
   background: #ffffff;
   color: #9c27b0;
   animation: pulse-white 1s infinite;
+}
+
+.audio-btn-bottom:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
 }
 
 @keyframes pulse {
@@ -268,108 +356,29 @@ body {
   line-height: 1.6;
 }
 
-/* ← Кнопка воспроизведения audio (верхняя) */
-.audio-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: transparent;
-  border: 2px solid #FFD700;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  padding: 0;
-  color: #FFD700;
-}
-
-.audio-btn:hover:not(:disabled) {
-  background: #FFD700;
-  transform: scale(1.1);
-}
-
-.audio-btn.playing {
-  background: #FFD700;
-  animation: pulse 1s infinite;
-}
-
-.audio-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ← Кнопка воспроизведения audio2 (нижняя) */
-.audio-btn-bottom {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: transparent;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  padding: 0;
-  color: #ffffff;
-}
-
-.audio-btn-bottom:hover:not(:disabled) {
-  background: #ffffff;
-  color: #9c27b0;
-  transform: scale(1.1);
-}
-
-.audio-btn-bottom.playing {
-  background: #ffffff;
-  color: #9c27b0;
-  animation: pulse-white 1s infinite;
-}
-
-.audio-btn-bottom:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: none;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
-  }
-}
-
-@keyframes pulse-white {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-  }
-}
-
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
-    padding-top: 300px;
+    padding-top: 350px;
     padding-left: 10px;
     padding-right: 10px;
   }
   
   .header {
     padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .listen-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+  
+  .play-mode {
+    width: 100%;
+    justify-content: center;
   }
   
   .search-input,
@@ -382,7 +391,7 @@ body {
   }
   
   .card {
-    padding: 15px 15px 15px 10px; /* ← Увеличен left padding для мобильных */
+    padding: 15px 15px 15px 60px;
   }
   
   .audio-btn,
@@ -401,11 +410,10 @@ body {
     bottom: 8px;
     left: 8px;
   }
-
-  /* ← Сдвиг контента на мобильных */
+  
   .card .word-row,
   .card .translation,
   .card .examples {
-    padding-left: 10px; /* ← Меньше сдвиг для мобильных */
+    padding-left: 40px;
   }
 }
