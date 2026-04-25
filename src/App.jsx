@@ -12,7 +12,7 @@ function Home() {
   const [playingId, setPlayingId] = useState(null)
   const [playingAudio2, setPlayingAudio2] = useState(null)
   const [currentAudio, setCurrentAudio] = useState(null)
-  const [playMode, setPlayMode] = useState('sequential') // 'sequential' или 'random'
+  const [playMode, setPlayMode] = useState('sequential')
   const [isPlayingAll, setIsPlayingAll] = useState(false)
   const [currentPlayIndex, setCurrentPlayIndex] = useState(-1)
 
@@ -52,13 +52,16 @@ function Home() {
   const playAudio = (wordId, audioFile) => {
     if (!audioFile) return
     
+    // Если уже играет этот файл - останавливаем
     if (playingId === wordId) {
       stopAudio()
       return
     }
     
+    // Останавливаем всё текущее воспроизведение
     stopAudio()
     
+    // Воспроизводим новый файл
     const baseUrl = import.meta.env.BASE_URL
     const audio = new Audio(`${baseUrl}audio/${audioFile}`)
     audio.play()
@@ -75,13 +78,16 @@ function Home() {
   const playAudio2 = (wordId, audioFile) => {
     if (!audioFile) return
     
+    // Если уже играет этот файл - останавливаем
     if (playingAudio2 === wordId) {
       stopAudio()
       return
     }
     
+    // Останавливаем всё текущее воспроизведение
     stopAudio()
     
+    // Воспроизводим новый файл
     const baseUrl = import.meta.env.BASE_URL
     const audio = new Audio(`${baseUrl}audio/${audioFile}`)
     audio.play()
@@ -94,7 +100,7 @@ function Home() {
     }
   }
 
-  // ← Воспроизведение всех аудиофайлов
+  // Воспроизведение всех аудиофайлов
   const playAllAudio = () => {
     const wordsWithAudio = words.filter(word => word.audio)
     
@@ -159,7 +165,8 @@ function Home() {
     }
   }
 
-  const isPlaying = playingId !== null || playingAudio2 !== null
+  // ← Проверка: играет ли что-то сейчас
+  const isAnyAudioPlaying = playingId !== null || playingAudio2 !== null
 
   const filteredData = useMemo(() => {
     return words.filter(item =>
@@ -199,11 +206,11 @@ function Home() {
   return (
     <div className="container">
       <div className="header">
-        {/* ← Кнопка "Слушать" слева от логотипа */}
+        {/* Кнопка "Слушать" слева от логотипа */}
         <button
           className={`listen-btn ${isPlayingAll ? 'playing' : ''}`}
           onClick={playAllAudio}
-          disabled={isPlaying && !isPlayingAll}
+          disabled={isAnyAudioPlaying && !isPlayingAll}
           title={isPlayingAll ? 'Остановить' : 'Слушать все слова'}
         >
           {isPlayingAll ? '⏹️' : '🎧'} Слушать
@@ -217,7 +224,7 @@ function Home() {
           height="119"
         />
 
-        {/* ← Радио-кнопки выбора режима справа от логотипа */}
+        {/* Радио-кнопки выбора режима справа от логотипа */}
         <div className="play-mode">
           <label className="mode-label">
             <input
@@ -226,6 +233,7 @@ function Home() {
               value="sequential"
               checked={playMode === 'sequential'}
               onChange={(e) => setPlayMode(e.target.value)}
+              disabled={isAnyAudioPlaying}
             />
             <span>подряд</span>
           </label>
@@ -236,6 +244,7 @@ function Home() {
               value="random"
               checked={playMode === 'random'}
               onChange={(e) => setPlayMode(e.target.value)}
+              disabled={isAnyAudioPlaying}
             />
             <span>случайно</span>
           </label>
@@ -257,10 +266,10 @@ function Home() {
               {/* Кнопка воспроизведения audio (левый верхний угол) */}
               {item.audio && (
                 <button
-                  className={`audio-btn ${playingId === item.id ? 'playing' : ''} ${isPlayingAll && currentPlayIndex >= 0 ? 'disabled' : ''}`}
+                  className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
                   onClick={() => playAudio(item.id, item.audio)}
-                  disabled={isPlaying && playingId !== item.id && !isPlayingAll}
-                  title="Воспроизвести"
+                  disabled={isAnyAudioPlaying && playingId !== item.id}
+                  title={playingId === item.id ? 'Остановить' : 'Воспроизвести'}
                 >
                   {playingId === item.id ? '⏹️' : '🔊'}
                 </button>
@@ -289,10 +298,10 @@ function Home() {
               {/* Кнопка воспроизведения audio2 (левый нижний угол) */}
               {item.audio2 && (
                 <button
-                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''} ${isPlayingAll && currentPlayIndex >= 0 ? 'disabled' : ''}`}
+                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}
                   onClick={() => playAudio2(item.id, item.audio2)}
-                  disabled={isPlaying && playingAudio2 !== item.id && !isPlayingAll}
-                  title="Воспроизвести пример"
+                  disabled={isAnyAudioPlaying && playingAudio2 !== item.id}
+                  title={playingAudio2 === item.id ? 'Остановить' : 'Воспроизвести пример'}
                 >
                   {playingAudio2 === item.id ? '⏹️' : '🔊'}
                 </button>
