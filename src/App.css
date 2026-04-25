@@ -93,6 +93,13 @@ body {
   position: relative;
 }
 
+/* ← Добавлено: сдвиг всего контента вправо */
+.card .word-row,
+.card .translation,
+.card .examples {
+  padding-left: 50px; /* ← Сдвиг вправо на 50px */
+}
+
 /* ← Кнопка воспроизведения audio (верхняя) */
 .audio-btn {
   position: absolute;
@@ -375,7 +382,7 @@ body {
   }
   
   .card {
-    padding: 15px;
+    padding: 15px 15px 15px 60px; /* ← Увеличен left padding для мобильных */
   }
   
   .audio-btn,
@@ -393,5 +400,12 @@ body {
   .audio-btn-bottom {
     bottom: 8px;
     left: 8px;
+  }
+
+  /* ← Сдвиг контента на мобильных */
+  .card .word-row,
+  .card .translation,
+  .card .examples {
+    padding-left: 40px; /* ← Меньше сдвиг для мобильных */
   }
 }
