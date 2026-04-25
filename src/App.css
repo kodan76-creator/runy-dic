@@ -382,7 +382,7 @@ body {
   }
   
   .card {
-    padding: 15px 15px 15px 40px; /* ← Увеличен left padding для мобильных */
+    padding: 15px 15px 15px 10px; /* ← Увеличен left padding для мобильных */
   }
   
   .audio-btn,
