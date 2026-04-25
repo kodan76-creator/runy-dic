@@ -382,7 +382,7 @@ body {
   }
   
   .card {
-    padding: 15px 15px 15px 60px; /* ← Увеличен left padding для мобильных */
+    padding: 15px 15px 15px 40px; /* ← Увеличен left padding для мобильных */
   }
   
   .audio-btn,
@@ -406,6 +406,6 @@ body {
   .card .word-row,
   .card .translation,
   .card .examples {
-    padding-left: 60px; /* ← Меньше сдвиг для мобильных */
+    padding-left: 40px; /* ← Меньше сдвиг для мобильных */
   }
 }
