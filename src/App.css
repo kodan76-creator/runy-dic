@@ -406,6 +406,6 @@ body {
   .card .word-row,
   .card .translation,
   .card .examples {
-    padding-left: 40px; /* ← Меньше сдвиг для мобильных */
+    padding-left: 10px; /* ← Меньше сдвиг для мобильных */
   }
 }
