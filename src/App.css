@@ -80,11 +80,12 @@ body {
   }
 }
 
-/* Радио-кнопки выбора режима */
+/* Радио-кнопки выбора режима (вертикально) */
 .play-mode {
   display: flex;
-  gap: 15px;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
 }
 
 .mode-label {
@@ -378,6 +379,8 @@ body {
   .play-mode {
     width: 100%;
     justify-content: center;
+    flex-direction: column;
+    align-items: center;
   }
   
   .search-input,

@@ -15,6 +15,7 @@ function Home() {
   const [playMode, setPlayMode] = useState('sequential')
   const [isPlayingAll, setIsPlayingAll] = useState(false)
   const [currentPlayIndex, setCurrentPlayIndex] = useState(-1)
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
 
   useEffect(() => {
     const loadWords = async () => {
@@ -102,7 +103,7 @@ function Home() {
 
   // Воспроизведение всех аудиофайлов
   const playAllAudio = () => {
-    const wordsWithAudio = words.filter(word => word.audio)
+    const wordsWithAudio = words.filter(word => word.audio || word.audio2)
     
     if (wordsWithAudio.length === 0) {
       alert('Нет слов с аудиофайлами')
@@ -114,6 +115,7 @@ function Home() {
       stopAudio()
       setIsPlayingAll(false)
       setCurrentPlayIndex(-1)
+      setCurrentWordIndex(0)
       return
     }
     
@@ -126,42 +128,100 @@ function Home() {
     }
     
     setIsPlayingAll(true)
-    playNextAudio(wordsWithAudio, indices, 0)
+    setCurrentWordIndex(0)
+    playNextAudioSequence(wordsWithAudio, indices, 0, 0)
   }
 
-  // Воспроизведение следующего файла
-  const playNextAudio = (wordsWithAudio, indices, currentIndex) => {
-    if (currentIndex >= indices.length) {
+  // Воспроизведение последовательности audio и audio2 для каждого слова
+  const playNextAudioSequence = (wordsWithAudio, indices, wordIndex, audioType) => {
+    // audioType: 0 = audio, 1 = audio2
+    
+    if (wordIndex >= indices.length) {
       // Все файлы воспроизведены
       setIsPlayingAll(false)
       setCurrentPlayIndex(-1)
+      setCurrentWordIndex(0)
       return
     }
     
-    const wordIndex = indices[currentIndex]
-    const word = wordsWithAudio[wordIndex]
+    const wordRealIndex = indices[wordIndex]
+    const word = wordsWithAudio[wordRealIndex]
     
-    setCurrentPlayIndex(currentIndex)
+    setCurrentPlayIndex(wordIndex)
+    setCurrentWordIndex(wordIndex)
+    
+    let audioFile = null
+    
+    if (audioType === 0 && word.audio) {
+      audioFile = word.audio
+    } else if (audioType === 1 && word.audio2) {
+      audioFile = word.audio2
+    } else if (audioType === 0 && !word.audio && word.audio2) {
+      // Если нет audio, но есть audio2 - воспроизводим audio2
+      audioFile = word.audio2
+      audioType = 1
+    } else if (audioType === 1 && !word.audio2) {
+      // Если нет audio2, переходим к следующему слову
+      setTimeout(() => {
+        playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
+      }, 500)
+      return
+    } else {
+      // Нет подходящего файла, переходим к следующему слову
+      setTimeout(() => {
+        playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
+      }, 500)
+      return
+    }
     
     const baseUrl = import.meta.env.BASE_URL
-    const audio = new Audio(`${baseUrl}audio/${word.audio}`)
+    const audio = new Audio(`${baseUrl}audio/${audioFile}`)
     audio.play()
     setCurrentAudio(audio)
-    setPlayingId(word.id)
+    
+    if (audioType === 0) {
+      setPlayingId(word.id)
+    } else {
+      setPlayingAudio2(word.id)
+    }
     
     audio.onended = () => {
-      setPlayingId(null)
+      if (audioType === 0) {
+        setPlayingId(null)
+      } else {
+        setPlayingAudio2(null)
+      }
       setCurrentAudio(null)
-      // Воспроизвести следующий файл с небольшой задержкой
+      
+      // Переход к следующему типу аудио или следующему слову
       setTimeout(() => {
-        playNextAudio(wordsWithAudio, indices, currentIndex + 1)
+        if (audioType === 0 && word.audio2) {
+          // После audio воспроизводим audio2 того же слова
+          playNextAudioSequence(wordsWithAudio, indices, wordIndex, 1)
+        } else {
+          // Переходим к следующему слову
+          playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
+        }
       }, 500)
     }
     
     audio.onerror = () => {
-      console.error(`Ошибка загрузки файла: ${word.audio}`)
+      console.error(`Ошибка загрузки файла: ${audioFile}`)
       // Перейти к следующему файлу
-      playNextAudio(wordsWithAudio, indices, currentIndex + 1)
+      if (audioType === 0) {
+        setPlayingId(null)
+      } else {
+        setPlayingAudio2(null)
+      }
+      setCurrentAudio(null)
+      
+      setTimeout(() => {
+        if (audioType === 0 && word.audio2) {
+          playNextAudioSequence(wordsWithAudio, indices, wordIndex, 1)
+        } else {
+          playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
+        }
+      }, 500)
     }
   }
 
@@ -216,7 +276,7 @@ function Home() {
           {isPlayingAll ? '⏹️' : '🎧'} Слушать
         </button>
 
-        {/* Радио-кнопки выбора режима (теперь перед логотипом) */}
+        {/* Радио-кнопки выбора режима (вертикально) */}
         <div className="play-mode">
           <label className="mode-label">
             <input
@@ -225,7 +285,7 @@ function Home() {
               value="sequential"
               checked={playMode === 'sequential'}
               onChange={(e) => setPlayMode(e.target.value)}
-              disabled={isAnyAudioPlaying}
+              disabled={isPlayingAll || isAnyAudioPlaying}
             />
             <span>подряд</span>
           </label>
@@ -236,13 +296,13 @@ function Home() {
               value="random"
               checked={playMode === 'random'}
               onChange={(e) => setPlayMode(e.target.value)}
-              disabled={isAnyAudioPlaying}
+              disabled={isPlayingAll || isAnyAudioPlaying}
             />
             <span>случайно</span>
           </label>
         </div>
 
-        {/* Логотип (теперь после радио-кнопок) */}
+        {/* Логотип */}
         <img
           src="https://kodan76-creator.github.io/runy-dic/run_r.png"
           alt="Logo"
@@ -269,7 +329,7 @@ function Home() {
                 <button
                   className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
                   onClick={() => playAudio(item.id, item.audio)}
-                  disabled={isAnyAudioPlaying && playingId !== item.id}
+                  disabled={isPlayingAll || (isAnyAudioPlaying && playingId !== item.id)}
                   title={playingId === item.id ? 'Остановить' : 'Воспроизвести'}
                 >
                   {playingId === item.id ? '⏹️' : '🔊'}
@@ -301,7 +361,7 @@ function Home() {
                 <button
                   className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}
                   onClick={() => playAudio2(item.id, item.audio2)}
-                  disabled={isAnyAudioPlaying && playingAudio2 !== item.id}
+                  disabled={isPlayingAll || (isAnyAudioPlaying && playingAudio2 !== item.id)}
                   title={playingAudio2 === item.id ? 'Остановить' : 'Воспроизвести пример'}
                 >
                   {playingAudio2 === item.id ? '⏹️' : '🔊'}
