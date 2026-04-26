@@ -165,7 +165,7 @@ function Home() {
     }
   }
 
-  // ← Проверка: играет ли что-то сейчас
+  // Проверка: играет ли что-то сейчас
   const isAnyAudioPlaying = playingId !== null || playingAudio2 !== null
 
   const filteredData = useMemo(() => {
@@ -206,7 +206,7 @@ function Home() {
   return (
     <div className="container">
       <div className="header">
-        {/* Кнопка "Слушать" слева от логотипа */}
+        {/* Кнопка "Слушать" слева */}
         <button
           className={`listen-btn ${isPlayingAll ? 'playing' : ''}`}
           onClick={playAllAudio}
@@ -216,15 +216,7 @@ function Home() {
           {isPlayingAll ? '⏹️' : '🎧'} Слушать
         </button>
 
-        <img
-          src="https://kodan76-creator.github.io/runy-dic/run_r.png"
-          alt="Logo"
-          className="logo"
-          width="130"
-          height="119"
-        />
-
-        {/* Радио-кнопки выбора режима справа от логотипа */}
+        {/* Радио-кнопки выбора режима (теперь перед логотипом) */}
         <div className="play-mode">
           <label className="mode-label">
             <input
@@ -249,6 +241,15 @@ function Home() {
             <span>случайно</span>
           </label>
         </div>
+
+        {/* Логотип (теперь после радио-кнопок) */}
+        <img
+          src="https://kodan76-creator.github.io/runy-dic/run_r.png"
+          alt="Logo"
+          className="logo"
+          width="130"
+          height="119"
+        />
 
         <input
           type="text"
