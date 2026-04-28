@@ -16,7 +16,7 @@ if (Test-Path "dist\audio") {
 
 # 3. Git операции
 git add .
-git commit -m "Deploy $(Get-Date -Format 'yyyy-MM-dd HH:mm')" -AllowEmpty
+git commit -m "Deploy $(Get-Date -Format 'yyyy-MM-dd HH:mm')" --allow-empty
 
 # 4. Pull перед push (чтобы избежать конфликта)
 git pull --rebase origin main
