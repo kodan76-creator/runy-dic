@@ -36,7 +36,7 @@ function AdminPanel() {
     setLoading(true)
     try {
       const { data } = await getDictionary()
-      setWords(data)
+      setWords(data || [])
     } catch (err) {
       setError('Ошибка загрузки: ' + err.message)
     }

@@ -15,24 +15,44 @@ const getHeaders = () => ({
   'Content-Type': 'application/json',
 })
 
+// ✅ Правильное кодирование UTF-8 в Base64
+const utf8ToBase64 = (str) => {
+  return btoa(unescape(encodeURIComponent(str)))
+}
+
+// ✅ Правильное декодирование Base64 в UTF-8
+const base64ToUtf8 = (str) => {
+  return decodeURIComponent(escape(atob(str)))
+}
+
 // Чтение данных из GitHub
 export const getDictionary = async () => {
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}?ref=${GITHUB_BRANCH}`,
-      { headers: getHeaders() }
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}?ref=${GITHUB_BRANCH}&t=${Date.now()}`,
+      { 
+        headers: getHeaders(),
+        cache: 'no-cache'
+      }
     )
     
     if (!response.ok) {
       if (response.status === 404) {
-        // Файл не существует - возвращаем пустой массив
-        return { data: [], sha: null }  // ← ИСПРАВЛЕНО: было {  [], sha: null }
+        return { data: [], sha: null }  // ← ИСПРАВЛЕНО: добавлено "data:"
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
     const data = await response.json()
-    const content = JSON.parse(atob(data.content))  // Декодируем base64
+    
+    // Декодируем base64 с правильной UTF-8 поддержкой
+    const rawContent = base64ToUtf8(data.content)
+    
+    // Удаляем BOM если есть
+    const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
+    
+    // Парсим JSON
+    const content = JSON.parse(cleanedContent)
     
     return { data: content, sha: data.sha }
   } catch (error) {
@@ -44,7 +64,9 @@ export const getDictionary = async () => {
 // Запись данных в GitHub
 export const updateDictionary = async (newData, currentSha) => {
   try {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))))
+    // Кодируем JSON в Base64 с правильной UTF-8 поддержкой
+    const jsonString = JSON.stringify(newData, null, 2)
+    const content = utf8ToBase64(jsonString)
     
     const body = {
       message: 'Update dictionary via admin panel',
@@ -79,7 +101,7 @@ export const updateDictionary = async (newData, currentSha) => {
 
 // Добавление слова
 export const addWord = async (wordData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -95,7 +117,7 @@ export const addWord = async (wordData) => {
 
 // Обновление слова
 export const updateWord = async (id, updatedData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -106,7 +128,7 @@ export const updateWord = async (id, updatedData) => {
 
 // Удаление слова
 export const deleteWord = async (id) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
