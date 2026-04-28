@@ -61,7 +61,7 @@ function AdminPanel() {
     setError('')
     
     // Простая проверка (замените на свои данные)
-    if (email === 'admin@runy-dic.ru' && password === 'admin123') {
+    if (email === 'ya.kodan76@ya.ru' && password === 'CH23xwrak') {
       const userData = { email, loginAt: new Date().toISOString() }
       localStorage.setItem('adminUser', JSON.stringify(userData))
       setUser(userData)
