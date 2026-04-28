@@ -10,5 +10,17 @@
     "audio2": "1",
     "id": "1777398204035",
     "createdAt": "2026-04-28T17:43:24.035Z"
+  },
+  {
+    "word": "2",
+    "transcription": "2",
+    "translation": "2",
+    "example": "2",
+    "example2": "2",
+    "transcription2": "2",
+    "audio": "2",
+    "audio2": "2",
+    "id": "1777398226240",
+    "createdAt": "2026-04-28T17:43:46.240Z"
   }
 ]
