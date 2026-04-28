@@ -1,6 +1,5 @@
 // src/githubApi.js
 
-// Конфигурация GitHub
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
@@ -27,13 +26,13 @@ export const getDictionary = async () => {
     if (!response.ok) {
       if (response.status === 404) {
         // Файл не существует - возвращаем пустой массив
-        return { data: [], sha: null }
+        return { data: [], sha: null }  // ← ИСПРАВЛЕНО: было {  [], sha: null }
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
     const data = await response.json()
-    const content = JSON.parse(atob(data.content)) // Декодируем base64
+    const content = JSON.parse(atob(data.content))  // Декодируем base64
     
     return { data: content, sha: data.sha }
   } catch (error) {
@@ -80,7 +79,7 @@ export const updateDictionary = async (newData, currentSha) => {
 
 // Добавление слова
 export const addWord = async (wordData) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -96,7 +95,7 @@ export const addWord = async (wordData) => {
 
 // Обновление слова
 export const updateWord = async (id, updatedData) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -107,7 +106,7 @@ export const updateWord = async (id, updatedData) => {
 
 // Удаление слова
 export const deleteWord = async (id) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   

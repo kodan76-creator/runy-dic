@@ -22,7 +22,7 @@ function AdminPanel() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Проверка авторизации (простая, без Firebase)
+  // Проверка авторизации
   useEffect(() => {
     const savedUser = localStorage.getItem('adminUser')
     if (savedUser) {
@@ -61,7 +61,7 @@ function AdminPanel() {
     setError('')
     
     // Простая проверка (замените на свои данные)
-    if (email === 'ya.kodan76@ya.ru' && password === 'CH23xwrak') {
+    if (email === 'ya.kodan76@ya.ru' && password === 'admin123') {
       const userData = { email, loginAt: new Date().toISOString() }
       localStorage.setItem('adminUser', JSON.stringify(userData))
       setUser(userData)
