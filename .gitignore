@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 .env
 .vs/
+# .gitignore
+.env
+.env.local
+.env.production
+dist/
+docs/assets/
+docs/index.html
