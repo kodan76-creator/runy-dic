@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { db } from './firebase'
+import { getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -20,18 +19,15 @@ function Home() {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const q = query(
-          collection(db, 'dictionary'),
-          orderBy('translation', 'asc')
+        const { data } = await getDictionary()
+        // Сортировка по translation
+        const sortedData = [...data].sort((a, b) => 
+          (a.translation || '').localeCompare(b.translation || '')
         )
-        const querySnapshot = await getDocs(q)
-        const wordsList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        setWords(wordsList)
+        setWords(sortedData)
       } catch (err) {
         console.error('Ошибка загрузки:', err)
+        setWords([])
       }
       setLoading(false)
     }
@@ -53,16 +49,13 @@ function Home() {
   const playAudio = (wordId, audioFile) => {
     if (!audioFile) return
     
-    // Если уже играет этот файл - останавливаем
     if (playingId === wordId) {
       stopAudio()
       return
     }
     
-    // Останавливаем всё текущее воспроизведение
     stopAudio()
     
-    // Воспроизводим новый файл
     const baseUrl = import.meta.env.BASE_URL
     const audio = new Audio(`${baseUrl}audio/${audioFile}`)
     audio.play()
@@ -79,16 +72,13 @@ function Home() {
   const playAudio2 = (wordId, audioFile) => {
     if (!audioFile) return
     
-    // Если уже играет этот файл - останавливаем
     if (playingAudio2 === wordId) {
       stopAudio()
       return
     }
     
-    // Останавливаем всё текущее воспроизведение
     stopAudio()
     
-    // Воспроизводим новый файл
     const baseUrl = import.meta.env.BASE_URL
     const audio = new Audio(`${baseUrl}audio/${audioFile}`)
     audio.play()
@@ -111,7 +101,6 @@ function Home() {
     }
     
     if (isPlayingAll) {
-      // Остановить воспроизведение
       stopAudio()
       setIsPlayingAll(false)
       setCurrentPlayIndex(-1)
@@ -119,10 +108,8 @@ function Home() {
       return
     }
     
-    // Создать массив индексов
     let indices = wordsWithAudio.map((_, index) => index)
     
-    // Если случайный режим - перемешать
     if (playMode === 'random') {
       indices = indices.sort(() => Math.random() - 0.5)
     }
@@ -132,12 +119,9 @@ function Home() {
     playNextAudioSequence(wordsWithAudio, indices, 0, 0)
   }
 
-  // Воспроизведение последовательности audio и audio2 для каждого слова
+  // Воспроизведение последовательности audio и audio2
   const playNextAudioSequence = (wordsWithAudio, indices, wordIndex, audioType) => {
-    // audioType: 0 = audio, 1 = audio2
-    
     if (wordIndex >= indices.length) {
-      // Все файлы воспроизведены
       setIsPlayingAll(false)
       setCurrentPlayIndex(-1)
       setCurrentWordIndex(0)
@@ -157,17 +141,14 @@ function Home() {
     } else if (audioType === 1 && word.audio2) {
       audioFile = word.audio2
     } else if (audioType === 0 && !word.audio && word.audio2) {
-      // Если нет audio, но есть audio2 - воспроизводим audio2
       audioFile = word.audio2
       audioType = 1
     } else if (audioType === 1 && !word.audio2) {
-      // Если нет audio2, переходим к следующему слову
       setTimeout(() => {
         playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
       }, 500)
       return
     } else {
-      // Нет подходящего файла, переходим к следующему слову
       setTimeout(() => {
         playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
       }, 500)
@@ -193,13 +174,10 @@ function Home() {
       }
       setCurrentAudio(null)
       
-      // Переход к следующему типу аудио или следующему слову
       setTimeout(() => {
         if (audioType === 0 && word.audio2) {
-          // После audio воспроизводим audio2 того же слова
           playNextAudioSequence(wordsWithAudio, indices, wordIndex, 1)
         } else {
-          // Переходим к следующему слову
           playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
         }
       }, 500)
@@ -207,7 +185,6 @@ function Home() {
     
     audio.onerror = () => {
       console.error(`Ошибка загрузки файла: ${audioFile}`)
-      // Перейти к следующему файлу
       if (audioType === 0) {
         setPlayingId(null)
       } else {
@@ -225,7 +202,6 @@ function Home() {
     }
   }
 
-  // Проверка: играет ли что-то сейчас
   const isAnyAudioPlaying = playingId !== null || playingAudio2 !== null
 
   const filteredData = useMemo(() => {
@@ -266,7 +242,6 @@ function Home() {
   return (
     <div className="container">
       <div className="header">
-        {/* Кнопка "Слушать" слева */}
         <button
           className={`listen-btn ${isPlayingAll ? 'playing' : ''}`}
           onClick={playAllAudio}
@@ -276,7 +251,6 @@ function Home() {
           {isPlayingAll ? '⏹️' : '🎧'} Слушать
         </button>
 
-        {/* Радио-кнопки выбора режима (вертикально) */}
         <div className="play-mode">
           <label className="mode-label">
             <input
@@ -302,7 +276,6 @@ function Home() {
           </label>
         </div>
 
-        {/* Логотип */}
         <img
           src="https://kodan76-creator.github.io/runy-dic/run_r.png"
           alt="Logo"
@@ -324,7 +297,6 @@ function Home() {
         {filteredData.length > 0 ? (
           filteredData.map(item => (
             <div key={item.id} className="card">
-              {/* Кнопка воспроизведения audio (левый верхний угол) */}
               {item.audio && (
                 <button
                   className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
@@ -356,7 +328,6 @@ function Home() {
                 )}
               </div>
 
-              {/* Кнопка воспроизведения audio2 (левый нижний угол) */}
               {item.audio2 && (
                 <button
                   className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}

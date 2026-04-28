@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { db, auth } from './firebase'
+import { getDictionary, addWord, updateWord, deleteWord } from './githubApi'
 import './AdminPanel.css'
 
 function AdminPanel() {
@@ -24,31 +22,21 @@ function AdminPanel() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Проверка авторизации
+  // Проверка авторизации (простая, без Firebase)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
-      if (currentUser) {
-        loadWords()
-      }
-    })
-    return () => unsubscribe()
+    const savedUser = localStorage.getItem('adminUser')
+    if (savedUser) {
+      setUser(JSON.parse(savedUser))
+      loadWords()
+    }
   }, [])
 
-  // Загрузка слов из Firebase
+  // Загрузка слов из GitHub
   const loadWords = async () => {
     setLoading(true)
     try {
-      const q = query(
-        collection(db, 'dictionary'),
-        orderBy('translation', 'asc')
-      )
-      const querySnapshot = await getDocs(q)
-      const wordsList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      setWords(wordsList)
+      const { data } = await getDictionary()
+      setWords(data)
     } catch (err) {
       setError('Ошибка загрузки: ' + err.message)
     }
@@ -71,16 +59,22 @@ function AdminPanel() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
-    try {
-      await signInWithEmailAndPassword(auth, email, password)
-    } catch (err) {
+    
+    // Простая проверка (замените на свои данные)
+    if (email === 'admin@runy-dic.ru' && password === 'admin123') {
+      const userData = { email, loginAt: new Date().toISOString() }
+      localStorage.setItem('adminUser', JSON.stringify(userData))
+      setUser(userData)
+      await loadWords()
+    } else {
       setError('Неверный email или пароль')
     }
   }
 
   // Выход
   const handleLogout = async () => {
-    await signOut(auth)
+    localStorage.removeItem('adminUser')
+    setUser(null)
     setWords([])
   }
 
@@ -92,16 +86,21 @@ function AdminPanel() {
 
     try {
       if (editingId) {
-        const wordRef = doc(db, 'dictionary', editingId)
-        await updateDoc(wordRef, formData)
+        await updateWord(editingId, formData)
       } else {
-        await addDoc(collection(db, 'dictionary'), {
-          ...formData,
-          createdAt: new Date().toISOString()
-        })
+        await addWord(formData)
       }
       
-      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
+      setFormData({ 
+        word: '', 
+        transcription: '', 
+        translation: '', 
+        example: '', 
+        example2: '', 
+        transcription2: '', 
+        audio: '', 
+        audio2: '' 
+      })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -129,7 +128,7 @@ function AdminPanel() {
   const handleDelete = async (id) => {
     if (window.confirm('Удалить эту карточку?')) {
       try {
-        await deleteDoc(doc(db, 'dictionary', id))
+        await deleteWord(id)
         await loadWords()
       } catch (err) {
         setError('Ошибка удаления: ' + err.message)
@@ -140,7 +139,16 @@ function AdminPanel() {
   // Отмена редактирования
   const handleCancel = () => {
     setEditingId(null)
-    setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
+    setFormData({ 
+      word: '', 
+      transcription: '', 
+      translation: '', 
+      example: '', 
+      example2: '', 
+      transcription2: '', 
+      audio: '', 
+      audio2: '' 
+    })
   }
 
   // Форма входа
@@ -175,9 +183,7 @@ function AdminPanel() {
   // Админ-панель
   return (
     <div className="admin-panel">
-      {/* ЕДИНЫЙ ФИКСИРОВАННЫЙ КОНТЕЙНЕР */}
       <div className="admin-fixed-container">
-        {/* Шапка */}
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
@@ -186,9 +192,7 @@ function AdminPanel() {
           </div>
         </div>
 
-        {/* Форма */}
         <div className="form-section">
-          {/* Поле поиска */}
           <div className="search-container">
             <input
               type="text"
@@ -263,12 +267,10 @@ function AdminPanel() {
             {error && <div className="error">{error}</div>}
           </form>
           
-          {/* Счётчик слов под кнопкой "Добавить" */}
           <h3 className="words-count">📚 Все слова ({words.length})</h3>
         </div>
       </div>
 
-      {/* Прокручиваемый контент */}
       <div className="admin-content">
         <div className="words-list">
           {loading && !editingId && <div className="loading">Загрузка...</div>}
