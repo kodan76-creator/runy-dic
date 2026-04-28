@@ -1,10 +1,28 @@
-# deploy.ps1
+﻿# deploy.ps1
+
+# 1. Сборка проекта
 npm run build
-Remove-Item -Recurse -Force docs\assets -ErrorAction SilentlyContinue
-Remove-Item -Force docs\index.html -ErrorAction SilentlyContinue
-Copy-Item -Recurse dist\assets docs\assets
-Copy-Item dist\index.html docs\index.html
+
+# 2. Копирование файлов в docs (с проверкой существования)
+if (Test-Path "dist\assets") {
+    Copy-Item -Recurse -Force dist\assets docs\
+}
+if (Test-Path "dist\index.html") {
+    Copy-Item -Force dist\index.html docs\
+}
+if (Test-Path "dist\audio") {
+    Copy-Item -Recurse -Force dist\audio docs\
+}
+
+# 3. Git операции
 git add .
-git commit -m "Deploy update"
-git push
-Write-Host "✅ Deployed successfully!" -ForegroundColor Green
+git commit -m "Deploy $(Get-Date -Format 'yyyy-MM-dd HH:mm')" -AllowEmpty
+
+# 4. Pull перед push (чтобы избежать конфликта)
+git pull --rebase origin main
+
+# 5. Push
+git push origin main
+
+Write-Host "`n✅ Деплой завершён!" -ForegroundColor Green
+Write-Host "Откройте: https://kodan76-creator.github.io/runy-dic/" -ForegroundColor Cyan
