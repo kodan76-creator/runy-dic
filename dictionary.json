@@ -1,14 +1,38 @@
 [
   {
-    "word": "1",
-    "transcription": "1",
-    "translation": "1",
-    "example": "1",
-    "example2": "1",
-    "transcription2": "1",
-    "audio": "1_runy.mp3",
-    "audio2": "1_r_prim.mp3",
-    "id": "1777482536038",
-    "createdAt": "2026-04-29T17:08:56.038Z"
+    "word": "ЗШЮЪ",
+    "transcription": "тУрз ша амаЮн эль",
+    "translation": "Просадка нечистых сил вниз",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1777490180839",
+    "createdAt": "2026-04-29T19:16:20.839Z"
+  },
+  {
+    "word": "ф-сгпе жчфъ. юзу хатхчжгп нчси, лчси си чби. земчю ле хъфин ти мгто раъ.",
+    "transcription": "фаИс-сЭйпе жайфЭль. юзУ хатхайжЭйп найсИ, лайсИ си айбИ. зермЭйю ле хэльфИн ти мЭйто раль.",
+    "translation": "Было лето. Давно прошёл июнь, июль и август. Вижу плоды своей работы.",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "leto_runy.mp3",
+    "audio2": "leto_r_prim.mp3",
+    "id": "1777490539732",
+    "createdAt": "2026-04-29T19:22:19.732Z"
+  },
+  {
+    "word": "степэ",
+    "transcription": "стерпЭ",
+    "translation": "старое",
+    "example": "Старое - чужое.",
+    "example2": "степэ - сэфбэпэ",
+    "transcription2": "стерпЭ - сэфбЭпэ",
+    "audio": "staroe_runy.mp3",
+    "audio2": "staroe_r_prim.mp3",
+    "id": "1777490783180",
+    "createdAt": "2026-04-29T19:26:23.180Z"
   }
 ]
