@@ -14,3 +14,24 @@ git push origin main
 
 # 6. Проверьте сайт
 # https://kodan76-creator.github.io/runy-dic/
+
+#####################################################################################
+
+Как добавить нового админа:
+1.Сгенерируйте хэш пароля в консоли браузера:
+    const pwd = "новый_пароль";
+    const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+    console.log(Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''));
+
+2.Добавьте запись в admins.json:
+    {
+  "email": "new@admin.ru",
+  "passwordHash": "скопированный_хэш",
+  "createdAt": "2025-01-15T10:00:00.000Z",
+  "role": "admin"
+    }
+
+3.Закоммитьте и отправьте:
+    git add admins.json
+    git commit -m "Add new admin"
+    git push origin main
