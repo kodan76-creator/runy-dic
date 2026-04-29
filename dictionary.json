@@ -34,5 +34,17 @@
     "audio2": "staroe_r_prim.mp3",
     "id": "1777490783180",
     "createdAt": "2026-04-29T19:26:23.180Z"
+  },
+  {
+    "word": "тера",
+    "transcription": "тЕрра",
+    "translation": "3, три",
+    "example": "Три старых друга в кино.",
+    "example2": "тера ъаъхо теи кинова.",
+    "transcription2": "тЕрра эльАльхо терИ кинОва.",
+    "audio": "3_runy.mp3",
+    "audio2": "3_r_prim.mp3",
+    "id": "1777502736882",
+    "createdAt": "2026-04-29T22:45:36.882Z"
   }
 ]
