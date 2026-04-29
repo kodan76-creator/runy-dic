@@ -1,0 +1,16 @@
+# 1. Внесите изменения в код
+# 2. Проверьте локально
+npm run dev -- --host
+
+# 3. Закоммитьте
+git add .
+git commit -m "Описание изменений"
+
+# 4. Задеплойте
+git push origin main
+
+# 5. Проверьте Actions
+# https://github.com/kodan76-creator/runy-dic/actions
+
+# 6. Проверьте сайт
+# https://kodan76-creator.github.io/runy-dic/
