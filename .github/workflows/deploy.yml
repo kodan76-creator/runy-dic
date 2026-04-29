@@ -26,7 +26,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # ← Изменено!
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
