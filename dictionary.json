@@ -22,5 +22,17 @@
     "audio2": "leto_r_prim.mp3",
     "id": "1777490539732",
     "createdAt": "2026-04-29T19:22:19.732Z"
+  },
+  {
+    "word": "степэ",
+    "transcription": "стерпЭ",
+    "translation": "старое",
+    "example": "Старое - чужое.",
+    "example2": "степэ - сэфбэпэ",
+    "transcription2": "стерпЭ - сэфбЭпэ",
+    "audio": "staroe_runy.mp3",
+    "audio2": "staroe_r_prim.mp3",
+    "id": "1777490783180",
+    "createdAt": "2026-04-29T19:26:23.180Z"
   }
 ]
