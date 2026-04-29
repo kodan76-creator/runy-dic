@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getDictionary, addWord, updateWord, deleteWord } from './githubApi'
+import { getDictionary, addWord, updateWord, deleteWord, verifyAdmin } from './githubApi'
 import './AdminPanel.css'
 
 function AdminPanel() {
@@ -21,8 +21,9 @@ function AdminPanel() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
 
-  // Проверка авторизации
+  // Проверка авторизации при загрузке
   useEffect(() => {
     const savedUser = localStorage.getItem('adminUser')
     if (savedUser) {
@@ -59,16 +60,29 @@ function AdminPanel() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
+    setAuthLoading(true)
     
-    // Простая проверка (замените на свои данные)
-    if (email === 'ya.kodan76@ya.ru' && password === 'admin123') {
-      const userData = { email, loginAt: new Date().toISOString() }
-      localStorage.setItem('adminUser', JSON.stringify(userData))
-      setUser(userData)
-      await loadWords()
-    } else {
-      setError('Неверный email или пароль')
+    try {
+      const isValid = await verifyAdmin(email, password)
+      
+      if (isValid) {
+        const userData = { 
+          email, 
+          loginAt: new Date().toISOString(),
+          role: 'admin'
+        }
+        localStorage.setItem('adminUser', JSON.stringify(userData))
+        setUser(userData)
+        setEmail('')
+        setPassword('')
+        await loadWords()
+      } else {
+        setError('Неверный email или пароль')
+      }
+    } catch (err) {
+      setError('Ошибка авторизации: ' + err.message)
     }
+    setAuthLoading(false)
   }
 
   // Выход
@@ -164,6 +178,7 @@ function AdminPanel() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={authLoading}
             />
             <input
               type="password"
@@ -171,9 +186,12 @@ function AdminPanel() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={authLoading}
             />
             {error && <div className="error">{error}</div>}
-            <button type="submit" className="login-btn">Войти</button>
+            <button type="submit" className="login-btn" disabled={authLoading}>
+              {authLoading ? 'Проверка...' : 'Войти'}
+            </button>
           </form>
         </div>
       </div>
@@ -238,19 +256,19 @@ function AdminPanel() {
             />
             <input
               type="text"
-              placeholder="Транскрипция примера 2"
+              placeholder="Транскрипция примера (на рунном языке)"
               value={formData.transcription2}
               onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
             />
             <input
               type="text"
-              placeholder="Audio файл (например: word1.mp3)"
+              placeholder="Audio файл на рунном языке (..._runy.mp3)"
               value={formData.audio}
               onChange={(e) => setFormData({...formData, audio: e.target.value})}
             />
             <input
               type="text"
-              placeholder="Audio2 файл (пример, например: example1.mp3)"
+              placeholder="Audio файл на рунном языке (..._r_prim.mp3)"
               value={formData.audio2}
               onChange={(e) => setFormData({...formData, audio2: e.target.value})}
             />

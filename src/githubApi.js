@@ -4,6 +4,7 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
+const ADMINS_FILE = 'admins.json'
 
 // Получение токена из env
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
@@ -15,21 +16,20 @@ const getHeaders = () => ({
   'Content-Type': 'application/json',
 })
 
-// ✅ Правильное кодирование UTF-8 в Base64
-const utf8ToBase64 = (str) => {
-  return btoa(unescape(encodeURIComponent(str)))
+// ✅ Хэширование пароля (SHA-256)
+export const hashPassword = async (password) => {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// ✅ Правильное декодирование Base64 в UTF-8
-const base64ToUtf8 = (str) => {
-  return decodeURIComponent(escape(atob(str)))
-}
-
-// Чтение данных из GitHub
-export const getDictionary = async () => {
+// Чтение любого файла из GitHub
+const fetchGitHubFile = async (fileName) => {
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}?ref=${GITHUB_BRANCH}&t=${Date.now()}`,
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`,
       { 
         headers: getHeaders(),
         cache: 'no-cache'
@@ -38,38 +38,31 @@ export const getDictionary = async () => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }  // ← ИСПРАВЛЕНО: добавлено "data:"
+        return { data: [], sha: null }
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
     const data = await response.json()
-    
-    // Декодируем base64 с правильной UTF-8 поддержкой
-    const rawContent = base64ToUtf8(data.content)
-    
-    // Удаляем BOM если есть
+    const rawContent = decodeURIComponent(escape(atob(data.content)))
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
-    
-    // Парсим JSON
     const content = JSON.parse(cleanedContent)
     
     return { data: content, sha: data.sha }
   } catch (error) {
-    console.error('Error fetching dictionary:', error)
+    console.error(`Error fetching ${fileName}:`, error)
     throw error
   }
 }
 
-// Запись данных в GitHub
-export const updateDictionary = async (newData, currentSha) => {
+// Запись любого файла в GitHub
+const updateGitHubFile = async (fileName, newData, currentSha) => {
   try {
-    // Кодируем JSON в Base64 с правильной UTF-8 поддержкой
     const jsonString = JSON.stringify(newData, null, 2)
-    const content = utf8ToBase64(jsonString)
+    const content = btoa(unescape(encodeURIComponent(jsonString)))
     
     const body = {
-      message: 'Update dictionary via admin panel',
+      message: `Update ${fileName} via admin panel`,
       content,
       branch: GITHUB_BRANCH,
     }
@@ -79,7 +72,7 @@ export const updateDictionary = async (newData, currentSha) => {
     }
     
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`,
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
       {
         method: 'PUT',
         headers: getHeaders(),
@@ -94,12 +87,36 @@ export const updateDictionary = async (newData, currentSha) => {
     
     return await response.json()
   } catch (error) {
-    console.error('Error updating dictionary:', error)
+    console.error(`Error updating ${fileName}:`, error)
     throw error
   }
 }
 
-// Добавление слова
+// 🔐 Функции для работы с админами
+export const getAdmins = async () => {
+  const { data } = await fetchGitHubFile(ADMINS_FILE)
+  return data
+}
+
+export const verifyAdmin = async (email, password) => {
+  const admins = await getAdmins()
+  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
+  
+  if (!admin) return false
+  
+  const inputHash = await hashPassword(password)
+  return inputHash === admin.passwordHash
+}
+
+// 📚 Функции для работы со словарём
+export const getDictionary = async () => {
+  return await fetchGitHubFile(DATA_FILE)
+}
+
+export const updateDictionary = async (newData, currentSha) => {
+  return await updateGitHubFile(DATA_FILE, newData, currentSha)
+}
+
 export const addWord = async (wordData) => {
   const { data: dictionary, sha } = await getDictionary()
   
@@ -115,7 +132,6 @@ export const addWord = async (wordData) => {
   return newWord
 }
 
-// Обновление слова
 export const updateWord = async (id, updatedData) => {
   const { data: dictionary, sha } = await getDictionary()
   
@@ -126,7 +142,6 @@ export const updateWord = async (id, updatedData) => {
   await updateDictionary(updatedDictionary, sha)
 }
 
-// Удаление слова
 export const deleteWord = async (id) => {
   const { data: dictionary, sha } = await getDictionary()
   
