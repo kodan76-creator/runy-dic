@@ -44,9 +44,10 @@ function AdminPanel() {
     setLoading(false)
   }
 
-  // Фильтрация слов по поиску
+  // Фильтрация и сортировка слов по поиску и translation
   const filteredWords = useMemo(() => {
-    return words.filter(item =>
+    // Сначала фильтруем
+    let filtered = words.filter(item =>
       item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,6 +55,13 @@ function AdminPanel() {
       (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
     )
+    
+    // ✅ Сортируем по полю translation (алфавитный порядок)
+    filtered.sort((a, b) => 
+      (a.translation || '').localeCompare(b.translation || '', 'ru')
+    )
+    
+    return filtered
   }, [searchTerm, words])
 
   // 🔐 Вход в систему (ПРОВЕРКА ИЗ admins.json)
