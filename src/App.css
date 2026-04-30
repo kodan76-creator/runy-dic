@@ -445,7 +445,7 @@ body {
 /* Адаптивность */
 @media (max-width: 768px) {
   .container {
-    padding-top: 480px;
+    padding-top: 380px;
     padding-left: 10px;
     padding-right: 10px;
   }
