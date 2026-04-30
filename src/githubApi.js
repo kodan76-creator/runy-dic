@@ -4,7 +4,7 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
-const USERS_FILE = 'users.json'
+const ADMINS_FILE = 'admins.json'
 
 // Получение токена из env
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
@@ -102,48 +102,20 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ (users.json)
-export const getUsers = async () => {
-  const { data } = await fetchGitHubFile(USERS_FILE)
-  return data || []  // ✅ Гарантируем массив
+// 🔐 Функции для работы с АДМИНАМИ (admins.json)
+export const getAdmins = async () => {
+  const { data } = await fetchGitHubFile(ADMINS_FILE)
+  return data || []
 }
 
-export const registerUser = async (email, password) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)  // ✅ Получаем users И sha
+export const verifyAdmin = async (email, password) => {
+  const admins = await getAdmins()
+  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
   
-  // Проверка: пользователь уже существует
-  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-    throw new Error('Пользователь с таким email уже существует')
-  }
-  
-  const passwordHash = await hashPassword(password)
-  
-  const newUser = {
-    id: Date.now().toString(),
-    email,
-    passwordHash,
-    createdAt: new Date().toISOString(),
-    role: 'user'
-  }
-  
-  const updatedUsers = [...users, newUser]
-  await updateGitHubFile(USERS_FILE, updatedUsers, sha)  // ✅ Передаём sha
-  
-  const { passwordHash: _, ...userWithoutPass } = newUser
-  return userWithoutPass
-}
-
-export const verifyUser = async (email, password) => {
-  const users = await getUsers()
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
-  
-  if (!user) return null
+  if (!admin) return false
   
   const inputHash = await hashPassword(password)
-  if (inputHash !== user.passwordHash) return null
-  
-  const { passwordHash: _, ...userWithoutPass } = user
-  return userWithoutPass
+  return inputHash === admin.passwordHash
 }
 
 // 📚 Функции для работы со словарём
