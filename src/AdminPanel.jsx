@@ -264,7 +264,7 @@ function AdminPanel() {
             />
             <input
               type="text"
-              placeholder="Audio файл на рунном языке (..._r_prim.mp3)"
+              placeholder="Audio файл на русско-рунном языке (..._r_prim.mp3)"
               value={formData.audio2}
               onChange={(e) => setFormData({...formData, audio2: e.target.value})}
             />
