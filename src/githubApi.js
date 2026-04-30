@@ -4,7 +4,6 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
-const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 
 // Получение токена из env
@@ -42,7 +41,7 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }
+        return { data: [], sha: null }  // ✅ Возвращаем пустой массив
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -52,7 +51,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return {  content, sha: data.sha }
+    return { data: content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -66,7 +65,7 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
     const content = btoa(unescape(encodeURIComponent(jsonString)))
     
     const body = {
-      message: `Update ${fileName} via app`,
+      message: `Update ${fileName}`,
       content,
       branch: GITHUB_BRANCH,
     }
@@ -96,26 +95,10 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 🔐 Функции для работы с админами
-export const getAdmins = async () => {
-  const { data } = await fetchGitHubFile(ADMINS_FILE)
-  return data
-}
-
-export const verifyAdmin = async (email, password) => {
-  const admins = await getAdmins()
-  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
-  
-  if (!admin) return false
-  
-  const inputHash = await hashPassword(password)
-  return inputHash === admin.passwordHash
-}
-
 // 👥 Функции для работы с пользователями
 export const getUsers = async () => {
   const { data } = await fetchGitHubFile(USERS_FILE)
-  return data
+  return data || []  // ✅ Гарантируем массив
 }
 
 export const registerUser = async (email, password) => {
@@ -158,16 +141,6 @@ export const verifyUser = async (email, password) => {
   return userWithoutPass
 }
 
-export const updateUser = async (userId, updatedData) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
-  
-  const updatedUsers = users.map(user =>
-    user.id === userId ? { ...user, ...updatedData } : user
-  )
-  
-  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
-}
-
 // 📚 Функции для работы со словарём
 export const getDictionary = async () => {
   return await fetchGitHubFile(DATA_FILE)
@@ -178,7 +151,7 @@ export const updateDictionary = async (newData, currentSha) => {
 }
 
 export const addWord = async (wordData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -193,7 +166,7 @@ export const addWord = async (wordData) => {
 }
 
 export const updateWord = async (id, updatedData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -203,7 +176,7 @@ export const updateWord = async (id, updatedData) => {
 }
 
 export const deleteWord = async (id) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
