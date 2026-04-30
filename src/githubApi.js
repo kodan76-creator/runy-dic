@@ -4,7 +4,6 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
-const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 
 // Получение токена из env
@@ -19,19 +18,6 @@ const getHeaders = () => ({
 
 // ✅ Хэширование пароля (SHA-256)
 export const hashPassword = async (password) => {
-  // Проверка на доступность crypto.subtle (работает только в HTTPS или localhost)
-  if (!crypto.subtle) {
-    console.warn('Crypto API unavailable. Using fallback hash (insecure).')
-    // Простой fallback для небезопасных соединений (ТОЛЬКО ДЛЯ ТЕСТОВ!)
-    let hash = 0
-    for (let i = 0; i < password.length; i++) {
-      const char = password.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash
-    }
-    return Math.abs(hash).toString(16).padStart(64, '0')
-  }
-
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -62,7 +48,7 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }  // ✅ Файл не найден - возвращаем пустой массив и null sha
+        return { data: [], sha: null }  // ✅ Всегда с ""
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -72,7 +58,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return {  content, sha: data.sha }  // ✅ Возвращаем данные И sha
+    return {  content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -91,7 +77,6 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
       branch: GITHUB_BRANCH,
     }
     
-    // ✅ ВАЖНО: Если файл существует, sha обязателен. Если новый (null) - не передаём.
     if (currentSha) {
       body.sha = currentSha
     }
@@ -117,33 +102,16 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 🔐 Функции для работы с АДМИНАМИ (admins.json)
-export const getAdmins = async () => {
-  const { data } = await fetchGitHubFile(ADMINS_FILE)
-  return data || []
-}
-
-export const verifyAdmin = async (email, password) => {
-  const admins = await getAdmins()
-  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
-  
-  if (!admin) return false
-  
-  const inputHash = await hashPassword(password)
-  return inputHash === admin.passwordHash
-}
-
 // 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ (users.json)
 export const getUsers = async () => {
   const { data } = await fetchGitHubFile(USERS_FILE)
-  return data || []
+  return data || []  // ✅ Гарантируем массив
 }
 
 export const registerUser = async (email, password) => {
-  // ✅ 1. Получаем текущий файл И ЕГО SHA
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)  // ✅ Получаем users И sha
   
-  // 2. Проверка: пользователь уже существует
+  // Проверка: пользователь уже существует
   if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
   }
@@ -159,9 +127,7 @@ export const registerUser = async (email, password) => {
   }
   
   const updatedUsers = [...users, newUser]
-  
-  // ✅ 3. Передаём sha в updateGitHubFile (если файл существовал)
-  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
+  await updateGitHubFile(USERS_FILE, updatedUsers, sha)  // ✅ Передаём sha
   
   const { passwordHash: _, ...userWithoutPass } = newUser
   return userWithoutPass
