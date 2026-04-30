@@ -5,6 +5,7 @@ const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
 const ADMINS_FILE = 'admins.json'
+const USERS_FILE = 'users.json'
 
 // Получение токена из env
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
@@ -18,6 +19,17 @@ const getHeaders = () => ({
 
 // ✅ Хэширование пароля (SHA-256)
 export const hashPassword = async (password) => {
+  if (!crypto.subtle) {
+    // Fallback для HTTP (небезопасно, но работает)
+    let hash = 0
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash
+    }
+    return Math.abs(hash).toString(16).padStart(64, '0')
+  }
+  
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -48,7 +60,7 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }  // ✅ Всегда с ""
+        return { data: [], sha: null }  // ✅ Всегда с "data:"
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -58,7 +70,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return {  content, sha: data.sha }
+    return { data: content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -118,6 +130,49 @@ export const verifyAdmin = async (email, password) => {
   return inputHash === admin.passwordHash
 }
 
+// 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ (users.json)
+export const getUsers = async () => {
+  const { data } = await fetchGitHubFile(USERS_FILE)
+  return data || []
+}
+
+export const registerUser = async (email, password) => {
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  
+  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+    throw new Error('Пользователь с таким email уже существует')
+  }
+  
+  const passwordHash = await hashPassword(password)
+  
+  const newUser = {
+    id: Date.now().toString(),
+    email,
+    passwordHash,
+    createdAt: new Date().toISOString(),
+    role: 'user'
+  }
+  
+  const updatedUsers = [...users, newUser]
+  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
+  
+  const { passwordHash: _, ...userWithoutPass } = newUser
+  return userWithoutPass
+}
+
+export const verifyUser = async (email, password) => {
+  const users = await getUsers()
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+  
+  if (!user) return null
+  
+  const inputHash = await hashPassword(password)
+  if (inputHash !== user.passwordHash) return null
+  
+  const { passwordHash: _, ...userWithoutPass } = user
+  return userWithoutPass
+}
+
 // 📚 Функции для работы со словарём
 export const getDictionary = async () => {
   return await fetchGitHubFile(DATA_FILE)
@@ -128,7 +183,7 @@ export const updateDictionary = async (newData, currentSha) => {
 }
 
 export const addWord = async (wordData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -143,7 +198,7 @@ export const addWord = async (wordData) => {
 }
 
 export const updateWord = async (id, updatedData) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -153,7 +208,7 @@ export const updateWord = async (id, updatedData) => {
 }
 
 export const deleteWord = async (id) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
