@@ -23,7 +23,7 @@ function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
-  // Проверка авторизации при загрузке
+  // Проверка авторизации
   useEffect(() => {
     const savedUser = localStorage.getItem('adminUser')
     if (savedUser) {
@@ -56,7 +56,7 @@ function AdminPanel() {
     )
   }, [searchTerm, words])
 
-  // Вход в систему
+  // 🔐 Вход в систему (ПРОВЕРКА ИЗ admins.json)
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -66,11 +66,7 @@ function AdminPanel() {
       const isValid = await verifyAdmin(email, password)
       
       if (isValid) {
-        const userData = { 
-          email, 
-          loginAt: new Date().toISOString(),
-          role: 'admin'
-        }
+        const userData = { email, loginAt: new Date().toISOString(), role: 'admin' }
         localStorage.setItem('adminUser', JSON.stringify(userData))
         setUser(userData)
         setEmail('')
@@ -268,7 +264,7 @@ function AdminPanel() {
             />
             <input
               type="text"
-              placeholder="Audio файл на русском языке (..._r_prim.mp3)"
+              placeholder="Audio файл на рунном языке (..._r_prim.mp3)"
               value={formData.audio2}
               onChange={(e) => setFormData({...formData, audio2: e.target.value})}
             />

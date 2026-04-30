@@ -4,6 +4,7 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
+const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 
 // Получение токена из env
@@ -25,8 +26,15 @@ export const hashPassword = async (password) => {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// 🔐 Генерация уникального ID
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2)
+// ✅ Правильное кодирование UTF-8 в Base64
+const utf8ToBase64 = (str) => {
+  return btoa(unescape(encodeURIComponent(str)))
+}
+
+// ✅ Правильное декодирование Base64 в UTF-8
+const base64ToUtf8 = (str) => {
+  return decodeURIComponent(escape(atob(str)))
+}
 
 // Чтение любого файла из GitHub
 const fetchGitHubFile = async (fileName) => {
@@ -41,13 +49,13 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }  // ✅ Возвращаем пустой массив
+        return { data: [], sha: null }  // ✅ Всегда с "data:"
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
     const data = await response.json()
-    const rawContent = decodeURIComponent(escape(atob(data.content)))
+    const rawContent = base64ToUtf8(data.content)
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
@@ -62,7 +70,7 @@ const fetchGitHubFile = async (fileName) => {
 const updateGitHubFile = async (fileName, newData, currentSha) => {
   try {
     const jsonString = JSON.stringify(newData, null, 2)
-    const content = btoa(unescape(encodeURIComponent(jsonString)))
+    const content = utf8ToBase64(jsonString)
     
     const body = {
       message: `Update ${fileName}`,
@@ -95,16 +103,31 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 👥 Функции для работы с пользователями
+// 🔐 Функции для работы с АДМИНАМИ (admins.json)
+export const getAdmins = async () => {
+  const { data } = await fetchGitHubFile(ADMINS_FILE)
+  return data || []
+}
+
+export const verifyAdmin = async (email, password) => {
+  const admins = await getAdmins()
+  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
+  
+  if (!admin) return false
+  
+  const inputHash = await hashPassword(password)
+  return inputHash === admin.passwordHash
+}
+
+// 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ (users.json)
 export const getUsers = async () => {
   const { data } = await fetchGitHubFile(USERS_FILE)
-  return data || []  // ✅ Гарантируем массив
+  return data || []
 }
 
 export const registerUser = async (email, password) => {
   const users = await getUsers()
   
-  // Проверка: пользователь уже существует
   if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
   }
@@ -112,7 +135,7 @@ export const registerUser = async (email, password) => {
   const passwordHash = await hashPassword(password)
   
   const newUser = {
-    id: generateId(),
+    id: Date.now().toString(),
     email,
     passwordHash,
     createdAt: new Date().toISOString(),
@@ -122,7 +145,6 @@ export const registerUser = async (email, password) => {
   const updatedUsers = [...users, newUser]
   await updateGitHubFile(USERS_FILE, updatedUsers, null)
   
-  // Возвращаем пользователя без пароля
   const { passwordHash: _, ...userWithoutPass } = newUser
   return userWithoutPass
 }
@@ -136,7 +158,6 @@ export const verifyUser = async (email, password) => {
   const inputHash = await hashPassword(password)
   if (inputHash !== user.passwordHash) return null
   
-  // Возвращаем пользователя без пароля
   const { passwordHash: _, ...userWithoutPass } = user
   return userWithoutPass
 }
@@ -155,7 +176,7 @@ export const addWord = async (wordData) => {
   
   const newWord = {
     ...wordData,
-    id: generateId(),
+    id: Date.now().toString(),
     createdAt: new Date().toISOString(),
   }
   
