@@ -1,10 +1,114 @@
 import { useState, useMemo, useEffect } from 'react'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
-import { getDictionary } from './githubApi'
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { getDictionary, verifyUser, registerUser } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
-function Home() {
+// Компонент формы входа/регистрации
+function AuthForm({ onLogin }) {
+  const [isLogin, setIsLogin] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      if (isLogin) {
+        // Вход
+        const user = await verifyUser(email, password)
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify(user))
+          onLogin(user)
+        } else {
+          setError('Неверный email или пароль')
+        }
+      } else {
+        // Регистрация
+        if (password !== confirmPassword) {
+          throw new Error('Пароли не совпадают')
+        }
+        if (password.length < 6) {
+          throw new Error('Пароль должен быть не менее 6 символов')
+        }
+        
+        const user = await registerUser(email, password)
+        localStorage.setItem('currentUser', JSON.stringify(user))
+        onLogin(user)
+      }
+    } catch (err) {
+      setError(err.message || 'Ошибка авторизации')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="auth-container">
+      <div className="auth-box">
+        <img
+          src="/runy-dic/run_r.png"
+          alt="Logo"
+          className="auth-logo"
+        />
+        <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
+        
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+          {!isLogin && (
+            <input
+              type="password"
+              placeholder="Подтвердите пароль"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          )}
+          {error && <div className="error">{error}</div>}
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          </button>
+        </form>
+        
+        <button 
+          className="toggle-auth-btn"
+          onClick={() => {
+            setIsLogin(!isLogin)
+            setError('')
+            setPassword('')
+            setConfirmPassword('')
+          }}
+          disabled={loading}
+        >
+          {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Главный компонент приложения
+function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
@@ -20,8 +124,7 @@ function Home() {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        // Сортировка по translation
-        const sortedData = [...data].sort((a, b) => 
+        const sortedData = [...(data || [])].sort((a, b) => 
           (a.translation || '').localeCompare(b.translation || '')
         )
         setWords(sortedData)
@@ -223,8 +326,6 @@ function Home() {
             src="/runy-dic/run_r.png"
             alt="Logo"
             className="logo"
-            width="130"
-            height="119"
           />
           <input
             type="text"
@@ -280,8 +381,6 @@ function Home() {
           src="/runy-dic/run_r.png"
           alt="Logo"
           className="logo"
-          width="130"
-          height="119"
         />
 
         <input
@@ -291,6 +390,11 @@ function Home() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
+
+        {/* Кнопка выхода для пользователя */}
+        <button className="logout-btn-user" onClick={onLogout}>
+          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+        </button>
       </div>
 
       <div className="results">
@@ -348,12 +452,65 @@ function Home() {
   )
 }
 
+// Protected Route компонент
+function ProtectedRoute({ children, user }) {
+  if (!user) {
+    return <Navigate to="/auth" replace />
+  }
+  return children
+}
+
+// Главный компонент App
 function App() {
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+
+  // Проверка авторизации при загрузке
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser')
+    if (savedUser) {
+      setUser(JSON.parse(savedUser))
+    }
+    setAuthLoading(false)
+  }, [])
+
+  const handleLogin = (userData) => {
+    setUser(userData)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser')
+    setUser(null)
+  }
+
+  if (authLoading) {
+    return <div className="loading-full">Загрузка...</div>
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route 
+          path="/auth" 
+          element={!user ? <AuthForm onLogin={handleLogin} /> : <Navigate to="/" replace />} 
+        />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute user={user}>
+              <Home user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute user={user}>
+              <AdminPanel />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )
