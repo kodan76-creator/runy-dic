@@ -1,0 +1,86 @@
+[
+  {
+    "word": "ЗШЮЪ",
+    "transcription": "тУрз ша амаЮн эль",
+    "translation": "Просадка нечистых сил вниз",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1777490180839",
+    "createdAt": "2026-04-29T19:16:20.839Z"
+  },
+  {
+    "word": "ф-сгпе жчфъ. юзу хатхчжгп нчси, лчси си чби. земчю ле хъфин ти мгто раъ.",
+    "transcription": "фаИс-сЭйпе жайфЭль. юзУ хатхайжЭйп найсИ, лайсИ си айбИ. зермЭйю ле хэльфИн ти мЭйто раль.",
+    "translation": "Было лето. Давно прошёл июнь, июль и август. Вижу плоды своей работы.",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "leto_runy.mp3",
+    "audio2": "leto_r_prim.mp3",
+    "id": "1777490539732",
+    "createdAt": "2026-04-29T19:22:19.732Z"
+  },
+  {
+    "word": "степэ",
+    "transcription": "стерпЭ",
+    "translation": "старое",
+    "example": "Старое - чужое.",
+    "example2": "степэ - сэфбэпэ",
+    "transcription2": "стерпЭ - сэфбЭпэ",
+    "audio": "staroe_runy.mp3",
+    "audio2": "staroe_r_prim.mp3",
+    "id": "1777490783180",
+    "createdAt": "2026-04-29T19:26:23.180Z"
+  },
+  {
+    "word": "тера*",
+    "transcription": "тЕрра",
+    "translation": "3, три",
+    "example": "Три старых друга в кино.",
+    "example2": "тера ъаъхо теи кинова.",
+    "transcription2": "тЕрра эльАльхо терИ кинОва.",
+    "audio": "3_runy.mp3",
+    "audio2": "3_r_prim.mp3",
+    "id": "1777502736882",
+    "createdAt": "2026-04-29T22:45:36.882Z"
+  },
+  {
+    "word": "ф-сгпе*",
+    "transcription": "фаИс-сЭйпе",
+    "translation": "Было",
+    "example": "Было лето.",
+    "example2": "ф-сгпе жчфъ.",
+    "transcription2": "фаИс-сЭйпе жайфЭль",
+    "audio": "",
+    "audio2": "",
+    "id": "1777502969201",
+    "createdAt": "2026-04-29T22:49:29.201Z"
+  },
+  {
+    "word": "ФЕЦЪ*",
+    "transcription": "фаИс-су аль-гО цЭрэ эль",
+    "translation": "Защита личности",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1777503296577",
+    "createdAt": "2026-04-29T22:54:56.577Z"
+  },
+  {
+    "word": "жчна*",
+    "transcription": "жАйна",
+    "translation": "жена",
+    "example": "Она моя жена.",
+    "example2": "вгна име жчна.",
+    "transcription2": "вЭйна имЕ жАйна.",
+    "audio": "",
+    "audio2": "",
+    "id": "1777503455206",
+    "createdAt": "2026-04-29T22:57:35.206Z"
+  }
+]
