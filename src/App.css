@@ -104,7 +104,7 @@
 /* 📱 Основной контейнер приложения */
 .container {
   min-height: 100vh;
-  background-color: #aa3bff40;
+  background-color: #1a1a2e;  /* ✅ Тёмный фон */
   padding: 20px;
   padding-top: 200px;
 }
@@ -252,12 +252,13 @@
 /* Карточка слова */
 .card {
   background: #c084fc;
-  padding: 20px;
+  padding: 20px 60px;  /* ✅ Отступы для кнопок слева и справа */
   border-radius: 12px;
   border: 2px solid #7b1fa2;
   border-left: 6px solid #7b1fa2;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   position: relative;
+  min-height: 150px;  /* ✅ Минимальная высота */
 }
 
 /* Строка со словом и транскрипцией */
@@ -344,7 +345,7 @@
   white-space: nowrap;
 }
 
-/* Кнопки аудио */
+/* Кнопки аудио - ИСПРАВЛЕНО ПОЗИЦИОНИРОВАНИЕ */
 .audio-btn,
 .audio-btn-bottom {
   position: absolute;
@@ -364,12 +365,12 @@
 
 .audio-btn {
   top: 15px;
-  left: 15px;
+  left: 15px;  /* ✅ Верхняя левая кнопка */
 }
 
 .audio-btn-bottom {
   bottom: 15px;
-  right: 15px;
+  right: 15px;  /* ✅ Нижняя правая кнопка */
 }
 
 .audio-btn:hover:not(:disabled),
@@ -406,7 +407,7 @@
   justify-content: center;
   font-size: 20px;
   color: #aa3bff;
-  background-color: #aa3bff40;
+  background-color: #1a1a2e;
 }
 
 /* Адаптивность */
@@ -446,7 +447,7 @@
   }
   
   .card {
-    padding: 15px;
+    padding: 15px 50px;  /* ✅ Отступы для кнопок на мобильных */
   }
   
   .audio-btn,
