@@ -19,5 +19,12 @@
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
     "createdAt": "2026-05-03T10:50:29.586Z",
     "role": "user"
+  },
+  {
+    "id": "1777806045352",
+    "email": "ya.kostima11@yandex.ru",
+    "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
+    "createdAt": "2026-05-03T11:00:45.352Z",
+    "role": "user"
   }
 ]
