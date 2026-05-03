@@ -12,5 +12,12 @@
     "passwordHash": "bcb15f821479b4d5772bd0ca866c00ad5f926e3580720659cc80d39c9d09802a",
     "createdAt": "2026-04-30T14:22:16.511Z",
     "role": "user"
+  },
+  {
+    "id": "1777805429586",
+    "email": "citer2380@gmail.com",
+    "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
+    "createdAt": "2026-05-03T10:50:29.586Z",
+    "role": "user"
   }
 ]
