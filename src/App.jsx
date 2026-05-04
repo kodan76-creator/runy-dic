@@ -1,7 +1,12 @@
-import { useState, useMemo, useEffect } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { getDictionary, verifyUser, registerUser, addLog } from './githubApi'
-import AdminPanel from './AdminPanel'
+import { useState, useEffect } from 'react'
+import { 
+  getDictionary, 
+  verifyUser, 
+  registerUser, 
+  logoutUser,
+  logSearch,
+  logAudioPlay
+} from './githubApi'
 import './App.css'
 
 // Компонент формы входа/регистрации
@@ -119,6 +124,7 @@ function Home({ user, onLogout }) {
   const [isPlayingAll, setIsPlayingAll] = useState(false)
   const [currentPlayIndex, setCurrentPlayIndex] = useState(-1)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [lastLoggedSearch, setLastLoggedSearch] = useState('')
 
   useEffect(() => {
     const loadWords = async () => {
@@ -128,15 +134,6 @@ function Home({ user, onLogout }) {
           (a.translation || '').localeCompare(b.translation || '')
         )
         setWords(sortedData)
-        
-        // Логирование просмотра словаря
-        if (user?.email) {
-          await addLog({
-            action: 'dictionary_viewed',
-            userEmail: user.email,
-            details: `Просмотрено слов: ${sortedData.length}`
-          })
-        }
       } catch (err) {
         console.error('Ошибка загрузки:', err)
         setWords([])
@@ -144,7 +141,19 @@ function Home({ user, onLogout }) {
       setLoading(false)
     }
     loadWords()
-  }, [user?.email])
+  }, [])
+
+  // ✅ ЛОГИРОВАНИЕ ПОИСКА (с задержкой чтобы не спамить)
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (searchTerm && searchTerm !== lastLoggedSearch) {
+        await logSearch(searchTerm, user?.email)
+        setLastLoggedSearch(searchTerm)
+      }
+    }, 1000) // Ждём 1 секунду после окончания ввода
+    
+    return () => clearTimeout(timer)
+  }, [searchTerm, user?.email, lastLoggedSearch])
 
   // Остановка текущего аудио
   const stopAudio = () => {
@@ -174,14 +183,8 @@ function Home({ user, onLogout }) {
     setCurrentAudio(audio)
     setPlayingId(wordId)
     
-    // Логирование прослушивания
-    if (user?.email) {
-      await addLog({
-        action: 'audio_played',
-        userEmail: user.email,
-        details: `Воспроизведено аудио: ${audioFile}`
-      })
-    }
+    // ✅ ЛОГИРОВАНИЕ прослушивания
+    await logAudioPlay(audioFile, user?.email)
     
     audio.onended = () => {
       setPlayingId(null)
@@ -206,14 +209,8 @@ function Home({ user, onLogout }) {
     setCurrentAudio(audio)
     setPlayingAudio2(wordId)
     
-    // Логирование прослушивания примера
-    if (user?.email) {
-      await addLog({
-        action: 'audio2_played',
-        userEmail: user.email,
-        details: `Воспроизведён пример: ${audioFile}`
-      })
-    }
+    // ✅ ЛОГИРОВАНИЕ прослушивания примера
+    await logAudioPlay(audioFile, user?.email)
     
     audio.onended = () => {
       setPlayingAudio2(null)
@@ -236,15 +233,6 @@ function Home({ user, onLogout }) {
       setCurrentPlayIndex(-1)
       setCurrentWordIndex(0)
       return
-    }
-    
-    // Логирование массового воспроизведения
-    if (user?.email) {
-      await addLog({
-        action: 'audio_all_played',
-        userEmail: user.email,
-        details: `Воспроизведение всех слов (${wordsWithAudio.length})`
-      })
     }
     
     let indices = wordsWithAudio.map((_, index) => index)
@@ -343,16 +331,21 @@ function Home({ user, onLogout }) {
 
   const isAnyAudioPlaying = playingId !== null || playingAudio2 !== null
 
-  const filteredData = useMemo(() => {
-    return words.filter(item =>
-      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  }, [searchTerm, words])
+  const filteredData = words.filter(item =>
+    item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
+
+  // Обработчик выхода
+  const handleLogout = async () => {
+    await logoutUser(user?.email)
+    localStorage.removeItem('currentUser')
+    onLogout()
+  }
 
   if (loading) {
     return (
@@ -428,7 +421,7 @@ function Home({ user, onLogout }) {
         />
 
         {/* Кнопка выхода для пользователя */}
-        <button className="logout-btn-user" onClick={onLogout}>
+        <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
       </div>
@@ -488,14 +481,6 @@ function Home({ user, onLogout }) {
   )
 }
 
-// Protected Route компонент
-function ProtectedRoute({ children, user }) {
-  if (!user) {
-    return <Navigate to="/auth" replace />
-  }
-  return children
-}
-
 // Главный компонент App
 function App() {
   const [user, setUser] = useState(null)
@@ -514,16 +499,7 @@ function App() {
     setUser(userData)
   }
 
-  const handleLogout = async () => {
-    // Логирование выхода
-    if (user?.email) {
-      await addLog({
-        action: 'logout',
-        userEmail: user.email,
-        details: 'Пользователь вышел'
-      })
-    }
-    localStorage.removeItem('currentUser')
+  const handleLogout = () => {
     setUser(null)
   }
 
@@ -532,31 +508,13 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route 
-          path="/auth" 
-          element={!user ? <AuthForm onLogin={handleLogin} /> : <Navigate to="/" replace />} 
-        />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute user={user}>
-              <Home user={user} onLogout={handleLogout} />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute user={user}>
-              <AdminPanel user={user} />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+    <>
+      {!user ? (
+        <AuthForm onLogin={handleLogin} />
+      ) : (
+        <Home user={user} onLogout={handleLogout} />
+      )}
+    </>
   )
 }
 
