@@ -45,47 +45,13 @@ function UserAuthForm({ onLogin }) {
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
-          <input 
-            type="email" 
-            placeholder="Email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            disabled={loading} 
-          />
-          <input 
-            type="password" 
-            placeholder="Пароль" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-            disabled={loading} 
-          />
-          {!isLogin && (
-            <input 
-              type="password" 
-              placeholder="Подтвердите пароль" 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
-              required 
-              disabled={loading} 
-            />
-          )}
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
+          <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} />
+          {!isLogin && <input type="password" placeholder="Подтвердите пароль" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} />}
           {error && <div className="error">{error}</div>}
-          <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
-          </button>
+          <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
         </form>
-        <button 
-          className="toggle-auth-btn" 
-          onClick={() => { 
-            setIsLogin(!isLogin)
-            setError('')
-            setPassword('')
-            setConfirmPassword('')
-          }} 
-          disabled={loading}
-        >
+        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
       </div>
@@ -98,34 +64,18 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [lastLoggedSearch, setLastLoggedSearch] = useState('')
 
   useEffect(() => {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sortedData = [...(data || [])].sort((a, b) => 
-          (a.translation || '').localeCompare(b.translation || '')
-        )
+        const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
-      } catch (err) { 
-        console.error('Ошибка загрузки:', err)
-        setWords([]) 
-      }
+      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
       setLoading(false)
     }
     loadWords()
   }, [])
-
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (searchTerm && searchTerm !== lastLoggedSearch) {
-        await logSearch(searchTerm, user?.email)
-        setLastLoggedSearch(searchTerm)
-      }
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [searchTerm, user?.email, lastLoggedSearch])
 
   const handleLogout = async () => {
     await logoutUser(user?.email)
@@ -144,16 +94,8 @@ function Home({ user, onLogout }) {
     <div className="container">
       <div className="header">
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-        <input 
-          type="text" 
-          placeholder="Поиск слова..." 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
-          className="search-input" 
-        />
-        <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]}<br/><small>Выйти</small>
-        </button>
+        <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
+        <button className="logout-btn-user" onClick={handleLogout}>👤 {user?.email?.split('@')[0]}<br/><small>Выйти</small></button>
       </div>
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
@@ -183,6 +125,7 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
+    // Проверяем сессию админа ИЛИ пользователя
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
     
@@ -225,10 +168,9 @@ function App() {
         <Route 
           path="/admin" 
           element={
-            <AdminPanel 
-              onAdminLogin={handleAdminLogin} 
-              onAdminLogout={handleLogout} 
-            />
+            <ProtectedRoute user={user} requiredRole="admin">
+              <AdminPanel adminUser={user} onLogout={handleLogout} />
+            </ProtectedRoute>
           } 
         />
         
