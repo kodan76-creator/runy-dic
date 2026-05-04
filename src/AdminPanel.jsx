@@ -1,19 +1,20 @@
 import { useState, useEffect, useMemo } from 'react'
 import { 
+  verifyAdmin, 
   getDictionary, 
   addWord, 
   updateWord, 
   deleteWord, 
-  verifyAdmin,
-  getUsers,
-  blockUser,
-  unblockUser,
-  getLogs,
-  clearLogs
+  getUsers, 
+  blockUser, 
+  unblockUser, 
+  getLogs, 
+  clearLogs,
+  addLog 
 } from './githubApi'
 import './AdminPanel.css'
 
-function AdminPanel({ user }) {
+function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [adminUser, setAdminUser] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,18 +38,23 @@ function AdminPanel({ user }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
-  // Проверка авторизации
+  // ✅ Проверка авторизации при загрузке
   useEffect(() => {
-    const savedUser = localStorage.getItem('adminUser')
-    if (savedUser) {
-      setAdminUser(JSON.parse(savedUser))
-      loadWords()
-      loadUsers()
-      loadLogs()
+    const savedAdmin = localStorage.getItem('adminUser')
+    if (savedAdmin) {
+      try {
+        const parsed = JSON.parse(savedAdmin)
+        setAdminUser(parsed)
+        loadWords()
+        loadUsers()
+        loadLogs()
+      } catch (e) {
+        console.error('Error parsing adminUser:', e)
+        localStorage.removeItem('adminUser')
+      }
     }
   }, [])
 
-  // Загрузка слов из GitHub
   const loadWords = async () => {
     setLoading(true)
     try {
@@ -60,7 +66,6 @@ function AdminPanel({ user }) {
     setLoading(false)
   }
 
-  // Загрузка пользователей
   const loadUsers = async () => {
     try {
       const allUsers = await getUsers()
@@ -70,7 +75,6 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Загрузка логов
   const loadLogs = async () => {
     try {
       const allLogs = await getLogs()
@@ -80,36 +84,29 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Фильтрация и сортировка слов
   const filteredWords = useMemo(() => {
     let filtered = words.filter(item =>
       item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.translation?.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    
-    filtered.sort((a, b) => 
-      (a.translation || '').localeCompare(b.translation || '', 'ru')
-    )
-    
+    filtered.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
     return filtered
   }, [searchTerm, words])
 
-  // Вход в систему
+  // 🔐 Вход админа
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     setAuthLoading(true)
-    
     try {
-      const isValid = await verifyAdmin(email, password)
-      
-      if (isValid) {
-        const userData = { email, loginAt: new Date().toISOString(), role: 'admin' }
+      const admin = await verifyAdmin(email, password)
+      if (admin) {
+        const userData = { email, role: 'admin', loginAt: new Date().toISOString() }
         localStorage.setItem('adminUser', JSON.stringify(userData))
         setAdminUser(userData)
         setEmail('')
         setPassword('')
+        if (onAdminLogin) onAdminLogin(userData)
         await loadWords()
         await loadUsers()
         await loadLogs()
@@ -122,38 +119,30 @@ function AdminPanel({ user }) {
     setAuthLoading(false)
   }
 
-  // Выход
+  // 🚪 Выход
   const handleLogout = async () => {
+    try {
+      await addLog({ action: 'admin_logout', userEmail: adminUser?.email, details: 'Администратор вышел' })
+    } catch {}
     localStorage.removeItem('adminUser')
     setAdminUser(null)
     setWords([])
     setUsers([])
     setLogs([])
+    if (onAdminLogout) onAdminLogout()
   }
 
-  // Добавление/редактирование слова
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       if (editingId) {
         await updateWord(editingId, formData, adminUser?.email)
       } else {
         await addWord(formData, adminUser?.email)
       }
-      
-      setFormData({ 
-        word: '', 
-        transcription: '', 
-        translation: '', 
-        example: '', 
-        example2: '', 
-        transcription2: '', 
-        audio: '', 
-        audio2: '' 
-      })
+      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -162,7 +151,6 @@ function AdminPanel({ user }) {
     setLoading(false)
   }
 
-  // Редактирование
   const handleEdit = (word) => {
     setEditingId(word.id)
     setFormData({
@@ -177,7 +165,6 @@ function AdminPanel({ user }) {
     })
   }
 
-  // Удаление
   const handleDelete = async (id) => {
     if (window.confirm('Удалить эту карточку?')) {
       try {
@@ -189,7 +176,6 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Блокировка пользователя
   const handleBlockUser = async (userId, userEmail) => {
     if (window.confirm(`Заблокировать пользователя ${userEmail}?`)) {
       try {
@@ -202,7 +188,6 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Разблокировка пользователя
   const handleUnblockUser = async (userId, userEmail) => {
     if (window.confirm(`Разблокировать пользователя ${userEmail}?`)) {
       try {
@@ -215,9 +200,8 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Очистка логов
   const handleClearLogs = async () => {
-    if (window.confirm('Очистить все логи? Это действие нельзя отменить.')) {
+    if (window.confirm('Очистить все логи?')) {
       try {
         await clearLogs()
         await loadLogs()
@@ -227,26 +211,9 @@ function AdminPanel({ user }) {
     }
   }
 
-  // Отмена редактирования
-  const handleCancel = () => {
-    setEditingId(null)
-    setFormData({ 
-      word: '', 
-      transcription: '', 
-      translation: '', 
-      example: '', 
-      example2: '', 
-      transcription2: '', 
-      audio: '', 
-      audio2: '' 
-    })
-  }
-
-  // Форматирование даты
   const formatDate = (dateString) => {
     if (!dateString) return '-'
-    const date = new Date(dateString)
-    return date.toLocaleString('ru-RU', {
+    return new Date(dateString).toLocaleString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -255,7 +222,7 @@ function AdminPanel({ user }) {
     })
   }
 
-  // Форма входа
+  // ✅ Форма входа (показывается если adminUser === null)
   if (!adminUser) {
     return (
       <div className="admin-login">
@@ -288,7 +255,7 @@ function AdminPanel({ user }) {
     )
   }
 
-  // Админ-панель
+  // ✅ Админ-панель (показывается если adminUser !== null)
   return (
     <div className="admin-panel">
       <div className="admin-fixed-container">
@@ -300,7 +267,6 @@ function AdminPanel({ user }) {
           </div>
         </div>
 
-        {/* Вкладки */}
         <div className="admin-tabs">
           <button 
             className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`}
@@ -322,7 +288,6 @@ function AdminPanel({ user }) {
           </button>
         </div>
 
-        {/* Вкладка Словарь */}
         {activeTab === 'dictionary' && (
           <div className="form-section">
             <div className="search-container">
@@ -391,7 +356,14 @@ function AdminPanel({ user }) {
                   {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
                 </button>
                 {editingId && (
-                  <button type="button" onClick={handleCancel} className="cancel-btn">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setEditingId(null)
+                      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
+                    }} 
+                    className="cancel-btn"
+                  >
                     Отмена
                   </button>
                 )}
@@ -403,7 +375,6 @@ function AdminPanel({ user }) {
           </div>
         )}
 
-        {/* Вкладка Пользователи */}
         {activeTab === 'users' && (
           <div className="users-section">
             <h3>👥 Пользователи ({users.length})</h3>
@@ -442,7 +413,6 @@ function AdminPanel({ user }) {
           </div>
         )}
 
-        {/* Вкладка Логи */}
         {activeTab === 'logs' && (
           <div className="logs-section">
             <div className="logs-header">
