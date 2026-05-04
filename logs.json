@@ -1,5 +1,12 @@
 [
   {
+    "id": "1777936559492",
+    "timestamp": "2026-05-04T23:15:59.492Z",
+    "action": "audio_all_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Воспроизведение всех слов (12)"
+  },
+  {
     "id": "1777936553077",
     "timestamp": "2026-05-04T23:15:53.077Z",
     "action": "audio2_played",
