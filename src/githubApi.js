@@ -39,7 +39,8 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) return { data: [], sha: null }
-      throw new Error(`HTTP ${response.status}`)
+      const errText = await response.text().catch(() => '')
+      throw new Error(`HTTP ${response.status}: ${errText}`)
     }
     
     const fileData = await response.json()
@@ -113,11 +114,17 @@ export const registerUser = async (email, password) => {
   }
   const passwordHash = await hashPassword(password)
   const newUser = {
-    id: Date.now().toString(), email, passwordHash,
-    createdAt: new Date().toISOString(), role: 'user',
-    isBlocked: false, blockedAt: null, blockedBy: null
+    id: Date.now().toString(),
+    email,
+    passwordHash,
+    createdAt: new Date().toISOString(),
+    role: 'user',
+    isBlocked: false,
+    blockedAt: null,
+    blockedBy: null
   }
   await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
+  addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
   const { passwordHash: _, ...safeUser } = newUser
   return safeUser
 }
@@ -129,11 +136,13 @@ export const verifyUser = async (email, password) => {
     const user = users.find(u => u?.email?.toLowerCase() === email?.toLowerCase())
     if (!user) return null
     if (user.isBlocked) throw new Error('Аккаунт заблокирован')
+    
     const inputHash = await hashPassword(password)
     if (inputHash !== user.passwordHash) return null
-    // ✅ Возвращаем объект с role: 'user'
+    
+    // ✅ Добавляем role: 'user' если его нет
     const { passwordHash: _, ...safeUser } = user
-    return { ...safeUser, role: 'user' }
+    return { ...safeUser, role: safeUser.role || 'user' }
   } catch (e) {
     console.error('verifyUser error:', e)
     throw e
@@ -141,9 +150,7 @@ export const verifyUser = async (email, password) => {
 }
 
 export const logoutUser = async (userEmail) => {
-  if (userEmail) {
-    addLog({ action: 'logout', userEmail, details: 'Выход' }).catch(() => {})
-  }
+  if (userEmail) addLog({ action: 'logout', userEmail, details: 'Выход' }).catch(() => {})
 }
 
 export const blockUser = async (userId, adminEmail) => {
@@ -152,6 +159,7 @@ export const blockUser = async (userId, adminEmail) => {
     u.id === userId ? { ...u, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail } : u
   )
   await updateGitHubFile(USERS_FILE, updated, sha)
+  addLog({ action: 'user_blocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
 }
 
 export const unblockUser = async (userId, adminEmail) => {
@@ -160,6 +168,7 @@ export const unblockUser = async (userId, adminEmail) => {
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
   await updateGitHubFile(USERS_FILE, updated, sha)
+  addLog({ action: 'user_unblocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
 }
 
 // 📊 ЛОГИ
@@ -190,9 +199,9 @@ export const clearLogs = async () => {
 export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
 export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
 
-export const addWord = async (wordData) => {
+export const addWord = async (wordData, userEmail) => {
   const { data: dict, sha } = await getDictionary()
-  const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString() }
+  const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
   await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
   return newWord
 }
