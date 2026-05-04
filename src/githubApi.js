@@ -4,6 +4,7 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
+const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
 
@@ -101,6 +102,22 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
     console.error(`Error updating ${fileName}:`, error)
     throw error
   }
+}
+
+// 🔐 Функции для работы с АДМИНАМИ
+export const getAdmins = async () => {
+  const { data } = await fetchGitHubFile(ADMINS_FILE)
+  return data || []
+}
+
+export const verifyAdmin = async (email, password) => {
+  const admins = await getAdmins()
+  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
+  
+  if (!admin) return false
+  
+  const inputHash = await hashPassword(password)
+  return inputHash === admin.passwordHash
 }
 
 // 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ
