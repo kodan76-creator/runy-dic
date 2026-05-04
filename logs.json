@@ -1,5 +1,12 @@
 [
   {
+    "id": "1777937167874",
+    "timestamp": "2026-05-04T23:26:07.874Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Пользователь вышел"
+  },
+  {
     "id": "1777937164858",
     "timestamp": "2026-05-04T23:26:04.858Z",
     "action": "dictionary_viewed",
