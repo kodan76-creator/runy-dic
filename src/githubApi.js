@@ -4,6 +4,7 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
+const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
 
 // Получение токена из env
@@ -15,6 +16,15 @@ const getHeaders = () => ({
   'Accept': 'application/vnd.github.v3+json',
   'Content-Type': 'application/json',
 })
+
+// ✅ Хэширование пароля (SHA-256)
+export const hashPassword = async (password) => {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 // ✅ Правильное кодирование UTF-8 в Base64
 const utf8ToBase64 = (str) => {
@@ -39,7 +49,7 @@ const fetchGitHubFile = async (fileName) => {
     
     if (!response.ok) {
       if (response.status === 404) {
-        return { data: [], sha: null }  // ✅ Возвращаем пустой массив
+        return { data: [], sha: null }
       }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -49,7 +59,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return { data: content, sha: data.sha }
+    return {  content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -93,6 +103,105 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
+// 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ
+export const getUsers = async () => {
+  const { data } = await fetchGitHubFile(USERS_FILE)
+  return data || []
+}
+
+export const registerUser = async (email, password) => {
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  
+  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+    throw new Error('Пользователь с таким email уже существует')
+  }
+  
+  const passwordHash = await hashPassword(password)
+  
+  const newUser = {
+    id: Date.now().toString(),
+    email,
+    passwordHash,
+    createdAt: new Date().toISOString(),
+    role: 'user',
+    isBlocked: false,
+    blockedAt: null,
+    blockedBy: null
+  }
+  
+  const updatedUsers = [...users, newUser]
+  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
+  
+  const { passwordHash: _, ...userWithoutPass } = newUser
+  return userWithoutPass
+}
+
+export const verifyUser = async (email, password) => {
+  const users = await getUsers()
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+  
+  if (!user) return null
+  
+  if (user.isBlocked) {
+    throw new Error('Ваш аккаунт заблокирован. Обратитесь к администратору.')
+  }
+  
+  const inputHash = await hashPassword(password)
+  if (inputHash !== user.passwordHash) return null
+  
+  const { passwordHash: _, ...userWithoutPass } = user
+  return userWithoutPass
+}
+
+export const blockUser = async (userId, adminEmail) => {
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  
+  const updatedUsers = users.map(user =>
+    user.id === userId 
+      ? { ...user, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail }
+      : user
+  )
+  
+  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
+}
+
+export const unblockUser = async (userId, adminEmail) => {
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  
+  const updatedUsers = users.map(user =>
+    user.id === userId 
+      ? { ...user, isBlocked: false, blockedAt: null, blockedBy: null }
+      : user
+  )
+  
+  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
+}
+
+// 📊 Функции для работы с ЛОГАМИ
+export const getLogs = async () => {
+  const { data } = await fetchGitHubFile(LOGS_FILE)
+  return data || []
+}
+
+export const addLog = async (logData) => {
+  const {  logs, sha } = await getLogs()
+  
+  const newLog = {
+    id: Date.now().toString(),
+    timestamp: new Date().toISOString(),
+    ...logData
+  }
+  
+  const updatedLogs = [newLog, ...logs].slice(0, 1000)
+  await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
+  
+  return newLog
+}
+
+export const clearLogs = async () => {
+  await updateGitHubFile(LOGS_FILE, [], null)
+}
+
 // 📚 Функции для работы со словарём
 export const getDictionary = async () => {
   return await fetchGitHubFile(DATA_FILE)
@@ -102,61 +211,60 @@ export const updateDictionary = async (newData, currentSha) => {
   return await updateGitHubFile(DATA_FILE, newData, currentSha)
 }
 
-export const addWord = async (wordData) => {
-  const { data: dictionary, sha } = await getDictionary()
+export const addWord = async (wordData, userEmail) => {
+  const {  dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
+    createdBy: userEmail
   }
   
   const updatedDictionary = [...dictionary, newWord]
   await updateDictionary(updatedDictionary, sha)
   
+  if (userEmail) {
+    await addLog({
+      action: 'word_added',
+      userEmail,
+      details: `Добавлено слово: ${wordData.word}`
+    })
+  }
+  
   return newWord
 }
 
-export const updateWord = async (id, updatedData) => {
-  const { data: dictionary, sha } = await getDictionary()
+export const updateWord = async (id, updatedData, userEmail) => {
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
   )
   
   await updateDictionary(updatedDictionary, sha)
+  
+  if (userEmail) {
+    await addLog({
+      action: 'word_updated',
+      userEmail,
+      details: `Обновлено слово: ${id}`
+    })
+  }
 }
 
-export const deleteWord = async (id) => {
-  const { data: dictionary, sha } = await getDictionary()
+export const deleteWord = async (id, userEmail) => {
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
   await updateDictionary(updatedDictionary, sha)
-}
-
-// 📊 Функции для работы с ЛОГАМИ
-export const getLogs = async () => {
-  const { data } = await fetchGitHubFile(LOGS_FILE)
-  return data || []  // ✅ Гарантируем возврат массива
-}
-
-export const addLog = async (logData) => {
-  const { data: logs, sha } = await getLogs()  // ✅ Получаем logs как массив
   
-  const newLog = {
-    id: Date.now().toString(),
-    timestamp: new Date().toISOString(),
-    ...logData
+  if (userEmail) {
+    await addLog({
+      action: 'word_deleted',
+      userEmail,
+      details: `Удалено слово: ${id}`
+    })
   }
-  
-  // Храним последние 1000 записей
-  const updatedLogs = [newLog, ...logs].slice(0, 1000)
-  await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
-  
-  return newLog
-}
-
-export const clearLogs = async () => {
-  await updateGitHubFile(LOGS_FILE, [], null)
 }
