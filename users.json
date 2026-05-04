@@ -1,12 +1,5 @@
 [
-  {
-    "id": "1",
-    "email": "ya.kodan76@ya.ru",
-    "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
-    "createdAt": "2025-01-15T10:00:00.000Z",
-    "role": "admin"
-  },
-  {
+    {
     "id": "1777558936511",
     "email": "1@1.ru",
     "passwordHash": "bcb15f821479b4d5772bd0ca866c00ad5f926e3580720659cc80d39c9d09802a",
