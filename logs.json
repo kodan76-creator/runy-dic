@@ -1,5 +1,75 @@
 [
   {
+    "id": "1777937994305",
+    "timestamp": "2026-05-04T23:39:54.306Z",
+    "action": "dictionary_viewed",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Просмотрено слов: 39"
+  },
+  {
+    "id": "1777937822251",
+    "timestamp": "2026-05-04T23:37:02.251Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937807172",
+    "timestamp": "2026-05-04T23:36:47.172Z",
+    "action": "admin_logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Администратор вышел"
+  },
+  {
+    "id": "1777937793333",
+    "timestamp": "2026-05-04T23:36:33.333Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937786939",
+    "timestamp": "2026-05-04T23:36:26.939Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937756098",
+    "timestamp": "2026-05-04T23:35:56.098Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937747718",
+    "timestamp": "2026-05-04T23:35:47.718Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937725838",
+    "timestamp": "2026-05-04T23:35:25.838Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1777937722169",
+    "timestamp": "2026-05-04T23:35:22.169Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1777937714738",
+    "timestamp": "2026-05-04T23:35:14.738Z",
+    "action": "admin_logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Администратор вышел"
+  },
+  {
     "id": "1777937353212",
     "timestamp": "2026-05-04T23:29:13.212Z",
     "action": "dictionary_viewed",
