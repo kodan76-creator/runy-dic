@@ -22,75 +22,60 @@ export const hashPassword = async (password) => {
     const hashBuffer = await crypto.subtle.digest('SHA-256', data)
     const hashArray = Array.from(new Uint8Array(hashBuffer))
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  } catch (error) {
-    console.error('Error hashing password:', error)
-    throw error
+  } catch (e) {
+    console.error('Hash error:', e)
+    throw e
   }
 }
 
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)))
 const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)))
 
+// ✅ ИСПРАВЛЕНО: Возвращаем { data, sha }
 const fetchGitHubFile = async (fileName) => {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`,
-      {
-        headers: getHeaders(),
-        cache: 'no-cache'
-      }
-    )
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
+    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
     
     if (!response.ok) {
-      if (response.status === 404) {
-        return { data: [], sha: null }
-      }
-      throw new Error(`HTTP error! status: ${response.status}`)
+      if (response.status === 404) return { data: [], sha: null }
+      const errText = await response.text().catch(() => '')
+      throw new Error(`HTTP ${response.status}: ${errText}`)
     }
     
-    const data = await response.json()
-    const rawContent = base64ToUtf8(data.content)
-    const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
-    const content = JSON.parse(cleanedContent)
+    const fileData = await response.json()
+    if (!fileData.content) return { data: [], sha: null }
     
-    return {  content, sha: data.sha }
+    const raw = base64ToUtf8(fileData.content)
+    const cleaned = raw.replace(/^\uFEFF/, '').trim()
+    const content = cleaned ? JSON.parse(cleaned) : []
+    
+    // ✅ ИСПРАВЛЕНО: Возвращаем { data, sha }
+    return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
   } catch (error) {
-    console.error(`Error fetching ${fileName}:`, error)
-    throw error
+    console.error(`Fetch ${fileName} error:`, error)
+    return { data: [], sha: null }
   }
 }
 
 const updateGitHubFile = async (fileName, newData, currentSha) => {
   try {
-    const jsonString = JSON.stringify(newData, null, 2)
-    const content = utf8ToBase64(jsonString)
-    const body = {
-      message: `Update ${fileName}`,
-      content,
-      branch: GITHUB_BRANCH,
-    }
-    
-    if (currentSha) {
-      body.sha = currentSha
-    }
+    const content = utf8ToBase64(JSON.stringify(newData, null, 2))
+    const body = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
+    if (currentSha) body.sha = currentSha
     
     const response = await fetch(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
-      {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(body),
-      }
+      { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
     )
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(`HTTP ${response.status}: ${errorData.message || response.statusText}`)
+      const err = await response.json().catch(() => ({}))
+      throw new Error(`HTTP ${response.status}: ${err.message || response.statusText}`)
     }
-    
     return await response.json()
   } catch (error) {
-    console.error(`Error updating ${fileName}:`, error)
+    console.error(`Update ${fileName} error:`, error)
     throw error
   }
 }
@@ -122,7 +107,7 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
   }
@@ -150,9 +135,12 @@ export const verifyUser = async (email, password) => {
     const user = users.find(u => u?.email?.toLowerCase() === email?.toLowerCase())
     if (!user) return null
     if (user.isBlocked) throw new Error('Аккаунт заблокирован')
+    
     const inputHash = await hashPassword(password)
     if (inputHash !== user.passwordHash) return null
+    
     addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
+    
     const { passwordHash: _, ...safeUser } = user
     return { ...safeUser, role: 'user' }
   } catch (e) {
@@ -166,7 +154,7 @@ export const logoutUser = async (userEmail) => {
 }
 
 export const blockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail } : u
   )
@@ -175,7 +163,7 @@ export const blockUser = async (userId, adminEmail) => {
 }
 
 export const unblockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
@@ -189,10 +177,11 @@ export const getLogs = async () => {
   return Array.isArray(data) ? data : []
 }
 
+// ✅ ИСПРАВЛЕНО: Правильная деструктуризация
 export const addLog = async (logData) => {
   try {
-    // ✅ ИСПРАВЛЕНО: Получаем data и sha, а не logs
-    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    // ✅ Получаем data и sha ОДНИМ вызовом
+    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
     const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
     const updated = [newLog, ...logs].slice(0, 1000)
     await updateGitHubFile(LOGS_FILE, updated, sha)
@@ -213,20 +202,20 @@ export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
 export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
 
 export const addWord = async (wordData, userEmail) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
   await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
   return newWord
 }
 
 export const updateWord = async (id, updatedData) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
   await updateGitHubFile(DATA_FILE, updated, sha)
 }
 
 export const deleteWord = async (id) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const filtered = dict.filter(w => w.id !== id)
   await updateGitHubFile(DATA_FILE, filtered, sha)
 }
