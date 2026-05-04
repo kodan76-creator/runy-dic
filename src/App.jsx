@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, logSearch, logAudioPlay, getDictionary } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -21,8 +21,10 @@ function UserAuthForm({ onLogin }) {
       if (isLogin) {
         const user = await verifyUser(email, password)
         if (user) {
-          localStorage.setItem('currentUser', JSON.stringify(user))
-          onLogin(user)
+          // ✅ Добавляем role если его нет
+          const userWithRole = { ...user, role: user.role || 'user' }
+          localStorage.setItem('currentUser', JSON.stringify(userWithRole))
+          onLogin(userWithRole)
         } else {
           setError('Неверный email или пароль')
         }
@@ -30,8 +32,10 @@ function UserAuthForm({ onLogin }) {
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         const user = await registerUser(email, password)
-        localStorage.setItem('currentUser', JSON.stringify(user))
-        onLogin(user)
+        // ✅ Добавляем role
+        const userWithRole = { ...user, role: 'user' }
+        localStorage.setItem('currentUser', JSON.stringify(userWithRole))
+        onLogin(userWithRole)
       }
     } catch (err) {
       setError(err.message || 'Ошибка авторизации')
@@ -119,7 +123,7 @@ function ProtectedRoute({ children, user, requiredRole }) {
   return children
 }
 
-// Главный App
+// Главный App - теперь без useLocation
 function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
@@ -144,13 +148,7 @@ function App() {
   }, [])
 
   const handleUserLogin = (userData) => {
-    const userWithRole = { ...userData, role: userData.role || 'user' }
-    setUser(userWithRole)
-  }
-
-  const handleAdminLogin = (adminData) => {
-    const adminWithRole = { ...adminData, role: 'admin' }
-    setUser(adminWithRole)
+    setUser({ ...userData, role: userData.role || 'user' })
   }
 
   const handleLogout = () => {
@@ -199,9 +197,7 @@ function App() {
         {/* Перенаправление */}
         <Route 
           path="*" 
-          element={
-            <Navigate to={user?.role === 'admin' ? '/admin' : user ? '/' : '/auth'} replace />
-          } 
+          element={<Navigate to={user?.role === 'admin' ? '/admin' : user ? '/' : '/auth'} replace />} 
         />
       </Routes>
     </Router>
