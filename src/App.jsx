@@ -1,15 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { 
-  getDictionary, 
-  verifyUser, 
-  registerUser, 
-  getLogs, 
-  getUsers, 
-  blockUser, 
-  unblockUser,
-  addLog 
-} from './githubApi'
+import { getDictionary, verifyUser, registerUser, addLog } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -116,232 +107,6 @@ function AuthForm({ onLogin }) {
   )
 }
 
-// Компонент просмотра логов
-function LogsPanel({ onBack }) {
-  const [logs, setLogs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('')
-
-  useEffect(() => {
-    const loadLogs = async () => {
-      try {
-        const data = await getLogs()
-        setLogs(data)
-      } catch (err) {
-        console.error('Error loading logs:', err)
-      }
-      setLoading(false)
-    }
-    loadLogs()
-  }, [])
-
-  const filteredLogs = useMemo(() => {
-    if (!filter) return logs
-    return logs.filter(log =>
-      log.action?.toLowerCase().includes(filter.toLowerCase()) ||
-      log.userEmail?.toLowerCase().includes(filter.toLowerCase()) ||
-      log.details?.toLowerCase().includes(filter.toLowerCase())
-    )
-  }, [logs, filter])
-
-  const getActionColor = (action) => {
-    const colors = {
-      'USER_LOGIN': '#4caf50',
-      'USER_REGISTERED': '#2196f3',
-      'USER_BLOCKED': '#f44336',
-      'USER_UNBLOCKED': '#ff9800',
-      'LOGIN_FAILED': '#ff5722',
-      'LOGIN_BLOCKED': '#9c27b0',
-      'WORD_ADDED': '#00bcd4',
-      'WORD_UPDATED': '#ffeb3b',
-      'WORD_DELETED': '#e91e63'
-    }
-    return colors[action] || '#757575'
-  }
-
-  return (
-    <div className="logs-panel">
-      <div className="logs-header">
-        <h2>📋 Журнал действий</h2>
-        <button onClick={onBack} className="back-btn">← Назад</button>
-      </div>
-      
-      <div className="logs-filter">
-        <input
-          type="text"
-          placeholder="🔍 Фильтр логов..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="filter-input"
-        />
-      </div>
-
-      <div className="logs-content">
-        {loading ? (
-          <div className="loading">Загрузка логов...</div>
-        ) : (
-          <div className="logs-list">
-            {filteredLogs.length > 0 ? (
-              filteredLogs.map(log => (
-                <div key={log.id} className="log-item">
-                  <div className="log-timestamp">
-                    {new Date(log.timestamp).toLocaleString('ru-RU')}
-                  </div>
-                  <div 
-                    className="log-action"
-                    style={{ borderLeftColor: getActionColor(log.action) }}
-                  >
-                    {log.action}
-                  </div>
-                  <div className="log-user">{log.userEmail}</div>
-                  <div className="log-details">{log.details}</div>
-                  {log.reason && (
-                    <div className="log-reason">Причина: {log.reason}</div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="no-logs">Нет записей</div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// Компонент управления пользователями
-function UsersPanel({ onBack, currentUser }) {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [blockReason, setBlockReason] = useState('')
-  const [blockingUserId, setBlockingUserId] = useState(null)
-
-  useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const data = await getUsers()
-        setUsers(data)
-      } catch (err) {
-        console.error('Error loading users:', err)
-      }
-      setLoading(false)
-    }
-    loadUsers()
-  }, [])
-
-  const handleBlock = async (userId, email) => {
-    if (!blockReason && blockingUserId === userId) {
-      alert('Укажите причину блокировки')
-      return
-    }
-
-    try {
-      if (blockingUserId === userId) {
-        await blockUser(userId, blockReason, currentUser.email)
-        setUsers(users.map(u => 
-          u.id === userId ? { ...u, isBlocked: true, blockReason } : u
-        ))
-        setBlockingUserId(null)
-        setBlockReason('')
-      } else {
-        setBlockingUserId(userId)
-      }
-    } catch (err) {
-      alert('Ошибка: ' + err.message)
-    }
-  }
-
-  const handleUnblock = async (userId) => {
-    try {
-      await unblockUser(userId, currentUser.email)
-      setUsers(users.map(u => 
-        u.id === userId ? { ...u, isBlocked: false, blockReason: null } : u
-      ))
-    } catch (err) {
-      alert('Ошибка: ' + err.message)
-    }
-  }
-
-  return (
-    <div className="users-panel">
-      <div className="users-header">
-        <h2>👥 Управление пользователями</h2>
-        <button onClick={onBack} className="back-btn">← Назад</button>
-      </div>
-
-      <div className="users-content">
-        {loading ? (
-          <div className="loading">Загрузка пользователей...</div>
-        ) : (
-          <div className="users-list">
-            {users.map(user => (
-              <div key={user.id} className={`user-item ${user.isBlocked ? 'blocked' : ''}`}>
-                <div className="user-info">
-                  <div className="user-email">{user.email}</div>
-                  <div className="user-meta">
-                    <span>Регистрация: {new Date(user.createdAt).toLocaleDateString('ru-RU')}</span>
-                    {user.isBlocked && (
-                      <span className="blocked-badge">🚫 Заблокирован</span>
-                    )}
-                  </div>
-                  {user.isBlocked && user.blockReason && (
-                    <div className="block-reason">Причина: {user.blockReason}</div>
-                  )}
-                </div>
-                <div className="user-actions">
-                  {user.isBlocked ? (
-                    <button 
-                      onClick={() => handleUnblock(user.id)}
-                      className="unblock-btn"
-                    >
-                      ✅ Разблокировать
-                    </button>
-                  ) : (
-                    blockingUserId === user.id ? (
-                      <div className="block-form">
-                        <input
-                          type="text"
-                          placeholder="Причина блокировки"
-                          value={blockReason}
-                          onChange={(e) => setBlockReason(e.target.value)}
-                          className="block-reason-input"
-                        />
-                        <button 
-                          onClick={() => handleBlock(user.id, user.email)}
-                          className="confirm-block-btn"
-                        >
-                          Подтвердить
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setBlockingUserId(null)
-                            setBlockReason('')
-                          }}
-                          className="cancel-block-btn"
-                        >
-                          Отмена
-                        </button>
-                      </div>
-                    ) : (
-                      <button 
-                        onClick={() => handleBlock(user.id, user.email)}
-                        className="block-btn"
-                      >
-                        🚫 Заблокировать
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // Главный компонент приложения
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -354,8 +119,6 @@ function Home({ user, onLogout }) {
   const [isPlayingAll, setIsPlayingAll] = useState(false)
   const [currentPlayIndex, setCurrentPlayIndex] = useState(-1)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
-  const [showLogs, setShowLogs] = useState(false)
-  const [showUsers, setShowUsers] = useState(false)
 
   useEffect(() => {
     const loadWords = async () => {
@@ -365,6 +128,15 @@ function Home({ user, onLogout }) {
           (a.translation || '').localeCompare(b.translation || '')
         )
         setWords(sortedData)
+        
+        // Логирование просмотра словаря
+        if (user?.email) {
+          await addLog({
+            action: 'dictionary_viewed',
+            userEmail: user.email,
+            details: `Просмотрено слов: ${sortedData.length}`
+          })
+        }
       } catch (err) {
         console.error('Ошибка загрузки:', err)
         setWords([])
@@ -372,7 +144,7 @@ function Home({ user, onLogout }) {
       setLoading(false)
     }
     loadWords()
-  }, [])
+  }, [user?.email])
 
   // Остановка текущего аудио
   const stopAudio = () => {
@@ -386,7 +158,7 @@ function Home({ user, onLogout }) {
   }
 
   // Воспроизведение audio (верхняя кнопка)
-  const playAudio = (wordId, audioFile) => {
+  const playAudio = async (wordId, audioFile) => {
     if (!audioFile) return
     
     if (playingId === wordId) {
@@ -402,6 +174,15 @@ function Home({ user, onLogout }) {
     setCurrentAudio(audio)
     setPlayingId(wordId)
     
+    // Логирование прослушивания
+    if (user?.email) {
+      await addLog({
+        action: 'audio_played',
+        userEmail: user.email,
+        details: `Воспроизведено аудио: ${audioFile}`
+      })
+    }
+    
     audio.onended = () => {
       setPlayingId(null)
       setCurrentAudio(null)
@@ -409,7 +190,7 @@ function Home({ user, onLogout }) {
   }
 
   // Воспроизведение audio2 (нижняя кнопка)
-  const playAudio2 = (wordId, audioFile) => {
+  const playAudio2 = async (wordId, audioFile) => {
     if (!audioFile) return
     
     if (playingAudio2 === wordId) {
@@ -425,6 +206,15 @@ function Home({ user, onLogout }) {
     setCurrentAudio(audio)
     setPlayingAudio2(wordId)
     
+    // Логирование прослушивания примера
+    if (user?.email) {
+      await addLog({
+        action: 'audio2_played',
+        userEmail: user.email,
+        details: `Воспроизведён пример: ${audioFile}`
+      })
+    }
+    
     audio.onended = () => {
       setPlayingAudio2(null)
       setCurrentAudio(null)
@@ -432,7 +222,7 @@ function Home({ user, onLogout }) {
   }
 
   // Воспроизведение всех аудиофайлов
-  const playAllAudio = () => {
+  const playAllAudio = async () => {
     const wordsWithAudio = words.filter(word => word.audio || word.audio2)
     
     if (wordsWithAudio.length === 0) {
@@ -446,6 +236,15 @@ function Home({ user, onLogout }) {
       setCurrentPlayIndex(-1)
       setCurrentWordIndex(0)
       return
+    }
+    
+    // Логирование массового воспроизведения
+    if (user?.email) {
+      await addLog({
+        action: 'audio_all_played',
+        userEmail: user.email,
+        details: `Воспроизведение всех слов (${wordsWithAudio.length})`
+      })
     }
     
     let indices = wordsWithAudio.map((_, index) => index)
@@ -555,14 +354,6 @@ function Home({ user, onLogout }) {
     )
   }, [searchTerm, words])
 
-  if (showLogs) {
-    return <LogsPanel onBack={() => setShowLogs(false)} />
-  }
-
-  if (showUsers) {
-    return <UsersPanel onBack={() => setShowUsers(false)} currentUser={user} />
-  }
-
   if (loading) {
     return (
       <div className="container">
@@ -636,18 +427,10 @@ function Home({ user, onLogout }) {
           className="search-input"
         />
 
-        {/* Кнопки управления */}
-        <div className="user-controls">
-          <button className="control-btn" onClick={() => setShowLogs(true)}>
-            📋 Логи
-          </button>
-          <button className="control-btn" onClick={() => setShowUsers(true)}>
-            👥 Пользователи
-          </button>
-          <button className="logout-btn-user" onClick={onLogout}>
-            👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
-          </button>
-        </div>
+        {/* Кнопка выхода для пользователя */}
+        <button className="logout-btn-user" onClick={onLogout}>
+          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+        </button>
       </div>
 
       <div className="results">
@@ -731,7 +514,15 @@ function App() {
     setUser(userData)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Логирование выхода
+    if (user?.email) {
+      await addLog({
+        action: 'logout',
+        userEmail: user.email,
+        details: 'Пользователь вышел'
+      })
+    }
     localStorage.removeItem('currentUser')
     setUser(null)
   }
@@ -759,7 +550,7 @@ function App() {
           path="/admin" 
           element={
             <ProtectedRoute user={user}>
-              <AdminPanel />
+              <AdminPanel user={user} />
             </ProtectedRoute>
           } 
         />

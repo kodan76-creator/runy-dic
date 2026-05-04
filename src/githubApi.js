@@ -104,31 +104,6 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 📝 Функции для логирования действий
-export const addLog = async (logEntry) => {
-  const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
-  
-  const newLog = {
-    id: Date.now().toString(),
-    timestamp: new Date().toISOString(),
-    ...logEntry
-  }
-  
-  const updatedLogs = [newLog, ...logs].slice(0, 1000) // Храним последние 1000 записей
-  await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
-  
-  return newLog
-}
-
-export const getLogs = async () => {
-  const { data } = await fetchGitHubFile(LOGS_FILE)
-  return data || []
-}
-
-export const clearLogs = async () => {
-  await updateGitHubFile(LOGS_FILE, [], null)
-}
-
 // 🔐 Функции для работы с АДМИНАМИ
 export const getAdmins = async () => {
   const { data } = await fetchGitHubFile(ADMINS_FILE)
@@ -168,18 +143,17 @@ export const registerUser = async (email, password) => {
     role: 'user',
     isBlocked: false,
     blockedAt: null,
-    blockedBy: null,
-    blockReason: null
+    blockedBy: null
   }
   
   const updatedUsers = [...users, newUser]
   await updateGitHubFile(USERS_FILE, updatedUsers, sha)
   
-  // Логируем регистрацию
+  // Логирование регистрации
   await addLog({
-    action: 'USER_REGISTERED',
+    action: 'register',
     userEmail: email,
-    details: 'New user registered'
+    details: 'Новый пользователь зарегистрирован'
   })
   
   const { passwordHash: _, ...userWithoutPass } = newUser
@@ -192,89 +166,101 @@ export const verifyUser = async (email, password) => {
   
   if (!user) return null
   
-  // Проверяем, не заблокирован ли пользователь
+  // Проверка блокировки
   if (user.isBlocked) {
     await addLog({
-      action: 'LOGIN_BLOCKED',
+      action: 'login_blocked',
       userEmail: email,
-      details: `Blocked user attempted login. Reason: ${user.blockReason || 'Not specified'}`
+      details: 'Попытка входа заблокированного пользователя'
     })
-    throw new Error(`Аккаунт заблокирован. Причина: ${user.blockReason || 'Не указана'}`)
+    throw new Error('Ваш аккаунт заблокирован. Обратитесь к администратору.')
   }
   
   const inputHash = await hashPassword(password)
   if (inputHash !== user.passwordHash) {
     await addLog({
-      action: 'LOGIN_FAILED',
+      action: 'login_failed',
       userEmail: email,
-      details: 'Invalid password'
+      details: 'Неверный пароль'
     })
     return null
   }
   
-  // Логируем успешный вход
+  // Логирование успешного входа
   await addLog({
-    action: 'USER_LOGIN',
+    action: 'login',
     userEmail: email,
-    userId: user.id,
-    details: 'User logged in successfully'
+    details: 'Успешный вход'
   })
   
   const { passwordHash: _, ...userWithoutPass } = user
   return userWithoutPass
 }
 
-export const blockUser = async (userId, reason, blockedBy) => {
+export const blockUser = async (userId, adminEmail) => {
   const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   
   const updatedUsers = users.map(user =>
-    user.id === userId ? {
-      ...user,
-      isBlocked: true,
-      blockedAt: new Date().toISOString(),
-      blockedBy,
-      blockReason: reason
-    } : user
+    user.id === userId 
+      ? { ...user, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail }
+      : user
   )
   
   await updateGitHubFile(USERS_FILE, updatedUsers, sha)
   
-  const blockedUser = updatedUsers.find(u => u.id === userId)
-  
+  const blockedUser = users.find(u => u.id === userId)
   await addLog({
-    action: 'USER_BLOCKED',
+    action: 'user_blocked',
     userEmail: blockedUser?.email,
-    userId,
-    blockedBy,
-    reason,
-    details: `User blocked by ${blockedBy}`
+    adminEmail,
+    details: 'Пользователь заблокирован администратором'
   })
 }
 
-export const unblockUser = async (userId, unblockedBy) => {
+export const unblockUser = async (userId, adminEmail) => {
   const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   
   const updatedUsers = users.map(user =>
-    user.id === userId ? {
-      ...user,
-      isBlocked: false,
-      blockedAt: null,
-      blockedBy: null,
-      blockReason: null
-    } : user
+    user.id === userId 
+      ? { ...user, isBlocked: false, blockedAt: null, blockedBy: null }
+      : user
   )
   
   await updateGitHubFile(USERS_FILE, updatedUsers, sha)
   
-  const unblockedUser = updatedUsers.find(u => u.id === userId)
-  
+  const unblockedUser = users.find(u => u.id === userId)
   await addLog({
-    action: 'USER_UNBLOCKED',
+    action: 'user_unblocked',
     userEmail: unblockedUser?.email,
-    userId,
-    unblockedBy,
-    details: `User unblocked by ${unblockedBy}`
+    adminEmail,
+    details: 'Пользователь разблокирован администратором'
   })
+}
+
+// 📊 Функции для работы с ЛОГАМИ
+export const getLogs = async () => {
+  const { data } = await fetchGitHubFile(LOGS_FILE)
+  return data || []
+}
+
+export const addLog = async (logData) => {
+  const {  logs, sha } = await getLogs()
+  
+  const newLog = {
+    id: Date.now().toString(),
+    timestamp: new Date().toISOString(),
+    ...logData
+  }
+  
+  // Храним последние 1000 записей
+  const updatedLogs = [newLog, ...logs].slice(0, 1000)
+  await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
+  
+  return newLog
+}
+
+export const clearLogs = async () => {
+  await updateGitHubFile(LOGS_FILE, [], null)
 }
 
 // 📚 Функции для работы со словарём
@@ -293,19 +279,20 @@ export const addWord = async (wordData, userEmail) => {
     ...wordData,
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
+    createdBy: userEmail
   }
   
   const updatedDictionary = [...dictionary, newWord]
   await updateDictionary(updatedDictionary, sha)
   
-  // Логируем добавление слова
-  await addLog({
-    action: 'WORD_ADDED',
-    userEmail,
-    wordId: newWord.id,
-    word: wordData.word,
-    details: `Word added: ${wordData.word}`
-  })
+  // Логирование добавления слова
+  if (userEmail) {
+    await addLog({
+      action: 'word_added',
+      userEmail,
+      details: `Добавлено слово: ${wordData.word}`
+    })
+  }
   
   return newWord
 }
@@ -319,29 +306,29 @@ export const updateWord = async (id, updatedData, userEmail) => {
   
   await updateDictionary(updatedDictionary, sha)
   
-  // Логируем обновление слова
-  await addLog({
-    action: 'WORD_UPDATED',
-    userEmail,
-    wordId: id,
-    details: `Word updated: ${id}`
-  })
+  // Логирование обновления слова
+  if (userEmail) {
+    await addLog({
+      action: 'word_updated',
+      userEmail,
+      details: `Обновлено слово: ${id}`
+    })
+  }
 }
 
 export const deleteWord = async (id, userEmail) => {
   const {  dictionary, sha } = await getDictionary()
   
-  const deletedWord = dictionary.find(w => w.id === id)
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
   await updateDictionary(updatedDictionary, sha)
   
-  // Логируем удаление слова
-  await addLog({
-    action: 'WORD_DELETED',
-    userEmail,
-    wordId: id,
-    word: deletedWord?.word,
-    details: `Word deleted: ${deletedWord?.word}`
-  })
+  // Логирование удаления слова
+  if (userEmail) {
+    await addLog({
+      action: 'word_deleted',
+      userEmail,
+      details: `Удалено слово: ${id}`
+    })
+  }
 }
