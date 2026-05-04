@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs, addLog } from './githubApi'
+import { getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
 import './AdminPanel.css'
 
 function AdminPanel({ adminUser, onLogout }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [words, setWords] = useState([])
   const [users, setUsers] = useState([])
   const [logs, setLogs] = useState([])
@@ -14,256 +12,120 @@ function AdminPanel({ adminUser, onLogout }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [authLoading, setAuthLoading] = useState(false)
 
-  // Проверка авторизации админа
   useEffect(() => {
-    if (!adminUser) {
-      const savedAdmin = localStorage.getItem('adminUser')
-      if (savedAdmin) {
-        // Уже авторизован — загружаем данные
-        loadWords(); loadUsers(); loadLogs()
-      }
-    } else {
-      loadWords(); loadUsers(); loadLogs()
-    }
-  }, [adminUser])
+    loadWords(); loadUsers(); loadLogs()
+  }, [])
 
   const loadWords = async () => {
     setLoading(true)
-    try {
-      const { data } = await getDictionary()
-      setWords(data || [])
-    } catch (err) { setError('Ошибка загрузки: ' + err.message) }
+    try { const { data } = await getDictionary(); setWords(data || []) }
+    catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
   }
 
-  const loadUsers = async () => {
-    try { const allUsers = await getUsers(); setUsers(allUsers) }
-    catch (err) { console.error('Ошибка загрузки пользователей:', err) }
-  }
-
-  const loadLogs = async () => {
-    try { const allLogs = await getLogs(); setLogs(allLogs) }
-    catch (err) { console.error('Ошибка загрузки логов:', err) }
-  }
+  const loadUsers = async () => { try { setUsers(await getUsers()) } catch {} }
+  const loadLogs = async () => { try { setLogs(await getLogs()) } catch {} }
 
   const filteredWords = useMemo(() => {
-    let filtered = words.filter(item =>
-      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    filtered.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
-    return filtered
+    let f = words.filter(w => w.word?.toLowerCase().includes(searchTerm.toLowerCase()) || w.translation?.toLowerCase().includes(searchTerm.toLowerCase()))
+    f.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
+    return f
   }, [searchTerm, words])
 
-  // 🔐 Вход админа
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
-    setAuthLoading(true)
-    try {
-      const isValid = await verifyAdmin(email, password)
-      if (isValid) {
-        const userData = { email, loginAt: new Date().toISOString(), role: 'admin' }
-        localStorage.setItem('adminUser', JSON.stringify(userData))
-        setEmail(''); setPassword('')
-        await loadWords(); await loadUsers(); await loadLogs()
-        // Обновляем состояние в родительском компоненте
-        if (typeof onLogout === 'function') onLogout({ ...userData })
-      } else {
-        setError('Неверный email или пароль')
-      }
-    } catch (err) { setError('Ошибка авторизации: ' + err.message) }
-    setAuthLoading(false)
-  }
-
-  const handleLogout = async () => {
-    await addLog({ action: 'admin_logout', userEmail: adminUser?.email, details: 'Администратор вышел' })
-    localStorage.removeItem('adminUser')
-    if (onLogout) onLogout(null)
-  }
-
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(''); setLoading(true)
+    e.preventDefault(); setError(''); setLoading(true)
     try {
-      if (editingId) await updateWord(editingId, formData, adminUser?.email)
-      else await addWord(formData, adminUser?.email)
+      if (editingId) await updateWord(editingId, formData)
+      else await addWord(formData)
       setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null); await loadWords()
-    } catch (err) { setError('Ошибка сохранения: ' + err.message) }
+    } catch (err) { setError(err.message) }
     setLoading(false)
-  }
-
-  const handleEdit = (word) => {
-    setEditingId(word.id)
-    setFormData({ word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '', audio: word.audio || '', audio2: word.audio2 || '' })
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Удалить эту карточку?')) {
-      try { await deleteWord(id, adminUser?.email); await loadWords() }
-      catch (err) { setError('Ошибка удаления: ' + err.message) }
-    }
+    if (window.confirm('Удалить?')) { try { await deleteWord(id); await loadWords() } catch (err) { setError(err.message) } }
   }
 
-  const handleBlockUser = async (userId, userEmail) => {
-    if (window.confirm(`Заблокировать пользователя ${userEmail}?`)) {
-      try { await blockUser(userId, adminUser?.email); await loadUsers(); await loadLogs() }
-      catch (err) { setError('Ошибка блокировки: ' + err.message) }
-    }
+  const handleBlock = async (userId, email) => {
+    if (window.confirm(`Заблокировать ${email}?`)) { try { await blockUser(userId, adminUser?.email); loadUsers() } catch {} }
   }
 
-  const handleUnblockUser = async (userId, userEmail) => {
-    if (window.confirm(`Разблокировать пользователя ${userEmail}?`)) {
-      try { await unblockUser(userId, adminUser?.email); await loadUsers(); await loadLogs() }
-      catch (err) { setError('Ошибка разблокировки: ' + err.message) }
-    }
+  const handleUnblock = async (userId, email) => {
+    if (window.confirm(`Разблокировать ${email}?`)) { try { await unblockUser(userId, adminUser?.email); loadUsers() } catch {} }
   }
 
-  const handleClearLogs = async () => {
-    if (window.confirm('Очистить все логи?')) {
-      try { await clearLogs(); await loadLogs() }
-      catch (err) { setError('Ошибка очистки логов: ' + err.message) }
-    }
-  }
+  const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU') : '-'
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-  }
-
-  // Если не авторизован — показываем форму входа
-  if (!adminUser) {
-    return (
-      <div className="admin-login">
-        <div className="login-box">
-          <h2>🔐 Админ-панель</h2>
-          <form onSubmit={handleLogin}>
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={authLoading} />
-            <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={authLoading} />
-            {error && <div className="error">{error}</div>}
-            <button type="submit" className="login-btn" disabled={authLoading}>{authLoading ? 'Проверка...' : 'Войти'}</button>
-          </form>
-        </div>
-      </div>
-    )
-  }
-
-  // Админ-панель
   return (
     <div className="admin-panel">
       <div className="admin-fixed-container">
         <div className="admin-header">
-          <h2>⚙️ Управление словарём</h2>
-          <div className="admin-info">
-            <span>{adminUser.email}</span>
-            <button onClick={handleLogout} className="logout-btn">Выйти</button>
-          </div>
+          <h2>⚙️ Админ-панель</h2>
+          <div className="admin-info"><span>{adminUser?.email}</span><button onClick={onLogout} className="logout-btn">Выйти</button></div>
         </div>
-
         <div className="admin-tabs">
-          <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
-          <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
-          <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
+          <button className={`tab-btn ${activeTab==='dictionary'?'active':''}`} onClick={()=>setActiveTab('dictionary')}>📚 Словарь</button>
+          <button className={`tab-btn ${activeTab==='users'?'active':''}`} onClick={()=>setActiveTab('users')}>👥 Пользователи</button>
+          <button className={`tab-btn ${activeTab==='logs'?'active':''}`} onClick={()=>setActiveTab('logs')}>📊 Логи</button>
         </div>
-
-        {activeTab === 'dictionary' && (
+        {activeTab==='dictionary' && (
           <div className="form-section">
-            <div className="search-container"><input type="text" placeholder="🔍 Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" /></div>
+            <input type="text" placeholder="🔍 Поиск..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} className="search-input" />
             <form onSubmit={handleSubmit} className="word-form">
-              <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={(e) => setFormData({...formData, word: e.target.value})} required />
-              <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={(e) => setFormData({...formData, transcription: e.target.value})} />
-              <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={(e) => setFormData({...formData, translation: e.target.value})} required />
-              <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={(e) => setFormData({...formData, example: e.target.value})} />
-              <input type="text" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={(e) => setFormData({...formData, example2: e.target.value})} />
-              <input type="text" placeholder="Транскрипция примера (на рунном языке)" value={formData.transcription2} onChange={(e) => setFormData({...formData, transcription2: e.target.value})} />
-              <input type="text" placeholder="Audio файл на рунном языке (..._runy.mp3)" value={formData.audio} onChange={(e) => setFormData({...formData, audio: e.target.value})} />
-              <input type="text" placeholder="Audio файл на русско-рунном языке (..._r_prim.mp3)" value={formData.audio2} onChange={(e) => setFormData({...formData, audio2: e.target.value})} />
+              <input placeholder="Слово" value={formData.word} onChange={e=>setFormData({...formData,word:e.target.value})} required />
+              <input placeholder="Транскрипция" value={formData.transcription} onChange={e=>setFormData({...formData,transcription:e.target.value})} />
+              <input placeholder="Перевод" value={formData.translation} onChange={e=>setFormData({...formData,translation:e.target.value})} required />
+              <input placeholder="Пример (рус)" value={formData.example} onChange={e=>setFormData({...formData,example:e.target.value})} />
+              <input placeholder="Пример (руны)" value={formData.example2} onChange={e=>setFormData({...formData,example2:e.target.value})} />
+              <input placeholder="Транскрипция примера" value={formData.transcription2} onChange={e=>setFormData({...formData,transcription2:e.target.value})} />
+              <input placeholder="Audio (..._runy.mp3)" value={formData.audio} onChange={e=>setFormData({...formData,audio:e.target.value})} />
+              <input placeholder="Audio2 (..._r_prim.mp3)" value={formData.audio2} onChange={e=>setFormData({...formData,audio2:e.target.value})} />
               <div className="form-buttons">
-                <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-                {editingId && <button type="button" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' }) }} className="cancel-btn">Отмена</button>}
+                <button type="submit" className="save-btn" disabled={loading}>{loading?'...':(editingId?'Обновить':'Добавить')}</button>
+                {editingId && <button type="button" className="cancel-btn" onClick={()=>{setEditingId(null);setFormData({word:'',transcription:'',translation:'',example:'',example2:'',transcription2:'',audio:'',audio2:''})}}>Отмена</button>}
               </div>
               {error && <div className="error">{error}</div>}
             </form>
-            <h3 className="words-count">📚 Все слова ({words.length})</h3>
+            <h3>📚 Слова: {words.length}</h3>
           </div>
         )}
-
-        {activeTab === 'users' && (
+        {activeTab==='users' && (
           <div className="users-section">
-            <h3>👥 Пользователи ({users.length})</h3>
+            <h3>👥 Пользователи: {users.length}</h3>
             <div className="users-grid">
               {users.map(u => (
-                <div key={u.id} className={`user-card ${u.isBlocked ? 'blocked' : ''}`}>
-                  <div className="user-info">
-                    <p className="user-email">{u.email}</p>
-                    <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
-                    {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
-                  </div>
-                  <div className="user-actions">
-                    {u.isBlocked ? (
-                      <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button>
-                    ) : (
-                      <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>
-                    )}
-                  </div>
+                <div key={u.id} className={`user-card ${u.isBlocked?'blocked':''}`}>
+                  <div><p className="user-email">{u.email}</p><p className="user-date">{formatDate(u.createdAt)}</p>{u.isBlocked && <p>Заблокирован: {formatDate(u.blockedAt)}</p>}</div>
+                  <div>{u.isBlocked ? <button onClick={()=>handleUnblock(u.id,u.email)} className="unblock-btn">✅</button> : <button onClick={()=>handleBlock(u.id,u.email)} className="block-btn">🚫</button>}</div>
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {activeTab === 'logs' && (
+        {activeTab==='logs' && (
           <div className="logs-section">
-            <div className="logs-header">
-              <h3>📊 Логи действий ({logs.length})</h3>
-              <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
-            </div>
-            <div className="logs-list">
-              {logs.map(log => (
-                <div key={log.id} className="log-item">
-                  <span className="log-time">{formatDate(log.timestamp)}</span>
-                  <span className="log-action">{log.action}</span>
-                  <span className="log-user">{log.userEmail || 'system'}</span>
-                  <span className="log-details">{log.details}</span>
-                </div>
-              ))}
-            </div>
+            <div className="logs-header"><h3>📊 Логи: {logs.length}</h3><button onClick={async()=>{if(window.confirm('Очистить?')){await clearLogs();loadLogs()}}} className="clear-logs-btn">🗑️</button></div>
+            <div className="logs-list">{logs.map(l => <div key={l.id} className="log-item"><span>{formatDate(l.timestamp)}</span><span>{l.action}</span><span>{l.userEmail||'-'}</span><span>{l.details}</span></div>)}</div>
           </div>
         )}
       </div>
-
       <div className="admin-content">
-        <div className="words-list">
-          {activeTab === 'dictionary' && (
-            <>
-              {loading && !editingId && <div className="loading">Загрузка...</div>}
-              <div className="words-grid">
-                {filteredWords.length > 0 ? filteredWords.map(word => (
-                  <div key={word.id} className="word-item">
-                    <div className="word-content">
-                      <div className="word-row"><h4 className="word-title">{word.word}</h4>{word.transcription && <span className="word-transcription">[{word.transcription}]</span>}</div>
-                      <p className="word-translation">{word.translation}</p>
-                      <div className="examples">
-                        {word.example && <span className="word-example">{word.example}</span>}
-                        {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
-                        {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
-                      </div>
-                      {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
-                      {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
-                    </div>
-                    <div className="word-actions">
-                      <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-                      <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
-                    </div>
-                  </div>
-                )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
-              </div>
-            </>
-          )}
-        </div>
+        {activeTab==='dictionary' && (
+          <div className="words-list">
+            {loading && <div className="loading">Загрузка...</div>}
+            <div className="words-grid">
+              {filteredWords.map(w => (
+                <div key={w.id} className="word-item">
+                  <div><div className="word-row"><h4>{w.word}</h4>{w.transcription && <span>[{w.transcription}]</span>}</div><p>{w.translation}</p></div>
+                  <div><button onClick={()=>{setEditingId(w.id);setFormData({word:w.word||'',transcription:w.transcription||'',translation:w.translation||'',example:w.example||'',example2:w.example2||'',transcription2:w.transcription2||'',audio:w.audio||'',audio2:w.audio2||''})}} className="edit-btn">✏️</button><button onClick={()=>handleDelete(w.id)} className="delete-btn">🗑️</button></div>
+                </div>
+              ))}
+              {filteredWords.length===0 && <p className="no-results">Ничего не найдено</p>}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
