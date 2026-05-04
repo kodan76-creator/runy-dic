@@ -1,5 +1,40 @@
 [
   {
+    "id": "1777917253492",
+    "timestamp": "2026-05-04T17:54:13.492Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Воспроизведено аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1777917011298",
+    "timestamp": "2026-05-04T17:50:11.298Z",
+    "action": "dictionary_viewed",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Просмотрено слов: 39"
+  },
+  {
+    "id": "1777917009504",
+    "timestamp": "2026-05-04T17:50:09.504Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Успешный вход в систему"
+  },
+  {
+    "id": "1777917003906",
+    "timestamp": "2026-05-04T17:50:03.906Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Пользователь вышел"
+  },
+  {
+    "id": "1777916837834",
+    "timestamp": "2026-05-04T17:47:17.834Z",
+    "action": "dictionary_viewed",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Просмотрено слов: 39"
+  },
+  {
     "id": "1777915694552",
     "timestamp": "2026-05-04T17:28:14.552Z",
     "action": "dictionary_viewed",
