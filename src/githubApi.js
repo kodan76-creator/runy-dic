@@ -60,7 +60,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return { data: content, sha: data.sha }
+    return {  content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -127,7 +127,7 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   
   if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
@@ -171,7 +171,7 @@ export const verifyUser = async (email, password) => {
 }
 
 export const blockUser = async (userId, adminEmail) => {
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   
   const updatedUsers = users.map(user =>
     user.id === userId 
@@ -183,7 +183,7 @@ export const blockUser = async (userId, adminEmail) => {
 }
 
 export const unblockUser = async (userId, adminEmail) => {
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   
   const updatedUsers = users.map(user =>
     user.id === userId 
@@ -206,7 +206,7 @@ export const getLogs = async () => {
 export const addLog = async (logData) => {
   try {
     // ✅ ИСПРАВЛЕНО: Получаем И данные, И sha ОДНИМ вызовом
-    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
     
     const newLog = {
       id: Date.now().toString(),
@@ -247,7 +247,7 @@ export const updateDictionary = async (newData, currentSha) => {
 }
 
 export const addWord = async (wordData, userEmail) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -271,7 +271,7 @@ export const addWord = async (wordData, userEmail) => {
 }
 
 export const updateWord = async (id, updatedData, userEmail) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -289,7 +289,7 @@ export const updateWord = async (id, updatedData, userEmail) => {
 }
 
 export const deleteWord = async (id, userEmail) => {
-  const { data: dictionary, sha } = await getDictionary()
+  const {  dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
