@@ -1,5 +1,7 @@
 // src/githubApi.js
 
+import { data } from "react-router-dom"
+
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
@@ -38,22 +40,22 @@ const fetchGitHubFile = async (fileName) => {
     const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
     
     if (!response.ok) {
-      if (response.status === 404) return {  [], sha: null }
+      if (response.status === 404) return { data: [], sha: null }
       const errText = await response.text().catch(() => '')
       throw new Error(`HTTP ${response.status}: ${errText}`)
     }
     
     const fileData = await response.json()
-    if (!fileData.content) return {  [], sha: null }
+    if (!fileData.content) return { data: [], sha: null }
     
     const raw = base64ToUtf8(fileData.content)
     const cleaned = raw.replace(/^\uFEFF/, '').trim()
     const content = cleaned ? JSON.parse(cleaned) : []
     
-    return {  Array.isArray(content) ? content : [], sha: fileData.sha }
+    return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
   } catch (error) {
     console.error(`Fetch ${fileName} error:`, error)
-    return {  [], sha: null }
+    return { data: [], sha: null }
   }
 }
 
