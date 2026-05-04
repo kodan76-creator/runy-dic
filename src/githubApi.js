@@ -20,11 +20,16 @@ const getHeaders = () => ({
 
 // ✅ Хэширование пароля (SHA-256)
 export const hashPassword = async (password) => {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  try {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(password)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  } catch (error) {
+    console.error('Error hashing password:', error)
+    throw error
+  }
 }
 
 // ✅ Правильное кодирование UTF-8 в Base64
@@ -111,13 +116,18 @@ export const getAdmins = async () => {
 }
 
 export const verifyAdmin = async (email, password) => {
-  const admins = await getAdmins()
-  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
-  
-  if (!admin) return false
-  
-  const inputHash = await hashPassword(password)
-  return inputHash === admin.passwordHash
+  try {
+    const admins = await getAdmins()
+    const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
+    
+    if (!admin) return false
+    
+    const inputHash = await hashPassword(password)
+    return inputHash === admin.passwordHash
+  } catch (error) {
+    console.error('Error verifying admin:', error)
+    return false
+  }
 }
 
 // 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ
@@ -154,20 +164,25 @@ export const registerUser = async (email, password) => {
 }
 
 export const verifyUser = async (email, password) => {
-  const users = await getUsers()
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
-  
-  if (!user) return null
-  
-  if (user.isBlocked) {
-    throw new Error('Ваш аккаунт заблокирован. Обратитесь к администратору.')
+  try {
+    const users = await getUsers()
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+    
+    if (!user) return null
+    
+    if (user.isBlocked) {
+      throw new Error('Ваш аккаунт заблокирован. Обратитесь к администратору.')
+    }
+    
+    const inputHash = await hashPassword(password)
+    if (inputHash !== user.passwordHash) return null
+    
+    const { passwordHash: _, ...userWithoutPass } = user
+    return userWithoutPass
+  } catch (error) {
+    console.error('Error verifying user:', error)
+    throw error
   }
-  
-  const inputHash = await hashPassword(password)
-  if (inputHash !== user.passwordHash) return null
-  
-  const { passwordHash: _, ...userWithoutPass } = user
-  return userWithoutPass
 }
 
 export const blockUser = async (userId, adminEmail) => {
