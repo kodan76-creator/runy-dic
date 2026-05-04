@@ -205,9 +205,8 @@ export const getLogs = async () => {
 
 export const addLog = async (logData) => {
   try {
-    // ✅ Получаем logs как массив и sha отдельно
-    const logs = await getLogs()
-    const { sha } = await fetchGitHubFile(LOGS_FILE)
+    // ✅ Получаем И данные, И sha одним вызовом
+    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
     
     const newLog = {
       id: Date.now().toString(),
