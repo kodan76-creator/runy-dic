@@ -1,5 +1,12 @@
 [
   {
+    "id": "1777917253492",
+    "timestamp": "2026-05-04T17:54:13.492Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Воспроизведено аудио: 1_runy.mp3"
+  },
+  {
     "id": "1777917011298",
     "timestamp": "2026-05-04T17:50:11.298Z",
     "action": "dictionary_viewed",
