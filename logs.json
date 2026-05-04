@@ -1,5 +1,12 @@
 [
   {
+    "id": "1777918305223",
+    "timestamp": "2026-05-04T18:11:45.223Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск слова: \"ар\""
+  },
+  {
     "id": "1777918295987",
     "timestamp": "2026-05-04T18:11:35.987Z",
     "action": "login",
