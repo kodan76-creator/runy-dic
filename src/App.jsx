@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { 
-  verifyUser, 
-  registerUser, 
-  logoutUser, 
-  logSearch, 
-  logAudioPlay,
-  getDictionary 
-} from './githubApi'
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { verifyUser, registerUser, logoutUser, logSearch, logAudioPlay, getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -81,14 +74,10 @@ function Home({ user, onLogout }) {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        // ✅ ИСПРАВЛЕНО: правильный вызов getDictionary
         const { data } = await getDictionary()
         const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
-      } catch (err) { 
-        console.error('Ошибка загрузки:', err)
-        setWords([]) 
-      }
+      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
       setLoading(false)
     }
     loadWords()
@@ -174,17 +163,26 @@ function Home({ user, onLogout }) {
 }
 
 // Защищённый маршрут
-function ProtectedRoute({ children, isAuthenticated }) {
-  if (!isAuthenticated) return <Navigate to="/auth" replace />
+function ProtectedRoute({ children, user, requiredRole }) {
+  if (!user) return <Navigate to="/auth" replace />
+  if (requiredRole && user.role !== requiredRole) return <Navigate to="/auth" replace />
   return children
+}
+
+// Компонент для главной страницы
+function HomePage({ user, onLogout }) {
+  return <Home user={user} onLogout={onLogout} />
+}
+
+// Компонент для админки
+function AdminPage({ user, onLogout }) {
+  return <AdminPanel adminUser={user} onLogout={onLogout} />
 }
 
 // Главный компонент App
 function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const location = useLocation()
-  const isAdminRoute = location.pathname === '/admin'
 
   useEffect(() => {
     // Проверяем сессию админа ИЛИ пользователя
@@ -192,66 +190,77 @@ function App() {
     const currentUser = localStorage.getItem('currentUser')
     
     if (adminUser) {
-      setUser(JSON.parse(adminUser))
+      try {
+        const parsed = JSON.parse(adminUser)
+        setUser({ ...parsed, role: 'admin' })
+      } catch {}
     } else if (currentUser) {
-      setUser(JSON.parse(currentUser))
+      try {
+        const parsed = JSON.parse(currentUser)
+        setUser({ ...parsed, role: parsed.role || 'user' })
+      } catch {}
     }
     setAuthLoading(false)
   }, [])
 
-  const handleUserLogin = (userData) => setUser(userData)
-  const handleUserLogout = () => {
+  const handleUserLogin = (userData) => {
+    const userWithRole = { ...userData, role: userData.role || 'user' }
+    setUser(userWithRole)
+  }
+
+  const handleAdminLogin = (adminData) => {
+    const adminWithRole = { ...adminData, role: 'admin' }
+    setUser(adminWithRole)
+  }
+
+  const handleLogout = () => {
     localStorage.removeItem('currentUser')
+    localStorage.removeItem('adminUser')
     setUser(null)
   }
 
   if (authLoading) return <div className="loading-full">Загрузка...</div>
 
   return (
-    <Routes>
-      {/* Маршрут /admin — только для админов */}
-      <Route 
-        path="/admin" 
-        element={
-          <ProtectedRoute isAuthenticated={user?.role === 'admin'}>
-            <AdminPanel adminUser={user} onLogout={() => { localStorage.removeItem('adminUser'); setUser(null) }} />
-          </ProtectedRoute>
-        } 
-      />
-      
-      {/* Маршрут /auth — форма входа для пользователей */}
-      <Route 
-        path="/auth" 
-        element={
-          !user || user.role !== 'admin' ? (
-            <UserAuthForm onLogin={handleUserLogin} />
-          ) : (
-            <Navigate to="/admin" replace />
-          )
-        } 
-      />
-      
-      {/* Маршрут / — главная страница для пользователей */}
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute isAuthenticated={!!user && user.role !== 'admin'}>
-            <Home user={user} onLogout={handleUserLogout} />
-          </ProtectedRoute>
-        } 
-      />
-      
-      {/* Перенаправление неизвестных маршрутов */}
-      <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user ? '/' : '/auth'} replace />} />
-    </Routes>
-  )
-}
-
-// Экспортируем App внутри Router
-export default function AppWrapper() {
-  return (
     <Router>
-      <App />
+      <Routes>
+        {/* Маршрут /admin — только для админов */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <AdminPage user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Маршрут /auth — форма входа для пользователей */}
+        <Route 
+          path="/auth" 
+          element={
+            !user || user.role !== 'admin' ? (
+              <UserAuthForm onLogin={handleUserLogin} />
+            ) : (
+              <Navigate to="/admin" replace />
+            )
+          } 
+        />
+        
+        {/* Маршрут / — главная страница для пользователей */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute user={user} requiredRole="user">
+              <HomePage user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Перенаправление неизвестных маршрутов */}
+        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user ? '/' : '/auth'} replace />} />
+      </Routes>
     </Router>
   )
 }
+
+export default App
