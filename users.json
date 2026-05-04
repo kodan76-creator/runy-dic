@@ -1,5 +1,5 @@
 [
-    {
+  {
     "id": "1777558936511",
     "email": "1@1.ru",
     "passwordHash": "bcb15f821479b4d5772bd0ca866c00ad5f926e3580720659cc80d39c9d09802a",
@@ -19,5 +19,15 @@
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
     "createdAt": "2026-05-03T11:00:45.352Z",
     "role": "user"
+  },
+  {
+    "id": "1777908942302",
+    "email": "ya.kodan76@ya.ru",
+    "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
+    "createdAt": "2026-05-04T15:35:42.302Z",
+    "role": "user",
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null
   }
 ]
