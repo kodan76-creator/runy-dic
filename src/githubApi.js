@@ -197,26 +197,42 @@ export const unblockUser = async (userId, adminEmail) => {
 // 📊 Функции для работы с ЛОГАМИ
 export const getLogs = async () => {
   const { data } = await fetchGitHubFile(LOGS_FILE)
-  return data || []
+  // ✅ Гарантируем возврат массива
+  if (!data) return []
+  if (!Array.isArray(data)) return []
+  return data
 }
 
 export const addLog = async (logData) => {
-  const { data: logs, sha } = await getLogs()
-  
-  const newLog = {
-    id: Date.now().toString(),
-    timestamp: new Date().toISOString(),
-    ...logData
+  try {
+    const { data: logs, sha } = await getLogs()
+    
+    const newLog = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      ...logData
+    }
+    
+    // Храним последние 1000 записей
+    const updatedLogs = [newLog, ...logs].slice(0, 1000)
+    await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
+    
+    return newLog
+  } catch (error) {
+    console.error('Error adding log:', error)
+    throw error
   }
-  
-  const updatedLogs = [newLog, ...logs].slice(0, 1000)
-  await updateGitHubFile(LOGS_FILE, updatedLogs, sha)
-  
-  return newLog
 }
 
 export const clearLogs = async () => {
-  await updateGitHubFile(LOGS_FILE, [], null)
+  try {
+    // ✅ Получаем текущий sha перед очисткой
+    const { sha } = await fetchGitHubFile(LOGS_FILE)
+    await updateGitHubFile(LOGS_FILE, [], sha)
+  } catch (error) {
+    console.error('Error clearing logs:', error)
+    throw error
+  }
 }
 
 // 📚 Функции для работы со словарём
