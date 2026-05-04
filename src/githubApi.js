@@ -4,7 +4,6 @@ const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE = 'dictionary.json'
-const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
 
@@ -60,7 +59,7 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
-    return {  content, sha: data.sha }
+    return { data: content, sha: data.sha }
   } catch (error) {
     console.error(`Error fetching ${fileName}:`, error)
     throw error
@@ -104,22 +103,6 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 🔐 Функции для работы с АДМИНАМИ
-export const getAdmins = async () => {
-  const { data } = await fetchGitHubFile(ADMINS_FILE)
-  return data || []
-}
-
-export const verifyAdmin = async (email, password) => {
-  const admins = await getAdmins()
-  const admin = admins.find(a => a.email.toLowerCase() === email.toLowerCase())
-  
-  if (!admin) return false
-  
-  const inputHash = await hashPassword(password)
-  return inputHash === admin.passwordHash
-}
-
 // 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ
 export const getUsers = async () => {
   const { data } = await fetchGitHubFile(USERS_FILE)
@@ -127,7 +110,7 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   
   if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
@@ -170,30 +153,6 @@ export const verifyUser = async (email, password) => {
   return userWithoutPass
 }
 
-export const blockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
-  
-  const updatedUsers = users.map(user =>
-    user.id === userId 
-      ? { ...user, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail }
-      : user
-  )
-  
-  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
-}
-
-export const unblockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
-  
-  const updatedUsers = users.map(user =>
-    user.id === userId 
-      ? { ...user, isBlocked: false, blockedAt: null, blockedBy: null }
-      : user
-  )
-  
-  await updateGitHubFile(USERS_FILE, updatedUsers, sha)
-}
-
 // 📊 Функции для работы с ЛОГАМИ
 export const getLogs = async () => {
   const { data } = await fetchGitHubFile(LOGS_FILE)
@@ -201,7 +160,7 @@ export const getLogs = async () => {
 }
 
 export const addLog = async (logData) => {
-  const {  logs, sha } = await getLogs()  // ✅ Получаем logs как массив
+  const { data: logs, sha } = await getLogs()  // ✅ Получаем logs как массив
   
   const newLog = {
     id: Date.now().toString(),
@@ -230,7 +189,7 @@ export const updateDictionary = async (newData, currentSha) => {
 }
 
 export const addWord = async (wordData, userEmail) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const newWord = {
     ...wordData,
@@ -254,7 +213,7 @@ export const addWord = async (wordData, userEmail) => {
 }
 
 export const updateWord = async (id, updatedData, userEmail) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.map(word =>
     word.id === id ? { ...word, ...updatedData } : word
@@ -272,7 +231,7 @@ export const updateWord = async (id, updatedData, userEmail) => {
 }
 
 export const deleteWord = async (id, userEmail) => {
-  const {  dictionary, sha } = await getDictionary()
+  const { data: dictionary, sha } = await getDictionary()
   
   const updatedDictionary = dictionary.filter(word => word.id !== id)
   
