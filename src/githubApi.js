@@ -1,5 +1,3 @@
-import { data } from "react-router-dom"
-
 // src/githubApi.js
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
@@ -88,17 +86,15 @@ export const getAdmins = async () => {
 
 export const verifyAdmin = async (email, password) => {
   try {
-    if (!email || !password) return null
+    if (!email || !password) return false
     const admins = await getAdmins()
     const admin = admins.find(a => a?.email?.toLowerCase() === email?.toLowerCase())
-    if (!admin) return null
+    if (!admin) return false
     const inputHash = await hashPassword(password)
-    if (inputHash !== admin.passwordHash) return null
-    // ✅ Возвращаем объект с role: 'admin'
-    return { email: admin.email, role: 'admin', loginAt: new Date().toISOString() }
+    return inputHash === admin.passwordHash
   } catch (e) {
     console.error('verifyAdmin error:', e)
-    return null
+    return false
   }
 }
 
@@ -109,7 +105,7 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
   }
@@ -119,7 +115,7 @@ export const registerUser = async (email, password) => {
     email,
     passwordHash,
     createdAt: new Date().toISOString(),
-    role: 'user',  // ✅ Явно указываем role
+    role: 'user',
     isBlocked: false,
     blockedAt: null,
     blockedBy: null
@@ -127,7 +123,7 @@ export const registerUser = async (email, password) => {
   await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
   addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
   const { passwordHash: _, ...safeUser } = newUser
-  return { ...safeUser, role: 'user' }  // ✅ Возвращаем с role
+  return { ...safeUser, role: 'user' }
 }
 
 export const verifyUser = async (email, password) => {
@@ -144,7 +140,6 @@ export const verifyUser = async (email, password) => {
     addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
     
     const { passwordHash: _, ...safeUser } = user
-    // ✅ Возвращаем с role: 'user'
     return { ...safeUser, role: 'user' }
   } catch (e) {
     console.error('verifyUser error:', e)
@@ -157,7 +152,7 @@ export const logoutUser = async (userEmail) => {
 }
 
 export const blockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail } : u
   )
@@ -166,7 +161,7 @@ export const blockUser = async (userId, adminEmail) => {
 }
 
 export const unblockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
@@ -180,9 +175,12 @@ export const getLogs = async () => {
   return Array.isArray(data) ? data : []
 }
 
+// ✅ ИСПРАВЛЕНО: Правильная деструктуризация
 export const addLog = async (logData) => {
   try {
-    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    // ✅ Получаем data и sha, переименовываем data в logs
+    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    
     const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
     const updated = [newLog, ...logs].slice(0, 1000)
     await updateGitHubFile(LOGS_FILE, updated, sha)
@@ -203,20 +201,20 @@ export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
 export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
 
 export const addWord = async (wordData, userEmail) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
   await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
   return newWord
 }
 
 export const updateWord = async (id, updatedData) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
   await updateGitHubFile(DATA_FILE, updated, sha)
 }
 
 export const deleteWord = async (id) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const filtered = dict.filter(w => w.id !== id)
   await updateGitHubFile(DATA_FILE, filtered, sha)
 }
