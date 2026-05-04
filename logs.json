@@ -1,37 +1,16 @@
 [
   {
-    "id": "1777913700486",
-    "timestamp": "2026-05-04T16:55:00.486Z",
+    "id": "1777915247207",
+    "timestamp": "2026-05-04T17:20:47.207Z",
     "action": "dictionary_viewed",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Просмотрено слов: 39"
   },
   {
-    "id": "1777913681186",
-    "timestamp": "2026-05-04T16:54:41.186Z",
-    "action": "dictionary_viewed",
+    "id": "1777915236168",
+    "timestamp": "2026-05-04T17:20:36.168Z",
+    "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
-    "details": "Просмотрено слов: 39"
-  },
-  {
-    "id": "1777913351539",
-    "timestamp": "2026-05-04T16:49:11.539Z",
-    "action": "dictionary_viewed",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Просмотрено слов: 39"
-  },
-  {
-    "id": "1777913289714",
-    "timestamp": "2026-05-04T16:48:09.714Z",
-    "action": "dictionary_viewed",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Просмотрено слов: 39"
-  },
-  {
-    "id": "1777912498130",
-    "timestamp": "2026-05-04T16:34:58.130Z",
-    "action": "dictionary_viewed",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Просмотрено слов: 39"
+    "details": "Пользователь вышел"
   }
 ]
