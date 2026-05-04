@@ -26,8 +26,8 @@
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
     "createdAt": "2026-05-04T15:35:42.302Z",
     "role": "user",
-    "isBlocked": false,
-    "blockedAt": null,
-    "blockedBy": null
+    "isBlocked": true,
+    "blockedAt": "2026-05-04T15:36:55.190Z",
+    "blockedBy": "ya.kodan76@ya.ru"
   }
 ]
