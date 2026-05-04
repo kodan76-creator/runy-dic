@@ -1,7 +1,5 @@
 // src/githubApi.js
 
-import { data } from "react-router-dom"
-
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
 const GITHUB_BRANCH = 'main'
@@ -142,9 +140,12 @@ export const verifyUser = async (email, password) => {
     const inputHash = await hashPassword(password)
     if (inputHash !== user.passwordHash) return null
     
-    // ✅ Добавляем role: 'user' если его нет
+    // ✅ ДОБАВЛЕНО: Гарантируем наличие role: 'user'
     const { passwordHash: _, ...safeUser } = user
-    return { ...safeUser, role: safeUser.role || 'user' }
+    return { 
+      ...safeUser, 
+      role: 'user'  // ✅ Принудительно устанавливаем role
+    }
   } catch (e) {
     console.error('verifyUser error:', e)
     throw e
@@ -165,7 +166,7 @@ export const blockUser = async (userId, adminEmail) => {
 }
 
 export const unblockUser = async (userId, adminEmail) => {
-  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
@@ -181,7 +182,7 @@ export const getLogs = async () => {
 
 export const addLog = async (logData) => {
   try {
-    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
     const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
     const updated = [newLog, ...logs].slice(0, 1000)
     await updateGitHubFile(LOGS_FILE, updated, sha)
@@ -202,14 +203,14 @@ export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
 export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
 
 export const addWord = async (wordData, userEmail) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
   await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
   return newWord
 }
 
 export const updateWord = async (id, updatedData) => {
-  const {  dict, sha } = await getDictionary()
+  const { data: dict, sha } = await getDictionary()
   const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
   await updateGitHubFile(DATA_FILE, updated, sha)
 }
