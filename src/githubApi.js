@@ -287,7 +287,7 @@ export const getLogs = async () => {
 
 export const addLog = async (logData) => {
   try {
-    // ✅ ИСПРАВЛЕНО: Получаем И данные, И sha ОДНИМ вызовом fetchGitHubFile!
+    // ✅ Получаем И данные, И sha ОДНИМ вызовом!
     const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
     
     const newLog = {
