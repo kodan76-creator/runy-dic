@@ -38,22 +38,22 @@ const fetchGitHubFile = async (fileName) => {
     const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
     
     if (!response.ok) {
-      if (response.status === 404) return { data: [], sha: null }
+      if (response.status === 404) return {  [], sha: null }
       const errText = await response.text().catch(() => '')
       throw new Error(`HTTP ${response.status}: ${errText}`)
     }
     
     const fileData = await response.json()
-    if (!fileData.content) return { data: [], sha: null }
+    if (!fileData.content) return {  [], sha: null }
     
     const raw = base64ToUtf8(fileData.content)
     const cleaned = raw.replace(/^\uFEFF/, '').trim()
     const content = cleaned ? JSON.parse(cleaned) : []
     
-    return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
+    return {  Array.isArray(content) ? content : [], sha: fileData.sha }
   } catch (error) {
     console.error(`Fetch ${fileName} error:`, error)
-    return { data: [], sha: null }
+    return {  [], sha: null }
   }
 }
 
@@ -163,7 +163,7 @@ export const blockUser = async (userId, adminEmail) => {
 }
 
 export const unblockUser = async (userId, adminEmail) => {
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const {  users, sha } = await fetchGitHubFile(USERS_FILE)
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
@@ -179,7 +179,7 @@ export const getLogs = async () => {
 
 export const addLog = async (logData) => {
   try {
-    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
+    const {  logs, sha } = await fetchGitHubFile(LOGS_FILE)
     const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
     const updated = [newLog, ...logs].slice(0, 1000)
     await updateGitHubFile(LOGS_FILE, updated, sha)
@@ -200,14 +200,14 @@ export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
 export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
 
 export const addWord = async (wordData, userEmail) => {
-  const { data: dict, sha } = await getDictionary()
+  const {  dict, sha } = await getDictionary()
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
   await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
   return newWord
 }
 
 export const updateWord = async (id, updatedData) => {
-  const { data: dict, sha } = await getDictionary()
+  const {  dict, sha } = await getDictionary()
   const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
   await updateGitHubFile(DATA_FILE, updated, sha)
 }
