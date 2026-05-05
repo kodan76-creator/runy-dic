@@ -11,7 +11,7 @@
   },
   {
     "id": "1777805429586",
-    "email": "citer2380@gmail.com_bloked",
+    "email": "citer2380@gmail.com",
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
     "createdAt": "2026-05-03T10:50:29.586Z",
     "role": "user",
@@ -34,16 +34,6 @@
     "email": "ya.kodan76@ya.ru",
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
     "createdAt": "2026-05-04T15:35:42.302Z",
-    "role": "user",
-    "isBlocked": false,
-    "blockedAt": null,
-    "blockedBy": null
-  },
-  {
-    "id": "1777936704228",
-    "email": "2@2.ru",
-    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-05-04T23:18:24.228Z",
     "role": "user",
     "isBlocked": false,
     "blockedAt": null,
