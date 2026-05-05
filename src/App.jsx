@@ -166,7 +166,14 @@ function App() {
         <Route 
           path="/admin" 
           element={
-            <AdminPanel adminUser={user} onLogout={handleLogout} />
+            <AdminPanel 
+              adminUser={user?.role === 'admin' ? user : null} 
+              onAdminLogin={(userData) => setUser({ ...userData, role: 'admin' })}
+              onAdminLogout={() => {
+                localStorage.removeItem('adminUser')
+                setUser(null)
+              }}
+            />
           } 
         />
         
