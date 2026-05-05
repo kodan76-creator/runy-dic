@@ -162,13 +162,18 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Админ-панель */}
+        {/* Админ-панель - доступна всегда, внутри сама проверка авторизации */}
         <Route 
           path="/admin" 
           element={
-            <ProtectedRoute user={user} requiredRole="admin">
-              <AdminPanel adminUser={user} onLogout={handleLogout} />
-            </ProtectedRoute>
+            <AdminPanel 
+              adminUser={user?.role === 'admin' ? user : null} 
+              onAdminLogin={(userData) => setUser({ ...userData, role: 'admin' })}
+              onAdminLogout={() => {
+                localStorage.removeItem('adminUser')
+                setUser(null)
+              }}
+            />
           } 
         />
         
@@ -179,7 +184,7 @@ function App() {
             !user || user.role !== 'admin' ? (
               <UserAuthForm onLogin={handleUserLogin} />
             ) : (
-              <Navigate to="/admin" replace />
+              <Navigate to="/" replace />
             )
           } 
         />
