@@ -7,14 +7,17 @@ const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
 
+// Получение токена из env
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
 
+// Заголовки для API
 const getHeaders = () => ({
   'Authorization': `token ${TOKEN}`,
   'Accept': 'application/vnd.github.v3+json',
   'Content-Type': 'application/json',
 })
 
+// ✅ Хэширование пароля (SHA-256)
 export const hashPassword = async (password) => {
   try {
     const encoder = new TextEncoder()
@@ -28,9 +31,17 @@ export const hashPassword = async (password) => {
   }
 }
 
-const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)))
-const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)))
+// ✅ Правильное кодирование UTF-8 в Base64
+const utf8ToBase64 = (str) => {
+  return btoa(unescape(encodeURIComponent(str)))
+}
 
+// ✅ Правильное декодирование Base64 в UTF-8
+const base64ToUtf8 = (str) => {
+  return decodeURIComponent(escape(atob(str)))
+}
+
+// Чтение любого файла из GitHub
 const fetchGitHubFile = async (fileName) => {
   try {
     const response = await fetch(
@@ -60,6 +71,7 @@ const fetchGitHubFile = async (fileName) => {
   }
 }
 
+// Запись любого файла в GitHub
 const updateGitHubFile = async (fileName, newData, currentSha) => {
   try {
     const jsonString = JSON.stringify(newData, null, 2)
@@ -95,7 +107,7 @@ const updateGitHubFile = async (fileName, newData, currentSha) => {
   }
 }
 
-// 🔐 АДМИНЫ
+// 🔐 Функции для работы с АДМИНАМИ
 export const getAdmins = async () => {
   const { data } = await fetchGitHubFile(ADMINS_FILE)
   return data || []
@@ -109,7 +121,7 @@ export const verifyAdmin = async (email, password) => {
   return inputHash === admin.passwordHash
 }
 
-// 👥 ПОЛЬЗОВАТЕЛИ
+// 👥 Функции для работы с ПОЛЬЗОВАТЕЛЯМИ
 export const getUsers = async () => {
   const { data } = await fetchGitHubFile(USERS_FILE)
   return data || []
@@ -150,6 +162,17 @@ export const verifyUser = async (email, password) => {
   return userWithoutPass
 }
 
+// ✅ ДОБАВЛЕНО: Функция logoutUser
+export const logoutUser = async (userEmail) => {
+  if (userEmail) {
+    await addLog({
+      action: 'logout',
+      userEmail,
+      details: 'Пользователь вышел из системы'
+    })
+  }
+}
+
 export const blockUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const updatedUsers = users.map(user =>
@@ -170,22 +193,19 @@ export const unblockUser = async (userId, adminEmail) => {
   await updateGitHubFile(USERS_FILE, updatedUsers, sha)
 }
 
-// 📊 ЛОГИ
+// 📊 Функции для работы с ЛОГАМИ
 export const getLogs = async () => {
   const { data } = await fetchGitHubFile(LOGS_FILE)
+  // ✅ Гарантируем возврат массива
   if (!data) return []
   if (!Array.isArray(data)) return []
   return data
 }
 
-// ✅ ИСПРАВЛЕНО: Получаем logs и sha ПРАВИЛЬНО
 export const addLog = async (logData) => {
   try {
-    // ✅ Получаем logs как массив (getLogs возвращает только массив)
-    const logs = await getLogs()
-    // ✅ Получаем sha отдельно
-    const { sha } = await fetchGitHubFile(LOGS_FILE)
-    
+    // ✅ Получаем И данные, И sha ОДНИМ вызовом
+    const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
     const newLog = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
@@ -199,12 +219,14 @@ export const addLog = async (logData) => {
     return newLog
   } catch (error) {
     console.error('Error adding log:', error)
+    // Не выбрасываем ошибку, чтобы не ломать основное приложение
     return null
   }
 }
 
 export const clearLogs = async () => {
   try {
+    // ✅ Получаем текущий sha перед очисткой
     const { sha } = await fetchGitHubFile(LOGS_FILE)
     await updateGitHubFile(LOGS_FILE, [], sha)
   } catch (error) {
@@ -213,7 +235,7 @@ export const clearLogs = async () => {
   }
 }
 
-// 📚 СЛОВАРЬ
+// 📚 Функции для работы со словарём
 export const getDictionary = async () => {
   return await fetchGitHubFile(DATA_FILE)
 }
@@ -268,4 +290,24 @@ export const deleteWord = async (id, userEmail) => {
       details: `Удалено слово: ${id}`
     })
   }
+}
+
+// 🔍 ЛОГИРОВАНИЕ
+export const logSearch = async (searchTerm, userEmail) => {
+  if (!searchTerm || searchTerm.trim() === '') return
+  await addLog({
+    action: 'search',
+    userEmail,
+    details: `Поиск слова: "${searchTerm}"`
+  })
+}
+
+// 🎧 ЛОГИРОВАНИЕ ПРОСЛУШИВАНИЯ
+export const logAudioPlay = async (audioFile, userEmail) => {
+  if (!audioFile) return
+  await addLog({
+    action: 'audio_played',
+    userEmail,
+    details: `Прослушано аудио: ${audioFile}`
+  })
 }
