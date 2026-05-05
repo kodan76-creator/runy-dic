@@ -44,18 +44,28 @@ const base64ToUtf8 = (str) => {
 // Чтение любого файла из GitHub
 const fetchGitHubFile = async (fileName) => {
   try {
+    console.log(`[githubApi.js] Запрос файла: ${fileName}`)
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
+    console.log(`[githubApi.js] URL: ${url}`)
+    console.log(`[githubApi.js] Токен присутствует: ${!!TOKEN}`)
+    
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`,
+      url,
       {
         headers: getHeaders(),
         cache: 'no-cache'
       }
     )
     
+    console.log(`[githubApi.js] Статус ответа для ${fileName}: ${response.status}`)
+    
     if (!response.ok) {
       if (response.status === 404) {
+        console.warn(`[githubApi.js] Файл ${fileName} не найден (404)`)
         return { data: [], sha: null }
       }
+      const errorText = await response.text().catch(() => 'Нет текста ошибки')
+      console.error(`[githubApi.js] Ошибка HTTP ${response.status}: ${errorText}`)
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
@@ -64,9 +74,11 @@ const fetchGitHubFile = async (fileName) => {
     const cleanedContent = rawContent.replace(/^\uFEFF/, '').trim()
     const content = JSON.parse(cleanedContent)
     
+    console.log(`[githubApi.js] Успешно загружен ${fileName}, записей: ${Array.isArray(content) ? content.length : 'N/A'}`)
+    
     return { data: content, sha: data.sha }
   } catch (error) {
-    console.error(`Error fetching ${fileName}:`, error)
+    console.error(`[githubApi.js] Критическая ошибка при загрузке ${fileName}:`, error)
     throw error
   }
 }
