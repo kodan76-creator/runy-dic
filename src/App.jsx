@@ -15,29 +15,38 @@ function UserAuthForm({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log('[App.jsx] Форма отправлена:', { isLogin, email })
     setError('')
     setLoading(true)
     try {
       if (isLogin) {
+        console.log('[App.jsx] Попытка входа для:', email)
         const user = await verifyUser(email, password)
+        console.log('[App.jsx] Результат verifyUser:', user)
         if (user) {
           // ✅ Добавляем role если его нет
           const userWithRole = { ...user, role: user.role || 'user' }
+          console.log('[App.jsx] Успешный вход, сохраняем пользователя:', userWithRole)
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
         } else {
+          console.log('[App.jsx] Ошибка: неверный email или пароль')
           setError('Неверный email или пароль')
         }
       } else {
+        console.log('[App.jsx] Попытка регистрации для:', email)
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         const user = await registerUser(email, password)
+        console.log('[App.jsx] Результат registerUser:', user)
         // ✅ Добавляем role
         const userWithRole = { ...user, role: 'user' }
+        console.log('[App.jsx] Успешная регистрация, сохраняем пользователя:', userWithRole)
         localStorage.setItem('currentUser', JSON.stringify(userWithRole))
         onLogin(userWithRole)
       }
     } catch (err) {
+      console.error('[App.jsx] Ошибка авторизации:', err)
       setError(err.message || 'Ошибка авторизации')
     }
     setLoading(false)
@@ -129,18 +138,23 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
+    console.log('[App.jsx] Проверка сессии при загрузке')
     // Проверяем сессию админа ИЛИ пользователя
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
+    console.log('[App.jsx] adminUser из localStorage:', adminUser)
+    console.log('[App.jsx] currentUser из localStorage:', currentUser)
     
     if (adminUser) {
       try {
         const parsed = JSON.parse(adminUser)
+        console.log('[App.jsx] Восстановлена сессия админа:', parsed)
         setUser({ ...parsed, role: 'admin' })
       } catch {}
     } else if (currentUser) {
       try {
         const parsed = JSON.parse(currentUser)
+        console.log('[App.jsx] Восстановлена сессия пользователя:', parsed)
         setUser({ ...parsed, role: parsed.role || 'user' })
       } catch {}
     }
@@ -148,10 +162,12 @@ function App() {
   }, [])
 
   const handleUserLogin = (userData) => {
+    console.log('[App.jsx] handleUserLogin вызван с:', userData)
     setUser({ ...userData, role: userData.role || 'user' })
   }
 
   const handleLogout = () => {
+    console.log('[App.jsx] handleLogout вызван')
     localStorage.removeItem('currentUser')
     localStorage.removeItem('adminUser')
     setUser(null)
