@@ -81,10 +81,18 @@ function Home({ user, onLogout }) {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const { data } = await getDictionary()
+        console.log('[Home] Начало загрузки словаря...')
+        const result = await getDictionary()
+        console.log('[Home] Результат getDictionary:', result)
+        const data = result?.data || []
+        console.log('[Home] Данные словаря:', data)
         const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
-      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
+        console.log('[Home] Словарь успешно загружен, количество слов:', sortedData.length)
+      } catch (err) { 
+        console.error('[Home] Ошибка загрузки словаря:', err)
+        setWords([]) 
+      }
       setLoading(false)
     }
     loadWords()
