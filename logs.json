@@ -1,5 +1,12 @@
 [
   {
+    "id": "1777994542193",
+    "timestamp": "2026-05-05T15:22:22.193Z",
+    "action": "word_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Обновлено слово: 1743959289711"
+  },
+  {
     "id": "1777994517529",
     "timestamp": "2026-05-05T15:21:57.529Z",
     "action": "word_updated",
