@@ -96,10 +96,13 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   // 🔐 Вход админа
   const handleLogin = async (e) => {
     e.preventDefault()
+    e.stopPropagation()
+    console.log('=== Login button clicked ===')
     console.log('Login attempt:', email)
     setError('')
     setAuthLoading(true)
     try {
+      console.log('Calling verifyAdmin...')
       const admin = await verifyAdmin(email, password)
       console.log('Verify result:', admin)
       if (admin) {
