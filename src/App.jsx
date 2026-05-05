@@ -202,7 +202,7 @@ function App() {
         {/* Перенаправление */}
         <Route 
           path="*" 
-          element={<Navigate to={user?.role === 'admin' ? '/admin' : user ? '/' : '/auth'} replace />} 
+          element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/') : '/auth'} replace />} 
         />
       </Routes>
     </Router>
