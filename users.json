@@ -48,5 +48,15 @@
     "isBlocked": false,
     "blockedAt": null,
     "blockedBy": null
+  },
+  {
+    "id": "1777996184369",
+    "email": "winx0212@ya.ru",
+    "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
+    "createdAt": "2026-05-05T15:49:44.369Z",
+    "role": "user",
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null
   }
 ]
