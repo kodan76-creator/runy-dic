@@ -1,31 +1,41 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
 import './AdminPanel.css'
 
-function AdminPanel({ adminUser, onLogout }) {
+function AdminPanel({ onAdminLogin, onAdminLogout }) {
+  const [adminUser, setAdminUser] = useState(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [words, setWords] = useState([])
   const [users, setUsers] = useState([])
   const [logs, setLogs] = useState([])
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    word: '',
-    transcription: '',
-    translation: '',
-    example: '',
-    example2: '',
-    transcription2: '',
-    audio: '',
-    audio2: ''
+    word: '', transcription: '', translation: '',
+    example: '', example2: '', transcription2: '',
+    audio: '', audio2: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
 
+  // ✅ Проверка авторизации при загрузке
   useEffect(() => {
-    loadWords()
-    loadUsers()
-    loadLogs()
+    const savedAdmin = localStorage.getItem('adminUser')
+    if (savedAdmin) {
+      try {
+        const parsed = JSON.parse(savedAdmin)
+        setAdminUser(parsed)
+        loadWords()
+        loadUsers()
+        loadLogs()
+      } catch (e) {
+        console.error('Error parsing adminUser:', e)
+        localStorage.removeItem('adminUser')
+      }
+    }
   }, [])
 
   const loadWords = async () => {
@@ -66,6 +76,43 @@ function AdminPanel({ adminUser, onLogout }) {
     return f
   }, [searchTerm, words])
 
+  // 🔐 Вход админа
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setError('')
+    setAuthLoading(true)
+    try {
+      const admin = await verifyAdmin(email, password)
+      if (admin) {
+        const userData = { email, role: 'admin', loginAt: new Date().toISOString() }
+        localStorage.setItem('adminUser', JSON.stringify(userData))
+        setAdminUser(userData)
+        setEmail('')
+        setPassword('')
+        if (onAdminLogin) onAdminLogin(userData)
+        await loadWords()
+        await loadUsers()
+        await loadLogs()
+      } else {
+        setError('Неверный email или пароль')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('Ошибка авторизации: ' + err.message)
+    }
+    setAuthLoading(false)
+  }
+
+  // 🚪 Выход админа
+  const handleLogout = async () => {
+    localStorage.removeItem('adminUser')
+    setAdminUser(null)
+    setWords([])
+    setUsers([])
+    setLogs([])
+    if (onAdminLogout) onAdminLogout()
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -76,16 +123,7 @@ function AdminPanel({ adminUser, onLogout }) {
       } else {
         await addWord(formData, adminUser?.email)
       }
-      setFormData({
-        word: '',
-        transcription: '',
-        translation: '',
-        example: '',
-        example2: '',
-        transcription2: '',
-        audio: '',
-        audio2: ''
-      })
+      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null)
       await loadWords()
     } catch (err) {
@@ -97,14 +135,9 @@ function AdminPanel({ adminUser, onLogout }) {
   const handleEdit = (word) => {
     setEditingId(word.id)
     setFormData({
-      word: word.word || '',
-      transcription: word.transcription || '',
-      translation: word.translation || '',
-      example: word.example || '',
-      example2: word.example2 || '',
-      transcription2: word.transcription2 || '',
-      audio: word.audio || '',
-      audio2: word.audio2 || ''
+      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '',
+      example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
+      audio: word.audio || '', audio2: word.audio2 || ''
     })
   }
 
@@ -157,22 +190,53 @@ function AdminPanel({ adminUser, onLogout }) {
   const formatDate = (dateString) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     })
   }
 
+  // ✅ Форма входа (показывается если adminUser === null)
+  if (!adminUser) {
+    return (
+      <div className="admin-login">
+        <div className="login-box">
+          <h2>🔐 Админ-панель</h2>
+          <form onSubmit={handleLogin}>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={authLoading}
+            />
+            <input
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={authLoading}
+            />
+            {error && <div className="error">{error}</div>}
+            <button type="submit" className="login-btn" disabled={authLoading}>
+              {authLoading ? 'Проверка...' : 'Войти'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  // ✅ Админ-панель (показывается если adminUser !== null)
   return (
     <div className="admin-panel">
       <div className="admin-fixed-container">
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
-            <span>{adminUser?.email}</span>
-            <button onClick={onLogout} className="logout-btn">Выйти</button>
+            <span>{adminUser.email}</span>
+            <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
         </div>
 
@@ -365,12 +429,8 @@ function AdminPanel({ adminUser, onLogout }) {
                         {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
                       </div>
                       <div className="word-actions">
-                        <button onClick={() => handleEdit(word)} className="edit-btn">
-                          ✏️
-                        </button>
-                        <button onClick={() => handleDelete(word.id)} className="delete-btn">
-                          🗑️
-                        </button>
+                        <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+                        <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
                       </div>
                     </div>
                   ))
