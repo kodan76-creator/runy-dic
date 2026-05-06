@@ -78,10 +78,13 @@ function Home({ user, onLogout }) {
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
 
+  console.log('[Home] Рендер компонента Home, user:', user)
+
   useEffect(() => {
+    console.log('[Home] useEffect сработал, начало загрузки словаря...')
     const loadWords = async () => {
       try {
-        console.log('[Home] Начало загрузки словаря...')
+        console.log('[Home] Вызов getDictionary()...')
         const result = await getDictionary()
         console.log('[Home] Результат getDictionary:', result)
         const data = result?.data || []
