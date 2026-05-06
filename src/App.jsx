@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
@@ -77,11 +77,17 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   console.log('[Home] Рендер компонента Home, user:', user)
 
   useEffect(() => {
     console.log('[Home] useEffect сработал, начало загрузки словаря...')
+    if (!user) {
+      console.log('[Home] Пользователь не найден, редирект на /auth')
+      navigate('/auth')
+      return
+    }
     const loadWords = async () => {
       try {
         console.log('[Home] Вызов getDictionary()...')
@@ -99,7 +105,7 @@ function Home({ user, onLogout }) {
       setLoading(false)
     }
     loadWords()
-  }, [])
+  }, [user, navigate])
 
   const handleLogout = async () => {
     await logoutUser(user?.email)
@@ -183,6 +189,10 @@ function App() {
   const handleUserLogin = (userData) => {
     console.log('[App.jsx] handleUserLogin вызван с:', userData)
     setUser({ ...userData, role: userData.role || 'user' })
+    // Принудительный редирект на главную после входа
+    setTimeout(() => {
+      window.location.hash = '/'
+    }, 100)
   }
 
   const handleLogout = () => {
