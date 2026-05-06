@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "1778087762664",
+    "timestamp": "2026-05-06T17:16:02.664Z",
+    "action": "admin_logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Администратор вышел"
+  }
+]
