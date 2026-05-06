@@ -77,11 +77,8 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-<<<<<<< HEAD
   const navigate = useNavigate()
-=======
   const [audioMode, setAudioMode] = useState({}) // { [id]: 'main' | 'example' }
->>>>>>> e7d92cb377c93d95f77a82cbb3ffecbbbcca56b0
 
   console.log('[Home] Рендер компонента Home, user:', user)
 
