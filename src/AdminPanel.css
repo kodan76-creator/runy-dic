@@ -161,11 +161,15 @@
   border-top: none;
 }
 
+.search-container {
+  margin-bottom: 15px;
+}
+
 .search-input {
   width: 100%;
   max-width: 400px;
   padding: 10px;
-  margin: 0 auto 15px auto;
+  margin: 0 auto;
   display: block;
   border: 3px solid #7b1fa2;
   border-radius: 8px;
@@ -185,12 +189,18 @@
   color: #666666;
 }
 
-/* ДВУХКОЛОНОЧНАЯ ФОРМА */
+/* ✅ ДВУХКОЛОНОЧНАЯ ФОРМА */
 .word-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
   margin-bottom: 15px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .word-form input {
@@ -449,7 +459,7 @@
   gap: 15px;
 }
 
-/* ✅ ИСПРАВЛЕНО: Карточки слов как в App.css */
+/* ✅ ИСПРАВЛЕНО: Карточки как в App.css */
 .word-item {
   display: flex;
   justify-content: space-between;
@@ -646,6 +656,7 @@
     min-width: 100px;
   }
 
+  /* ✅ На мобильных - одна колонка */
   .word-form {
     grid-template-columns: 1fr;
   }
