@@ -1,5 +1,33 @@
 [
   {
+    "id": "1778028505407",
+    "timestamp": "2026-05-06T00:48:25.407Z",
+    "action": "admin_logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Администратор вышел"
+  },
+  {
+    "id": "1778028033845",
+    "timestamp": "2026-05-06T00:40:33.845Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Пользователь вышел из системы"
+  },
+  {
+    "id": "1778023922759",
+    "timestamp": "2026-05-05T23:32:02.759Z",
+    "action": "word_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Обновлено слово: 1744644401472"
+  },
+  {
+    "id": "1778023884799",
+    "timestamp": "2026-05-05T23:31:24.799Z",
+    "action": "word_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Обновлено слово: 1744031835415"
+  },
+  {
     "id": "1777994977661",
     "timestamp": "2026-05-05T15:29:37.661Z",
     "action": "word_updated",

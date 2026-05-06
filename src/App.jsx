@@ -77,7 +77,11 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
+<<<<<<< HEAD
   const navigate = useNavigate()
+=======
+  const [audioMode, setAudioMode] = useState({}) // { [id]: 'main' | 'example' }
+>>>>>>> e7d92cb377c93d95f77a82cbb3ffecbbbcca56b0
 
   console.log('[Home] Рендер компонента Home, user:', user)
 
@@ -113,6 +117,21 @@ function Home({ user, onLogout }) {
     onLogout()
   }
 
+  const playAudio = (audioFile, id) => {
+    if (!audioFile) return
+    const mode = audioMode[id] || 'main'
+    const fileToPlay = mode === 'example' ? (audioFile === words.find(w => w.id === id)?.audio ? words.find(w => w.id === id)?.audio2 : audioFile) : audioFile
+    const audio = new Audio(`/runy-dic/audio/${fileToPlay}`)
+    audio.play().catch(err => console.error('Ошибка воспроизведения:', err))
+  }
+
+  const toggleAudioMode = (id) => {
+    setAudioMode(prev => ({
+      ...prev,
+      [id]: prev[id] === 'main' ? 'example' : 'main'
+    }))
+  }
+
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
 
   const filtered = words.filter(w =>
@@ -128,15 +147,50 @@ function Home({ user, onLogout }) {
         <button className="logout-btn-user" onClick={handleLogout}>👤 {user?.email?.split('@')[0]}<br/><small>Выйти</small></button>
       </div>
       <div className="results">
-        {filtered.length > 0 ? filtered.map(item => (
-          <div key={item.id} className="card">
-            <div className="word-row">
-              <h3 className="word">{item.word}</h3>
-              {item.transcription && <span className="transcription">[{item.transcription}]</span>}
+        {filtered.length > 0 ? filtered.map(item => {
+          const currentMode = audioMode[item.id] || 'main'
+          const currentAudio = currentMode === 'main' ? item.audio : item.audio2
+          const currentWord = currentMode === 'main' ? item.word : item.example
+          const currentTranscription = currentMode === 'main' ? item.transcription : item.transcription2
+          const currentText = currentMode === 'main' ? item.translation : item.example2
+          
+          return (
+            <div key={item.id} className="card">
+              <div className="word-row">
+                <h3 className="word">{currentWord}</h3>
+                {currentTranscription && <span className="transcription">[{currentTranscription}]</span>}
+                {currentAudio && (
+                  <button className="listen-btn" onClick={() => playAudio(currentAudio, item.id)}>
+                    🔊 Слушать
+                  </button>
+                )}
+              </div>
+              <p className="translation">{currentText}</p>
+              {item.example && item.example2 && (
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name={`mode-${item.id}`}
+                      checked={currentMode === 'main'}
+                      onChange={() => toggleAudioMode(item.id)}
+                    />
+                    Основное
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name={`mode-${item.id}`}
+                      checked={currentMode === 'example'}
+                      onChange={() => toggleAudioMode(item.id)}
+                    />
+                    Пример
+                  </label>
+                </div>
+              )}
             </div>
-            <p className="translation">{item.translation}</p>
-          </div>
-        )) : <p>Ничего не найдено</p>}
+          )
+        }) : <p>Ничего не найдено</p>}
       </div>
     </div>
   )
