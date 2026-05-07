@@ -21,7 +21,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
-  // ✅ Проверка авторизации при загрузке
   useEffect(() => {
     const savedAdmin = localStorage.getItem('adminUser')
     if (savedAdmin) {
@@ -76,7 +75,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     return f
   }, [searchTerm, words])
 
-  // 🔐 Вход админа
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -103,7 +101,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     setAuthLoading(false)
   }
 
-  // 🚪 Выход админа
   const handleLogout = async () => {
     localStorage.removeItem('adminUser')
     setAdminUser(null)
@@ -195,7 +192,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     })
   }
 
-  // ✅ Форма входа (показывается если adminUser === null)
   if (!adminUser) {
     return (
       <div className="admin-login">
@@ -228,7 +224,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     )
   }
 
-  // ✅ Админ-панель (показывается если adminUser !== null)
   return (
     <div className="admin-panel">
       <div className="admin-fixed-container">
@@ -249,18 +244,27 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         {activeTab === 'dictionary' && (
           <div className="form-section">
             <div className="search-container">
-              <input
-                type="text"
-                placeholder="🔍 Поиск слова..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
+              <div className="search-wrapper">
+                <input
+                  type="text"
+                  placeholder="🔍 Поиск слова..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                {searchTerm && (
+                  <button 
+                    className="search-clear-btn" 
+                    onClick={() => setSearchTerm('')}
+                    title="Очистить поиск"
+                  >
+                    ❌
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* ✅ ДВУХКОЛОНОЧНАЯ ФОРМА */}
             <form onSubmit={handleSubmit} className="word-form">
-              {/* Левая колонка - первые 3 поля */}
               <div className="form-column form-column-left">
                 <input
                   type="text"
@@ -284,7 +288,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 />
               </div>
 
-              {/* Правая колонка - остальные 5 полей */}
               <div className="form-column form-column-right">
                 <input
                   type="text"

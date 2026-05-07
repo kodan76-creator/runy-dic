@@ -468,6 +468,34 @@ body {
   font-size: 18px;
 }
 
+/* Обёртка для поиска с кнопкой очистки */
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Кнопка очистки поиска */
+.search-clear-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 8px;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.search-clear-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .container {
@@ -529,5 +557,9 @@ body {
     width: 35px;
     height: 35px;
     font-size: 16px;
+  }
+
+  .search-wrapper {
+    max-width: 100%;
   }
 }
