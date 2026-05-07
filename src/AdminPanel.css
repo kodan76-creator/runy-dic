@@ -107,16 +107,208 @@
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .admin-panel { padding-top: 400px; padding-left: 10px; padding-right: 10px; }
-  .admin-fixed-container { padding: 0 10px; }
-  .admin-header { flex-direction: column; gap: 15px; text-align: center; }
-  .admin-tabs { flex-wrap: wrap; justify-content: center; }
-  .tab-btn { flex: 1; min-width: 100px; }
-  .word-form { grid-template-columns: 1fr; }
-  .log-item { grid-template-columns: 1fr; gap: 5px; }
-  .user-card { flex-direction: column; gap: 15px; text-align: center; }
-  .user-actions { width: 100%; justify-content: center; }
-  .word-title { font-size: 32px; }
-  .word-example2, .word-transcription2 { font-size: 20px; }
-  .search-wrapper { max-width: 100%; }
+  .admin-panel {
+    padding-top: 380px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .admin-fixed-container {
+    padding: 0 10px;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 12px 15px;
+  }
+  
+  .admin-header h2 {
+    font-size: 18px;
+  }
+  
+  .admin-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .logout-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .admin-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px 15px;
+    gap: 8px;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+  
+  /* Двухколоночная форма - одна колонка на мобильных */
+  .word-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-column {
+    width: 100%;
+  }
+  
+  .word-form input {
+    padding: 12px;
+    font-size: 16px; /* Предотвращает зум на iOS */
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+    padding: 12px;
+  }
+  
+  /* Логи - одна колонка */
+  .log-item {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    font-size: 13px;
+  }
+  
+  /* Пользователи */
+  .user-card {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 12px;
+  }
+  
+  .user-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .block-btn,
+  .unblock-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  /* Карточки слов */
+  .word-title {
+    font-size: 36px;
+  }
+  
+  .word-example2,
+  .word-transcription2 {
+    font-size: 20px;
+  }
+  
+  .word-item {
+    padding: 15px;
+    flex-direction: column;
+  }
+  
+  .word-actions {
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 10px 15px;
+    font-size: 18px;
+  }
+  
+  .search-wrapper {
+    max-width: 100%;
+  }
+  
+  .search-input {
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .words-count {
+    font-size: 16px;
+  }
+  
+  .users-section h3,
+  .logs-header h3 {
+    font-size: 18px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+  .admin-panel {
+    padding-top: 420px;
+  }
+  
+  .admin-header h2 {
+    font-size: 16px;
+  }
+  
+  .tab-btn {
+    min-width: 90px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .word-title {
+    font-size: 32px;
+  }
+  
+  .word-translation {
+    font-size: 16px;
+  }
+  
+  .word-example {
+    font-size: 15px;
+  }
+  
+  .word-example2 {
+    font-size: 18px;
+  }
+  
+  .word-form input {
+    padding: 10px;
+  }
+  
+  .save-btn,
+  .cancel-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Landscape orientation на маленьких экранах */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-panel {
+    padding-top: 280px;
+  }
+  
+  .container {
+    padding-top: 220px;
+  }
+  
+  .header {
+    max-height: 200px;
+    overflow-y: auto;
+  }
 }

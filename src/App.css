@@ -79,17 +79,146 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .audio-btn:hover:not(:disabled), .audio-btn-bottom:hover:not(:disabled) { background: #5e1780; transform: scale(1.1); }
 .audio-btn:disabled, .audio-btn-bottom:disabled { background: #ccc; cursor: not-allowed; }
 
-/* Адаптивность */
+/* Адаптивность для мобильных */
 @media (max-width: 768px) {
-  .container { padding-top: 280px; padding-left: 10px; padding-right: 10px; }
-  .header { flex-direction: column; padding: 12px 15px; border-radius: 0 0 12px 12px; }
-  .listen-btn { order: 1; width: 100%; }
-  .play-mode { order: 2; flex-direction: row; gap: 15px; justify-content: center; }
-  .logo { order: 3; }
-  .search-wrapper { order: 4; padding: 10px; font-size: 13px; max-width: 100%; width: 100%; }
-  .logout-btn-user { order: 5; font-size: 11px; padding: 6px 10px; }
-  .word { font-size: 32px; }
-  .example2, .transcription2 { font-size: 20px; }
-  .card { padding: 15px 15px 15px 50px; }
-  .audio-btn, .audio-btn-bottom { width: 35px; height: 35px; font-size: 16px; }
+  .container {
+    padding-top: 320px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .header {
+    flex-direction: column;
+    padding: 12px 15px;
+    border-radius: 0 0 12px 12px;
+    gap: 12px;
+  }
+  
+  .listen-btn {
+    order: 1;
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+  
+  .play-mode {
+    order: 2;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .mode-label {
+    font-size: 15px;
+  }
+  
+  .logo {
+    order: 3;
+    width: 80px;
+  }
+  
+  .search-wrapper {
+    order: 4;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px; /* Предотвращает зум на iOS */
+  }
+  
+  .logout-btn-user {
+    order: 5;
+    font-size: 12px;
+    padding: 8px 12px;
+    align-self: stretch;
+  }
+  
+  .word {
+    font-size: 36px;
+  }
+  
+  .example2,
+  .transcription2 {
+    font-size: 22px;
+  }
+  
+  .card {
+    padding: 15px 15px 15px 50px;
+  }
+  
+  .audio-btn,
+  .audio-btn-bottom {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .results {
+    gap: 15px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+  .container {
+    padding-top: 340px;
+  }
+  
+  .header {
+    padding: 10px;
+  }
+  
+  .listen-btn {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .play-mode {
+    gap: 15px;
+  }
+  
+  .mode-label {
+    font-size: 14px;
+  }
+  
+  .logo {
+    width: 70px;
+  }
+  
+  .word {
+    font-size: 32px;
+  }
+  
+  .translation {
+    font-size: 16px;
+  }
+  
+  .example {
+    font-size: 16px;
+  }
+  
+  .example2 {
+    font-size: 20px;
+  }
+  
+  .card {
+    padding: 12px 12px 12px 45px;
+  }
+  
+  .audio-btn,
+  .audio-btn-bottom {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    top: 12px;
+    left: 10px;
+  }
+  
+  .audio-btn-bottom {
+    bottom: 12px;
+  }
 }
