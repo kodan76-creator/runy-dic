@@ -149,8 +149,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
           </div>
         </div>
         <div className="admin-tabs">
-          <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}> Словарь</button>
-          <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}> Пользователи</button>
+          <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
+          <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
           <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
         </div>
 
@@ -172,7 +172,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                     onClick={() => setSearchTerm('')}
                     title="Очистить поиск"
                   >
-                    
+                    ❌
                   </button>
                 )}
               </div>
@@ -213,7 +213,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                     {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
                   </div>
                   <div className="user-actions">
-                    {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn"> Заблокировать</button>}
+                    {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
                   </div>
                 </div>
               ))}
@@ -224,7 +224,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         {activeTab === 'logs' && (
           <div className="logs-section">
             <div className="logs-header">
-              <h3> Логи действий ({logs.length})</h3>
+              <h3>📊 Логи действий ({logs.length})</h3>
               <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
             </div>
             <div className="logs-list">
@@ -260,8 +260,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
                         {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
                       </div>
-                      {word.audio && <p className="word-audio"> {word.audio}</p>}
-                      {word.audio2 && <p className="word-audio"> {word.audio2}</p>}
+                      {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
+                      {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
                     </div>
                     <div className="word-actions">
                       <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
