@@ -82,83 +82,74 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
   .container {
-    padding-top: 320px;
-    padding-left: 10px;
-    padding-right: 10px;
+    /* ✅ Убрали боковые отступы (было 10px), уменьшили верхний отступ под шапку */
+    padding: 200px 5px 20px 5px; 
   }
   
   .header {
-    flex-direction: column;
-    padding: 12px 15px;
-    border-radius: 0 0 12px 12px;
-    gap: 12px;
+    /* ✅ Шапка на всю ширину без скруглений внизу */
+    border-radius: 0;
+    padding: 10px;
   }
   
   .listen-btn {
     order: 1;
     width: 100%;
-    padding: 14px 20px;
-    font-size: 16px;
+    margin-bottom: 5px;
   }
   
   .play-mode {
     order: 2;
     flex-direction: row;
-    gap: 20px;
+    gap: 15px;
     justify-content: center;
-    width: 100%;
-  }
-  
-  .mode-label {
-    font-size: 15px;
+    margin-bottom: 5px;
   }
   
   .logo {
     order: 3;
-    width: 80px;
+    width: 60px; /* Чуть уменьшили лого для экономии места */
+    margin: 5px 0;
   }
   
   .search-wrapper {
     order: 4;
     width: 100%;
-    max-width: 100%;
+    margin-bottom: 5px;
   }
   
   .search-input {
     width: 100%;
-    padding: 12px;
-    font-size: 16px; /* Предотвращает зум на iOS */
+    font-size: 16px; /* Защита от зума на iPhone */
   }
   
   .logout-btn-user {
     order: 5;
-    font-size: 12px;
-    padding: 8px 12px;
-    align-self: stretch;
+    align-self: stretch; /* Кнопка выхода на всю ширину */
+    text-align: center;
+  }
+  
+  .results {
+    padding: 0;
+    gap: 15px;
+  }
+
+  .card {
+    /* ✅ Карточки почти от края до края */
+    border-radius: 12px; 
+    padding: 15px;
+    width: 100%;
   }
   
   .word {
     font-size: 36px;
   }
   
-  .example2,
-  .transcription2 {
-    font-size: 22px;
-  }
-  
-  .card {
-    padding: 15px 15px 15px 50px;
-  }
-  
   .audio-btn,
   .audio-btn-bottom {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-  
-  .results {
-    gap: 15px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
 }
 
