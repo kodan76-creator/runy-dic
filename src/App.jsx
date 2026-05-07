@@ -45,7 +45,7 @@ function UserAuthForm({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
-        <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
+        <h2>{isLogin ? '🔐 Вход' : ' Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
           <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
@@ -79,7 +79,8 @@ function Home({ user, onLogout }) {
         const { data } = await getDictionary()
         const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sorted)
-        wordsWithAudio.current = sorted.filter(w => w.audio || w.audio2)
+        // ✅ Фильтруем только слова с реальными аудиофайлами (не пустыми строками)
+        wordsWithAudio.current = sorted.filter(w => (w.audio && w.audio.trim()) || (w.audio2 && w.audio2.trim()))
       } catch (err) {
         console.error('Ошибка загрузки:', err)
         setWords([])
@@ -116,11 +117,31 @@ function Home({ user, onLogout }) {
   }
 
   const playSingleWord = (word) => {
-    if (!audioRef.current || (!word.audio && !word.audio2)) return
-    const src = word.audio ? `/runy-dic/${word.audio}` : `/runy-dic/${word.audio2}`
+    if (!audioRef.current) return
+    
+    // ✅ 1. Получаем имя файла, проверяя на пустоту
+    let filename = (word.audio && word.audio.trim()) ? word.audio : (word.audio2 && word.audio2.trim()) ? word.audio2 : null
+    
+    if (!filename) {
+      console.warn('Нет аудиофайла для слова:', word.word)
+      return
+    }
+
+    let src
+    // ✅ 2. Обработка путей: если это уже ссылка или абсолютный путь — используем как есть
+    if (filename.startsWith('http') || filename.startsWith('/')) {
+      src = filename
+    } else {
+      // ✅ 3. Если просто имя файла — добавляем путь к репозиторию
+      src = `/runy-dic/${filename}`
+    }
+
+    // ✅ 3. Логируем URL для отладки
+    console.log('Attempting to play:', src)
+    
     audioRef.current.src = src
     audioRef.current.play().catch((err) => {
-      console.error('Audio play error:', err)
+      console.error('Audio play error:', err, 'Source:', src)
       setIsPlaying(false)
     })
   }
@@ -185,7 +206,7 @@ function Home({ user, onLogout }) {
           <div key={item.id} className="card">
             {item.audio && (
               <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
-                🔊
+                
               </button>
             )}
             <div className="word-row">
