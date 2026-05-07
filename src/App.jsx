@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
 import AdminPanel from './AdminPanel'
@@ -66,8 +66,7 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const audioRef = useRef(null)
-
+  
   useEffect(() => {
     if (!user) return
     const loadWords = async () => {
@@ -80,7 +79,7 @@ function Home({ user, onLogout }) {
     }
     loadWords()
   }, [user])
-
+  
   // Логирование поиска
   useEffect(() => {
     if (!user) return
@@ -91,14 +90,7 @@ function Home({ user, onLogout }) {
     }, 500)
     return () => clearTimeout(timer)
   }, [searchTerm, user])
-
-  const playSingle = (file) => {
-    if (!audioRef.current || !file) return
-    const src = file.startsWith('http') ? file : `${import.meta.env.BASE_URL || '/'}audio/${file}`
-    audioRef.current.src = src
-    audioRef.current.play().catch(console.error)
-  }
-
+  
   const handleLogout = async () => {
     await logoutUser(user?.email)
     localStorage.removeItem('currentUser')
@@ -114,11 +106,8 @@ function Home({ user, onLogout }) {
   
   return (
     <div className="container">
-      <audio ref={audioRef} style={{ display: 'none' }} />
       <div className="header">
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-        
-        {/* ✅ ПОЛЕ ПОИСКА С КРЕСТИКОМ */}
         <div className="search-wrapper">
           <input 
             type="text" 
@@ -128,10 +117,15 @@ function Home({ user, onLogout }) {
             className="search-input" 
           />
           {searchTerm && (
-            <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
+            <button 
+              className="search-clear-btn" 
+              onClick={() => setSearchTerm('')}
+              title="Очистить поиск"
+            >
+              ❌
+            </button>
           )}
         </div>
-        
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
@@ -139,19 +133,11 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {/* ✅ КНОПКА AUDIO СВЕРХУ */}
-            {item.audio && (
-              <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>
-            )}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
-            {/* ✅ КНОПКА AUDIO2 СНИЗУ */}
-            {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>
-            )}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
@@ -198,21 +184,20 @@ function App() {
       <Routes>
         <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
+        {/* ✅ ИСПРАВЛЕНО: Явная проверка ролей */}
         <Route
           path="/auth"
           element={
-            !user || user.role !== 'admin' ? (
-              <UserAuthForm onLogin={handleUserLogin} />
-            ) : (
-              <Navigate to="/admin" replace />
-            )
+            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+            user?.role === 'user' ? <Navigate to="/" replace /> :
+            <UserAuthForm onLogin={handleUserLogin} />
           }
         />
         
         <Route
           path="/"
           element={
-            user && user.role === 'user' ? (
+            user?.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/auth" replace />
