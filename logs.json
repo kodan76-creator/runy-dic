@@ -1,5 +1,47 @@
 [
   {
+    "id": "1778136499154",
+    "timestamp": "2026-05-07T06:48:19.154Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск слова: \"ден\""
+  },
+  {
+    "id": "1778136457751",
+    "timestamp": "2026-05-07T06:47:37.751Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Прослушано аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778136441196",
+    "timestamp": "2026-05-07T06:47:21.196Z",
+    "action": "admin_logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Администратор вышел"
+  },
+  {
+    "id": "1778136434673",
+    "timestamp": "2026-05-07T06:47:14.673Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Пользователь вышел"
+  },
+  {
+    "id": "1778136433262",
+    "timestamp": "2026-05-07T06:47:13.262Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Пользователь вышел из системы"
+  },
+  {
+    "id": "1778136218991",
+    "timestamp": "2026-05-07T06:43:38.991Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1778135725612",
     "timestamp": "2026-05-07T06:35:25.612Z",
     "action": "login",
