@@ -45,7 +45,7 @@ function UserAuthForm({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
-        <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
+        <h2>{isLogin ? ' Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
           <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
@@ -80,7 +80,7 @@ function Home({ user, onLogout }) {
     loadWords()
   }, [user])
   
-  // Логирование поиска
+  // Логирование поиска с задержкой
   useEffect(() => {
     if (!user) return
     const timer = setTimeout(() => {
@@ -108,6 +108,8 @@ function Home({ user, onLogout }) {
     <div className="container">
       <div className="header">
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
+        
+        {/* ✅ ПОЛЕ ПОИСКА С КРЕСТИКОМ */}
         <div className="search-wrapper">
           <input 
             type="text" 
@@ -126,6 +128,7 @@ function Home({ user, onLogout }) {
             </button>
           )}
         </div>
+        
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
@@ -184,7 +187,7 @@ function App() {
       <Routes>
         <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
-        {/* ✅ ИСПРАВЛЕНО: Явная проверка ролей */}
+        {/* ✅ ИСПРАВЛЕНО: Явная проверка ролей для редиректа */}
         <Route
           path="/auth"
           element={

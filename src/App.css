@@ -31,12 +31,24 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Шапка приложения */
 .header { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 20px; background: #aa3bff; padding: 15px 20px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #7b1fa2; z-index: 1000; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
 
+/* Кнопка "Слушать" */
+.listen-btn { padding: 10px 20px; background: #FFD700; color: #000000; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s; order: 1; }
+.listen-btn:hover:not(:disabled) { background: #FFA500; }
+.listen-btn:disabled { background: #ccc; cursor: not-allowed; }
+.listen-btn.playing { background: #ff4444; color: white; animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* Режим воспроизведения */
+.play-mode { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; order: 2; }
+.mode-label { display: flex; align-items: center; gap: 5px; color: white; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.mode-label input[type="radio"] { cursor: pointer; }
+
 /* Логотип */
 .logo { width: 100px; height: auto; order: 3; }
 
-/* ✅ Поле поиска с обёрткой */
+/* ✅ Поле поиска с обёрткой (ИСПРАВЛЕНО: order перенесен сюда) */
 .search-wrapper { position: relative; display: flex; align-items: center; flex: 1; max-width: 400px; order: 4; margin-top: 10px; }
-.search-input { width: 100%; padding: 12px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.search-input { width: 100%; padding: 12px; padding-right: 40px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
 .search-input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .search-input::placeholder { color: #666666; }
 
@@ -54,6 +66,13 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .transcription { margin: 0; color: #e9d5ff; font-style: italic; font-size: 20px; line-height: 1.5; }
 .translation { margin: 0 0 10px 0; color: white; font-size: 18px; text-align: center; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); line-height: 1.5; }
 
+/* Примеры */
+.examples { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; line-height: 1.5; margin-top: 10px; }
+.example { margin: 0; color: #9c27b0; font-style: italic; font-size: 18px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; }
+.dash { color: #9c27b0; font-weight: bold; margin: 0 4px; }
+.example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 25px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; }
+.transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #9c27b0; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; white-space: nowrap; }
+
 /* Кнопки аудио */
 .audio-btn { position: absolute; top: 15px; left: 15px; background: #7b1fa2; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 10; }
 .audio-btn-bottom { position: absolute; bottom: 15px; left: 15px; background: #7b1fa2; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 10; }
@@ -64,10 +83,13 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 @media (max-width: 768px) {
   .container { padding-top: 280px; padding-left: 10px; padding-right: 10px; }
   .header { flex-direction: column; padding: 12px 15px; border-radius: 0 0 12px 12px; }
+  .listen-btn { order: 1; width: 100%; }
+  .play-mode { order: 2; flex-direction: row; gap: 15px; justify-content: center; }
   .logo { order: 3; }
   .search-wrapper { order: 4; padding: 10px; font-size: 13px; max-width: 100%; width: 100%; }
   .logout-btn-user { order: 5; font-size: 11px; padding: 6px 10px; }
   .word { font-size: 32px; }
+  .example2, .transcription2 { font-size: 20px; }
   .card { padding: 15px 15px 15px 50px; }
   .audio-btn, .audio-btn-bottom { width: 35px; height: 35px; font-size: 16px; }
 }
