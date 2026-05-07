@@ -61,17 +61,21 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// ✅ ВОССТАНОВЛЕННЫЙ главный экран с аудио
+// ✅ ВОССТАНОВЛЕННЫЙ главный экран с обновленной логикой плейлиста
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
+  
+  // Состояния для аудио
   const [isPlaying, setIsPlaying] = useState(false)
   const [playMode, setPlayMode] = useState('all')
-  const [currentAudioIndex, setCurrentAudioIndex] = useState(0)
+  const [playlist, setPlaylist] = useState([]) // Массив треков: { word, file }
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+  
   const audioRef = useRef(null)
-  const wordsWithAudio = useRef([])
 
+  // 1. Загрузка слов
   useEffect(() => {
     if (!user) return
     const loadWords = async () => {
@@ -79,91 +83,103 @@ function Home({ user, onLogout }) {
         const { data } = await getDictionary()
         const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sorted)
-        // ✅ Фильтруем только слова с реальными аудиофайлами
-        wordsWithAudio.current = sorted.filter(w => (w.audio && w.audio.trim()) || (w.audio2 && w.audio2.trim()))
       } catch (err) {
         console.error('Ошибка загрузки:', err)
         setWords([])
-        wordsWithAudio.current = []
       }
       setLoading(false)
     }
     loadWords()
   }, [user])
 
-  // Обработка окончания трека
+  // 2. Формирование плейлиста при изменении слов или режима
+  useEffect(() => {
+    if (words.length === 0) return
+
+    let wordList = [...words]
+    
+    // Если режим случайный — перемешиваем слова
+    if (playMode === 'random') {
+      wordList.sort(() => Math.random() - 0.5)
+    }
+
+    // Формируем плейлист: для каждого слова добавляем audio, затем audio2 (если они есть)
+    const newPlaylist = []
+    wordList.forEach(w => {
+      if (w.audio && w.audio.trim()) {
+        newPlaylist.push({ word: w, file: w.audio })
+      }
+      if (w.audio2 && w.audio2.trim()) {
+        newPlaylist.push({ word: w, file: w.audio2 })
+      }
+    })
+
+    setPlaylist(newPlaylist)
+    setCurrentTrackIndex(0) // Сброс на начало при смене плейлиста
+  }, [words, playMode])
+
+  // 3. Логика воспроизведения при смене индекса трека
+  useEffect(() => {
+    if (playlist.length === 0 || !audioRef.current) return
+
+    // Если мы остановились принудительно или индекс вышел за пределы
+    if (!isPlaying || currentTrackIndex >= playlist.length) {
+      if (currentTrackIndex >= playlist.length) setIsPlaying(false)
+      return
+    }
+
+    const track = playlist[currentTrackIndex]
+    playTrack(track)
+
+  }, [currentTrackIndex, isPlaying]) // Зависимости важны!
+
+  // 4. Обработка окончания трека (автопереключение)
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
+    
     audio.onended = () => {
-      if (isPlaying) playNext()
+      if (isPlaying) {
+        setCurrentTrackIndex(prev => prev + 1)
+      }
     }
+    // Очистка обработчика
     return () => { audio.onended = null }
-  }, [isPlaying, currentAudioIndex, playMode])
+  }, [isPlaying])
 
-  const playNext = () => {
-    const list = playMode === 'random' 
-      ? [...wordsWithAudio.current].sort(() => Math.random() - 0.5) 
-      : wordsWithAudio.current
-      
-    if (list.length === 0) {
-      setIsPlaying(false)
-      return
-    }
-    let next = currentAudioIndex + 1
-    if (next >= list.length) next = 0
-    setCurrentAudioIndex(next)
-    playSingleWord(list[next])
-  }
-
-  // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ
-  // forceAudio2 = true означает "играть audio2", иначе играть audio
-  const playSingleWord = (word, forceAudio2 = false) => {
-    if (!audioRef.current) return
+  const playTrack = (track) => {
+    if (!audioRef.current || !track?.file) return
     
-    let filename = null
-
-    if (forceAudio2) {
-      // ✅ Если принудительно запрошен audio2
-      filename = (word.audio2 && word.audio2.trim()) ? word.audio2 : null
-    } else {
-      // ✅ По умолчанию берем audio, если нет - берем audio2
-      filename = (word.audio && word.audio.trim()) ? word.audio : (word.audio2 && word.audio2.trim()) ? word.audio2 : null
-    }
-    
-    if (!filename) {
-      console.warn('Нет аудиофайла для слова:', word.word, forceAudio2 ? '(audio2)' : '(audio)')
-      return
-    }
-
     let src
-    // ✅ Обработка путей
-    if (filename.startsWith('http')) {
-      src = filename
+    if (track.file.startsWith('http')) {
+      src = track.file
     } else {
       const baseUrl = import.meta.env.BASE_URL || '/'
       const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
-      src = `${cleanBase}/audio/${filename}`
+      src = `${cleanBase}/audio/${track.file}`
     }
 
-    console.log('Attempting to play:', src)
-    
+    console.log('Playing:', src)
     audioRef.current.src = src
     audioRef.current.play().catch((err) => {
-      console.error('Audio play error:', err, 'Source:', src)
+      console.error('Audio play error:', err)
       setIsPlaying(false)
     })
   }
 
+  // Управление кнопкой "Слушать"
   const togglePlay = () => {
     if (isPlaying) {
       setIsPlaying(false)
       audioRef.current?.pause()
     } else {
+      // Если плейлист пуст, ничего не делаем
+      if (playlist.length === 0) return
+      
       setIsPlaying(true)
-      if (wordsWithAudio.current.length > 0) {
-        setCurrentAudioIndex(0)
-        playSingleWord(wordsWithAudio.current[0])
+      // Если мы в конце списка, начинаем сначала
+      if (currentTrackIndex >= playlist.length) {
+        setCurrentTrackIndex(0)
       }
     }
   }
@@ -185,9 +201,9 @@ function Home({ user, onLogout }) {
     <div className="container">
       <audio ref={audioRef} style={{ display: 'none' }} />
       
-      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР с кнопкой Слушать и радиокнопками */}
+      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР */}
       <div className="header">
-        <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={wordsWithAudio.current.length === 0}>
+        <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={playlist.length === 0}>
           {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
         </button>
         
@@ -209,13 +225,13 @@ function Home({ user, onLogout }) {
         </button>
       </div>
 
-      {/* ✅ КАРТОЧКИ с кнопками аудио */}
+      {/* ✅ КАРТОЧКИ */}
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {/* ✅ ВЕРХНЯЯ КНОПКА: играет audio (по умолчанию) */}
+            {/* Верхняя кнопка: играет audio */}
             {item.audio && (
-              <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item, false) }}>
+              <button className="audio-btn" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio }) }}>
                 🔊
               </button>
             )}
@@ -234,9 +250,9 @@ function Home({ user, onLogout }) {
               )}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
-            {/* ✅ НИЖНЯЯ КНОПКА: играет audio2 (принудительно) */}
+            {/* Нижняя кнопка: играет audio2 */}
             {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playSingleWord(item, true) }}>
+              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio2 }) }}>
                 🔊
               </button>
             )}
