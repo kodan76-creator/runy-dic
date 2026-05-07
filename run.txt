@@ -40,3 +40,33 @@ console.log(hash);
     git add admins.json
     git commit -m "Add new admin"
     git push origin main
+
+###############################################################################
+Слияние веток:
+Шаг 1: Зафиксируйте все изменения в ветке v20260506
+
+git checkout v20260506
+git add .
+git commit -m "fix: audio playback, playlist logic, routing fixes"
+git push origin v20260506
+
+Шаг 2: Переключитесь на main и обновите её
+
+git checkout main
+git pull origin main
+
+Шаг 3: Слияние v20260506 → main
+
+git merge v20260506
+
+Если слияние прошло без конфликтов → переходите к шагу 4.
+Если появились конфликты:
+VS Code подсветит файлы с конфликтами в разделе Source Control
+Откройте каждый файл → выберите Accept Current Change / Accept Incoming Change / Merge Both
+После разрешения всех конфликтов:
+git add .
+git commit -m "merge: v20260506 into main"
+
+Шаг 4: Отправьте обновлённый main на GitHub
+
+git push origin main
