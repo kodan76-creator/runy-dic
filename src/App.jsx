@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
+// ✅ Добавлен logSearch в импорт
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -61,7 +62,7 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// ✅ ВОССТАНОВЛЕННЫЙ главный экран с обновленной логикой плейлиста
+// ✅ ВОССТАНОВЛЕННЫЙ главный экран с аудио и логированием поиска
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
@@ -70,7 +71,7 @@ function Home({ user, onLogout }) {
   // Состояния для аудио
   const [isPlaying, setIsPlaying] = useState(false)
   const [playMode, setPlayMode] = useState('all')
-  const [playlist, setPlaylist] = useState([]) // Массив треков: { word, file }
+  const [playlist, setPlaylist] = useState([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   
   const audioRef = useRef(null)
@@ -92,18 +93,26 @@ function Home({ user, onLogout }) {
     loadWords()
   }, [user])
 
-  // 2. Формирование плейлиста при изменении слов или режима
+  // ✅ 2. ЛОГИРОВАНИЕ ПОИСКА (с задержкой 500мс)
+  useEffect(() => {
+    if (!user) return
+    const timer = setTimeout(() => {
+      if (searchTerm && searchTerm.trim().length > 0) {
+        logSearch(searchTerm, user.email)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm, user])
+
+  // 3. Формирование плейлиста
   useEffect(() => {
     if (words.length === 0) return
 
     let wordList = [...words]
-    
-    // Если режим случайный — перемешиваем слова
     if (playMode === 'random') {
       wordList.sort(() => Math.random() - 0.5)
     }
 
-    // Формируем плейлист: для каждого слова добавляем audio, затем audio2 (если они есть)
     const newPlaylist = []
     wordList.forEach(w => {
       if (w.audio && w.audio.trim()) {
@@ -115,14 +124,13 @@ function Home({ user, onLogout }) {
     })
 
     setPlaylist(newPlaylist)
-    setCurrentTrackIndex(0) // Сброс на начало при смене плейлиста
+    setCurrentTrackIndex(0)
   }, [words, playMode])
 
-  // 3. Логика воспроизведения при смене индекса трека
+  // 4. Воспроизведение при смене индекса
   useEffect(() => {
     if (playlist.length === 0 || !audioRef.current) return
 
-    // Если мы остановились принудительно или индекс вышел за пределы
     if (!isPlaying || currentTrackIndex >= playlist.length) {
       if (currentTrackIndex >= playlist.length) setIsPlaying(false)
       return
@@ -131,9 +139,9 @@ function Home({ user, onLogout }) {
     const track = playlist[currentTrackIndex]
     playTrack(track)
 
-  }, [currentTrackIndex, isPlaying]) // Зависимости важны!
+  }, [currentTrackIndex, isPlaying])
 
-  // 4. Обработка окончания трека (автопереключение)
+  // 5. Обработка окончания трека
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -143,7 +151,6 @@ function Home({ user, onLogout }) {
         setCurrentTrackIndex(prev => prev + 1)
       }
     }
-    // Очистка обработчика
     return () => { audio.onended = null }
   }, [isPlaying])
 
@@ -159,7 +166,6 @@ function Home({ user, onLogout }) {
       src = `${cleanBase}/audio/${track.file}`
     }
 
-    console.log('Playing:', src)
     audioRef.current.src = src
     audioRef.current.play().catch((err) => {
       console.error('Audio play error:', err)
@@ -167,17 +173,13 @@ function Home({ user, onLogout }) {
     })
   }
 
-  // Управление кнопкой "Слушать"
   const togglePlay = () => {
     if (isPlaying) {
       setIsPlaying(false)
       audioRef.current?.pause()
     } else {
-      // Если плейлист пуст, ничего не делаем
       if (playlist.length === 0) return
-      
       setIsPlaying(true)
-      // Если мы в конце списка, начинаем сначала
       if (currentTrackIndex >= playlist.length) {
         setCurrentTrackIndex(0)
       }
@@ -201,7 +203,6 @@ function Home({ user, onLogout }) {
     <div className="container">
       <audio ref={audioRef} style={{ display: 'none' }} />
       
-      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР */}
       <div className="header">
         <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={playlist.length === 0}>
           {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
@@ -225,11 +226,9 @@ function Home({ user, onLogout }) {
         </button>
       </div>
 
-      {/* ✅ КАРТОЧКИ */}
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {/* Верхняя кнопка: играет audio */}
             {item.audio && (
               <button className="audio-btn" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio }) }}>
                 🔊
@@ -250,7 +249,6 @@ function Home({ user, onLogout }) {
               )}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
-            {/* Нижняя кнопка: играет audio2 */}
             {item.audio2 && (
               <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio2 }) }}>
                 🔊
