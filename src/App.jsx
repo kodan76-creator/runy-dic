@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -79,6 +79,17 @@ function Home({ user, onLogout }) {
     }
     loadWords()
   }, [user])
+  
+  // ✅ ЛОГИРОВАНИЕ ПОИСКА
+  useEffect(() => {
+    if (!user) return
+    const timer = setTimeout(() => {
+      if (searchTerm && searchTerm.trim().length > 0) {
+        logSearch(searchTerm, user.email)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm, user])
   
   const handleLogout = async () => {
     await logoutUser(user?.email)

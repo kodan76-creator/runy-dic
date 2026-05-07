@@ -468,12 +468,12 @@ body {
   font-size: 18px;
 }
 
-/* Обёртка для поиска с кнопкой очистки */
+/* ✅ Обёртка для поиска с кнопкой очистки */
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
+  flex: 1;
   max-width: 400px;
 }
 
@@ -561,5 +561,6 @@ body {
 
   .search-wrapper {
     max-width: 100%;
+    width: 100%;
   }
 }
