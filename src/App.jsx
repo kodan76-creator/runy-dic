@@ -45,7 +45,7 @@ function UserAuthForm({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
-        <h2>{isLogin ? '🔐 Вход' : ' Регистрация'}</h2>
+        <h2>{isLogin ? ' Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
           <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
@@ -79,7 +79,7 @@ function Home({ user, onLogout }) {
         const { data } = await getDictionary()
         const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sorted)
-        // ✅ Фильтруем только слова с реальными аудиофайлами (не пустыми строками)
+        // ✅ Фильтруем только слова с реальными аудиофайлами
         wordsWithAudio.current = sorted.filter(w => (w.audio && w.audio.trim()) || (w.audio2 && w.audio2.trim()))
       } catch (err) {
         console.error('Ошибка загрузки:', err)
@@ -128,15 +128,19 @@ function Home({ user, onLogout }) {
     }
 
     let src
-    // ✅ 2. Обработка путей: если это уже ссылка или абсолютный путь — используем как есть
-    if (filename.startsWith('http') || filename.startsWith('/')) {
+    // ✅ 2. Обработка путей
+    if (filename.startsWith('http')) {
       src = filename
     } else {
-      // ✅ 3. Если просто имя файла — добавляем путь к репозиторию
-      src = `/runy-dic/${filename}`
+      // ✅ 3. Если просто имя файла — строим путь к папке audio
+      // import.meta.env.BASE_URL автоматически добавит префикс репозитория (например /runy-dic/) в продакшене
+      // Локально BASE_URL обычно '/', поэтому путь будет /audio/...
+      const baseUrl = import.meta.env.BASE_URL || '/'
+      const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      src = `${cleanBase}/audio/${filename}`
     }
 
-    // ✅ 3. Логируем URL для отладки
+    // ✅ 4. Логируем URL для отладки
     console.log('Attempting to play:', src)
     
     audioRef.current.src = src
@@ -206,7 +210,7 @@ function Home({ user, onLogout }) {
           <div key={item.id} className="card">
             {item.audio && (
               <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
-                
+                🔊
               </button>
             )}
             <div className="word-row">
