@@ -1,5 +1,68 @@
 [
   {
+    "id": "1778152083246",
+    "timestamp": "2026-05-07T11:08:03.246Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"День\""
+  },
+  {
+    "id": "1778152082298",
+    "timestamp": "2026-05-07T11:08:02.298Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ден\""
+  },
+  {
+    "id": "1778152081315",
+    "timestamp": "2026-05-07T11:08:01.315Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Д\""
+  },
+  {
+    "id": "1778152022906",
+    "timestamp": "2026-05-07T11:07:02.906Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778151829406",
+    "timestamp": "2026-05-07T11:03:49.406Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"ден\""
+  },
+  {
+    "id": "1778151827160",
+    "timestamp": "2026-05-07T11:03:47.160Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"день\""
+  },
+  {
+    "id": "1778151825475",
+    "timestamp": "2026-05-07T11:03:45.475Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"д\""
+  },
+  {
+    "id": "1778151809764",
+    "timestamp": "2026-05-07T11:03:29.764Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778151676802",
+    "timestamp": "2026-05-07T11:01:16.802Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1778151013939",
     "timestamp": "2026-05-07T10:50:13.939Z",
     "action": "login",
