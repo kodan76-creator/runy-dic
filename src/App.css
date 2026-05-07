@@ -83,8 +83,8 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 @media (max-width: 768px) {
   .container {
     padding-top: 280px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
   }
   .header {
     flex-direction: column;
@@ -123,29 +123,35 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
     font-size: 20px;
   }
   
-  /* ✅ ИСПРАВЛЕНО: Увеличены отступы и высота для кнопки audio2 */
+  /* ✅ УМЕНЬШЕНА КАРТОЧКА + ИСПРАВЛЕНА КНОПКА AUDIO2 */
   .card {
-    padding: 15px 15px 55px 50px; /* Увеличен отступ снизу с 15px до 55px */
-    min-height: 150px; /* Гарантируем минимальную высоту */
-    overflow: visible; /* Убеждаемся, что ничего не обрезается */
+    padding: 12px 12px 50px 45px; /* Увеличен отступ снизу для кнопки */
+    min-height: 140px; /* Увеличена минимальная высота */
+    border-radius: 10px; /* Чуть меньше скругление */
   }
   
   .audio-btn,
   .audio-btn-bottom {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  /* ✅ ПОДНИМАЕМ КНОПКУ AUDIO2 ВЫШЕ */
+  .audio-btn-bottom {
+    bottom: 12px;
+    left: 10px;
+    z-index: 20;
+  }
+  
+  .audio-btn {
+    top: 12px;
+    left: 10px;
   }
   
   .search-wrapper {
     max-width: 100%;
     width: 100%;
-  }
-  
-  /* ✅ Поднимаем кнопку чуть выше и делаем поверх текста */
-  .audio-btn-bottom {
-    bottom: 20px;
-    z-index: 20; 
   }
 }
 
