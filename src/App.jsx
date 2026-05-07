@@ -12,7 +12,7 @@ function UserAuthForm({ onLogin }) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -21,7 +21,6 @@ function UserAuthForm({ onLogin }) {
       if (isLogin) {
         const user = await verifyUser(email, password)
         if (user) {
-          // ✅ Добавляем role если его нет
           const userWithRole = { ...user, role: user.role || 'user' }
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
@@ -41,7 +40,7 @@ function UserAuthForm({ onLogin }) {
     }
     setLoading(false)
   }
-
+  
   return (
     <div className="auth-container">
       <div className="auth-box">
@@ -67,12 +66,11 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-
+  
   useEffect(() => {
     if (!user) return
     const loadWords = async () => {
       try {
-        // ✅ Прямой вызов, не динамический импорт
         const { data } = await getDictionary()
         const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
@@ -81,26 +79,26 @@ function Home({ user, onLogout }) {
     }
     loadWords()
   }, [user])
-
+  
   const handleLogout = async () => {
     await logoutUser(user?.email)
     localStorage.removeItem('currentUser')
     onLogout()
   }
-
+  
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
-
+  
   const filtered = words.filter(w =>
     w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
   )
-
+  
   return (
     <div className="container">
       <div className="header">
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
         <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
-        <button className="logout-btn-user" onClick={handleLogout}>👤 {user?.email?.split('@')[0]}<br/><small>Выйти</small></button>
+        <button className="logout-btn-user" onClick={handleLogout}>👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small> </button>
       </div>
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
@@ -121,12 +119,10 @@ function Home({ user, onLogout }) {
 function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-
+  
   useEffect(() => {
-    // Проверяем сессию админа ИЛИ пользователя
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
-    
     if (adminUser) {
       try {
         const parsed = JSON.parse(adminUser)
@@ -140,37 +136,35 @@ function App() {
     }
     setAuthLoading(false)
   }, [])
-
+  
   const handleUserLogin = (userData) => {
     setUser({ ...userData, role: userData.role || 'user' })
   }
-
+  
   const handleLogout = () => {
     localStorage.removeItem('currentUser')
     localStorage.removeItem('adminUser')
     setUser(null)
   }
-
+  
   if (authLoading) return <div className="loading-full">Загрузка...</div>
-
+  
   return (
     <Router>
       <Routes>
-        {/* Админ-панель - AdminPanel сам управляет авторизацией */}
+        {/* Админ-панель */}
         <Route
           path="/admin"
           element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />}
         />
         
-        {/* Вход пользователя */}
+        {/* ✅ ИСПРАВЛЕНО: Логика маршрута /auth */}
         <Route
           path="/auth"
           element={
-            !user || user.role !== 'admin' ? (
-              <UserAuthForm onLogin={handleUserLogin} />
-            ) : (
-              <Navigate to="/admin" replace />
-            )
+            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+            user?.role === 'user' ? <Navigate to="/" replace /> :
+            <UserAuthForm onLogin={handleUserLogin} />
           }
         />
         
@@ -186,7 +180,7 @@ function App() {
           }
         />
         
-        {/* Перенаправление */}
+        {/* Перенаправление для неизвестных путей */}
         <Route
           path="*"
           element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />}
