@@ -73,9 +73,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   }
 
   const handleLogout = async () => {
-    localStorage.removeItem('adminUser'); setAdminUser(null)
-    setWords([]); setUsers([]); setLogs([])
-    if (onAdminLogout) onAdminLogout()
+    localStorage.removeItem('adminUser')  // ✅ Только админ
+    setAdminUser(null)
+    setWords([])
+    setUsers([])
+    setLogs([])
+    if (onAdminLogout) onAdminLogout()  // В App.jsx теперь корректно обрабатывает
   }
 
   const handleSubmit = async (e) => {
@@ -120,7 +123,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     }
   }
 
-  const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-'
+  const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
   if (!adminUser) {
     return (
@@ -174,16 +177,16 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
 
             <form onSubmit={handleSubmit} className="word-form">
               <div className="form-column form-column-left">
-                <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({...formData, word: e.target.value})} required />
-                <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({...formData, transcription: e.target.value})} />
-                <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({...formData, translation: e.target.value})} required />
+                <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
+                <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
+                <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
               </div>
               <div className="form-column form-column-right">
-                <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({...formData, example: e.target.value})} />
-                <input type="text" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({...formData, example2: e.target.value})} />
-                <input type="text" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({...formData, transcription2: e.target.value})} />
-                <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({...formData, audio: e.target.value})} />
-                <input type="text" placeholder="Audio2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({...formData, audio2: e.target.value})} />
+                <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
+                <input type="text" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
+                <input type="text" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
+                <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
+                <input type="text" placeholder="Audio2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
               </div>
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
