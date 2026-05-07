@@ -174,7 +174,7 @@ export const addLog = async (logData) => {
       // 1. Получаем актуальные данные и sha
       const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
       const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
-      const updated = [newLog, ...logs].slice(0, 5000)
+      const updated = [newLog, ...logs].slice(0, 1000) // Ограничиваем до 1000 записей
       
       // 2. Пытаемся обновить
       await updateGitHubFile(LOGS_FILE, updated, sha)
