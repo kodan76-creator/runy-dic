@@ -72,9 +72,7 @@ function Home({ user, onLogout }) {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sortedData = [...(data || [])].sort((a, b) => 
-          (a.translation || '').localeCompare(b.translation || '', 'ru')
-        )
+        const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
         setWords(sortedData)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
       setLoading(false)
@@ -92,6 +90,14 @@ function Home({ user, onLogout }) {
     }, 500)
     return () => clearTimeout(timer)
   }, [searchTerm, user])
+
+  // Функция воспроизведения аудио
+  const playAudio = (file) => {
+    if (!file) return
+    const src = file.startsWith('http') ? file : `${import.meta.env.BASE_URL || '/'}audio/${file}`
+    const audio = new Audio(src)
+    audio.play().catch(console.error)
+  }
   
   const handleLogout = async () => {
     await logoutUser(user?.email)
@@ -135,11 +141,27 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
+            {item.audio && (
+              <button className="audio-btn" onClick={() => playAudio(item.audio)}>🔊</button>
+            )}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
+            <div className="examples">
+              {item.example && <p className="example">{item.example}</p>}
+              {item.example2 && (
+                <>
+                  <span className="dash">—</span>
+                  <p className="example2">{item.example2}</p>
+                </>
+              )}
+              {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
+            </div>
+            {item.audio2 && (
+              <button className="audio-btn-bottom" onClick={() => playAudio(item.audio2)}>🔊</button>
+            )}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
@@ -184,19 +206,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Админ-панель */}
-        <Route
-          path="/admin"
-          element={
-            user?.role === 'admin' ? (
-              <AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          }
-        />
+        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
-        {/* ✅ ИСПРАВЛЕНО: Строгая проверка ролей для /auth */}
+        {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
         <Route
           path="/auth"
           element={
@@ -206,32 +218,18 @@ function App() {
           }
         />
         
-        {/* ✅ ИСПРАВЛЕНО: Строгая проверка для пользовательской страницы */}
         <Route
           path="/"
           element={
             user?.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
-            ) : user?.role === 'admin' ? (
-              // Админ на пользовательской странице → на форму входа для переключения
-              <Navigate to="/auth" replace />
             ) : (
               <Navigate to="/auth" replace />
             )
           }
         />
         
-        {/* Перенаправление для неизвестных путей */}
-        <Route
-          path="*"
-          element={
-            <Navigate to={
-              user?.role === 'admin' ? '/admin' : 
-              user?.role === 'user' ? '/' : 
-              '/auth'
-            } replace />
-          }
-        />
+        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
       </Routes>
     </Router>
   )
