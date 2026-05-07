@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -80,6 +80,17 @@ function Home({ user, onLogout }) {
     loadWords()
   }, [user])
 
+  // Логирование поиска
+  useEffect(() => {
+    if (!user) return
+    const timer = setTimeout(() => {
+      if (searchTerm && searchTerm.trim().length > 0) {
+        logSearch(searchTerm, user.email)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm, user])
+  
   const handleLogout = async () => {
     await logoutUser(user?.email)
     localStorage.removeItem('currentUser')
@@ -168,29 +179,25 @@ function App() {
   
   if (authLoading) return <div className="loading-full">Загрузка...</div>
   
-  // ✅ ИСПРАВЛЕНО: Условный basename для локальной разработки и продакшена
-  const basename = window.location.hostname === 'localhost' ? '' : '/runy-dic'
-  
   return (
-    <Router basename={basename}>
+    <Router>
       <Routes>
         <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
+        {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
         <Route
           path="/auth"
           element={
-            !user || user.role !== 'admin' ? (
-              <UserAuthForm onLogin={handleUserLogin} />
-            ) : (
-              <Navigate to="/admin" replace />
-            )
+            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+            user?.role === 'user' ? <Navigate to="/" replace /> :
+            <UserAuthForm onLogin={handleUserLogin} />
           }
         />
         
         <Route
           path="/"
           element={
-            user && user.role === 'user' ? (
+            user?.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/auth" replace />
