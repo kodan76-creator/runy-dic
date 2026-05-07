@@ -4,7 +4,7 @@ import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from '
 import AdminPanel from './AdminPanel'
 import './App.css'
 
-// Форма входа/регистрации для ПОЛЬЗОВАТЕЛЕЙ
+// Форма входа/регистрации
 function UserAuthForm({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
@@ -61,13 +61,12 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// Главный экран для ПОЛЬЗОВАТЕЛЕЙ (ВОССТАНОВЛЕНЫ ВСЕ КНОПКИ)
+// Главный экран пользователя
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   
-  // ✅ Аудио-состояния
   const [isPlaying, setIsPlaying] = useState(false)
   const [playMode, setPlayMode] = useState('all')
   const [playlist, setPlaylist] = useState([])
@@ -79,28 +78,22 @@ function Home({ user, onLogout }) {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sortedData = [...(data || [])].sort((a, b) => 
-          (a.translation || '').localeCompare(b.translation || '', 'ru')
-        )
-        setWords(sortedData)
+        const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
+        setWords(sorted)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
       setLoading(false)
     }
     loadWords()
   }, [user])
 
-  // Логирование поиска
   useEffect(() => {
     if (!user) return
     const timer = setTimeout(() => {
-      if (searchTerm && searchTerm.trim().length > 0) {
-        logSearch(searchTerm, user.email)
-      }
+      if (searchTerm?.trim()) logSearch(searchTerm, user.email)
     }, 500)
     return () => clearTimeout(timer)
   }, [searchTerm, user])
 
-  // Формирование плейлиста
   useEffect(() => {
     if (!words.length) return
     let list = [...words]
@@ -114,7 +107,6 @@ function Home({ user, onLogout }) {
     setCurrentTrackIndex(0)
   }, [words, playMode])
 
-  // Воспроизведение
   useEffect(() => {
     if (!playlist.length || !audioRef.current) return
     if (!isPlaying || currentTrackIndex >= playlist.length) {
@@ -127,7 +119,6 @@ function Home({ user, onLogout }) {
     audioRef.current.play().catch(() => setIsPlaying(false))
   }, [currentTrackIndex, isPlaying])
 
-  // Автопереключение
   useEffect(() => {
     const aud = audioRef.current
     if (!aud) return
@@ -136,10 +127,8 @@ function Home({ user, onLogout }) {
   }, [isPlaying])
 
   const togglePlay = () => {
-    if (isPlaying) { 
-      setIsPlaying(false)
-      audioRef.current?.pause() 
-    } else {
+    if (isPlaying) { setIsPlaying(false); audioRef.current?.pause() }
+    else {
       if (!playlist.length) return
       setIsPlaying(true)
       if (currentTrackIndex >= playlist.length) setCurrentTrackIndex(0)
@@ -160,24 +149,22 @@ function Home({ user, onLogout }) {
     localStorage.removeItem('currentUser')
     onLogout()
   }
-  
+
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
-  
+
   const filtered = words.filter(w =>
     w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
   )
-  
+
   return (
     <div className="container">
       <audio ref={audioRef} style={{ display: 'none' }} />
       <div className="header">
-        {/* ✅ КНОПКА СЛУШАТЬ */}
         <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={!playlist.length}>
           {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
         </button>
         
-        {/* ✅ РАДИОКНОПКИ */}
         <div className="play-mode">
           <label className="mode-label">
             <input type="radio" name="mode" value="all" checked={playMode === 'all'} onChange={() => setPlayMode('all')} />
@@ -191,36 +178,22 @@ function Home({ user, onLogout }) {
 
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
         
-        {/* ✅ ПОИСК С КРЕСТИКОМ */}
         <div className="search-wrapper">
-          <input 
-            type="text" 
-            placeholder="Поиск слова..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="search-input" 
-          />
+          <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
           {searchTerm && (
-            <button 
-              className="search-clear-btn" 
-              onClick={() => setSearchTerm('')}
-              title="Очистить поиск"
-            >
-              ❌
-            </button>
+            <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
           )}
         </div>
 
         <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+          👤 {user?.email?.split('@')[0]} <br/><small>Выйти</small>
         </button>
       </div>
+      
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {item.audio && (
-              <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>
-            )}
+            {item.audio && <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
@@ -228,17 +201,10 @@ function Home({ user, onLogout }) {
             <p className="translation">{item.translation}</p>
             <div className="examples">
               {item.example && <p className="example">{item.example}</p>}
-              {item.example2 && (
-                <>
-                  <span className="dash">—</span>
-                  <p className="example2">{item.example2}</p>
-                </>
-              )}
+              {item.example2 && <><span className="dash">—</span><p className="example2">{item.example2}</p></>}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
-            {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>
-            )}
+            {item.audio2 && <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
@@ -251,20 +217,22 @@ function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   
+  // ✅ ИСПРАВЛЕНО: Умное восстановление сессии по текущему URL
   useEffect(() => {
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
-    if (adminUser) {
-      try {
-        const parsed = JSON.parse(adminUser)
-        setUser({ ...parsed, role: 'admin' })
-      } catch {}
+    
+    const hash = window.location.hash.replace('#', '') || window.location.pathname
+    const isAdminRoute = hash.includes('/admin')
+
+    if (isAdminRoute && adminUser) {
+      try { setUser({ ...JSON.parse(adminUser), role: 'admin' }) } catch {}
     } else if (currentUser) {
-      try {
-        const parsed = JSON.parse(currentUser)
-        setUser({ ...parsed, role: parsed.role || 'user' })
-      } catch {}
+      try { setUser({ ...JSON.parse(currentUser), role: 'user' }) } catch {}
+    } else if (adminUser) {
+      try { setUser({ ...JSON.parse(adminUser), role: 'admin' }) } catch {}
     }
+    
     setAuthLoading(false)
   }, [])
   
@@ -283,30 +251,29 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
+        <Route path="/admin" element={
+          user?.role === 'admin' ? 
+            <AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} /> : 
+            <Navigate to="/auth" replace />
+        } />
         
-        {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
-        <Route
-          path="/auth"
-          element={
-            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
-            user?.role === 'user' ? <Navigate to="/" replace /> :
-            <UserAuthForm onLogin={handleUserLogin} />
-          }
-        />
+        {/* ✅ ИСПРАВЛЕНО: Строгая проверка ролей для /auth */}
+        <Route path="/auth" element={
+          user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+          user?.role === 'user' ? <Navigate to="/" replace /> :
+          <UserAuthForm onLogin={handleUserLogin} />
+        } />
         
-        <Route
-          path="/"
-          element={
-            user?.role === 'user' ? (
-              <Home user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          }
-        />
+        {/* ✅ ИСПРАВЛЕНО: Строгая проверка для главной */}
+        <Route path="/" element={
+          user?.role === 'user' ? 
+            <Home user={user} onLogout={handleLogout} /> : 
+            <Navigate to="/auth" replace />
+        } />
         
-        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
+        <Route path="*" element={
+          <Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />
+        } />
       </Routes>
     </Router>
   )
