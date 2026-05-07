@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "1778161433012",
+    "timestamp": "2026-05-07T13:43:53.012Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  }
+]
