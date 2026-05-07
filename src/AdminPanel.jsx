@@ -142,7 +142,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     <div className="admin-panel">
       <div className="admin-fixed-container">
         <div className="admin-header">
-          <h2>️ Управление словарём</h2>
+          <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
             <span>{adminUser.email}</span>
             <button onClick={handleLogout} className="logout-btn">Выйти</button>
@@ -157,14 +157,27 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         {activeTab === 'dictionary' && (
           <div className="form-section">
             <div className="search-container">
-              {/* ✅ ДОБАВЛЕНА ОБЁРТКА И КРЕСТИК */}
+              {/* ✅ ПОЛЕ ПОИСКА С КРЕСТИКОМ */}
               <div className="search-wrapper">
-                <input type="text" placeholder="🔍 Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
+                <input
+                  type="text"
+                  placeholder="🔍 Поиск слова..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
                 {searchTerm && (
-                  <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
+                  <button 
+                    className="search-clear-btn" 
+                    onClick={() => setSearchTerm('')}
+                    title="Очистить поиск"
+                  >
+                    ❌
+                  </button>
                 )}
               </div>
             </div>
+
             <form onSubmit={handleSubmit} className="word-form">
               <div className="form-column form-column-left">
                 <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({...formData, word: e.target.value})} required />
@@ -200,7 +213,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                     {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
                   </div>
                   <div className="user-actions">
-                    {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
+                    {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn"> Заблокировать</button>}
                   </div>
                 </div>
               ))}
@@ -211,8 +224,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         {activeTab === 'logs' && (
           <div className="logs-section">
             <div className="logs-header">
-              <h3>📊 Логи действий ({logs.length})</h3>
-              <button onClick={handleClearLogs} className="clear-logs-btn">️ Очистить логи</button>
+              <h3> Логи действий ({logs.length})</h3>
+              <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
             </div>
             <div className="logs-list">
               {logs.map(log => (
@@ -247,12 +260,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
                         {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
                       </div>
-                      {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
-                      {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
+                      {word.audio && <p className="word-audio"> {word.audio}</p>}
+                      {word.audio2 && <p className="word-audio"> {word.audio2}</p>}
                     </div>
                     <div className="word-actions">
-                      <button onClick={() => handleEdit(word)} className="edit-btn">️</button>
-                      <button onClick={() => handleDelete(word.id)} className="delete-btn">️</button>
+                      <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+                      <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
                     </div>
                   </div>
                 )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
