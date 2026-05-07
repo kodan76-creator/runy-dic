@@ -1,18 +1,18 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { getDictionary, verifyUser, registerUser, logoutUser, addLog, logSearch, logAudioPlay } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
-// Компонент формы входа/регистрации
-function AuthForm({ onLogin }) {
+// Форма входа/регистрации для ПОЛЬЗОВАТЕЛЕЙ
+function UserAuthForm({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -21,19 +21,15 @@ function AuthForm({ onLogin }) {
       if (isLogin) {
         const user = await verifyUser(email, password)
         if (user) {
-          const userWithRole = { ...user, role: 'user' }
+          const userWithRole = { ...user, role: user.role || 'user' }
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
         } else {
           setError('Неверный email или пароль')
         }
       } else {
-        if (password !== confirmPassword) {
-          throw new Error('Пароли не совпадают')
-        }
-        if (password.length < 6) {
-          throw new Error('Пароль должен быть не менее 6 символов')
-        }
+        if (password !== confirmPassword) throw new Error('Пароли не совпадают')
+        if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         const user = await registerUser(email, password)
         const userWithRole = { ...user, role: 'user' }
         localStorage.setItem('currentUser', JSON.stringify(userWithRole))
@@ -44,57 +40,20 @@ function AuthForm({ onLogin }) {
     }
     setLoading(false)
   }
-
+  
   return (
     <div className="auth-container">
       <div className="auth-box">
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
-            autoComplete="username"
-          />
-          <input
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-            autoComplete="current-password"
-          />
-          {!isLogin && (
-            <input
-              type="password"
-              placeholder="Подтвердите пароль"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-              autoComplete="new-password"
-            />
-          )}
+          <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
+          <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
+          {!isLogin && <input type="password" placeholder="Подтвердите пароль" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} autoComplete="new-password" />}
           {error && <div className="error">{error}</div>}
-          <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
-          </button>
+          <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
         </form>
-        <button
-          className="toggle-auth-btn"
-          onClick={() => {
-            setIsLogin(!isLogin)
-            setError('')
-            setPassword('')
-            setConfirmPassword('')
-          }}
-          disabled={loading}
-        >
+        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
       </div>
@@ -102,28 +61,28 @@ function AuthForm({ onLogin }) {
   )
 }
 
-// Главный компонент приложения
+// ✅ ВОССТАНОВЛЕННЫЙ главный экран с обновленной логикой плейлиста
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [playingId, setPlayingId] = useState(null)
-  const [playingAudio2, setPlayingAudio2] = useState(null)
-  const [currentAudio, setCurrentAudio] = useState(null)
-  const [playMode, setPlayMode] = useState('sequential')
-  const [isPlayingAll, setIsPlayingAll] = useState(false)
-  const [currentPlayIndex, setCurrentPlayIndex] = useState(-1)
-  const [currentWordIndex, setCurrentWordIndex] = useState(0)
-  const [lastLoggedSearch, setLastLoggedSearch] = useState('')
+  
+  // Состояния для аудио
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [playMode, setPlayMode] = useState('all')
+  const [playlist, setPlaylist] = useState([]) // Массив треков: { word, file }
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+  
+  const audioRef = useRef(null)
 
+  // 1. Загрузка слов
   useEffect(() => {
+    if (!user) return
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sortedData = [...(data || [])].sort((a, b) =>
-          (a.translation || '').localeCompare(b.translation || '')
-        )
-        setWords(sortedData)
+        const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
+        setWords(sorted)
       } catch (err) {
         console.error('Ошибка загрузки:', err)
         setWords([])
@@ -131,175 +90,99 @@ function Home({ user, onLogout }) {
       setLoading(false)
     }
     loadWords()
-  }, [])
+  }, [user])
 
-  // Логирование поиска (с задержкой)
+  // 2. Формирование плейлиста при изменении слов или режима
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (searchTerm && searchTerm !== lastLoggedSearch) {
-        await logSearch(searchTerm, user?.email)
-        setLastLoggedSearch(searchTerm)
-      }
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [searchTerm, user?.email, lastLoggedSearch])
+    if (words.length === 0) return
 
-  // Остановка текущего аудио
-  const stopAudio = () => {
-    if (currentAudio) {
-      currentAudio.pause()
-      currentAudio.currentTime = 0
-      setCurrentAudio(null)
-    }
-    setPlayingId(null)
-    setPlayingAudio2(null)
-  }
-
-  // Воспроизведение audio (верхняя кнопка)
-  const playAudio = async (wordId, audioFile) => {
-    if (!audioFile) return
-    if (playingId === wordId) {
-      stopAudio()
-      return
-    }
-    stopAudio()
-    const audio = new Audio(`${import.meta.env.BASE_URL}audio/${audioFile}`)
-    audio.play()
-    setCurrentAudio(audio)
-    setPlayingId(wordId)
-    await logAudioPlay(audioFile, user?.email)
-    audio.onended = () => {
-      setPlayingId(null)
-      setCurrentAudio(null)
-    }
-  }
-
-  // Воспроизведение audio2 (нижняя кнопка)
-  const playAudio2 = async (wordId, audioFile) => {
-    if (!audioFile) return
-    if (playingAudio2 === wordId) {
-      stopAudio()
-      return
-    }
-    stopAudio()
-    const audio = new Audio(`${import.meta.env.BASE_URL}audio/${audioFile}`)
-    audio.play()
-    setCurrentAudio(audio)
-    setPlayingAudio2(wordId)
-    await logAudioPlay(audioFile, user?.email)
-    audio.onended = () => {
-      setPlayingAudio2(null)
-      setCurrentAudio(null)
-    }
-  }
-
-  // Воспроизведение всех аудиофайлов
-  const playAllAudio = async () => {
-    const wordsWithAudio = words.filter(word => word.audio || word.audio2)
-    if (wordsWithAudio.length === 0) {
-      alert('Нет слов с аудиофайлами')
-      return
-    }
-    if (isPlayingAll) {
-      stopAudio()
-      setIsPlayingAll(false)
-      setCurrentPlayIndex(-1)
-      setCurrentWordIndex(0)
-      return
-    }
-    let indices = wordsWithAudio.map((_, index) => index)
+    let wordList = [...words]
+    
+    // Если режим случайный — перемешиваем слова
     if (playMode === 'random') {
-      indices = indices.sort(() => Math.random() - 0.5)
+      wordList.sort(() => Math.random() - 0.5)
     }
-    setIsPlayingAll(true)
-    setCurrentWordIndex(0)
-    playNextAudioSequence(wordsWithAudio, indices, 0, 0)
-  }
 
-  // Воспроизведение последовательности audio и audio2
-  const playNextAudioSequence = (wordsWithAudio, indices, wordIndex, audioType) => {
-    if (wordIndex >= indices.length) {
-      setIsPlayingAll(false)
-      setCurrentPlayIndex(-1)
-      setCurrentWordIndex(0)
+    // Формируем плейлист: для каждого слова добавляем audio, затем audio2 (если они есть)
+    const newPlaylist = []
+    wordList.forEach(w => {
+      if (w.audio && w.audio.trim()) {
+        newPlaylist.push({ word: w, file: w.audio })
+      }
+      if (w.audio2 && w.audio2.trim()) {
+        newPlaylist.push({ word: w, file: w.audio2 })
+      }
+    })
+
+    setPlaylist(newPlaylist)
+    setCurrentTrackIndex(0) // Сброс на начало при смене плейлиста
+  }, [words, playMode])
+
+  // 3. Логика воспроизведения при смене индекса трека
+  useEffect(() => {
+    if (playlist.length === 0 || !audioRef.current) return
+
+    // Если мы остановились принудительно или индекс вышел за пределы
+    if (!isPlaying || currentTrackIndex >= playlist.length) {
+      if (currentTrackIndex >= playlist.length) setIsPlaying(false)
       return
     }
-    const wordRealIndex = indices[wordIndex]
-    const word = wordsWithAudio[wordRealIndex]
-    setCurrentPlayIndex(wordIndex)
-    setCurrentWordIndex(wordIndex)
-    let audioFile = null
-    if (audioType === 0 && word.audio) {
-      audioFile = word.audio
-    } else if (audioType === 1 && word.audio2) {
-      audioFile = word.audio2
-    } else if (audioType === 0 && !word.audio && word.audio2) {
-      audioFile = word.audio2
-      audioType = 1
-    } else if (audioType === 1 && !word.audio2) {
-      setTimeout(() => {
-        playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
-      }, 500)
-      return
-    } else {
-      setTimeout(() => {
-        playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
-      }, 500)
-      return
-    }
-    const audio = new Audio(`${import.meta.env.BASE_URL}audio/${audioFile}`)
-    audio.play()
-    setCurrentAudio(audio)
-    if (audioType === 0) {
-      setPlayingId(word.id)
-    } else {
-      setPlayingAudio2(word.id)
-    }
+
+    const track = playlist[currentTrackIndex]
+    playTrack(track)
+
+  }, [currentTrackIndex, isPlaying]) // Зависимости важны!
+
+  // 4. Обработка окончания трека (автопереключение)
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    
     audio.onended = () => {
-      if (audioType === 0) {
-        setPlayingId(null)
-      } else {
-        setPlayingAudio2(null)
+      if (isPlaying) {
+        setCurrentTrackIndex(prev => prev + 1)
       }
-      setCurrentAudio(null)
-      setTimeout(() => {
-        if (audioType === 0 && word.audio2) {
-          playNextAudioSequence(wordsWithAudio, indices, wordIndex, 1)
-        } else {
-          playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
-        }
-      }, 500)
     }
-    audio.onerror = () => {
-      console.error(`Ошибка загрузки файла: ${audioFile}`)
-      if (audioType === 0) {
-        setPlayingId(null)
-      } else {
-        setPlayingAudio2(null)
-      }
-      setCurrentAudio(null)
-      setTimeout(() => {
-        if (audioType === 0 && word.audio2) {
-          playNextAudioSequence(wordsWithAudio, indices, wordIndex, 1)
-        } else {
-          playNextAudioSequence(wordsWithAudio, indices, wordIndex + 1, 0)
-        }
-      }, 500)
+    // Очистка обработчика
+    return () => { audio.onended = null }
+  }, [isPlaying])
+
+  const playTrack = (track) => {
+    if (!audioRef.current || !track?.file) return
+    
+    let src
+    if (track.file.startsWith('http')) {
+      src = track.file
+    } else {
+      const baseUrl = import.meta.env.BASE_URL || '/'
+      const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      src = `${cleanBase}/audio/${track.file}`
     }
+
+    console.log('Playing:', src)
+    audioRef.current.src = src
+    audioRef.current.play().catch((err) => {
+      console.error('Audio play error:', err)
+      setIsPlaying(false)
+    })
   }
 
-  const isAnyAudioPlaying = playingId !== null || playingAudio2 !== null
-
-  const filteredData = useMemo(() => {
-    return words.filter(item =>
-      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.transcription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.example && item.example.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.example2 && item.example2.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.transcription2 && item.transcription2.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  }, [searchTerm, words])
+  // Управление кнопкой "Слушать"
+  const togglePlay = () => {
+    if (isPlaying) {
+      setIsPlaying(false)
+      audioRef.current?.pause()
+    } else {
+      // Если плейлист пуст, ничего не делаем
+      if (playlist.length === 0) return
+      
+      setIsPlaying(true)
+      // Если мы в конце списка, начинаем сначала
+      if (currentTrackIndex >= playlist.length) {
+        setCurrentTrackIndex(0)
+      }
+    }
+  }
 
   const handleLogout = async () => {
     await logoutUser(user?.email)
@@ -307,204 +190,139 @@ function Home({ user, onLogout }) {
     onLogout()
   }
 
-  if (loading) {
-    return (
-      <div className="container">
-        <div className="header">
-          <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-          <input
-            type="text"
-            placeholder="Поиск слова..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        <div className="loading">Загрузка словаря...</div>
-      </div>
-    )
-  }
+  if (loading) return <div className="loading-full">Загрузка словаря...</div>
+
+  const filtered = words.filter(w =>
+    w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
     <div className="container">
+      <audio ref={audioRef} style={{ display: 'none' }} />
+      
+      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР */}
       <div className="header">
-        <button
-          className={`listen-btn ${isPlayingAll ? 'playing' : ''}`}
-          onClick={playAllAudio}
-          disabled={isAnyAudioPlaying && !isPlayingAll}
-          title={isPlayingAll ? 'Остановить' : 'Слушать все слова'}
-        >
-          {isPlayingAll ? '⏹️' : '🎧'} Слушать
+        <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={playlist.length === 0}>
+          {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
         </button>
-
+        
         <div className="play-mode">
           <label className="mode-label">
-            <input
-              type="radio"
-              name="playMode"
-              value="sequential"
-              checked={playMode === 'sequential'}
-              onChange={(e) => setPlayMode(e.target.value)}
-              disabled={isPlayingAll || isAnyAudioPlaying}
-            />
-            <span>подряд</span>
+            <input type="radio" name="mode" value="all" checked={playMode === 'all'} onChange={() => setPlayMode('all')} />
+            По порядку
           </label>
           <label className="mode-label">
-            <input
-              type="radio"
-              name="playMode"
-              value="random"
-              checked={playMode === 'random'}
-              onChange={(e) => setPlayMode(e.target.value)}
-              disabled={isPlayingAll || isAnyAudioPlaying}
-            />
-            <span>случайно</span>
+            <input type="radio" name="mode" value="random" checked={playMode === 'random'} onChange={() => setPlayMode('random')} />
+            Случайно
           </label>
         </div>
 
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-
-        <input
-          type="text"
-          placeholder="Поиск слова..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-
+        <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
         <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]} <br /> <small>Выйти</small>
+          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
       </div>
 
+      {/* ✅ КАРТОЧКИ */}
       <div className="results">
-        {filteredData.length > 0 ? (
-          filteredData.map(item => (
-            <div key={item.id} className="card">
-              {/* 🔊 Кнопка audio - слева вверху */}
-              {item.audio && (
-                <button
-                  className={`audio-btn ${playingId === item.id ? 'playing' : ''}`}
-                  onClick={() => playAudio(item.id, item.audio)}
-                  disabled={isPlayingAll || (isAnyAudioPlaying && playingId !== item.id)}
-                  title={playingId === item.id ? 'Остановить' : 'Воспроизвести'}
-                >
-                  {playingId === item.id ? '⏹️' : '🔊'}
-                </button>
-              )}
-
-              <div className="word-row">
-                <h3 className="word">{item.word}</h3>
-                {item.transcription && (
-                  <span className="transcription">[{item.transcription}]</span>
-                )}
-              </div>
-              <p className="translation">{item.translation}</p>
-              <div className="examples">
-                <span className="example">{item.example}</span>
-                {item.example2 && (
-                  <>
-                    <span className="dash"> — </span>
-                    <span className="example2">{item.example2}</span>
-                    {item.transcription2 && (
-                      <span className="transcription2"> [{item.transcription2}]</span>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* 🔊 Кнопка audio2 - слева внизу */}
-              {item.audio2 && (
-                <button
-                  className={`audio-btn-bottom ${playingAudio2 === item.id ? 'playing' : ''}`}
-                  onClick={() => playAudio2(item.id, item.audio2)}
-                  disabled={isPlayingAll || (isAnyAudioPlaying && playingAudio2 !== item.id)}
-                  title={playingAudio2 === item.id ? 'Остановить' : 'Воспроизвести пример'}
-                >
-                  {playingAudio2 === item.id ? '⏹️' : '🔊'}
-                </button>
-              )}
+        {filtered.length > 0 ? filtered.map(item => (
+          <div key={item.id} className="card">
+            {/* Верхняя кнопка: играет audio */}
+            {item.audio && (
+              <button className="audio-btn" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio }) }}>
+                🔊
+              </button>
+            )}
+            <div className="word-row">
+              <h3 className="word">{item.word}</h3>
+              {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
-          ))
-        ) : (
-          <p>Ничего не найдено</p>
-        )}
+            <p className="translation">{item.translation}</p>
+            <div className="examples">
+              {item.example && <p className="example">{item.example}</p>}
+              {item.example2 && (
+                <>
+                  <span className="dash">—</span>
+                  <p className="example2">{item.example2}</p>
+                </>
+              )}
+              {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
+            </div>
+            {/* Нижняя кнопка: играет audio2 */}
+            {item.audio2 && (
+              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio2 }) }}>
+                🔊
+              </button>
+            )}
+          </div>
+        )) : <p>Ничего не найдено</p>}
       </div>
     </div>
   )
 }
 
-// Protected Route компонент
-function ProtectedRoute({ children, user }) {
-  if (!user) {
-    return <Navigate to="/auth" replace />
-  }
-  return children
-}
-
-// Главный компонент App
+// Главный App
 function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-
-  // Проверка авторизации при загрузке
+  
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser')
-    const savedAdmin = localStorage.getItem('adminUser')
-    
-    if (savedAdmin) {
-      setUser(JSON.parse(savedAdmin))
-    } else if (savedUser) {
-      setUser(JSON.parse(savedUser))
+    const adminUser = localStorage.getItem('adminUser')
+    const currentUser = localStorage.getItem('currentUser')
+    if (adminUser) {
+      try {
+        const parsed = JSON.parse(adminUser)
+        setUser({ ...parsed, role: 'admin' })
+      } catch {}
+    } else if (currentUser) {
+      try {
+        const parsed = JSON.parse(currentUser)
+        setUser({ ...parsed, role: parsed.role || 'user' })
+      } catch {}
     }
     setAuthLoading(false)
   }, [])
-
-  const handleLogin = (userData) => {
-    setUser(userData)
+  
+  const handleUserLogin = (userData) => {
+    setUser({ ...userData, role: userData.role || 'user' })
   }
-
-  const handleLogout = async () => {
-    if (user?.email) {
-      await addLog({
-        action: 'logout',
-        userEmail: user.email,
-        details: 'Пользователь вышел'
-      })
-    }
+  
+  const handleLogout = () => {
     localStorage.removeItem('currentUser')
     localStorage.removeItem('adminUser')
     setUser(null)
   }
-
-  if (authLoading) {
-    return <div className="loading-full">Загрузка...</div>
-  }
-
+  
+  if (authLoading) return <div className="loading-full">Загрузка...</div>
+  
   return (
     <Router>
       <Routes>
+        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
+        
         <Route
           path="/auth"
-          element={!user ? <AuthForm onLogin={handleLogin} /> : <Navigate to="/" replace />}
+          element={
+            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+            user?.role === 'user' ? <Navigate to="/" replace /> :
+            <UserAuthForm onLogin={handleUserLogin} />
+          }
         />
+        
         <Route
           path="/"
           element={
-            <ProtectedRoute user={user}>
+            user && user.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
-            </ProtectedRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
           }
         />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute user={user}>
-              <AdminPanel user={user} onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        
+        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
       </Routes>
     </Router>
   )

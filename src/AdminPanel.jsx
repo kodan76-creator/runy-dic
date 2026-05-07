@@ -1,17 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  verifyAdmin, 
-  getDictionary, 
-  addWord, 
-  updateWord, 
-  deleteWord, 
-  getUsers, 
-  blockUser, 
-  unblockUser, 
-  getLogs, 
-  clearLogs,
-  addLog 
-} from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
 import './AdminPanel.css'
 
 function AdminPanel({ onAdminLogin, onAdminLogout }) {
@@ -24,14 +12,9 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    word: '',
-    transcription: '',
-    translation: '',
-    example: '',
-    example2: '',
-    transcription2: '',
-    audio: '',
-    audio2: ''
+    word: '', transcription: '', translation: '',
+    example: '', example2: '', transcription2: '',
+    audio: '', audio2: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -61,7 +44,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
       const { data } = await getDictionary()
       setWords(data || [])
     } catch (err) {
-      setError('Ошибка загрузки: ' + err.message)
+      setError('Ошибка: ' + err.message)
     }
     setLoading(false)
   }
@@ -85,26 +68,21 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   }
 
   const filteredWords = useMemo(() => {
-    let filtered = words.filter(item =>
-      item.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.translation?.toLowerCase().includes(searchTerm.toLowerCase())
+    let f = words.filter(w =>
+      w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    filtered.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
-    return filtered
+    f.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
+    return f
   }, [searchTerm, words])
 
   // 🔐 Вход админа
   const handleLogin = async (e) => {
     e.preventDefault()
-    e.stopPropagation()
-    console.log('=== Login button clicked ===')
-    console.log('Login attempt:', email)
     setError('')
     setAuthLoading(true)
     try {
-      console.log('Calling verifyAdmin...')
       const admin = await verifyAdmin(email, password)
-      console.log('Verify result:', admin)
       if (admin) {
         const userData = { email, role: 'admin', loginAt: new Date().toISOString() }
         localStorage.setItem('adminUser', JSON.stringify(userData))
@@ -125,11 +103,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     setAuthLoading(false)
   }
 
-  // 🚪 Выход
+  // 🚪 Выход админа
   const handleLogout = async () => {
-    try {
-      await addLog({ action: 'admin_logout', userEmail: adminUser?.email, details: 'Администратор вышел' })
-    } catch {}
     localStorage.removeItem('adminUser')
     setAdminUser(null)
     setWords([])
@@ -152,7 +127,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
       setEditingId(null)
       await loadWords()
     } catch (err) {
-      setError('Ошибка сохранения: ' + err.message)
+      setError(err.message)
     }
     setLoading(false)
   }
@@ -160,14 +135,9 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const handleEdit = (word) => {
     setEditingId(word.id)
     setFormData({
-      word: word.word || '',
-      transcription: word.transcription || '',
-      translation: word.translation || '',
-      example: word.example || '',
-      example2: word.example2 || '',
-      transcription2: word.transcription2 || '',
-      audio: word.audio || '',
-      audio2: word.audio2 || ''
+      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '',
+      example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
+      audio: word.audio || '', audio2: word.audio2 || ''
     })
   }
 
@@ -220,11 +190,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const formatDate = (dateString) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     })
   }
 
@@ -274,24 +241,9 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         </div>
 
         <div className="admin-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dictionary')}
-          >
-            📚 Словарь
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
-          >
-            👥 Пользователи
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
-            onClick={() => setActiveTab('logs')}
-          >
-            📊 Логи
-          </button>
+          <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
+          <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
+          <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
         </div>
 
         {activeTab === 'dictionary' && (
@@ -305,70 +257,79 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 className="search-input"
               />
             </div>
-            
+
+            {/* ✅ ДВУХКОЛОНОЧНАЯ ФОРМА */}
             <form onSubmit={handleSubmit} className="word-form">
-              <input
-                type="text"
-                placeholder="Слово на рунном языке"
-                value={formData.word}
-                onChange={(e) => setFormData({...formData, word: e.target.value})}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Транскрипция"
-                value={formData.transcription}
-                onChange={(e) => setFormData({...formData, transcription: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Перевод (на русском языке)"
-                value={formData.translation}
-                onChange={(e) => setFormData({...formData, translation: e.target.value})}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Пример (на русском языке)"
-                value={formData.example}
-                onChange={(e) => setFormData({...formData, example: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Пример (на рунном языке)"
-                value={formData.example2}
-                onChange={(e) => setFormData({...formData, example2: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Транскрипция примера (на рунном языке)"
-                value={formData.transcription2}
-                onChange={(e) => setFormData({...formData, transcription2: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Audio файл на рунном языке (..._runy.mp3)"
-                value={formData.audio}
-                onChange={(e) => setFormData({...formData, audio: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Audio файл на русско-рунном языке (..._r_prim.mp3)"
-                value={formData.audio2}
-                onChange={(e) => setFormData({...formData, audio2: e.target.value})}
-              />
+              {/* Левая колонка - первые 3 поля */}
+              <div className="form-column form-column-left">
+                <input
+                  type="text"
+                  placeholder="Слово на рунном языке"
+                  value={formData.word}
+                  onChange={(e) => setFormData({ ...formData, word: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Транскрипция"
+                  value={formData.transcription}
+                  onChange={(e) => setFormData({ ...formData, transcription: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Перевод (на русском языке)"
+                  value={formData.translation}
+                  onChange={(e) => setFormData({ ...formData, translation: e.target.value })}
+                  required
+                />
+              </div>
+
+              {/* Правая колонка - остальные 5 полей */}
+              <div className="form-column form-column-right">
+                <input
+                  type="text"
+                  placeholder="Пример (на русском языке)"
+                  value={formData.example}
+                  onChange={(e) => setFormData({ ...formData, example: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Пример (на рунном языке)"
+                  value={formData.example2}
+                  onChange={(e) => setFormData({ ...formData, example2: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Транскрипция примера"
+                  value={formData.transcription2}
+                  onChange={(e) => setFormData({ ...formData, transcription2: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Audio файл (..._runy.mp3)"
+                  value={formData.audio}
+                  onChange={(e) => setFormData({ ...formData, audio: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Audio2 файл (..._r_prim.mp3)"
+                  value={formData.audio2}
+                  onChange={(e) => setFormData({ ...formData, audio2: e.target.value })}
+                />
+              </div>
+
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>
                   {loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}
                 </button>
                 {editingId && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
+                    className="cancel-btn"
                     onClick={() => {
                       setEditingId(null)
                       setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
-                    }} 
-                    className="cancel-btn"
+                    }}
                   >
                     Отмена
                   </button>
@@ -376,7 +337,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
               </div>
               {error && <div className="error">{error}</div>}
             </form>
-            
+
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
           </div>
         )}
@@ -398,17 +359,11 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                   </div>
                   <div className="user-actions">
                     {u.isBlocked ? (
-                      <button 
-                        onClick={() => handleUnblockUser(u.id, u.email)}
-                        className="unblock-btn"
-                      >
+                      <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">
                         ✅ Разблокировать
                       </button>
                     ) : (
-                      <button 
-                        onClick={() => handleBlockUser(u.id, u.email)}
-                        className="block-btn"
-                      >
+                      <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">
                         🚫 Заблокировать
                       </button>
                     )}
@@ -470,20 +425,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                             <span className="word-transcription2">[{word.transcription2}]</span>
                           )}
                         </div>
-                        {word.audio && (
-                          <p className="word-audio">🔊 {word.audio}</p>
-                        )}
-                        {word.audio2 && (
-                          <p className="word-audio">🔊 {word.audio2}</p>
-                        )}
+                        {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
+                        {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
                       </div>
                       <div className="word-actions">
-                        <button onClick={() => handleEdit(word)} className="edit-btn">
-                          ✏️
-                        </button>
-                        <button onClick={() => handleDelete(word.id)} className="delete-btn">
-                          🗑️
-                        </button>
+                        <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+                        <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
                       </div>
                     </div>
                   ))

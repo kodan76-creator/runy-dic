@@ -135,7 +135,7 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
-  color: #7b1fa2;  /* ✅ ИСПРАВЛЕНО: добавлен цвет текста */
+  color: #7b1fa2;
   font-weight: 500;
 }
 
@@ -161,21 +161,16 @@
   border-top: none;
 }
 
-.form-section h3 {
-  margin-top: 0;
-  color: #aa3bff;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 20px;
-}
-
 .search-container {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .search-input {
   width: 100%;
+  max-width: 400px;
   padding: 10px;
+  margin: 0 auto;
+  display: block;
   border: 3px solid #7b1fa2;
   border-radius: 8px;
   font-size: 14px;
@@ -194,18 +189,23 @@
   color: #666666;
 }
 
-.words-count {
-  margin: 15px 0 0 0;
-  color: #aa3bff;
-  text-align: center;
-  font-size: 18px;
-  padding-top: 10px;
+/* ✅ ДВУХКОЛОНОЧНАЯ ФОРМА */
+.word-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .word-form input {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
   border: 3px solid #7b1fa2;
   border-radius: 8px;
   font-size: 14px;
@@ -225,6 +225,7 @@
 }
 
 .form-buttons {
+  grid-column: 1 / -1;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -262,6 +263,14 @@
 
 .cancel-btn:hover {
   background: #757575;
+}
+
+.words-count {
+  margin: 15px 0 0 0;
+  color: #aa3bff;
+  text-align: center;
+  font-size: 18px;
+  padding-top: 10px;
 }
 
 /* Пользователи */
@@ -450,15 +459,17 @@
   gap: 15px;
 }
 
+/* ✅ ИСПРАВЛЕНО: Карточки как в App.css */
 .word-item {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   background: #c084fc;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px solid #aa3bff;
   border-left: 6px solid #aa3bff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   line-height: 1.5;
 }
 
@@ -594,6 +605,7 @@
   padding: 12px;
   border-radius: 6px;
   margin-top: 10px;
+  grid-column: 1 / -1;
 }
 
 .loading {
@@ -616,46 +628,61 @@
   font-style: italic;
 }
 
+/* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
     padding-top: 400px;
     padding-left: 10px;
     padding-right: 10px;
   }
-  
+
   .admin-fixed-container {
     padding: 0 10px;
   }
-  
+
   .admin-header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
   }
-  
+
   .admin-tabs {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .tab-btn {
     flex: 1;
     min-width: 100px;
   }
-  
+
+  /* ✅ На мобильных - одна колонка */
+  .word-form {
+    grid-template-columns: 1fr;
+  }
+
   .log-item {
     grid-template-columns: 1fr;
     gap: 5px;
   }
-  
+
   .user-card {
     flex-direction: column;
     gap: 15px;
     text-align: center;
   }
-  
+
   .user-actions {
     width: 100%;
     justify-content: center;
+  }
+
+  .word-title {
+    font-size: 32px;
+  }
+
+  .word-example2,
+  .word-transcription2 {
+    font-size: 20px;
   }
 }
