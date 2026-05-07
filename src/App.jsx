@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { verifyUser, registerUser, logoutUser, getDictionary } from './githubApi'
 import AdminPanel from './AdminPanel'
@@ -61,53 +61,151 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// Главный экран для ПОЛЬЗОВАТЕЛЕЙ
+// ✅ ВОССТАНОВЛЕННЫЙ главный экран для ПОЛЬЗОВАТЕЛЕЙ
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [playMode, setPlayMode] = useState('all')
+  const [currentAudioIndex, setCurrentAudioIndex] = useState(0)
+  const audioRef = useRef(null)
+  const wordsWithAudio = useRef([])
+
   useEffect(() => {
     if (!user) return
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
-        setWords(sortedData)
-      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
+        const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
+        setWords(sorted)
+        // Фильтруем слова, у которых есть аудиофайлы
+        wordsWithAudio.current = sorted.filter(w => w.audio || w.audio2)
+      } catch (err) {
+        console.error('Ошибка загрузки:', err)
+        setWords([])
+        wordsWithAudio.current = []
+      }
       setLoading(false)
     }
     loadWords()
   }, [user])
-  
+
+  // Логика окончания трека
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.onended = () => {
+      if (isPlaying) playNext()
+    }
+    return () => { audio.onended = null }
+  }, [isPlaying, currentAudioIndex, playMode])
+
+  const playNext = () => {
+    const list = playMode === 'random' 
+      ? [...wordsWithAudio.current].sort(() => Math.random() - 0.5) 
+      : wordsWithAudio.current
+      
+    if (list.length === 0) {
+      setIsPlaying(false)
+      return
+    }
+    let next = currentAudioIndex + 1
+    if (next >= list.length) next = 0
+    setCurrentAudioIndex(next)
+    playSingleWord(list[next])
+  }
+
+  const playSingleWord = (word) => {
+    if (!audioRef.current || (!word.audio && !word.audio2)) return
+    const src = word.audio ? `/runy-dic/${word.audio}` : `/runy-dic/${word.audio2}`
+    audioRef.current.src = src
+    audioRef.current.play().catch(() => setIsPlaying(false))
+  }
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      setIsPlaying(false)
+      audioRef.current?.pause()
+    } else {
+      setIsPlaying(true)
+      if (wordsWithAudio.current.length > 0) {
+        setCurrentAudioIndex(0)
+        playSingleWord(wordsWithAudio.current[0])
+      }
+    }
+  }
+
   const handleLogout = async () => {
     await logoutUser(user?.email)
     localStorage.removeItem('currentUser')
     onLogout()
   }
-  
+
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
-  
+
   const filtered = words.filter(w =>
     w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
   )
-  
+
   return (
     <div className="container">
+      <audio ref={audioRef} style={{ display: 'none' }} />
+      
+      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР: Слушать + Радиокнопки + Лого + Поиск + Выход */}
       <div className="header">
+        <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={wordsWithAudio.current.length === 0}>
+          {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
+        </button>
+        
+        <div className="play-mode">
+          <label className="mode-label">
+            <input type="radio" name="mode" value="all" checked={playMode === 'all'} onChange={() => setPlayMode('all')} />
+            По порядку
+          </label>
+          <label className="mode-label">
+            <input type="radio" name="mode" value="random" checked={playMode === 'random'} onChange={() => setPlayMode('random')} />
+            Случайно
+          </label>
+        </div>
+
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
         <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
-        <button className="logout-btn-user" onClick={handleLogout}>👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small> </button>
+        <button className="logout-btn-user" onClick={handleLogout}>
+          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+        </button>
       </div>
+
+      {/* ✅ ВОССТАНОВЛЕННЫЕ КАРТОЧКИ */}
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
+            {item.audio && (
+              <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
+                🔊
+              </button>
+            )}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
+            <div className="examples">
+              {item.example && <p className="example">{item.example}</p>}
+              {item.example2 && (
+                <>
+                  <span className="dash">—</span>
+                  <p className="example2">{item.example2}</p>
+                </>
+              )}
+              {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
+            </div>
+            {item.audio2 && (
+              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
+                🔊
+              </button>
+            )}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
