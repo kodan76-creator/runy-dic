@@ -1,329 +1,231 @@
-import { useState, useEffect, useRef } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-// ✅ Добавлен logSearch в импорт
-import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
-import AdminPanel from './AdminPanel'
-import './App.css'
+import { data } from "react-router-dom"
+// src/githubApi.js
+const GITHUB_OWNER = 'kodan76-creator'
+const GITHUB_REPO = 'runy-dic'
+const GITHUB_BRANCH = 'main'
+const DATA_FILE = 'dictionary.json'
+const ADMINS_FILE = 'admins.json'
+const USERS_FILE = 'users.json'
+const LOGS_FILE = 'logs.json'
+const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
+const getHeaders = () => ({
+'Authorization': `token ${TOKEN}`,
+'Accept': 'application/vnd.github.v3+json',
+'Content-Type': 'application/json',
+})
+export const hashPassword = async (password) => {
+try {
+const encoder = new TextEncoder()
+const data = encoder.encode(password)
+const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+const hashArray = Array.from(new Uint8Array(hashBuffer))
+return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+} catch (e) {
+console.error('Hash error:', e)
+throw e
+}
+}
+const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)))
+const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)))
+// ✅ ИСПРАВЛЕНО: Всегда возвращаем { data, sha }
+const fetchGitHubFile = async (fileName) => {
+try {
+const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
+const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+if (!response.ok) {
+  if (response.status === 404) return { data: [], sha: null }
+  const errText = await response.text().catch(() => '')
+  throw new Error(`HTTP ${response.status}: ${errText}`)
+}
 
-// Форма входа/регистрации для ПОЛЬЗОВАТЕЛЕЙ
-function UserAuthForm({ onLogin }) {
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+const fileData = await response.json()
+if (!fileData.content) return { data: [], sha: null }
+
+const raw = base64ToUtf8(fileData.content)
+const cleaned = raw.replace(/^\uFEFF/, '').trim()
+const content = cleaned ? JSON.parse(cleaned) : []
+
+// ✅ ИСПРАВЛЕНО: Возвращаем { data, sha }
+return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
+} catch (error) {
+console.error(`Fetch ${fileName} error:`, error)
+return { data: [], sha: null }
+}
+}
+const updateGitHubFile = async (fileName, newData, currentSha) => {
+try {
+const content = utf8ToBase64(JSON.stringify(newData, null, 2))
+const body = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
+if (currentSha) body.sha = currentSha
+const response = await fetch(
+  `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+  { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+)
+
+if (!response.ok) {
+  const err = await response.json().catch(() => ({}))
+  throw new Error(`HTTP ${response.status}: ${err.message || response.statusText}`)
+}
+return await response.json()
+} catch (error) {
+console.error(`Update ${fileName} error:`, error)
+throw error
+}
+}
+// 🔐 АДМИНЫ
+export const getAdmins = async () => {
+const { data } = await fetchGitHubFile(ADMINS_FILE)
+return Array.isArray(data) ? data : []
+}
+export const verifyAdmin = async (email, password) => {
+try {
+if (!email || !password) return null
+const admins = await getAdmins()
+const admin = admins.find(a => a?.email?.toLowerCase() === email?.toLowerCase())
+if (!admin) return null
+const inputHash = await hashPassword(password)
+if (inputHash !== admin.passwordHash) return null
+// ✅ Возвращаем объект с role: 'admin'
+return { email: admin.email, role: 'admin', loginAt: new Date().toISOString() }
+} catch (e) {
+console.error('verifyAdmin error:', e)
+return null
+}
+}
+// 👥 ПОЛЬЗОВАТЕЛИ
+export const getUsers = async () => {
+const { data } = await fetchGitHubFile(USERS_FILE)
+return Array.isArray(data) ? data : []
+}
+export const registerUser = async (email, password) => {
+const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
+throw new Error('Пользователь с таким email уже существует')
+}
+const passwordHash = await hashPassword(password)
+const newUser = {
+id: Date.now().toString(),
+email,
+passwordHash,
+createdAt: new Date().toISOString(),
+role: 'user',
+isBlocked: false,
+blockedAt: null,
+blockedBy: null
+}
+await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
+addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
+const { passwordHash: _, ...safeUser } = newUser
+// ✅ Возвращаем с role: 'user'
+return { ...safeUser, role: 'user' }
+}
+export const verifyUser = async (email, password) => {
+try {
+if (!email || !password) return null
+const users = await getUsers()
+const user = users.find(u => u?.email?.toLowerCase() === email?.toLowerCase())
+if (!user) return null
+if (user.isBlocked) throw new Error('Аккаунт заблокирован')
+const inputHash = await hashPassword(password)
+if (inputHash !== user.passwordHash) return null
+
+addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
+
+const { passwordHash: _, ...safeUser } = user
+// ✅ ИСПРАВЛЕНО: Возвращаем с role: 'user'
+return { ...safeUser, role: 'user' }
+} catch (e) {
+console.error('verifyUser error:', e)
+throw e
+}
+}
+export const logoutUser = async (userEmail) => {
+if (userEmail) addLog({ action: 'logout', userEmail, details: 'Выход' }).catch(() => {})
+}
+export const blockUser = async (userId, adminEmail) => {
+const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+const updated = users.map(u =>
+u.id === userId ? { ...u, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail } : u
+)
+await updateGitHubFile(USERS_FILE, updated, sha)
+addLog({ action: 'user_blocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
+}
+export const unblockUser = async (userId, adminEmail) => {
+const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+const updated = users.map(u =>
+u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
+)
+await updateGitHubFile(USERS_FILE, updated, sha)
+addLog({ action: 'user_unblocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
+}
+// 📊 ЛОГИ
+export const getLogs = async () => {
+const { data } = await fetchGitHubFile(LOGS_FILE)
+return Array.isArray(data) ? data : []
+}
+
+// ✅ ИСПРАВЛЕНО: Добавлена логика повторных попыток (Retry) для ошибки 409 Conflict
+export const addLog = async (logData) => {
+  let retries = 0;
+  const maxRetries = 3;
   
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  while (retries < maxRetries) {
     try {
-      if (isLogin) {
-        const user = await verifyUser(email, password)
-        if (user) {
-          const userWithRole = { ...user, role: user.role || 'user' }
-          localStorage.setItem('currentUser', JSON.stringify(userWithRole))
-          onLogin(userWithRole)
-        } else {
-          setError('Неверный email или пароль')
-        }
-      } else {
-        if (password !== confirmPassword) throw new Error('Пароли не совпадают')
-        if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
-        const user = await registerUser(email, password)
-        const userWithRole = { ...user, role: 'user' }
-        localStorage.setItem('currentUser', JSON.stringify(userWithRole))
-        onLogin(userWithRole)
-      }
-    } catch (err) {
-      setError(err.message || 'Ошибка авторизации')
-    }
-    setLoading(false)
-  }
-  
-  return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
-        <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
-        <form onSubmit={handleSubmit}>
-          <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
-          <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
-          {!isLogin && <input type="password" placeholder="Подтвердите пароль" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} autoComplete="new-password" />}
-          {error && <div className="error">{error}</div>}
-          <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
-        </form>
-        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
-          {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ✅ ВОССТАНОВЛЕННЫЙ главный экран с аудио и логированием поиска
-function Home({ user, onLogout }) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [words, setWords] = useState([])
-  const [loading, setLoading] = useState(true)
-  
-  // Состояния для аудио
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [playMode, setPlayMode] = useState('all')
-  const [playlist, setPlaylist] = useState([])
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
-  
-  const audioRef = useRef(null)
-
-  // 1. Загрузка слов
-  useEffect(() => {
-    if (!user) return
-    const loadWords = async () => {
-      try {
-        const { data } = await getDictionary()
-        const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
-        setWords(sorted)
-      } catch (err) {
-        console.error('Ошибка загрузки:', err)
-        setWords([])
-      }
-      setLoading(false)
-    }
-    loadWords()
-  }, [user])
-
-  // ✅ 2. ЛОГИРОВАНИЕ ПОИСКА (с задержкой 500мс)
-  useEffect(() => {
-    if (!user) return
-    const timer = setTimeout(() => {
-      if (searchTerm && searchTerm.trim().length > 0) {
-        logSearch(searchTerm, user.email)
-      }
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [searchTerm, user])
-
-  // 3. Формирование плейлиста
-  useEffect(() => {
-    if (words.length === 0) return
-
-    let wordList = [...words]
-    if (playMode === 'random') {
-      wordList.sort(() => Math.random() - 0.5)
-    }
-
-    const newPlaylist = []
-    wordList.forEach(w => {
-      if (w.audio && w.audio.trim()) {
-        newPlaylist.push({ word: w, file: w.audio })
-      }
-      if (w.audio2 && w.audio2.trim()) {
-        newPlaylist.push({ word: w, file: w.audio2 })
-      }
-    })
-
-    setPlaylist(newPlaylist)
-    setCurrentTrackIndex(0)
-  }, [words, playMode])
-
-  // 4. Воспроизведение при смене индекса
-  useEffect(() => {
-    if (playlist.length === 0 || !audioRef.current) return
-
-    if (!isPlaying || currentTrackIndex >= playlist.length) {
-      if (currentTrackIndex >= playlist.length) setIsPlaying(false)
-      return
-    }
-
-    const track = playlist[currentTrackIndex]
-    playTrack(track)
-
-  }, [currentTrackIndex, isPlaying])
-
-  // 5. Обработка окончания трека
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    
-    audio.onended = () => {
-      if (isPlaying) {
-        setCurrentTrackIndex(prev => prev + 1)
-      }
-    }
-    return () => { audio.onended = null }
-  }, [isPlaying])
-
-  const playTrack = (track) => {
-    if (!audioRef.current || !track?.file) return
-    
-    let src
-    if (track.file.startsWith('http')) {
-      src = track.file
-    } else {
-      const baseUrl = import.meta.env.BASE_URL || '/'
-      const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
-      src = `${cleanBase}/audio/${track.file}`
-    }
-
-    audioRef.current.src = src
-    audioRef.current.play().catch((err) => {
-      console.error('Audio play error:', err)
-      setIsPlaying(false)
-    })
-  }
-
-  const togglePlay = () => {
-    if (isPlaying) {
-      setIsPlaying(false)
-      audioRef.current?.pause()
-    } else {
-      if (playlist.length === 0) return
-      setIsPlaying(true)
-      if (currentTrackIndex >= playlist.length) {
-        setCurrentTrackIndex(0)
-      }
-    }
-  }
-
-  const handleLogout = async () => {
-    await logoutUser(user?.email)
-    localStorage.removeItem('currentUser')
-    onLogout()
-  }
-
-  if (loading) return <div className="loading-full">Загрузка словаря...</div>
-
-  const filtered = words.filter(w =>
-    w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  return (
-    <div className="container">
-      <audio ref={audioRef} style={{ display: 'none' }} />
+      // 1. Получаем актуальные данные и sha
+      const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
+      const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
+      const updated = [newLog, ...logs].slice(0, 1000)
       
-      <div className="header">
-        <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={playlist.length === 0}>
-          {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
-        </button>
-        
-        <div className="play-mode">
-          <label className="mode-label">
-            <input type="radio" name="mode" value="all" checked={playMode === 'all'} onChange={() => setPlayMode('all')} />
-            По порядку
-          </label>
-          <label className="mode-label">
-            <input type="radio" name="mode" value="random" checked={playMode === 'random'} onChange={() => setPlayMode('random')} />
-            Случайно
-          </label>
-        </div>
-
-        <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-        <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
-        <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
-        </button>
-      </div>
-
-      <div className="results">
-        {filtered.length > 0 ? filtered.map(item => (
-          <div key={item.id} className="card">
-            {item.audio && (
-              <button className="audio-btn" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio }) }}>
-                🔊
-              </button>
-            )}
-            <div className="word-row">
-              <h3 className="word">{item.word}</h3>
-              {item.transcription && <span className="transcription">[{item.transcription}]</span>}
-            </div>
-            <p className="translation">{item.translation}</p>
-            <div className="examples">
-              {item.example && <p className="example">{item.example}</p>}
-              {item.example2 && (
-                <>
-                  <span className="dash">—</span>
-                  <p className="example2">{item.example2}</p>
-                </>
-              )}
-              {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
-            </div>
-            {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playTrack({ word: item, file: item.audio2 }) }}>
-                🔊
-              </button>
-            )}
-          </div>
-        )) : <p>Ничего не найдено</p>}
-      </div>
-    </div>
-  )
-}
-
-// Главный App
-function App() {
-  const [user, setUser] = useState(null)
-  const [authLoading, setAuthLoading] = useState(true)
-  
-  useEffect(() => {
-    const adminUser = localStorage.getItem('adminUser')
-    const currentUser = localStorage.getItem('currentUser')
-    if (adminUser) {
-      try {
-        const parsed = JSON.parse(adminUser)
-        setUser({ ...parsed, role: 'admin' })
-      } catch {}
-    } else if (currentUser) {
-      try {
-        const parsed = JSON.parse(currentUser)
-        setUser({ ...parsed, role: parsed.role || 'user' })
-      } catch {}
+      // 2. Пытаемся обновить
+      await updateGitHubFile(LOGS_FILE, updated, sha)
+      return newLog // Успех
+    } catch (error) {
+      // 3. Если ошибка "Conflict" (409), ждем и пробуем снова
+      if (error.message.includes('409') || error.message.includes('Conflict')) {
+        retries++;
+        console.warn(`Log update conflict, retrying ${retries}/${maxRetries}...`);
+        // Ждем 500мс + добавочное время для каждой попытки
+        await new Promise(res => setTimeout(res, 500 + retries * 200)); 
+      } else {
+        // Если ошибка другая — сразу выбрасываем
+        console.error('addLog error:', error)
+        return null
+      }
     }
-    setAuthLoading(false)
-  }, [])
-  
-  const handleUserLogin = (userData) => {
-    setUser({ ...userData, role: userData.role || 'user' })
   }
-  
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('adminUser')
-    setUser(null)
-  }
-  
-  if (authLoading) return <div className="loading-full">Загрузка...</div>
-  
-  return (
-    <Router>
-      <Routes>
-        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
-        
-        <Route
-          path="/auth"
-          element={
-            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
-            user?.role === 'user' ? <Navigate to="/" replace /> :
-            <UserAuthForm onLogin={handleUserLogin} />
-          }
-        />
-        
-        <Route
-          path="/"
-          element={
-            user && user.role === 'user' ? (
-              <Home user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          }
-        />
-        
-        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
-      </Routes>
-    </Router>
-  )
+  console.error('Failed to add log after retries')
+  return null
 }
 
-export default App
+export const clearLogs = async () => {
+const { sha } = await fetchGitHubFile(LOGS_FILE)
+await updateGitHubFile(LOGS_FILE, [], sha)
+}
+// 📚 СЛОВАРЬ
+export const getDictionary = async () => fetchGitHubFile(DATA_FILE)
+export const updateDictionary = async (newData, currentSha) => updateGitHubFile(DATA_FILE, newData, currentSha)
+export const addWord = async (wordData, userEmail) => {
+const { data: dict, sha } = await getDictionary()
+const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
+await updateGitHubFile(DATA_FILE, [...dict, newWord], sha)
+return newWord
+}
+export const updateWord = async (id, updatedData) => {
+const { data: dict, sha } = await getDictionary()
+const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
+await updateGitHubFile(DATA_FILE, updated, sha)
+}
+export const deleteWord = async (id) => {
+const { data: dict, sha } = await getDictionary()
+const filtered = dict.filter(w => w.id !== id)
+await updateGitHubFile(DATA_FILE, filtered, sha)
+}
+// 🔍 ЛОГИРОВАНИЕ
+export const logSearch = async (term, userEmail) => {
+if (!term?.trim()) return
+addLog({ action: 'search', userEmail, details: `Поиск: "${term}"` }).catch(() => {})
+}
+export const logAudioPlay = async (file, userEmail) => {
+if (!file) return
+addLog({ action: 'audio_played', userEmail, details: `Аудио: ${file}` }).catch(() => {})
+}
