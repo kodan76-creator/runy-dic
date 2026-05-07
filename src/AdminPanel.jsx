@@ -157,7 +157,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         {activeTab === 'dictionary' && (
           <div className="form-section">
             <div className="search-container">
-              {/* ✅ ПОИСК С КРЕСТИКОМ */}
+              {/* ✅ ИСПРАВЛЕНО: Обёртка и крестик */}
               <div className="search-wrapper">
                 <input
                   type="text"
@@ -167,13 +167,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                   className="search-input"
                 />
                 {searchTerm && (
-                  <button 
-                    className="search-clear-btn" 
-                    onClick={() => setSearchTerm('')}
-                    title="Очистить поиск"
-                  >
-                    ❌
-                  </button>
+                  <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
                 )}
               </div>
             </div>
