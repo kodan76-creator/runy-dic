@@ -253,8 +253,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                   className="search-input"
                 />
                 {searchTerm && (
-                  <button
-                    className="search-clear-btn"
+                  <button 
+                    className="search-clear-btn" 
                     onClick={() => setSearchTerm('')}
                     title="Очистить поиск"
                   >

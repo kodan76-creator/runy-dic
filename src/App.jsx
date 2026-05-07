@@ -80,7 +80,7 @@ function Home({ user, onLogout }) {
     loadWords()
   }, [user])
   
-  // ✅ ЛОГИРОВАНИЕ ПОИСКА
+  // Логирование поиска
   useEffect(() => {
     if (!user) return
     const timer = setTimeout(() => {
