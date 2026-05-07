@@ -61,7 +61,7 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// ✅ ВОССТАНОВЛЕННЫЙ главный экран для ПОЛЬЗОВАТЕЛЕЙ
+// ✅ ВОССТАНОВЛЕННЫЙ главный экран с аудио
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
@@ -79,7 +79,6 @@ function Home({ user, onLogout }) {
         const { data } = await getDictionary()
         const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sorted)
-        // Фильтруем слова, у которых есть аудиофайлы
         wordsWithAudio.current = sorted.filter(w => w.audio || w.audio2)
       } catch (err) {
         console.error('Ошибка загрузки:', err)
@@ -91,7 +90,7 @@ function Home({ user, onLogout }) {
     loadWords()
   }, [user])
 
-  // Логика окончания трека
+  // Обработка окончания трека
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -120,7 +119,10 @@ function Home({ user, onLogout }) {
     if (!audioRef.current || (!word.audio && !word.audio2)) return
     const src = word.audio ? `/runy-dic/${word.audio}` : `/runy-dic/${word.audio2}`
     audioRef.current.src = src
-    audioRef.current.play().catch(() => setIsPlaying(false))
+    audioRef.current.play().catch((err) => {
+      console.error('Audio play error:', err)
+      setIsPlaying(false)
+    })
   }
 
   const togglePlay = () => {
@@ -153,7 +155,7 @@ function Home({ user, onLogout }) {
     <div className="container">
       <audio ref={audioRef} style={{ display: 'none' }} />
       
-      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР: Слушать + Радиокнопки + Лого + Поиск + Выход */}
+      {/* ✅ ВЕРХНИЙ КОНТЕЙНЕР с кнопкой Слушать и радиокнопками */}
       <div className="header">
         <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={wordsWithAudio.current.length === 0}>
           {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
@@ -177,7 +179,7 @@ function Home({ user, onLogout }) {
         </button>
       </div>
 
-      {/* ✅ ВОССТАНОВЛЕННЫЕ КАРТОЧКИ */}
+      {/* ✅ КАРТОЧКИ с кнопками аудио */}
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
@@ -250,13 +252,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Админ-панель */}
-        <Route
-          path="/admin"
-          element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />}
-        />
+        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
-        {/* ✅ ИСПРАВЛЕНО: Логика маршрута /auth */}
         <Route
           path="/auth"
           element={
@@ -266,7 +263,6 @@ function App() {
           }
         />
         
-        {/* Главная для пользователей */}
         <Route
           path="/"
           element={
@@ -278,11 +274,7 @@ function App() {
           }
         />
         
-        {/* Перенаправление для неизвестных путей */}
-        <Route
-          path="*"
-          element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />}
-        />
+        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
       </Routes>
     </Router>
   )
