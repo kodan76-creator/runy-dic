@@ -45,7 +45,7 @@ function UserAuthForm({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
-        <h2>{isLogin ? ' Вход' : '📝 Регистрация'}</h2>
+        <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
           <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
@@ -116,31 +116,36 @@ function Home({ user, onLogout }) {
     playSingleWord(list[next])
   }
 
-  const playSingleWord = (word) => {
+  // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ
+  // forceAudio2 = true означает "играть audio2", иначе играть audio
+  const playSingleWord = (word, forceAudio2 = false) => {
     if (!audioRef.current) return
     
-    // ✅ 1. Получаем имя файла, проверяя на пустоту
-    let filename = (word.audio && word.audio.trim()) ? word.audio : (word.audio2 && word.audio2.trim()) ? word.audio2 : null
+    let filename = null
+
+    if (forceAudio2) {
+      // ✅ Если принудительно запрошен audio2
+      filename = (word.audio2 && word.audio2.trim()) ? word.audio2 : null
+    } else {
+      // ✅ По умолчанию берем audio, если нет - берем audio2
+      filename = (word.audio && word.audio.trim()) ? word.audio : (word.audio2 && word.audio2.trim()) ? word.audio2 : null
+    }
     
     if (!filename) {
-      console.warn('Нет аудиофайла для слова:', word.word)
+      console.warn('Нет аудиофайла для слова:', word.word, forceAudio2 ? '(audio2)' : '(audio)')
       return
     }
 
     let src
-    // ✅ 2. Обработка путей
+    // ✅ Обработка путей
     if (filename.startsWith('http')) {
       src = filename
     } else {
-      // ✅ 3. Если просто имя файла — строим путь к папке audio
-      // import.meta.env.BASE_URL автоматически добавит префикс репозитория (например /runy-dic/) в продакшене
-      // Локально BASE_URL обычно '/', поэтому путь будет /audio/...
       const baseUrl = import.meta.env.BASE_URL || '/'
       const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
       src = `${cleanBase}/audio/${filename}`
     }
 
-    // ✅ 4. Логируем URL для отладки
     console.log('Attempting to play:', src)
     
     audioRef.current.src = src
@@ -208,8 +213,9 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
+            {/* ✅ ВЕРХНЯЯ КНОПКА: играет audio (по умолчанию) */}
             {item.audio && (
-              <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
+              <button className="audio-btn" onClick={() => { setIsPlaying(false); playSingleWord(item, false) }}>
                 🔊
               </button>
             )}
@@ -228,8 +234,9 @@ function Home({ user, onLogout }) {
               )}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
+            {/* ✅ НИЖНЯЯ КНОПКА: играет audio2 (принудительно) */}
             {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playSingleWord(item) }}>
+              <button className="audio-btn-bottom" onClick={() => { setIsPlaying(false); playSingleWord(item, true) }}>
                 🔊
               </button>
             )}
