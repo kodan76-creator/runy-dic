@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { verifyUser, registerUser, logoutUser, getDictionary, logSearch } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
@@ -61,13 +61,13 @@ function UserAuthForm({ onLogin }) {
   )
 }
 
-// Главный экран для ПОЛЬЗОВАТЕЛЕЙ (ВОССТАНОВЛЕНЫ ВСЕ КНОПКИ)
+// Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   
-  // ✅ Аудио-состояния
+  // Аудио-состояния
   const [isPlaying, setIsPlaying] = useState(false)
   const [playMode, setPlayMode] = useState('all')
   const [playlist, setPlaylist] = useState([])
@@ -83,10 +83,7 @@ function Home({ user, onLogout }) {
           (a.translation || '').localeCompare(b.translation || '', 'ru')
         )
         setWords(sortedData)
-      } catch (err) { 
-        console.error('Ошибка загрузки:', err)
-        setWords([]) 
-      }
+      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
       setLoading(false)
     }
     loadWords()
@@ -175,12 +172,10 @@ function Home({ user, onLogout }) {
     <div className="container">
       <audio ref={audioRef} style={{ display: 'none' }} />
       <div className="header">
-        {/* ✅ КНОПКА СЛУШАТЬ */}
         <button className={`listen-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay} disabled={!playlist.length}>
           {isPlaying ? '⏸ Остановить' : '▶ Слушать'}
         </button>
         
-        {/* ✅ РАДИОКНОПКИ */}
         <div className="play-mode">
           <label className="mode-label">
             <input type="radio" name="mode" value="all" checked={playMode === 'all'} onChange={() => setPlayMode('all')} />
@@ -194,7 +189,6 @@ function Home({ user, onLogout }) {
 
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
         
-        {/* ✅ ПОИСК С КРЕСТИКОМ */}
         <div className="search-wrapper">
           <input 
             type="text" 
@@ -221,7 +215,6 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {/* ✅ КНОПКА AUDIO СВЕРХУ */}
             {item.audio && (
               <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>
             )}
@@ -230,7 +223,6 @@ function Home({ user, onLogout }) {
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
-            {/* ✅ ПРИМЕРЫ */}
             <div className="examples">
               {item.example && <p className="example">{item.example}</p>}
               {item.example2 && (
@@ -241,7 +233,6 @@ function Home({ user, onLogout }) {
               )}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
-            {/* ✅ КНОПКА AUDIO2 СНИЗУ */}
             {item.audio2 && (
               <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>
             )}
@@ -260,7 +251,12 @@ function App() {
   useEffect(() => {
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
-    if (adminUser) {
+    
+    // ✅ ИСПРАВЛЕНО: Проверяем текущий URL для восстановления правильной сессии
+    const hash = window.location.hash.replace('#', '') || window.location.pathname
+    const isAdminRoute = hash.includes('/admin')
+    
+    if (isAdminRoute && adminUser) {
       try {
         const parsed = JSON.parse(adminUser)
         setUser({ ...parsed, role: 'admin' })
@@ -268,9 +264,15 @@ function App() {
     } else if (currentUser) {
       try {
         const parsed = JSON.parse(currentUser)
-        setUser({ ...parsed, role: parsed.role || 'user' })
+        setUser({ ...parsed, role: 'user' })
+      } catch {}
+    } else if (adminUser) {
+      try {
+        const parsed = JSON.parse(adminUser)
+        setUser({ ...parsed, role: 'admin' })
       } catch {}
     }
+    
     setAuthLoading(false)
   }, [])
   
