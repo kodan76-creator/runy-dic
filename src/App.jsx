@@ -66,6 +66,8 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
+  
+  // Аудио-состояния
   const [isPlaying, setIsPlaying] = useState(false)
   const [playMode, setPlayMode] = useState('all')
   const [playlist, setPlaylist] = useState([])
@@ -77,9 +79,15 @@ function Home({ user, onLogout }) {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        const sorted = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
+        // ✅ СОРТИРОВКА по переводу
+        const sorted = [...(data || [])].sort((a, b) => 
+          (a.translation || '').localeCompare(b.translation || '', 'ru')
+        )
         setWords(sorted)
-      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
+      } catch (err) { 
+        console.error('Ошибка загрузки:', err)
+        setWords([]) 
+      }
       setLoading(false)
     }
     loadWords()
@@ -89,14 +97,12 @@ function Home({ user, onLogout }) {
   useEffect(() => {
     if (!user) return
     const timer = setTimeout(() => {
-      if (searchTerm && searchTerm.trim().length > 0) {
-        logSearch(searchTerm, user.email)
-      }
+      if (searchTerm?.trim()) logSearch(searchTerm, user.email)
     }, 500)
     return () => clearTimeout(timer)
   }, [searchTerm, user])
 
-  // Формирование плейлиста
+  // Формирование плейлиста (audio -> audio2)
   useEffect(() => {
     if (!words.length) return
     let list = [...words]
@@ -110,7 +116,7 @@ function Home({ user, onLogout }) {
     setCurrentTrackIndex(0)
   }, [words, playMode])
 
-  // Воспроизведение
+  // Воспроизведение при смене индекса
   useEffect(() => {
     if (!playlist.length || !audioRef.current) return
     if (!isPlaying || currentTrackIndex >= playlist.length) {
@@ -132,8 +138,10 @@ function Home({ user, onLogout }) {
   }, [isPlaying])
 
   const togglePlay = () => {
-    if (isPlaying) { setIsPlaying(false); audioRef.current?.pause() }
-    else {
+    if (isPlaying) { 
+      setIsPlaying(false)
+      audioRef.current?.pause() 
+    } else {
       if (!playlist.length) return
       setIsPlaying(true)
       if (currentTrackIndex >= playlist.length) setCurrentTrackIndex(0)
@@ -206,14 +214,17 @@ function Home({ user, onLogout }) {
         </div>
 
         <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+          👤 {user?.email?.split('@')[0]} <br/><small>Выйти</small>
         </button>
       </div>
       
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {item.audio && <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>}
+            {/* ✅ КНОПКА AUDIO СВЕРХУ */}
+            {item.audio && (
+              <button className="audio-btn" onClick={() => playSingle(item.audio)}>🔊</button>
+            )}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
@@ -229,7 +240,10 @@ function Home({ user, onLogout }) {
               )}
               {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
             </div>
-            {item.audio2 && <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>}
+            {/* ✅ КНОПКА AUDIO2 СНИЗУ */}
+            {item.audio2 && (
+              <button className="audio-btn-bottom" onClick={() => playSingle(item.audio2)}>🔊</button>
+            )}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
@@ -242,13 +256,19 @@ function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   
+  // ✅ Умное восстановление сессии по URL
   useEffect(() => {
     const adminUser = localStorage.getItem('adminUser')
     const currentUser = localStorage.getItem('currentUser')
-    if (adminUser) {
+    const hash = window.location.hash || window.location.pathname
+    const isAdminRoute = hash.includes('/admin')
+
+    if (isAdminRoute && adminUser) {
       try { setUser({ ...JSON.parse(adminUser), role: 'admin' }) } catch {}
     } else if (currentUser) {
       try { setUser({ ...JSON.parse(currentUser), role: 'user' }) } catch {}
+    } else if (adminUser) {
+      try { setUser({ ...JSON.parse(adminUser), role: 'admin' }) } catch {}
     }
     setAuthLoading(false)
   }, [])
@@ -257,9 +277,13 @@ function App() {
     setUser({ ...userData, role: userData.role || 'user' })
   }
   
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('adminUser')
+  // ✅ Раздельный выход
+  const handleLogout = (userRole) => {
+    if (userRole === 'admin') {
+      localStorage.removeItem('adminUser')
+    } else {
+      localStorage.removeItem('currentUser')
+    }
     setUser(null)
   }
   
@@ -268,9 +292,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
+        <Route path="/admin" element={
+          <AdminPanel 
+            onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} 
+            onAdminLogout={() => handleLogout('admin')}
+          /> 
+        } />
         
-        {/* ✅ ИСПРАВЛЕНО: Явная проверка ролей */}
+        {/* ✅ Явная проверка ролей */}
         <Route path="/auth" element={
           user?.role === 'admin' ? <Navigate to="/admin" replace /> :
           user?.role === 'user' ? <Navigate to="/" replace /> :
@@ -278,10 +307,13 @@ function App() {
         } />
         
         <Route path="/" element={
-          user?.role === 'user' ? <Home user={user} onLogout={handleLogout} /> : <Navigate to="/auth" replace />
+          user?.role === 'user' ? <Home user={user} onLogout={() => handleLogout('user')} /> : 
+          <Navigate to="/auth" replace />
         } />
         
-        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
+        <Route path="*" element={
+          <Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace /> 
+        } />
       </Routes>
     </Router>
   )
