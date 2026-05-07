@@ -72,7 +72,6 @@ function Home({ user, onLogout }) {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary()
-        // ✅ ИСПРАВЛЕНА СОРТИРОВКА: добавлен параметр 'ru' для правильной сортировки русских слов
         const sortedData = [...(data || [])].sort((a, b) => 
           (a.translation || '').localeCompare(b.translation || '', 'ru')
         )
@@ -93,14 +92,6 @@ function Home({ user, onLogout }) {
     }, 500)
     return () => clearTimeout(timer)
   }, [searchTerm, user])
-
-  // Функция воспроизведения аудио
-  const playAudio = (file) => {
-    if (!file) return
-    const src = file.startsWith('http') ? file : `${import.meta.env.BASE_URL || '/'}audio/${file}`
-    const audio = new Audio(src)
-    audio.play().catch(console.error)
-  }
   
   const handleLogout = async () => {
     await logoutUser(user?.email)
@@ -144,30 +135,11 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
-            {/* ✅ КНОПКА AUDIO СВЕРХУ */}
-            {item.audio && (
-              <button className="audio-btn" onClick={() => playAudio(item.audio)}>🔊</button>
-            )}
             <div className="word-row">
               <h3 className="word">{item.word}</h3>
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
-            {/* ✅ ПРИМЕРЫ */}
-            <div className="examples">
-              {item.example && <p className="example">{item.example}</p>}
-              {item.example2 && (
-                <>
-                  <span className="dash">—</span>
-                  <p className="example2">{item.example2}</p>
-                </>
-              )}
-              {item.transcription2 && <span className="transcription2">[{item.transcription2}]</span>}
-            </div>
-            {/* ✅ КНОПКА AUDIO2 СНИЗУ */}
-            {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => playAudio(item.audio2)}>🔊</button>
-            )}
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
@@ -214,21 +186,20 @@ function App() {
       <Routes>
         <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
+        {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
         <Route
           path="/auth"
           element={
-            !user || user.role !== 'admin' ? (
-              <UserAuthForm onLogin={handleUserLogin} />
-            ) : (
-              <Navigate to="/admin" replace />
-            )
+            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+            user?.role === 'user' ? <Navigate to="/" replace /> :
+            <UserAuthForm onLogin={handleUserLogin} />
           }
         />
         
         <Route
           path="/"
           element={
-            user && user.role === 'user' ? (
+            user?.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/auth" replace />
