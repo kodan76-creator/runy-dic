@@ -79,77 +79,73 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .audio-btn:hover:not(:disabled), .audio-btn-bottom:hover:not(:disabled) { background: #5e1780; transform: scale(1.1); }
 .audio-btn:disabled, .audio-btn-bottom:disabled { background: #ccc; cursor: not-allowed; }
 
-/* Адаптивность для мобильных */
+/* Адаптивность */
 @media (max-width: 768px) {
   .container {
-    /* ✅ Убрали боковые отступы (было 10px), уменьшили верхний отступ под шапку */
-    padding: 200px 5px 20px 5px; 
+    padding-top: 280px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
-  
   .header {
-    /* ✅ Шапка на всю ширину без скруглений внизу */
-    border-radius: 0;
-    padding: 10px;
+    flex-direction: column;
+    padding: 12px 15px;
+    border-radius: 0 0 12px 12px;
   }
-  
   .listen-btn {
     order: 1;
     width: 100%;
-    margin-bottom: 5px;
   }
-  
   .play-mode {
     order: 2;
     flex-direction: row;
     gap: 15px;
     justify-content: center;
-    margin-bottom: 5px;
   }
-  
   .logo {
     order: 3;
-    width: 60px; /* Чуть уменьшили лого для экономии места */
-    margin: 5px 0;
   }
-  
-  .search-wrapper {
-    order: 4;
-    width: 100%;
-    margin-bottom: 5px;
-  }
-  
   .search-input {
-    width: 100%;
-    font-size: 16px; /* Защита от зума на iPhone */
+    order: 4;
+    padding: 10px;
+    font-size: 13px;
+    max-width: 100%;
   }
-  
   .logout-btn-user {
     order: 5;
-    align-self: stretch; /* Кнопка выхода на всю ширину */
-    text-align: center;
+    font-size: 11px;
+    padding: 6px 10px;
   }
-  
-  .results {
-    padding: 0;
-    gap: 15px;
-  }
-
-  .card {
-    /* ✅ Карточки почти от края до края */
-    border-radius: 12px; 
-    padding: 15px;
-    width: 100%;
-  }
-  
   .word {
-    font-size: 36px;
+    font-size: 32px;
+  }
+  .example2,
+  .transcription2 {
+    font-size: 20px;
+  }
+  
+  /* ✅ ИСПРАВЛЕНО: Увеличены отступы и высота для кнопки audio2 */
+  .card {
+    padding: 15px 15px 55px 50px; /* Увеличен отступ снизу с 15px до 55px */
+    min-height: 150px; /* Гарантируем минимальную высоту */
+    overflow: visible; /* Убеждаемся, что ничего не обрезается */
   }
   
   .audio-btn,
   .audio-btn-bottom {
-    width: 32px;
-    height: 32px;
+    width: 35px;
+    height: 35px;
     font-size: 16px;
+  }
+  
+  .search-wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  /* ✅ Поднимаем кнопку чуть выше и делаем поверх текста */
+  .audio-btn-bottom {
+    bottom: 20px;
+    z-index: 20; 
   }
 }
 
