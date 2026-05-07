@@ -185,7 +185,7 @@ export const addLog = async (logData) => {
         retries++;
         console.warn(`Log update conflict, retrying ${retries}/${maxRetries}...`);
         // Ждем 500мс + добавочное время для каждой попытки
-        await new Promise(res => setTimeout(res, 500 + retries * 200)); 
+        await new Promise(res => setTimeout(res, 1500 + retries * 200)); 
       } else {
         // Если ошибка другая — сразу выбрасываем
         console.error('addLog error:', error)
