@@ -174,7 +174,7 @@ export const addLog = async (logData) => {
       // 1. Получаем актуальные данные и sha
       const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
       const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
-      const updated = [newLog, ...logs].slice(0, 1000)
+      const updated = [newLog, ...logs].slice(0, 3000)
       
       // 2. Пытаемся обновить
       await updateGitHubFile(LOGS_FILE, updated, sha)
@@ -185,7 +185,7 @@ export const addLog = async (logData) => {
         retries++;
         console.warn(`Log update conflict, retrying ${retries}/${maxRetries}...`);
         // Ждем 500мс + добавочное время для каждой попытки
-        await new Promise(res => setTimeout(res, 1500 + retries * 200)); 
+        await new Promise(res => setTimeout(res, 500 + retries * 200)); 
       } else {
         // Если ошибка другая — сразу выбрасываем
         console.error('addLog error:', error)
