@@ -97,7 +97,24 @@ function Home({ user, onLogout }) {
     <div className="container">
       <div className="header">
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
-        <input type="text" placeholder="Поиск слова..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
+        <div className="search-wrapper">
+          <input 
+            type="text" 
+            placeholder="Поиск слова..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="search-input" 
+          />
+          {searchTerm && (
+            <button 
+              className="search-clear-btn" 
+              onClick={() => setSearchTerm('')}
+              title="Очистить поиск"
+            >
+              ❌
+            </button>
+          )}
+        </div>
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
@@ -151,30 +168,29 @@ function App() {
   
   if (authLoading) return <div className="loading-full">Загрузка...</div>
   
+  // ✅ ИСПРАВЛЕНО: Условный basename для локальной разработки и продакшена
+  const basename = window.location.hostname === 'localhost' ? '' : '/runy-dic'
+  
   return (
-    <Router basename="/runy-dic">
+    <Router basename={basename}>
       <Routes>
-        {/* Админ-панель - всегда доступна (AdminPanel сам покажет форму входа если нужно) */}
-        <Route
-          path="/admin"
-          element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />}
-        />
+        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
         
-        {/* Вход пользователя - только если не админ */}
         <Route
           path="/auth"
           element={
-            user?.role === 'admin' ? <Navigate to="/admin" replace /> :
-            user?.role === 'user' ? <Navigate to="/" replace /> :
-            <UserAuthForm onLogin={handleUserLogin} />
+            !user || user.role !== 'admin' ? (
+              <UserAuthForm onLogin={handleUserLogin} />
+            ) : (
+              <Navigate to="/admin" replace />
+            )
           }
         />
         
-        {/* Главная для пользователей */}
         <Route
           path="/"
           element={
-            user?.role === 'user' ? (
+            user && user.role === 'user' ? (
               <Home user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/auth" replace />
@@ -182,17 +198,7 @@ function App() {
           }
         />
         
-        {/* Перенаправление для неизвестных путей */}
-        <Route
-          path="*"
-          element={
-            <Navigate to={
-              user?.role === 'admin' ? '/admin' : 
-              user?.role === 'user' ? '/' : 
-              '/auth'
-            } replace />
-          }
-        />
+        <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
       </Routes>
     </Router>
   )
