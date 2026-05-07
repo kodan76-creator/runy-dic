@@ -1,5 +1,12 @@
 [
   {
+    "id": "1778136499154",
+    "timestamp": "2026-05-07T06:48:19.154Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск слова: \"ден\""
+  },
+  {
     "id": "1778136457751",
     "timestamp": "2026-05-07T06:47:37.751Z",
     "action": "audio_played",
