@@ -202,7 +202,8 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
   }
   
   .card {
-    padding: 12px 12px 12px 45px;
+    padding: 12px 12px 54px 45px;
+    min-height: 130px;
   }
   
   .audio-btn,
@@ -210,11 +211,15 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
     width: 32px;
     height: 32px;
     font-size: 16px;
-    top: 12px;
     left: 10px;
+  }
+
+  .audio-btn {
+    top: 12px;
   }
   
   .audio-btn-bottom {
+    top: auto;
     bottom: 12px;
   }
 }

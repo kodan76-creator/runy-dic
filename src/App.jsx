@@ -66,7 +66,7 @@ function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [playMode, setPlayMode] = useState('word')
+  const [playMode, setPlayMode] = useState('sequential')
   const [isPlaying, setIsPlaying] = useState(false)
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
@@ -157,8 +157,10 @@ function Home({ user, onLogout }) {
       return
     }
 
-    const audioKey = playMode === 'word' ? 'audio' : 'audio2'
-    const playlist = filtered.map(item => item[audioKey]).filter(Boolean)
+    const cards = playMode === 'random'
+      ? [...filtered].sort(() => Math.random() - 0.5)
+      : filtered
+    const playlist = cards.flatMap(item => [item.audio, item.audio2].filter(Boolean))
     if (playlist.length === 0) return
 
     stopPlaylistRef.current = false
@@ -189,7 +191,7 @@ function Home({ user, onLogout }) {
         <button
           className={`listen-btn ${isPlaying ? 'playing' : ''}`}
           onClick={handleListenAll}
-          disabled={!filtered.some(item => playMode === 'word' ? item.audio : item.audio2)}
+          disabled={!filtered.some(item => item.audio || item.audio2)}
         >
           {isPlaying ? 'Стоп' : 'Слушать'}
         </button>
@@ -198,21 +200,21 @@ function Home({ user, onLogout }) {
             <input
               type="radio"
               name="playMode"
-              value="word"
-              checked={playMode === 'word'}
-              onChange={() => setPlayMode('word')}
+              value="sequential"
+              checked={playMode === 'sequential'}
+              onChange={() => setPlayMode('sequential')}
             />
-            Слова
+            Подряд
           </label>
           <label className="mode-label">
             <input
               type="radio"
               name="playMode"
-              value="example"
-              checked={playMode === 'example'}
-              onChange={() => setPlayMode('example')}
+              value="random"
+              checked={playMode === 'random'}
+              onChange={() => setPlayMode('random')}
             />
-            Примеры
+            Случайно
           </label>
         </div>
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
