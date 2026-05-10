@@ -305,8 +305,12 @@ function App() {
     setUser({ ...userData, role: userData.role || 'user' })
   }
   
-  const handleLogout = () => {
+  const handleUserLogout = () => {
     localStorage.removeItem('currentUser')
+    setUser(null)
+  }
+
+  const handleAdminLogout = () => {
     localStorage.removeItem('adminUser')
     setUser(null)
   }
@@ -314,7 +318,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleLogout} />} />
+        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleAdminLogout} />} />
         
         {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
         <Route
@@ -330,7 +334,7 @@ function App() {
           path="/"
           element={
             user?.role === 'user' ? (
-              <Home user={user} onLogout={handleLogout} />
+              <Home user={user} onLogout={handleUserLogout} />
             ) : (
               <Navigate to="/auth" replace />
             )
