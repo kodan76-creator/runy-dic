@@ -30,10 +30,11 @@ function UserAuthForm({ onLogin }) {
       } else {
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
-        const user = await registerUser(email, password)
-        const userWithRole = { ...user, role: 'user' }
-        localStorage.setItem('currentUser', JSON.stringify(userWithRole))
-        onLogin(userWithRole)
+        await registerUser(email, password)
+        setError('Аккаунт заблокирован. Для разблокировки обратитесь к администратору.')
+        setIsLogin(true)
+        setPassword('')
+        setConfirmPassword('')
       }
     } catch (err) {
       setError(err.message || 'Ошибка авторизации')
@@ -67,6 +68,7 @@ function Home({ user, onLogout }) {
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   const [playMode, setPlayMode] = useState('sequential')
+  const [sortMode, setSortMode] = useState('translation')
   const [isPlaying, setIsPlaying] = useState(false)
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
@@ -180,10 +182,24 @@ function Home({ user, onLogout }) {
   
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
   
-  const filtered = words.filter(w =>
-    w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filtered = words
+    .filter(w => {
+      const term = searchTerm.toLowerCase()
+      return [
+        w.word,
+        w.transcription,
+        w.translation,
+        w.example,
+        w.example2,
+        w.transcription2,
+        w.audio,
+        w.audio2,
+      ].some(value => value?.toLowerCase().includes(term))
+    })
+    .sort((a, b) => {
+      const key = sortMode === 'runes' ? 'word' : 'translation'
+      return (a[key] || '').localeCompare(b[key] || '', 'ru')
+    })
   
   return (
     <div className="container">
@@ -218,10 +234,33 @@ function Home({ user, onLogout }) {
           </label>
         </div>
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
+        <div className="filter-mode">
+          <span className="filter-title">Сортировать:</span>
+          <label className="mode-label">
+            <input
+              type="radio"
+              name="sortMode"
+              value="translation"
+              checked={sortMode === 'translation'}
+              onChange={() => setSortMode('translation')}
+            />
+            перевод
+          </label>
+          <label className="mode-label">
+            <input
+              type="radio"
+              name="sortMode"
+              value="runes"
+              checked={sortMode === 'runes'}
+              onChange={() => setSortMode('runes')}
+            />
+            руны
+          </label>
+        </div>
         <div className="search-wrapper">
           <input 
             type="text" 
-            placeholder="Поиск слова..." 
+            placeholder="Поиск по словарю..." 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
             className="search-input" 

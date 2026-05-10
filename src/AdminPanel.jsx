@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -124,6 +124,11 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
       try { await unblockUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
     }
   }
+  const handleDeleteUser = async (userId, userEmail) => {
+    if (window.confirm(`Удалить пользователя ${userEmail}? Это действие нельзя отменить.`)) {
+      try { await deleteUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
+    }
+  }
   const handleClearLogs = async () => {
     if (window.confirm('Очистить логи?')) {
       try { await clearLogs(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
@@ -218,6 +223,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                   </div>
                   <div className="user-actions">
                     {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
+                    <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
                   </div>
                 </div>
               ))}
@@ -229,7 +235,10 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
           <div className="logs-section">
             <div className="logs-header">
               <h3>📊 Логи действий ({logs.length})</h3>
-              <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
+              <div className="logs-actions">
+                <button onClick={loadLogs} className="refresh-logs-btn">Обновить логи</button>
+                <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
+              </div>
             </div>
             <div className="logs-list">
               {logs.map(log => (

@@ -108,9 +108,9 @@ email,
 passwordHash,
 createdAt: new Date().toISOString(),
 role: 'user',
-isBlocked: false,
-blockedAt: null,
-blockedBy: null
+isBlocked: true,
+blockedAt: new Date().toISOString(),
+blockedBy: 'registration'
 }
 await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
 addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
@@ -124,7 +124,7 @@ if (!email || !password) return null
 const users = await getUsers()
 const user = users.find(u => u?.email?.toLowerCase() === email?.toLowerCase())
 if (!user) return null
-if (user.isBlocked) throw new Error('Аккаунт заблокирован')
+if (user.isBlocked) throw new Error('Аккаунт заблокирован. Для разблокировки обратитесь к администратору.')
 const inputHash = await hashPassword(password)
 if (inputHash !== user.passwordHash) return null
 
@@ -156,6 +156,13 @@ u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } :
 )
 await updateGitHubFile(USERS_FILE, updated, sha)
 addLog({ action: 'user_unblocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
+}
+export const deleteUser = async (userId, adminEmail) => {
+const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+const user = users.find(u => u.id === userId)
+const filtered = users.filter(u => u.id !== userId)
+await updateGitHubFile(USERS_FILE, filtered, sha)
+addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})
 }
 // 📊 ЛОГИ
 export const getLogs = async () => {
