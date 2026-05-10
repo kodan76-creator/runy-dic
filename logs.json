@@ -1,5 +1,327 @@
 [
   {
+    "id": "1778440588118",
+    "timestamp": "2026-05-10T19:16:28.118Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778440144339",
+    "timestamp": "2026-05-10T19:09:04.339Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_r_prim.mp3"
+  },
+  {
+    "id": "1778440141728",
+    "timestamp": "2026-05-10T19:09:01.728Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_runy.mp3"
+  },
+  {
+    "id": "1778439944937",
+    "timestamp": "2026-05-10T19:05:44.937Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: leto_runy.mp3"
+  },
+  {
+    "id": "1778439942401",
+    "timestamp": "2026-05-10T19:05:42.401Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_r_prim.mp3"
+  },
+  {
+    "id": "1778439940921",
+    "timestamp": "2026-05-10T19:05:40.921Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 2_r_prim.mp3"
+  },
+  {
+    "id": "1778439938239",
+    "timestamp": "2026-05-10T19:05:38.239Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 2_runy.mp3"
+  },
+  {
+    "id": "1778439935313",
+    "timestamp": "2026-05-10T19:05:35.313Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 6_r_prim.mp3"
+  },
+  {
+    "id": "1778439934157",
+    "timestamp": "2026-05-10T19:05:34.157Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 6_runy.mp3"
+  },
+  {
+    "id": "1778439931862",
+    "timestamp": "2026-05-10T19:05:31.862Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: den_r_prim.mp3"
+  },
+  {
+    "id": "1778439930724",
+    "timestamp": "2026-05-10T19:05:30.724Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: den_runy.mp3"
+  },
+  {
+    "id": "1778439926808",
+    "timestamp": "2026-05-10T19:05:26.808Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: staroe_r_prim.mp3"
+  },
+  {
+    "id": "1778439924840",
+    "timestamp": "2026-05-10T19:05:24.840Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: staroe_runy.mp3"
+  },
+  {
+    "id": "1778439923147",
+    "timestamp": "2026-05-10T19:05:23.148Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: BOG_r_prim.mp3"
+  },
+  {
+    "id": "1778439921833",
+    "timestamp": "2026-05-10T19:05:21.833Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: BOG_runy.mp3"
+  },
+  {
+    "id": "1778439920342",
+    "timestamp": "2026-05-10T19:05:20.342Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 5_r_prim.mp3"
+  },
+  {
+    "id": "1778439917256",
+    "timestamp": "2026-05-10T19:05:17.256Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 5_runy.mp3"
+  },
+  {
+    "id": "1778439912438",
+    "timestamp": "2026-05-10T19:05:12.438Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778439910351",
+    "timestamp": "2026-05-10T19:05:10.351Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778439908518",
+    "timestamp": "2026-05-10T19:05:08.518Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: ya_put_rus.mp3"
+  },
+  {
+    "id": "1778439906256",
+    "timestamp": "2026-05-10T19:05:06.256Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: ya_put_runy.mp3"
+  },
+  {
+    "id": "1778439899435",
+    "timestamp": "2026-05-10T19:04:59.435Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: ya_put_rus.mp3"
+  },
+  {
+    "id": "1778439896315",
+    "timestamp": "2026-05-10T19:04:56.316Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: ya_put_runy.mp3"
+  },
+  {
+    "id": "1778439889401",
+    "timestamp": "2026-05-10T19:04:49.401Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: staroe_r_prim.mp3"
+  },
+  {
+    "id": "1778439886445",
+    "timestamp": "2026-05-10T19:04:46.445Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: staroe_runy.mp3"
+  },
+  {
+    "id": "1778439872380",
+    "timestamp": "2026-05-10T19:04:32.380Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: osen_runy.mp3"
+  },
+  {
+    "id": "1778439865474",
+    "timestamp": "2026-05-10T19:04:25.474Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: den_r_prim.mp3"
+  },
+  {
+    "id": "1778439863862",
+    "timestamp": "2026-05-10T19:04:23.862Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: den_runy.mp3"
+  },
+  {
+    "id": "1778439850123",
+    "timestamp": "2026-05-10T19:04:10.123Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: leto_runy.mp3"
+  },
+  {
+    "id": "1778439846183",
+    "timestamp": "2026-05-10T19:04:06.183Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: BOG_r_prim.mp3"
+  },
+  {
+    "id": "1778439844173",
+    "timestamp": "2026-05-10T19:04:04.173Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: BOG_runy.mp3"
+  },
+  {
+    "id": "1778439838390",
+    "timestamp": "2026-05-10T19:03:58.390Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 6_r_prim.mp3"
+  },
+  {
+    "id": "1778439836076",
+    "timestamp": "2026-05-10T19:03:56.076Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 6_runy.mp3"
+  },
+  {
+    "id": "1778439816450",
+    "timestamp": "2026-05-10T19:03:36.450Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 5_r_prim.mp3"
+  },
+  {
+    "id": "1778439811397",
+    "timestamp": "2026-05-10T19:03:31.397Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 5_runy.mp3"
+  },
+  {
+    "id": "1778439807656",
+    "timestamp": "2026-05-10T19:03:27.656Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 5_r_prim.mp3"
+  },
+  {
+    "id": "1778439804120",
+    "timestamp": "2026-05-10T19:03:24.120Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_r_prim.mp3"
+  },
+  {
+    "id": "1778439800922",
+    "timestamp": "2026-05-10T19:03:20.922Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_runy.mp3"
+  },
+  {
+    "id": "1778439797706",
+    "timestamp": "2026-05-10T19:03:17.706Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 4_r_prim.mp3"
+  },
+  {
+    "id": "1778439793361",
+    "timestamp": "2026-05-10T19:03:13.361Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 3_r_prim.mp3"
+  },
+  {
+    "id": "1778439789589",
+    "timestamp": "2026-05-10T19:03:09.589Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 3_runy.mp3"
+  },
+  {
+    "id": "1778439784093",
+    "timestamp": "2026-05-10T19:03:04.093Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 2_r_prim.mp3"
+  },
+  {
+    "id": "1778439781685",
+    "timestamp": "2026-05-10T19:03:01.685Z",
+    "action": "audio_played",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Аудио: 2_runy.mp3"
+  },
+  {
+    "id": "1778439620678",
+    "timestamp": "2026-05-10T19:00:20.678Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778439618476",
+    "timestamp": "2026-05-10T19:00:18.476Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778439614265",
+    "timestamp": "2026-05-10T19:00:14.265Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 2_runy.mp3"
+  },
+  {
     "id": "1778439465611",
     "timestamp": "2026-05-10T18:57:45.611Z",
     "action": "login",
