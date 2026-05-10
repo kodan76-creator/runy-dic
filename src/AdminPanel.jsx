@@ -2,8 +2,21 @@ import { useState, useEffect, useMemo } from 'react'
 import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, getLogs, clearLogs } from './githubApi'
 import './AdminPanel.css'
 
+const getSavedAdmin = () => {
+  const savedAdmin = localStorage.getItem('adminUser')
+  if (!savedAdmin) return null
+
+  try {
+    return JSON.parse(savedAdmin)
+  } catch (e) {
+    console.error('Error parsing adminUser:', e)
+    localStorage.removeItem('adminUser')
+    return null
+  }
+}
+
 function AdminPanel({ onAdminLogin, onAdminLogout }) {
-  const [adminUser, setAdminUser] = useState(null)
+  const [adminUser, setAdminUser] = useState(getSavedAdmin)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [words, setWords] = useState([])
@@ -21,22 +34,6 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
-  useEffect(() => {
-    const savedAdmin = localStorage.getItem('adminUser')
-    if (savedAdmin) {
-      try {
-        const parsed = JSON.parse(savedAdmin)
-        setAdminUser(parsed)
-        loadWords()
-        loadUsers()
-        loadLogs()
-      } catch (e) {
-        console.error('Error parsing adminUser:', e)
-        localStorage.removeItem('adminUser')
-      }
-    }
-  }, [])
-
   const loadWords = async () => {
     setLoading(true)
     try {
@@ -47,6 +44,16 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   }
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
+
+  useEffect(() => {
+    if (adminUser) {
+      Promise.resolve().then(() => {
+        loadWords()
+        loadUsers()
+        loadLogs()
+      })
+    }
+  }, [adminUser])
 
   const filteredWords = useMemo(() => {
     let f = words.filter(w =>

@@ -1,4 +1,3 @@
-import { data } from "react-router-dom"
 // src/githubApi.js
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
