@@ -93,44 +93,69 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Адаптивность */
 @media (max-width: 768px) {
   .container {
-    padding-top: 280px;
-    padding-left: 5px; /* ✅ Уменьшены боковые отступы */
-    padding-right: 5px;
+    padding-top: 440px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .header {
     flex-direction: column;
-    padding: 12px 15px;
-    border-radius: 0 0 12px 12px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 10px 18px;
+    border-radius: 0 0 18px 18px;
+    box-sizing: border-box;
   }
   .listen-btn {
     order: 1;
     width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    font-size: 18px;
   }
   .play-mode {
     order: 2;
     flex-direction: row;
-    gap: 15px;
+    width: 100%;
+    gap: 24px;
     justify-content: center;
+    align-items: center;
   }
   .logo {
     order: 3;
+    width: 84px;
   }
   .filter-mode {
     order: 4;
+    width: 100%;
     align-items: center;
+    gap: 8px;
   }
   .search-wrapper {
     order: 5;
+    max-width: 100%;
+    width: 100%;
+    margin-top: 0;
   }
   .search-input {
-    padding: 10px;
-    font-size: 13px;
+    min-height: 52px;
+    padding: 12px 42px 12px 14px;
+    font-size: 16px;
     max-width: 100%;
   }
   .logout-btn-user {
     order: 6;
-    font-size: 11px;
-    padding: 6px 10px;
+    align-self: flex-end;
+    margin-left: 0;
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+  .mode-label {
+    gap: 8px;
+    font-size: 18px;
+  }
+  .mode-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
   }
   .word {
     font-size: 32px;
@@ -169,32 +194,33 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
   .container {
-    padding-top: 340px;
+    padding-top: 455px;
   }
   
   .header {
-    padding: 10px;
+    gap: 13px;
+    padding: 12px 10px 16px;
   }
   
   .listen-btn {
     padding: 12px 16px;
-    font-size: 15px;
+    font-size: 17px;
   }
   
   .play-mode {
-    gap: 15px;
+    gap: 20px;
   }
   
   .mode-label {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .filter-title {
-    font-size: 14px;
+    font-size: 17px;
   }
   
   .logo {
-    width: 70px;
+    width: 78px;
   }
   
   .word {
