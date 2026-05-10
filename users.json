@@ -48,15 +48,5 @@
     "isBlocked": false,
     "blockedAt": null,
     "blockedBy": null
-  },
-  {
-    "id": "1778439279374",
-    "email": "1@2.ru",
-    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-05-10T18:54:39.374Z",
-    "role": "user",
-    "isBlocked": true,
-    "blockedAt": "2026-05-10T18:54:39.374Z",
-    "blockedBy": "registration"
   }
 ]
