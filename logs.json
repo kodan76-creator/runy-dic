@@ -1,5 +1,12 @@
 [
   {
+    "id": "1778438842692",
+    "timestamp": "2026-05-10T18:47:22.692Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: osen_rus.mp3"
+  },
+  {
     "id": "1778437364292",
     "timestamp": "2026-05-10T18:22:44.292Z",
     "action": "search",
