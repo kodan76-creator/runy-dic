@@ -1,5 +1,124 @@
 [
   {
+    "id": "1778439465611",
+    "timestamp": "2026-05-10T18:57:45.611Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778439445479",
+    "timestamp": "2026-05-10T18:57:25.479Z",
+    "action": "user_deleted",
+    "userEmail": "1@2.ru",
+    "adminEmail": "ya.kodan76@ya.ru"
+  },
+  {
+    "id": "1778439280770",
+    "timestamp": "2026-05-10T18:54:40.770Z",
+    "action": "register",
+    "userEmail": "1@2.ru",
+    "details": "Регистрация"
+  },
+  {
+    "id": "1778439246317",
+    "timestamp": "2026-05-10T18:54:06.317Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1778439237305",
+    "timestamp": "2026-05-10T18:53:57.305Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778439231727",
+    "timestamp": "2026-05-10T18:53:51.727Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1778439029255",
+    "timestamp": "2026-05-10T18:50:29.255Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778438842692",
+    "timestamp": "2026-05-10T18:47:22.692Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: osen_rus.mp3"
+  },
+  {
+    "id": "1778437364292",
+    "timestamp": "2026-05-10T18:22:44.292Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"при\""
+  },
+  {
+    "id": "1778437096718",
+    "timestamp": "2026-05-10T18:18:16.718Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778437094855",
+    "timestamp": "2026-05-10T18:18:14.855Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1778437046133",
+    "timestamp": "2026-05-10T18:17:26.133Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ден\""
+  },
+  {
+    "id": "1778437044100",
+    "timestamp": "2026-05-10T18:17:24.100Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Де\""
+  },
+  {
+    "id": "1778437041739",
+    "timestamp": "2026-05-10T18:17:21.739Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Д\""
+  },
+  {
+    "id": "1778437025181",
+    "timestamp": "2026-05-10T18:17:05.181Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 4_r_prim.mp3"
+  },
+  {
+    "id": "1778437019096",
+    "timestamp": "2026-05-10T18:16:59.096Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 4_runy.mp3"
+  },
+  {
+    "id": "1778437001850",
+    "timestamp": "2026-05-10T18:16:41.850Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
     "id": "1778436857207",
     "timestamp": "2026-05-10T18:14:17.207Z",
     "action": "login",
