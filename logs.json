@@ -1,154 +1,280 @@
 [
   {
-    "id": "1778168122389",
-    "timestamp": "2026-05-07T15:35:22.389Z",
+    "id": "1778435372437",
+    "timestamp": "2026-05-10T17:49:32.437Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778168089309",
-    "timestamp": "2026-05-07T15:34:49.309Z",
+    "id": "1778435252249",
+    "timestamp": "2026-05-10T17:47:32.249Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778168086751",
-    "timestamp": "2026-05-07T15:34:46.751Z",
+    "id": "1778435207612",
+    "timestamp": "2026-05-10T17:46:47.612Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778167406239",
-    "timestamp": "2026-05-07T15:23:26.239Z",
+    "id": "1778435191881",
+    "timestamp": "2026-05-10T17:46:31.881Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778167404510",
-    "timestamp": "2026-05-07T15:23:24.510Z",
+    "id": "1778435185519",
+    "timestamp": "2026-05-10T17:46:25.519Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778435181683",
+    "timestamp": "2026-05-10T17:46:21.683Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778435160504",
+    "timestamp": "2026-05-10T17:46:00.504Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778166682730",
-    "timestamp": "2026-05-07T15:11:22.730Z",
+    "id": "1778435076417",
+    "timestamp": "2026-05-10T17:44:36.417Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 2_runy.mp3"
+  },
+  {
+    "id": "1778435075313",
+    "timestamp": "2026-05-10T17:44:35.313Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778435074210",
+    "timestamp": "2026-05-10T17:44:34.210Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778435070353",
+    "timestamp": "2026-05-10T17:44:30.353Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778435066734",
+    "timestamp": "2026-05-10T17:44:26.734Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778435058966",
+    "timestamp": "2026-05-10T17:44:18.966Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778166680999",
-    "timestamp": "2026-05-07T15:11:20.999Z",
+    "id": "1778179074234",
+    "timestamp": "2026-05-07T18:37:54.234Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778178995121",
+    "timestamp": "2026-05-07T18:36:35.121Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778178980865",
+    "timestamp": "2026-05-07T18:36:20.865Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778178961645",
+    "timestamp": "2026-05-07T18:36:01.645Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778178958231",
+    "timestamp": "2026-05-07T18:35:58.231Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778178955970",
+    "timestamp": "2026-05-07T18:35:55.970Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778176192555",
+    "timestamp": "2026-05-07T17:49:52.555Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778176163122",
+    "timestamp": "2026-05-07T17:49:23.122Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778166561260",
-    "timestamp": "2026-05-07T15:09:21.260Z",
+    "id": "1778175966063",
+    "timestamp": "2026-05-07T17:46:06.063Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778166559240",
-    "timestamp": "2026-05-07T15:09:19.240Z",
+    "id": "1778175954134",
+    "timestamp": "2026-05-07T17:45:54.134Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778175898781",
+    "timestamp": "2026-05-07T17:44:58.781Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778175508621",
+    "timestamp": "2026-05-07T17:38:28.621Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778175221212",
+    "timestamp": "2026-05-07T17:33:41.212Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778174968789",
+    "timestamp": "2026-05-07T17:29:28.789Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778174959624",
+    "timestamp": "2026-05-07T17:29:19.624Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778165203789",
-    "timestamp": "2026-05-07T14:46:43.789Z",
+    "id": "1778174941837",
+    "timestamp": "2026-05-07T17:29:01.837Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778165200901",
-    "timestamp": "2026-05-07T14:46:40.901Z",
+    "id": "1778174929127",
+    "timestamp": "2026-05-07T17:28:49.127Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778165168338",
-    "timestamp": "2026-05-07T14:46:08.338Z",
+    "id": "1778174770175",
+    "timestamp": "2026-05-07T17:26:10.175Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778165164867",
-    "timestamp": "2026-05-07T14:46:04.867Z",
+    "id": "1778174718479",
+    "timestamp": "2026-05-07T17:25:18.479Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778174461339",
+    "timestamp": "2026-05-07T17:21:01.339Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778173712997",
+    "timestamp": "2026-05-07T17:08:32.997Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778173693139",
+    "timestamp": "2026-05-07T17:08:13.139Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778164352211",
-    "timestamp": "2026-05-07T14:32:32.211Z",
-    "action": "search",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Поиск: \"День\""
-  },
-  {
-    "id": "1778164350673",
-    "timestamp": "2026-05-07T14:32:30.673Z",
-    "action": "search",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Поиск: \"Ден\""
-  },
-  {
-    "id": "1778164344875",
-    "timestamp": "2026-05-07T14:32:24.875Z",
-    "action": "search",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Поиск: \"Де\""
-  },
-  {
-    "id": "1778164342782",
-    "timestamp": "2026-05-07T14:32:22.782Z",
-    "action": "search",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Поиск: \"Дед\""
-  },
-  {
-    "id": "1778164340385",
-    "timestamp": "2026-05-07T14:32:20.385Z",
-    "action": "search",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Поиск: \"Д\""
-  },
-  {
-    "id": "1778164301514",
-    "timestamp": "2026-05-07T14:31:41.514Z",
+    "id": "1778173384911",
+    "timestamp": "2026-05-07T17:03:04.911Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
   },
   {
-    "id": "1778164212911",
-    "timestamp": "2026-05-07T14:30:12.911Z",
-    "action": "login",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Вход"
-  },
-  {
-    "id": "1778164207661",
-    "timestamp": "2026-05-07T14:30:07.661Z",
+    "id": "1778172964008",
+    "timestamp": "2026-05-07T16:56:04.008Z",
     "action": "logout",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Выход"
   },
   {
-    "id": "1778164151763",
-    "timestamp": "2026-05-07T14:29:11.763Z",
+    "id": "1778172723158",
+    "timestamp": "2026-05-07T16:52:03.158Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1778172714232",
+    "timestamp": "2026-05-07T16:51:54.232Z",
+    "action": "logout",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1778172579905",
+    "timestamp": "2026-05-07T16:49:39.905Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
