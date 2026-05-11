@@ -1,15 +1,5 @@
 [
   {
-    "id": "1777558936511",
-    "email": "1@1.ru",
-    "passwordHash": "bcb15f821479b4d5772bd0ca866c00ad5f926e3580720659cc80d39c9d09802a",
-    "createdAt": "2026-04-30T14:22:16.511Z",
-    "role": "user",
-    "isBlocked": true,
-    "blockedAt": "2026-05-04T16:13:25.961Z",
-    "blockedBy": "ya.kodan76@ya.ru"
-  },
-  {
     "id": "1777805429586",
     "email": "citer2380@gmail.com",
     "passwordHash": "32c2116331e67683239c06beb339c4b7f911bbe6e3e8ea2606d19a9f684563d0",
