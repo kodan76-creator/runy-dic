@@ -219,14 +219,15 @@
   {
     "word": "ыжо*",
     "transcription": "вОзжо",
-    "translation": "дедушка",
+    "translation": "дед, дедушка",
     "example": "Дедушка сидел за столом.",
     "example2": "ыжо сидгп заи дгтъ.",
     "transcription2": "вОзжо сидЭйп заИ дэйтЭль",
     "audio": "",
     "audio2": "",
     "id": 1743962964933,
-    "createdAt": "2026-04-06T18:39:24.933Z"
+    "createdAt": "2026-04-06T18:39:24.933Z",
+    "category": []
   },
   {
     "word": "ЙТЪШ",
