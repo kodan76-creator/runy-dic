@@ -49,6 +49,22 @@
 .cancel-btn:hover { background: #757575; }
 .words-count { margin: 15px 0 0 0; color: #aa3bff; text-align: center; font-size: 18px; padding-top: 10px; }
 
+/* КАТЕГОРИИ */
+.categories-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
+.category-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+.category-form input { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.category-form input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
+.categories-list { display: grid; gap: 10px; }
+.category-item { display: flex; justify-content: space-between; align-items: center; background: #f3e5f5; padding: 12px; border-radius: 8px; border: 2px solid #7b1fa2; }
+.category-info { display: flex; flex-direction: column; }
+.category-info strong { color: #7b1fa2; font-size: 16px; }
+.category-desc { color: #666; font-size: 13px; margin-top: 4px; }
+.category-actions { display: flex; gap: 8px; }
+/* Переиспользуем существующие кнопки .edit-btn и .delete-btn */
+.edit-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background: #2196f3; color: white; }
+.delete-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; background: #f44336; color: white; }
+.edit-btn:hover, .delete-btn:hover { transform: scale(1.03); }
+
 /* Пользователи */
 .users-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
 .users-section h3 { margin-top: 0; color: #aa3bff; margin-bottom: 15px; text-align: center; font-size: 20px; }
