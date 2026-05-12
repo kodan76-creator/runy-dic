@@ -71,7 +71,8 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .search-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 1200px; margin-left: 12px; }
 @media (min-width: 769px) {
   /* position filter button on the left top on desktop */
-  .search-row { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); margin-left: 0; }
+  /* place near top so it doesn't overlap the Listen button */
+  .search-row { position: absolute; left: 24px; top: 18px; transform: none; margin-left: 0; z-index: 1100; }
 }
 .filter-btn { background: #7b1fa2; color: white; border: 3px solid #7b1fa2; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.12); position: relative; display: inline-flex; align-items: center; gap: 8px; }
 .filter-label { display: inline-block; }
@@ -81,8 +82,8 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .filter-modal { width: 420px; max-width: 92%; background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color: #111; border: 3px solid #7b1fa2; }
 .filter-modal h3 { margin: 0 0 12px; color: #7b1fa2; }
 .filter-list { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 6px; }
-.filter-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
-.filter-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
+.filter-list::-webkit-scrollbar-track { background: transparent; border-radius: 6px; }
+.filter-list::-webkit-scrollbar-thumb { background: #aa3bff; border-radius: 6px; border: 3px solid #f3e5f5; }
 .filter-item { display: flex; align-items: center; gap: 8px; background: #f3e5f5; padding: 8px; border-radius: 8px; border: 2px solid #7b1fa2; }
 .filter-item input { display: none; }
 .filter-item .checkbox-box { width: 16px; height: 16px; border-radius: 4px; border: 2px solid #7b1fa2; background: transparent; display: inline-block; box-sizing: border-box; }
