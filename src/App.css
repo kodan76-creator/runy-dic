@@ -204,72 +204,72 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
-  :root { --app-header-height: 260px; }
-  .container {
-    padding-top: calc(var(--app-header-height) + 20px);
-  }
-  
+  :root { --app-header-height: 200px; }
+
+  /* Header: stacked, compact and centered */
   .header {
-    gap: 13px;
-    padding: 12px 10px 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 12px 20px;
+    border-radius: 0 0 18px 18px;
+    box-sizing: border-box;
+    background: #aa3bff;
+    z-index: 1000;
   }
-  
+
+  /* Container should start below header */
+  .container { padding-top: calc(var(--app-header-height) + 12px); padding-left: 8px; padding-right: 8px; }
+
+  /* Big full-width listen button */
   .listen-btn {
-    padding: 12px 16px;
-    font-size: 17px;
-  }
-  
-  .play-mode {
-    gap: 20px;
-  }
-  
-  .mode-label {
-    font-size: 16px;
-  }
-
-  .filter-title {
-    font-size: 17px;
-  }
-  
-  .logo {
-    width: 78px;
-  }
-  
-  .word {
-    font-size: 32px;
-  }
-  
-  .translation {
-    font-size: 16px;
-  }
-  
-  .example {
-    font-size: 16px;
-  }
-  
-  .example2 {
+    width: 100%;
+    max-width: 440px;
+    padding: 14px 20px;
     font-size: 20px;
-  }
-  
-  .card {
-    padding: 12px 12px 54px 45px;
-    min-height: 130px;
-  }
-  
-  .audio-btn,
-  .audio-btn-bottom {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-    left: 10px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
   }
 
-  .audio-btn {
-    top: 12px;
-  }
-  
-  .audio-btn-bottom {
-    top: auto;
-    bottom: 12px;
-  }
+  /* Controls stacked */
+  .play-mode, .filter-mode { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .mode-label { font-size: 16px; }
+  .filter-title { font-size: 16px; }
+
+  .logo { width: 68px; }
+
+  .search-wrapper { width: 100%; max-width: 520px; }
+  .search-input { width: 100%; min-height: 48px; font-size: 16px; }
+
+  .logout-btn-user { align-self: center; margin-top: 6px; padding: 8px 12px; font-size: 14px; }
+
+  /* Results: cards scroll, background stays fixed */
+  .results { margin: 0 auto 20px; gap: 14px; padding: 12px; max-width: 100%; overflow-y: auto; max-height: calc(100vh - var(--app-header-height) - 20px); }
+
+  /* Cards: compact and readable */
+  .card { padding: 12px 12px 44px 12px; min-height: 110px; border-radius: 12px; }
+  .word { font-size: 28px; }
+  .translation { font-size: 16px; }
+  .example { font-size: 18px; }
+  .example2 { font-size: 22px; }
+  .transcription, .transcription2 { font-size: 16px; }
+
+  /* Smaller audio buttons */
+  .audio-btn, .audio-btn-bottom { width: 36px; height: 36px; font-size: 16px; left: 12px; }
+  .audio-btn { top: 12px; }
+  .audio-btn-bottom { bottom: 12px; }
+
+  /* Make scrollbar more visible on mobile (thin) */
+  .results::-webkit-scrollbar { width: 10px; }
+  .results::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); }
+  .results::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.28); border-radius: 6px; }
+
+  /* Reduce heavy shadows for mobile */
+  .card { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 }
+
