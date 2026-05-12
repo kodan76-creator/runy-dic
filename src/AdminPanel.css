@@ -54,6 +54,9 @@
 .category-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
 .category-form input { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
 .category-form input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
+.category-form select { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.category-form select:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
+.category-form select[multiple] { min-height: 100px; }
 .categories-list { display: grid; gap: 10px; }
 .category-item { display: flex; justify-content: space-between; align-items: center; background: #f3e5f5; padding: 12px; border-radius: 8px; border: 2px solid #7b1fa2; }
 .category-info { display: flex; flex-direction: column; }
