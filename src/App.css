@@ -25,8 +25,10 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Полноэкранная загрузка */
 .loading-full { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #aa3bff; background-color: #aa3bff40; }
 
+:root { --app-header-height: 140px; }
+
 /* 📱 Основной контейнер приложения */
-.container { min-height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: 200px; }
+.container { min-height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: calc(var(--app-header-height) + 20px); }
 
 /* Шапка приложения */
 .header { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 20px; background: #aa3bff; padding: 15px 20px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #7b1fa2; z-index: 1000; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
@@ -59,11 +61,11 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .search-clear-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* Результаты поиска */
-.results { max-width: 1200px; margin: 120px auto 40px; display: grid; gap: 20px; overflow-y: auto; max-height: calc(100vh - 260px); padding: 20px 8px 40px; box-sizing: border-box; }
+.results { max-width: 1200px; margin: 0 auto 40px; display: grid; gap: 20px; overflow-y: auto; max-height: calc(100vh - var(--app-header-height) - 60px); padding: 20px 8px 40px; box-sizing: border-box; }
 .results::-webkit-scrollbar { width: 12px; }
-.results::-webkit-scrollbar-track { background: transparent; }
-.results::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid transparent; }
-.results { scrollbar-width: thin; scrollbar-color: #7b1fa2 transparent; }
+.results::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 6px; }
+.results::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.35); border-radius: 6px; border: 3px solid transparent; }
+.results { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.35) rgba(0,0,0,0.05); }
 
 /* body class applied when app/home is active to prevent page scroll */
 .app-no-scroll { overflow: hidden !important; }
