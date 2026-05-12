@@ -6,6 +6,7 @@ const DATA_FILE = 'dictionary.json'
 const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
+const CATEGORIES_FILE = 'categories.json'
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
 const getHeaders = () => ({
 'Authorization': `token ${TOKEN}`,
@@ -225,6 +226,25 @@ export const deleteWord = async (id) => {
 const { data: dict, sha } = await getDictionary()
 const filtered = dict.filter(w => w.id !== id)
 await updateGitHubFile(DATA_FILE, filtered, sha)
+}
+
+// КАТЕГОРИИ
+export const getCategories = async () => fetchGitHubFile(CATEGORIES_FILE)
+export const addCategory = async (categoryData, userEmail) => {
+  const { data: cats, sha } = await getCategories()
+  const newCat = { ...categoryData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
+  await updateGitHubFile(CATEGORIES_FILE, [...cats, newCat], sha)
+  return newCat
+}
+export const updateCategory = async (id, updatedData) => {
+  const { data: cats, sha } = await getCategories()
+  const updated = cats.map(c => c.id === id ? { ...c, ...updatedData } : c)
+  await updateGitHubFile(CATEGORIES_FILE, updated, sha)
+}
+export const deleteCategory = async (id) => {
+  const { data: cats, sha } = await getCategories()
+  const filtered = cats.filter(c => c.id !== id)
+  await updateGitHubFile(CATEGORIES_FILE, filtered, sha)
 }
 // 🔍 ЛОГИРОВАНИЕ
 export const logSearch = async (term, userEmail) => {

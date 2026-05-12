@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs } from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -34,6 +34,11 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
+  // Categories
+  const [categories, setCategories] = useState([])
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
+  const [catEditingId, setCatEditingId] = useState(null)
+
   const loadWords = async () => {
     setLoading(true)
     try {
@@ -51,6 +56,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         loadWords()
         loadUsers()
         loadLogs()
+        loadCategories()
       })
     }
   }, [adminUser])
@@ -114,6 +120,40 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     }
   }
 
+  // Categories handlers
+  const loadCategories = async () => {
+    try {
+      const { data } = await getCategories()
+      setCategories(data || [])
+    } catch (err) { console.error('loadCategories error', err) }
+  }
+
+  const handleCategorySubmit = async (e) => {
+    e?.preventDefault?.()
+    if (!categoryForm.name?.trim()) { setError('Имя категории не может быть пустым'); return }
+    try {
+      if (catEditingId) {
+        await updateCategory(catEditingId, { name: categoryForm.name, description: categoryForm.description })
+        setCatEditingId(null)
+      } else {
+        await addCategory({ name: categoryForm.name, description: categoryForm.description }, adminUser?.email)
+      }
+      setCategoryForm({ name: '', description: '' })
+      await loadCategories()
+    } catch (err) { setError('Ошибка категорий: ' + err.message) }
+  }
+
+  const handleEditCategory = (cat) => {
+    setCatEditingId(cat.id)
+    setCategoryForm({ name: cat.name || '', description: cat.description || '' })
+  }
+
+  const handleDeleteCategory = async (id) => {
+    if (window.confirm('Удалить эту категорию?')) {
+      try { await deleteCategory(id, adminUser?.email); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
+    }
+  }
+
   const handleBlockUser = async (userId, userEmail) => {
     if (window.confirm(`Заблокировать ${userEmail}?`)) {
       try { await blockUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
@@ -165,6 +205,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         </div>
         <div className="admin-tabs">
           <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
+          <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
           <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
           <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
         </div>
@@ -207,6 +248,35 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
               {error && <div className="error">{error}</div>}
             </form>
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
+          </div>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="categories-section">
+            <h3>🗂️ Категории ({categories.length})</h3>
+            <div className="category-form">
+              <input type="text" placeholder="Название категории" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
+              <input type="text" placeholder="Описание (необязательно)" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} />
+              <div className="form-buttons">
+                <button className="save-btn" onClick={handleCategorySubmit}>{catEditingId ? 'Обновить' : 'Добавить'}</button>
+                {catEditingId && <button className="cancel-btn" onClick={() => { setCatEditingId(null); setCategoryForm({ name: '', description: '' }) }}>Отмена</button>}
+              </div>
+            </div>
+
+            <div className="categories-list">
+              {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map(cat => (
+                <div key={cat.id} className="category-item">
+                  <div className="category-info">
+                    <strong>{cat.name}</strong>
+                    {cat.description && <div className="category-desc">{cat.description}</div>}
+                  </div>
+                  <div className="category-actions">
+                    <button onClick={() => handleEditCategory(cat)} className="edit-btn">✏️</button>
+                    <button onClick={() => handleDeleteCategory(cat.id)} className="delete-btn">🗑️</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
