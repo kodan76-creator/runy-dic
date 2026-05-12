@@ -302,24 +302,28 @@ function Home({ user, onLogout }) {
             руны
           </label>
         </div>
-        <button className="filter-btn" onClick={() => setShowFilterModal(true)}>Фильтр</button>
-        <div className="search-wrapper">
-          <input 
-            type="text" 
-            placeholder="Поиск по словарю..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="search-input" 
-          />
-          {searchTerm && (
-            <button 
-              className="search-clear-btn" 
-              onClick={() => setSearchTerm('')}
-              title="Очистить поиск"
-            >
-              ❌
-            </button>
-          )}
+        <div className="search-row">
+          <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
+            {`Фильтр${selectedFilters.length ? ` (${selectedFilters.length})` : ''}`}
+          </button>
+          <div className="search-wrapper" style={{flex: 1}}>
+            <input 
+              type="text" 
+              placeholder="Поиск по словарю..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="search-input" 
+            />
+            {searchTerm && (
+              <button 
+                className="search-clear-btn" 
+                onClick={() => setSearchTerm('')}
+                title="Очистить поиск"
+              >
+                ❌
+              </button>
+            )}
+          </div>
         </div>
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
