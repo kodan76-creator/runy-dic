@@ -67,7 +67,11 @@
 .category-checkboxes::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
 .category-checkboxes::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
 .category-checkboxes { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
-.categories-list { display: grid; gap: 10px; }
+.categories-list { display: grid; gap: 10px; max-height: 360px; overflow-y: auto; padding-right: 8px; }
+.categories-list::-webkit-scrollbar { width: 12px; }
+.categories-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
+.categories-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
+.categories-list { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
 .category-item { display: flex; justify-content: space-between; align-items: center; background: #f3e5f5; padding: 12px; border-radius: 8px; border: 2px solid #7b1fa2; }
 .category-info { display: flex; flex-direction: column; }
 .category-info strong { color: #7b1fa2; font-size: 16px; }
