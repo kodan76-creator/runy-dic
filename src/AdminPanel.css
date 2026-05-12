@@ -85,7 +85,11 @@
 /* Пользователи */
 .users-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
 .users-section h3 { margin-top: 0; color: #aa3bff; margin-bottom: 15px; text-align: center; font-size: 20px; }
-.users-grid { display: grid; gap: 15px; }
+.users-grid { display: grid; gap: 15px; max-height: 360px; overflow-y: auto; padding-right: 8px; }
+.users-grid::-webkit-scrollbar { width: 12px; }
+.users-grid::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
+.users-grid::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
+.users-grid { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
 .user-card { display: flex; justify-content: space-between; align-items: center; background: #c084fc; padding: 15px; border-radius: 8px; border: 2px solid #7b1fa2; }
 .user-card.blocked { background: #f44336; opacity: 0.8; }
 .user-info { flex: 1; }
