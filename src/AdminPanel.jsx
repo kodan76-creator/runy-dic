@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs } from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -25,7 +25,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    word: '', transcription: '', translation: '',
+    word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
     audio: '', audio2: ''
   })
@@ -33,6 +33,11 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
+
+  // Categories
+  const [categories, setCategories] = useState([])
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
+  const [catEditingId, setCatEditingId] = useState(null)
 
   const loadWords = async () => {
     setLoading(true)
@@ -51,9 +56,16 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         loadWords()
         loadUsers()
         loadLogs()
+        loadCategories()
       })
     }
   }, [adminUser])
+
+  // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
+  useEffect(() => {
+    document.body.classList.add('admin-no-scroll')
+    return () => { document.body.classList.remove('admin-no-scroll') }
+  }, [])
 
   const filteredWords = useMemo(() => {
     let f = words.filter(w =>
@@ -93,16 +105,32 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     try {
       if (editingId) await updateWord(editingId, formData, adminUser?.email)
       else await addWord(formData, adminUser?.email)
-      setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' })
+      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null); await loadWords()
     } catch (err) { setError(err.message) }
     setLoading(false)
   }
 
+  const resolveCategoryIds = (categ) => {
+    if (!categ) return []
+    if (Array.isArray(categ)) return categ
+    if (typeof categ === 'string') {
+      const found = categories.find(c => c.name === categ || c.id === categ)
+      return found ? [found.id] : [categ]
+    }
+    return []
+  }
+
   const handleEdit = (word) => {
     setEditingId(word.id)
+    // Normalize existing category values to ids when possible
+    const raw = word.category ? (Array.isArray(word.category) ? word.category : [word.category]) : []
+    const normalized = raw.map(item => {
+      const found = categories.find(c => c.id === item || c.name === item)
+      return found ? found.id : item
+    })
     setFormData({
-      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '',
+      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
       example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
       audio: word.audio || '', audio2: word.audio2 || ''
     })
@@ -111,6 +139,40 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const handleDelete = async (id) => {
     if (window.confirm('Удалить эту карточку?')) {
       try { await deleteWord(id, adminUser?.email); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
+    }
+  }
+
+  // Categories handlers
+  const loadCategories = async () => {
+    try {
+      const { data } = await getCategories()
+      setCategories(data || [])
+    } catch (err) { console.error('loadCategories error', err) }
+  }
+
+  const handleCategorySubmit = async (e) => {
+    e?.preventDefault?.()
+    if (!categoryForm.name?.trim()) { setError('Имя категории не может быть пустым'); return }
+    try {
+      if (catEditingId) {
+        await updateCategory(catEditingId, { name: categoryForm.name, description: categoryForm.description })
+        setCatEditingId(null)
+      } else {
+        await addCategory({ name: categoryForm.name, description: categoryForm.description }, adminUser?.email)
+      }
+      setCategoryForm({ name: '', description: '' })
+      await loadCategories()
+    } catch (err) { setError('Ошибка категорий: ' + err.message) }
+  }
+
+  const handleEditCategory = (cat) => {
+    setCatEditingId(cat.id)
+    setCategoryForm({ name: cat.name || '', description: cat.description || '' })
+  }
+
+  const handleDeleteCategory = async (id) => {
+    if (window.confirm('Удалить эту категорию?')) {
+      try { await deleteCategory(id, adminUser?.email); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
     }
   }
 
@@ -165,6 +227,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         </div>
         <div className="admin-tabs">
           <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
+          <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
           <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
           <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
         </div>
@@ -192,6 +255,26 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
                 <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
                 <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
+                <div className="category-checkboxes">
+                  {categories.map(c => (
+                    <label key={c.id} className="cat-item">
+                      <input type="checkbox" value={c.id} checked={(Array.isArray(formData.category) && (formData.category.includes(c.id) || formData.category.includes(c.name))) || (!Array.isArray(formData.category) && String(formData.category) === String(c.id))} onChange={e => {
+                        const checked = e.target.checked
+                        const val = e.target.value
+                        const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
+                        if (checked) {
+                          if (!current.includes(val)) current.push(val)
+                        } else {
+                          const idx = current.indexOf(val)
+                          if (idx !== -1) current.splice(idx, 1)
+                        }
+                        setFormData({ ...formData, category: current })
+                      }} />
+                      <span className="checkbox-box" />
+                      <span className="cat-name">{c.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="form-column form-column-right">
                 <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
@@ -202,11 +285,40 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
               </div>
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-                {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', example: '', example2: '', transcription2: '', audio: '', audio2: '' }) }}>Отмена</button>}
+                {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' }) }}>Отмена</button>}
               </div>
               {error && <div className="error">{error}</div>}
             </form>
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
+          </div>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="categories-section">
+            <h3>🗂️ Категории ({categories.length})</h3>
+            <div className="category-form">
+              <input type="text" placeholder="Название категории" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
+              <input type="text" placeholder="Описание (необязательно)" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} />
+              <div className="form-buttons">
+                <button className="save-btn" onClick={handleCategorySubmit}>{catEditingId ? 'Обновить' : 'Добавить'}</button>
+                {catEditingId && <button className="cancel-btn" onClick={() => { setCatEditingId(null); setCategoryForm({ name: '', description: '' }) }}>Отмена</button>}
+              </div>
+            </div>
+
+            <div className="categories-list">
+              {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map(cat => (
+                <div key={cat.id} className="category-item">
+                  <div className="category-info">
+                    <strong>{cat.name}</strong>
+                    {cat.description && <div className="category-desc">{cat.description}</div>}
+                  </div>
+                  <div className="category-actions">
+                    <button onClick={() => handleEditCategory(cat)} className="edit-btn">✏️</button>
+                    <button onClick={() => handleDeleteCategory(cat.id)} className="delete-btn">🗑️</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -268,6 +380,9 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                         {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
                       </div>
                       <p className="word-translation">{word.translation}</p>
+                      {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
+                        <div className="word-category">({Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === word.category)?.name || word.category)})</div>
+                      )}
                       <div className="examples">
                         {word.example && <span className="word-example">{word.example}</span>}
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}

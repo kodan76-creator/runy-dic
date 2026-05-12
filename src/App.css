@@ -25,8 +25,10 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 /* Полноэкранная загрузка */
 .loading-full { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #aa3bff; background-color: #aa3bff40; }
 
+:root { --app-header-height: 140px; }
+
 /* 📱 Основной контейнер приложения */
-.container { min-height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: 200px; }
+.container { min-height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: calc(var(--app-header-height) + 20px); }
 
 /* Шапка приложения */
 .header { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 20px; background: #aa3bff; padding: 15px 20px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #7b1fa2; z-index: 1000; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
@@ -59,7 +61,14 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .search-clear-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* Результаты поиска */
-.results { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; }
+.results { max-width: 1200px; margin: 0 auto 40px; display: grid; gap: 20px; overflow-y: auto; max-height: calc(100vh - var(--app-header-height) - 30px); padding: 20px 8px 40px; box-sizing: border-box; }
+.results::-webkit-scrollbar { width: 12px; }
+.results::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 6px; }
+.results::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.35); border-radius: 6px; border: 3px solid transparent; }
+.results { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.35) rgba(0,0,0,0.05); }
+
+/* body class applied when app/home is active to prevent page scroll */
+.app-no-scroll { overflow: hidden !important; }
 
 /* Карточка слова - УМЕНЬШЕНА */
 .card {
@@ -74,15 +83,16 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 }
 .word-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
 .word { margin: 0; font-size: 45px; color: #FFD700; font-family: 'Dao Rus', sans-serif; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); line-height: 1.3; }
-.transcription { margin: 0; color: #e9d5ff; font-style: italic; font-size: 20px; line-height: 1.5; }
+.transcription { margin: 0; color: #006400; font-style: italic; font-size: 20px; line-height: 1.5; }
 .translation { margin: 0 0 10px 0; color: white; font-size: 18px; text-align: center; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); line-height: 1.5; }
+.card-category { color: rgb(83 75 183); font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 6px; }
 
 /* Примеры */
 .examples { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; line-height: 1.5; margin-top: 10px; }
-.example { margin: 0; color: #9c27b0; font-style: italic; font-size: 18px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; }
+.example { margin: 0; color: #9c27b0; font-style: italic; font-size: 20px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; }
 .dash { color: #9c27b0; font-weight: bold; margin: 0 4px; }
-.example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 25px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; }
-.transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #9c27b0; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; white-space: nowrap; }
+.example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 27px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; }
+.transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #006400; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); line-height: 1.5; white-space: nowrap; }
 
 /* Кнопки аудио */
 .audio-btn { position: absolute; top: 15px; left: 15px; background: #7b1fa2; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 10; }
