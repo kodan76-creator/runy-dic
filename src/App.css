@@ -59,7 +59,14 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .search-clear-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* Результаты поиска */
-.results { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; }
+.results { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; overflow-y: auto; max-height: calc(100vh - 260px); padding-right: 8px; }
+.results::-webkit-scrollbar { width: 12px; }
+.results::-webkit-scrollbar-track { background: transparent; }
+.results::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid transparent; }
+.results { scrollbar-width: thin; scrollbar-color: #7b1fa2 transparent; }
+
+/* body class applied when app/home is active to prevent page scroll */
+.app-no-scroll { overflow: hidden !important; }
 
 /* Карточка слова - УМЕНЬШЕНА */
 .card {
