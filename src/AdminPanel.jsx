@@ -61,6 +61,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     }
   }, [adminUser])
 
+  // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
+  useEffect(() => {
+    document.body.classList.add('admin-no-scroll')
+    return () => { document.body.classList.remove('admin-no-scroll') }
+  }, [])
+
   const filteredWords = useMemo(() => {
     let f = words.filter(w =>
       w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
