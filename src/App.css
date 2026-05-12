@@ -67,6 +67,21 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .results::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.35); border-radius: 6px; border: 3px solid transparent; }
 .results { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.35) rgba(0,0,0,0.05); }
 
+/* Filter button + modal styles */
+.filter-btn { background: #7b1fa2; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; margin-left: 12px; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.filter-modal { width: 320px; max-width: 90%; background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #111; }
+.filter-modal h3 { margin: 0 0 12px; }
+.filter-list { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 6px; }
+.filter-item { display: flex; align-items: center; gap: 8px; }
+.filter-item input { width: 18px; height: 18px; }
+.filter-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.apply-btn, .clear-btn, .close-btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; }
+.apply-btn { background: #7b1fa2; color: white; }
+.clear-btn { background: #eee; }
+.close-btn { background: transparent; color: #7b1fa2; }
+
+
 /* body class applied when app/home is active to prevent page scroll */
 .app-no-scroll { overflow: hidden !important; }
 
