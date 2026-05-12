@@ -110,15 +110,21 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
     if (Array.isArray(categ)) return categ
     if (typeof categ === 'string') {
       const found = categories.find(c => c.name === categ || c.id === categ)
-      return found ? [found.id] : []
+      return found ? [found.id] : [categ]
     }
     return []
   }
 
   const handleEdit = (word) => {
     setEditingId(word.id)
+    // Normalize existing category values to ids when possible
+    const raw = word.category ? (Array.isArray(word.category) ? word.category : [word.category]) : []
+    const normalized = raw.map(item => {
+      const found = categories.find(c => c.id === item || c.name === item)
+      return found ? found.id : item
+    })
     setFormData({
-      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: resolveCategoryIds(word.category),
+      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
       example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
       audio: word.audio || '', audio2: word.audio2 || ''
     })
@@ -246,11 +252,19 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 <div className="category-checkboxes">
                   {categories.map(c => (
                     <label key={c.id} className="cat-item">
-                      <input type="checkbox" value={c.id} checked={formData.category.includes(c.id)} onChange={e => {
+                      <input type="checkbox" value={c.id} checked={(Array.isArray(formData.category) && (formData.category.includes(c.id) || formData.category.includes(c.name))) || (!Array.isArray(formData.category) && String(formData.category) === String(c.id))} onChange={e => {
                         const checked = e.target.checked
                         const val = e.target.value
-                        setFormData({ ...formData, category: checked ? [...formData.category, val] : formData.category.filter(id => id !== val) })
+                        const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
+                        if (checked) {
+                          if (!current.includes(val)) current.push(val)
+                        } else {
+                          const idx = current.indexOf(val)
+                          if (idx !== -1) current.splice(idx, 1)
+                        }
+                        setFormData({ ...formData, category: current })
                       }} />
+                      <span className="checkbox-box" />
                       <span className="cat-name">{c.name}</span>
                     </label>
                   ))}
