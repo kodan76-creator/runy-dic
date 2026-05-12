@@ -354,7 +354,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                         {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
                       </div>
                       <p className="word-translation">{word.translation}</p>
-                      {word.category && <div className="word-category" style={{ color: '#7b1fa2', fontWeight: '600', marginBottom: '6px' }}>Категория: <span style={{ color: '#3d1b6b', fontWeight: '700' }}>{Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join(', ') : (categories.find(c => c.id === word.category)?.name || word.category)}</span></div>}
+                      {word.category && <div className="word-category">({Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === word.category)?.name || word.category)})</div>}
                       <div className="examples">
                         {word.example && <span className="word-example">{word.example}</span>}
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
