@@ -25,7 +25,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    word: '', transcription: '', translation: '',
+    word: '', transcription: '', translation: '', category: '',
     example: '', example2: '', transcription2: '',
     audio: '', audio2: ''
   })
@@ -108,7 +108,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const handleEdit = (word) => {
     setEditingId(word.id)
     setFormData({
-      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '',
+      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: word.category || '',
       example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
       audio: word.audio || '', audio2: word.audio2 || ''
     })
@@ -233,6 +233,10 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
                 <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
                 <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
+                <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ padding: '10px', border: '3px solid #7b1fa2', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff', color: '#000' }}>
+                  <option value="">— Выберите категорию —</option>
+                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                </select>
               </div>
               <div className="form-column form-column-right">
                 <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
@@ -338,6 +342,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                         {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
                       </div>
                       <p className="word-translation">{word.translation}</p>
+                      {word.category && <div className="word-category" style={{ color: '#7b1fa2', fontWeight: '600', marginBottom: '6px' }}>Категория: <span style={{ color: '#3d1b6b', fontWeight: '700' }}>{word.category}</span></div>}
                       <div className="examples">
                         {word.example && <span className="word-example">{word.example}</span>}
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
