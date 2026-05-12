@@ -69,6 +69,10 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 
 /* Filter button + modal styles */
 .search-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 1200px; margin-left: 12px; }
+@media (min-width: 769px) {
+  /* position filter button on the left top on desktop */
+  .search-row { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); margin-left: 0; }
+}
 .filter-btn { background: #7b1fa2; color: white; border: 3px solid #7b1fa2; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.12); position: relative; display: inline-flex; align-items: center; gap: 8px; }
 .filter-label { display: inline-block; }
 .filter-badge { position: absolute; top: -8px; right: -8px; background: #ff5252; color: white; font-size: 12px; padding: 4px 7px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
@@ -77,12 +81,16 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .filter-modal { width: 420px; max-width: 92%; background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color: #111; border: 3px solid #7b1fa2; }
 .filter-modal h3 { margin: 0 0 12px; color: #7b1fa2; }
 .filter-list { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 6px; }
+.filter-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
+.filter-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
 .filter-item { display: flex; align-items: center; gap: 8px; background: #f3e5f5; padding: 8px; border-radius: 8px; border: 2px solid #7b1fa2; }
-.filter-item input { width: 18px; height: 18px; }
+.filter-item input { display: none; }
+.filter-item .checkbox-box { width: 16px; height: 16px; border-radius: 4px; border: 2px solid #7b1fa2; background: transparent; display: inline-block; box-sizing: border-box; }
+.filter-item input:checked + .checkbox-box { background: #7b1fa2; }
 .filter-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
-.apply-btn, .clear-btn, .close-btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; }
+.apply-btn, .cancel-btn, .close-btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; }
 .apply-btn { background: #7b1fa2; color: white; }
-.clear-btn { background: #eee; }
+.cancel-btn { background: #9e9e9e; color: white; }
 .close-btn { background: transparent; color: #7b1fa2; }
 
 /* mobile: show badge inline instead of absolute */

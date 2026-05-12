@@ -338,15 +338,16 @@ function Home({ user, onLogout }) {
             <div className="filter-list">
               {categories.length === 0 && <p>Категории не загружены</p>}
               {categories.map(cat => (
-                <label key={cat.id} className="filter-item">
+                <label key={cat.id} className="filter-item cat-item">
                   <input type="checkbox" checked={selectedFilters.includes(cat.id)} onChange={() => toggleFilter(cat.id)} />
+                  <span className="checkbox-box" aria-hidden></span>
                   <span className="filter-name">{cat.name}</span>
                 </label>
               ))}
             </div>
             <div className="filter-actions">
               <button className="apply-btn" onClick={applyFilters}>Применить</button>
-              <button className="clear-btn" onClick={() => { clearFilters(); applyFilters() }}>Сбросить</button>
+              <button className="cancel-btn" onClick={() => { clearFilters(); applyFilters() }}>Сбросить</button>
               <button className="close-btn" onClick={() => setShowFilterModal(false)}>Закрыть</button>
             </div>
           </div>
