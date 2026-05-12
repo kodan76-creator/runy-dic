@@ -243,12 +243,18 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                 <input type="text" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
                 <input type="text" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
                 <input type="text" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
-                <select multiple value={formData.category} onChange={e => {
-                  const vals = Array.from(e.target.selectedOptions).map(o => o.value)
-                  setFormData({ ...formData, category: vals })
-                }} style={{ padding: '10px', border: '3px solid #7b1fa2', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff', color: '#000', minHeight: '90px' }}>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <div className="category-checkboxes">
+                  {categories.map(c => (
+                    <label key={c.id} className="cat-item">
+                      <input type="checkbox" value={c.id} checked={formData.category.includes(c.id)} onChange={e => {
+                        const checked = e.target.checked
+                        const val = e.target.value
+                        setFormData({ ...formData, category: checked ? [...formData.category, val] : formData.category.filter(id => id !== val) })
+                      }} />
+                      <span className="cat-name">{c.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="form-column form-column-right">
                 <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />

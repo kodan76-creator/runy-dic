@@ -54,9 +54,12 @@
 .category-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
 .category-form input { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
 .category-form input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.category-form select { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
-.category-form select:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.category-form select[multiple] { min-height: 100px; }
+.category-checkboxes { display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; padding: 6px; }
+.cat-item { display: flex; align-items: center; gap: 8px; }
+.cat-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: rgb(83 75 183); }
+.cat-name { padding: 6px 8px; border-radius: 6px; }
+.cat-item input[type="checkbox"]:checked + .cat-name { background: rgb(83 75 183); color: white; }
+.cat-name:hover { background: #f7f3ff; }
 .categories-list { display: grid; gap: 10px; }
 .category-item { display: flex; justify-content: space-between; align-items: center; background: #f3e5f5; padding: 12px; border-radius: 8px; border: 2px solid #7b1fa2; }
 .category-info { display: flex; flex-direction: column; }
