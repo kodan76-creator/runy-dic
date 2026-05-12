@@ -185,8 +185,9 @@ function Home({ user, onLogout }) {
   }
 
   useEffect(() => {
-    // cleanup: stop audio on unmount (don't force body scroll)
-    return () => { stopAudio() }
+    // prevent body scroll so only center results area scrolls
+    document.body.classList.add('app-no-scroll')
+    return () => { document.body.classList.remove('app-no-scroll'); stopAudio() }
   }, [])
   
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
