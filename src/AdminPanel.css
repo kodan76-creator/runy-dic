@@ -8,7 +8,7 @@
 .login-btn:hover { background: #7b1fa2; }
 
 /* Админ-панель */
-html, body { height: 100%; overflow: hidden; background-color: #aa3bff; }
+html, body { height: 100%; background-color: #aa3bff; }
 
 .admin-panel { height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: 320px; overflow: hidden; }
 .admin-fixed-container { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 0; z-index: 1000; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
