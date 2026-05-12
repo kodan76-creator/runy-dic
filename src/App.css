@@ -102,8 +102,9 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 
 /* Адаптивность */
 @media (max-width: 768px) {
+  :root { --app-header-height: 220px; }
   .container {
-    padding-top: 440px;
+    padding-top: calc(var(--app-header-height) + 20px);
     padding-left: 8px;
     padding-right: 8px;
   }
@@ -203,8 +204,9 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
+  :root { --app-header-height: 260px; }
   .container {
-    padding-top: 455px;
+    padding-top: calc(var(--app-header-height) + 20px);
   }
   
   .header {
