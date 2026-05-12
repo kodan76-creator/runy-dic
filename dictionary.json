@@ -33,7 +33,10 @@
     "audio": "staroe_runy.mp3",
     "audio2": "staroe_r_prim.mp3",
     "id": 1744367483021,
-    "createdAt": "2026-04-11T10:31:23.021Z"
+    "createdAt": "2026-04-11T10:31:23.021Z",
+    "category": [
+      "1778594680011"
+    ]
   },
   {
     "word": "тера",
