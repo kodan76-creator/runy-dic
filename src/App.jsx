@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -66,6 +66,7 @@ function UserAuthForm({ onLogin }) {
 function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [playMode, setPlayMode] = useState('sequential')
   const [sortMode, setSortMode] = useState('translation')
@@ -81,9 +82,16 @@ function Home({ user, onLogout }) {
         const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
-      setLoading(false)
     }
-    loadWords()
+
+    const loadCategories = async () => {
+      try {
+        const { data } = await getCategories()
+        setCategories(Array.isArray(data) ? data : [])
+      } catch (err) { console.error('Ошибка загрузки категорий:', err); setCategories([]) }
+    }
+
+    Promise.all([loadWords(), loadCategories()]).finally(() => setLoading(false))
   }, [user])
 
   // Логирование поиска
@@ -292,6 +300,9 @@ function Home({ user, onLogout }) {
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
+            {((Array.isArray(item.category) && item.category.length > 0) || item.category) && (
+              <div className="card-category">({Array.isArray(item.category) ? item.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === item.category)?.name || item.category)})</div>
+            )}
             {(item.example || item.example2 || item.transcription2) && (
               <div className="examples">
                 {item.example && <span className="example">{item.example}</span>}
