@@ -69,7 +69,9 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 
 /* Filter button + modal styles */
 .search-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 1200px; margin-left: 12px; }
-.filter-btn { background: #7b1fa2; color: white; border: 3px solid #7b1fa2; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.filter-btn { background: #7b1fa2; color: white; border: 3px solid #7b1fa2; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.12); position: relative; display: inline-flex; align-items: center; gap: 8px; }
+.filter-label { display: inline-block; }
+.filter-badge { position: absolute; top: -8px; right: -8px; background: #ff5252; color: white; font-size: 12px; padding: 4px 7px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 /* Modal styled to match admin (.categories-section) */
 .filter-modal { width: 420px; max-width: 92%; background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); color: #111; border: 3px solid #7b1fa2; }
@@ -82,6 +84,12 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 .apply-btn { background: #7b1fa2; color: white; }
 .clear-btn { background: #eee; }
 .close-btn { background: transparent; color: #7b1fa2; }
+
+/* mobile: show badge inline instead of absolute */
+@media (max-width: 480px) {
+  .filter-badge { position: static; margin-left: 8px; top: auto; right: auto; }
+}
+
 
 
 /* body class applied when app/home is active to prevent page scroll */

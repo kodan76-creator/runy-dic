@@ -304,7 +304,8 @@ function Home({ user, onLogout }) {
         </div>
         <div className="search-row">
           <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
-            {`Фильтр${selectedFilters.length ? ` (${selectedFilters.length})` : ''}`}
+            <span className="filter-label">Фильтр</span>
+            {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
           </button>
           <div className="search-wrapper" style={{flex: 1}}>
             <input 
