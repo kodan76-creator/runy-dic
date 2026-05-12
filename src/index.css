@@ -109,3 +109,8 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Force app background to purple so page edges don't turn dark in dark mode */
+html, body, #root {
+  background: #aa3bff;
+}
