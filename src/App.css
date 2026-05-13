@@ -698,7 +698,7 @@ body {
 /* Адаптивность */
 @media (max-width: 768px) {
   :root {
-    --app-header-height: 220px;
+    --app-header-height: 360px;
   }
 
   .container {
@@ -825,7 +825,7 @@ body {
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
   :root {
-    --app-header-height: 200px;
+    --app-header-height: 450px;
   }
 
   /* Header: stacked, compact and centered */
