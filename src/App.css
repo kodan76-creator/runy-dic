@@ -72,7 +72,7 @@ body { margin: 0; padding: 0; background-color: #aa3bff; font-family: -apple-sys
 @media (min-width: 769px) {
   /* position filter button on the left top on desktop */
   /* place near top so it doesn't overlap the Listen button */
-  .search-row { position: absolute; left: 24px; top: 18px; transform: none; margin-left: 0; z-index: 1100; }
+  .search-row { position: absolute; left: 24px; transform: none; margin-left: 0; z-index: 1100; }
 }
 .filter-btn { background: #7b1fa2; color: white; border: 3px solid #7b1fa2; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.12); position: relative; display: inline-flex; align-items: center; gap: 8px; }
 .filter-label { display: inline-block; }
