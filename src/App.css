@@ -909,7 +909,7 @@ body {
     padding: 12px;
     max-width: 100%;
     overflow-y: auto;
-    max-height: calc(100vh - var(--app-header-height) - 20px);
+    max-height: calc(100vh - var(--app-header-height) - 120px);
   }
 
   /* Cards: compact and readable */
