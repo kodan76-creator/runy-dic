@@ -1,5 +1,82 @@
 [
   {
+    "id": "1778672092084",
+    "timestamp": "2026-05-13T11:34:52.084Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ден\""
+  },
+  {
+    "id": "1778672075839",
+    "timestamp": "2026-05-13T11:34:35.839Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778672072111",
+    "timestamp": "2026-05-13T11:34:32.111Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778668666771",
+    "timestamp": "2026-05-13T10:37:46.771Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: den_r_prim.mp3"
+  },
+  {
+    "id": "1778668657890",
+    "timestamp": "2026-05-13T10:37:37.890Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ден\""
+  },
+  {
+    "id": "1778668655291",
+    "timestamp": "2026-05-13T10:37:35.291Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Де\""
+  },
+  {
+    "id": "1778668652768",
+    "timestamp": "2026-05-13T10:37:32.768Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Д\""
+  },
+  {
+    "id": "1778668623506",
+    "timestamp": "2026-05-13T10:37:03.506Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1778668622003",
+    "timestamp": "2026-05-13T10:37:02.003Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1778668581784",
+    "timestamp": "2026-05-13T10:36:21.784Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: BOG_r_prim.mp3"
+  },
+  {
+    "id": "1778668580410",
+    "timestamp": "2026-05-13T10:36:20.410Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: BOG_runy.mp3"
+  },
+  {
     "id": "1778667911793",
     "timestamp": "2026-05-13T10:25:11.793Z",
     "action": "search",
