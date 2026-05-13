@@ -71,6 +71,8 @@ function Home({ user, onLogout }) {
   const [playMode, setPlayMode] = useState('sequential')
   const [sortMode, setSortMode] = useState('translation')
   const [isPlaying, setIsPlaying] = useState(false)
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [selectedFilters, setSelectedFilters] = useState([]) // array of category ids
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
   
@@ -93,6 +95,16 @@ function Home({ user, onLogout }) {
 
     Promise.all([loadWords(), loadCategories()]).finally(() => setLoading(false))
   }, [user])
+
+  // toggle category id in selectedFilters
+  const toggleFilter = (id) => {
+    setSelectedFilters(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const clearFilters = () => setSelectedFilters([])
+
+  const applyFilters = () => setShowFilterModal(false)
+
 
   // Логирование поиска
   useEffect(() => {
@@ -195,7 +207,7 @@ function Home({ user, onLogout }) {
   const filtered = words
     .filter(w => {
       const term = searchTerm.toLowerCase()
-      return [
+      const matchesText = [
         w.word,
         w.transcription,
         w.translation,
@@ -205,6 +217,29 @@ function Home({ user, onLogout }) {
         w.audio,
         w.audio2,
       ].some(value => value?.toLowerCase().includes(term))
+
+      if (!matchesText) return false
+
+      // category filtering
+      if (selectedFilters && selectedFilters.length > 0) {
+        // normalize word categories to array of ids
+        let wordCats = []
+        if (Array.isArray(w.category)) wordCats = w.category
+        else if (typeof w.category === 'string' && w.category.trim().length > 0) {
+          // try to map legacy string to category id
+          const matched = categories.find(c => c.name === w.category || c.name === w.category.trim())
+          if (matched) wordCats = [matched.id]
+        }
+
+        // if no categories on word, exclude
+        if (wordCats.length === 0) return false
+
+        // keep if intersection
+        const intersects = wordCats.some(id => selectedFilters.includes(id))
+        return intersects
+      }
+
+      return true
     })
     .sort((a, b) => {
       const key = sortMode === 'runes' ? 'word' : 'translation'
@@ -267,28 +302,58 @@ function Home({ user, onLogout }) {
             руны
           </label>
         </div>
-        <div className="search-wrapper">
-          <input 
-            type="text" 
-            placeholder="Поиск по словарю..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="search-input" 
-          />
-          {searchTerm && (
-            <button 
-              className="search-clear-btn" 
-              onClick={() => setSearchTerm('')}
-              title="Очистить поиск"
-            >
-              ❌
-            </button>
-          )}
+        <div className="search-row">
+          <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
+            <span className="filter-label">Фильтр</span>
+            {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
+          </button>
+          <div className="search-wrapper" style={{flex: 1}}>
+            <input 
+              type="text" 
+              placeholder="Поиск по словарю..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="search-input" 
+            />
+            {searchTerm && (
+              <button 
+                className="search-clear-btn" 
+                onClick={() => setSearchTerm('')}
+                title="Очистить поиск"
+              >
+                ❌
+              </button>
+            )}
+          </div>
         </div>
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
       </div>
+
+      {showFilterModal && (
+        <div className="modal-backdrop" onClick={() => setShowFilterModal(false)}>
+          <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Фильтр по категориям</h3>
+            <div className="filter-list">
+              {categories.length === 0 && <p>Категории не загружены</p>}
+              {categories.map(cat => (
+                <label key={cat.id} className="filter-item cat-item">
+                  <input type="checkbox" checked={selectedFilters.includes(cat.id)} onChange={() => toggleFilter(cat.id)} />
+                  <span className="checkbox-box" aria-hidden></span>
+                  <span className="filter-name">{cat.name}</span>
+                </label>
+              ))}
+            </div>
+            <div className="filter-actions">
+              <button className="apply-btn" onClick={applyFilters}>Применить</button>
+              <button className="cancel-btn" onClick={() => { clearFilters(); applyFilters() }}>Сбросить</button>
+              <button className="close-btn" onClick={() => setShowFilterModal(false)}>Закрыть</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
