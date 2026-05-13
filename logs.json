@@ -1,5 +1,12 @@
 [
   {
+    "id": "1778685208455",
+    "timestamp": "2026-05-13T15:13:28.455Z",
+    "action": "search",
+    "userEmail": "citer2380@gmail.com",
+    "details": "Поиск: \"ю\""
+  },
+  {
     "id": "1778680638890",
     "timestamp": "2026-05-13T13:57:18.890Z",
     "action": "audio_played",
