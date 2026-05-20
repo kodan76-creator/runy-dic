@@ -1,5 +1,12 @@
 [
   {
+    "id": "1779298150320",
+    "timestamp": "2026-05-20T17:29:10.320Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
     "id": "1779220664684",
     "timestamp": "2026-05-19T19:57:44.684Z",
     "action": "search",
