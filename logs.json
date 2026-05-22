@@ -1,5 +1,47 @@
 [
   {
+    "id": "1779298168146",
+    "timestamp": "2026-05-20T17:29:28.146Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ден\""
+  },
+  {
+    "id": "1779298165346",
+    "timestamp": "2026-05-20T17:29:25.346Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Д\""
+  },
+  {
+    "id": "1779298150320",
+    "timestamp": "2026-05-20T17:29:10.320Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1779220664684",
+    "timestamp": "2026-05-19T19:57:44.684Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Хери\""
+  },
+  {
+    "id": "1779220660637",
+    "timestamp": "2026-05-19T19:57:40.637Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Х\""
+  },
+  {
+    "id": "1779220643639",
+    "timestamp": "2026-05-19T19:57:23.639Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"С\""
+  },
+  {
     "id": "1778925645424",
     "timestamp": "2026-05-16T10:00:45.424Z",
     "action": "search",
