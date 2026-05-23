@@ -105,6 +105,17 @@ function Home({ user, onLogout }) {
 
   const applyFilters = () => setShowFilterModal(false)
 
+  const renderCategory = (category) => {
+    const values = Array.isArray(category) ? category : [category]
+    const label = values
+      .filter(value => (typeof value === 'string' ? value.trim().length > 0 : Boolean(value)))
+      .map(id => categories.find(c => c.id === id)?.name || (typeof id === 'string' ? id.trim() : id))
+      .filter(Boolean)
+      .join('; ')
+
+    return label ? <div className="card-category">({label})</div> : null
+  }
+
 
   // Логирование поиска
   useEffect(() => {
@@ -367,9 +378,7 @@ function Home({ user, onLogout }) {
               {item.transcription && <span className="transcription">[{item.transcription}]</span>}
             </div>
             <p className="translation">{item.translation}</p>
-            {((Array.isArray(item.category) && item.category.length > 0) || item.category) && (
-              <div className="card-category">({Array.isArray(item.category) ? item.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === item.category)?.name || item.category)})</div>
-            )}
+            {renderCategory(item.category)}
             {(item.example || item.example2 || item.transcription2) && (
               <div className="examples">
                 {item.example && <span className="example">{item.example}</span>}
