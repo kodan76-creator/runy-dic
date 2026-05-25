@@ -1631,8 +1631,8 @@
     ]
   },
   {
-    "word": "съчдо",
-    "transcription": "сэльтАйдо",
+    "word": "съфтчдо",
+    "transcription": "сэльфтАйдо",
     "translation": "автограф",
     "example": "",
     "example2": "",
@@ -1689,7 +1689,7 @@
     ]
   },
   {
-    "word": "авто",
+    "word": "авто-",
     "transcription": "авто",
     "translation": "авто-",
     "example": "",
@@ -1720,7 +1720,7 @@
     ]
   },
   {
-    "word": "авараъо",
+    "word": "авраъо",
     "transcription": "аварАльо",
     "translation": "авральный",
     "example": "",
@@ -1735,7 +1735,7 @@
     ]
   },
   {
-    "word": "авараъ",
+    "word": "авраъ",
     "transcription": "аварАль",
     "translation": "аврал",
     "example": "",
@@ -1750,7 +1750,7 @@
     ]
   },
   {
-    "word": "чварас",
+    "word": "чврас",
     "transcription": "айварАс",
     "translation": "авось",
     "example": "",
@@ -1854,7 +1854,7 @@
   },
   {
     "word": "чби",
-    "transcription": "айби",
+    "transcription": "айбИ",
     "translation": "август",
     "example": "",
     "example2": "",
@@ -1866,8 +1866,8 @@
     "category": []
   },
   {
-    "word": "таъфмерэз",
-    "transcription": "тальфмерэз",
+    "word": "таъфмеэ",
+    "transcription": "тальфмерэ",
     "translation": "авария",
     "example": "",
     "example2": "",
@@ -1882,7 +1882,7 @@
   },
   {
     "word": "ахэш",
-    "transcription": "ахэш",
+    "transcription": "ахЭш",
     "translation": "авария",
     "example": "",
     "example2": "",
@@ -1912,7 +1912,7 @@
   },
   {
     "word": "ахапэд",
-    "transcription": "ахапэд",
+    "transcription": "ахапЭд",
     "translation": "аварийщик",
     "example": "",
     "example2": "",
@@ -1926,8 +1926,8 @@
     ]
   },
   {
-    "word": "таъфмерэпэ",
-    "transcription": "тальфмерэпэ",
+    "word": "таъфмеэпэ",
+    "transcription": "тальфмерэпЭ",
     "translation": "аварийный",
     "example": "",
     "example2": "",
@@ -1942,7 +1942,7 @@
   },
   {
     "word": "ахапэ",
-    "transcription": "ахапэ",
+    "transcription": "ахапЭ",
     "translation": "аварийный",
     "example": "",
     "example2": "",
