@@ -1866,9 +1866,9 @@
     "category": []
   },
   {
-    "word": "авария",
-    "transcription": "тальфмерэз, ахэш",
-    "translation": "авария (устаревшая форма), авария (ДЭЛЬЖ)",
+    "word": "таъфмерэз",
+    "transcription": "тальфмерэз",
+    "translation": "авария",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -1877,14 +1877,13 @@
     "id": "1748200000019",
     "createdAt": "2026-05-25T10:00:18.000Z",
     "category": [
-      "1778594679979",
-      "1778594680020"
+      "1778594679979"
     ]
   },
   {
-    "word": "аварийщик",
-    "transcription": "тальфмерэд, ахапэд",
-    "translation": "аварийщик (устаревшая форма), аварийщик (ДЭЛЬЖ)",
+    "word": "ахэш",
+    "transcription": "ахэш",
+    "translation": "авария",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -1893,14 +1892,13 @@
     "id": "1748200000020",
     "createdAt": "2026-05-25T10:00:19.000Z",
     "category": [
-      "1778594679979",
       "1778594680020"
     ]
   },
   {
-    "word": "аварийный",
-    "transcription": "тальфмерэпэ, ахапэ",
-    "translation": "аварийный (устаревшая форма), аварийный (ДЭЛЬЖ)",
+    "word": "таъфмерэд",
+    "transcription": "тальфмерэд",
+    "translation": "аварийщик",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -1909,7 +1907,51 @@
     "id": "1748200000021",
     "createdAt": "2026-05-25T10:00:20.000Z",
     "category": [
-      "1778594679979",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "ахапэд",
+    "transcription": "ахапэд",
+    "translation": "аварийщик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000022",
+    "createdAt": "2026-05-25T10:00:21.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "таъфмерэпэ",
+    "transcription": "тальфмерэпэ",
+    "translation": "аварийный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000023",
+    "createdAt": "2026-05-25T10:00:22.000Z",
+    "category": [
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "ахапэ",
+    "transcription": "ахапэ",
+    "translation": "аварийный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000024",
+    "createdAt": "2026-05-25T10:00:23.000Z",
+    "category": [
       "1778594680020"
     ]
   }
