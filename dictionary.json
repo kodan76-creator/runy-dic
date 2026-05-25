@@ -1599,5 +1599,318 @@
     "category": [
       "1778594680020"
     ]
+  },
+  {
+    "word": "автоматгс",
+    "transcription": "автоматЭйс",
+    "translation": "автоматизировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000001",
+    "createdAt": "2026-05-25T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "автомато",
+    "transcription": "автомАто",
+    "translation": "автомат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000002",
+    "createdAt": "2026-05-25T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "съчдо",
+    "transcription": "сэльтАйдо",
+    "translation": "автограф",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000003",
+    "createdAt": "2026-05-25T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "авто-возаъ",
+    "transcription": "авто-возАль",
+    "translation": "автовокзал",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000004",
+    "createdAt": "2026-05-25T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "автобус",
+    "transcription": "автОбус",
+    "translation": "автобус",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000005",
+    "createdAt": "2026-05-25T10:00:04.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "автобаа",
+    "transcription": "автобАза",
+    "translation": "автобаза",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000006",
+    "createdAt": "2026-05-25T10:00:05.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авто",
+    "transcription": "авто",
+    "translation": "авто-",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000007",
+    "createdAt": "2026-05-25T10:00:06.000Z",
+    "category": [
+      "1778594680007",
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "авто",
+    "transcription": "авто",
+    "translation": "авто",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000008",
+    "createdAt": "2026-05-25T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авараъо",
+    "transcription": "аварАльо",
+    "translation": "авральный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000009",
+    "createdAt": "2026-05-25T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авараъ",
+    "transcription": "аварАль",
+    "translation": "аврал",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000010",
+    "createdAt": "2026-05-25T10:00:09.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "чварас",
+    "transcription": "айварАс",
+    "translation": "авось",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000011",
+    "createdAt": "2026-05-25T10:00:10.000Z",
+    "category": [
+      "1778594680022"
+    ]
+  },
+  {
+    "word": "авокадо",
+    "transcription": "авокАдо",
+    "translation": "авокадо",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000012",
+    "createdAt": "2026-05-25T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авитаминоз",
+    "transcription": "авитаминОз",
+    "translation": "авитаминоз",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000013",
+    "createdAt": "2026-05-25T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авиаъ",
+    "transcription": "авиАль",
+    "translation": "авиация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000014",
+    "createdAt": "2026-05-25T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авиаъфо",
+    "transcription": "авиальфо",
+    "translation": "авиационный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000015",
+    "createdAt": "2026-05-25T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "авиа",
+    "transcription": "Авиа",
+    "translation": "авиа",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000016",
+    "createdAt": "2026-05-25T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "чбифо",
+    "transcription": "айбИфо",
+    "translation": "августовский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000017",
+    "createdAt": "2026-05-25T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "чби",
+    "transcription": "айби",
+    "translation": "август",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000018",
+    "createdAt": "2026-05-25T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "авария",
+    "transcription": "тальфмерэз, ахэш",
+    "translation": "авария (устаревшая форма), авария (ДЭЛЬЖ)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000019",
+    "createdAt": "2026-05-25T10:00:18.000Z",
+    "category": [
+      "1778594679979",
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аварийщик",
+    "transcription": "тальфмерэд, ахапэд",
+    "translation": "аварийщик (устаревшая форма), аварийщик (ДЭЛЬЖ)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000020",
+    "createdAt": "2026-05-25T10:00:19.000Z",
+    "category": [
+      "1778594679979",
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аварийный",
+    "transcription": "тальфмерэпэ, ахапэ",
+    "translation": "аварийный (устаревшая форма), аварийный (ДЭЛЬЖ)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748200000021",
+    "createdAt": "2026-05-25T10:00:20.000Z",
+    "category": [
+      "1778594679979",
+      "1778594680020"
+    ]
   }
 ]
