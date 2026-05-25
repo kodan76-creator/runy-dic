@@ -2684,5 +2684,341 @@
     "category": [
       "1778594680020"
     ]
+  },
+  {
+    "word": "ъорсибо",
+    "transcription": "эльорсИбо",
+    "translation": "азбука, алфавит",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000001",
+    "createdAt": "2026-05-26T10:00:00.000Z",
+    "category": []
+  },
+  {
+    "word": "читзеръфо",
+    "transcription": "айтзерЭльфо",
+    "translation": "азартный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000002",
+    "createdAt": "2026-05-26T10:00:01.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "ээпэ",
+    "transcription": "эзерпЭ",
+    "translation": "азартный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000003",
+    "createdAt": "2026-05-26T10:00:02.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "читзеръ",
+    "transcription": "айтзерЭль",
+    "translation": "азарт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000004",
+    "createdAt": "2026-05-26T10:00:03.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "ээш",
+    "transcription": "эзерЭш",
+    "translation": "азарт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000005",
+    "createdAt": "2026-05-26T10:00:04.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аалиа",
+    "transcription": "азАлиа",
+    "translation": "азалия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000006",
+    "createdAt": "2026-05-26T10:00:05.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ажуръфо",
+    "transcription": "ажурЭльфо",
+    "translation": "ажурный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000007",
+    "createdAt": "2026-05-26T10:00:06.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ажур",
+    "transcription": "ажУр",
+    "translation": "ажур",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000008",
+    "createdAt": "2026-05-26T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "тахкерш",
+    "transcription": "тагЕрш",
+    "translation": "ажиотаж",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000009",
+    "createdAt": "2026-05-26T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "тахк",
+    "transcription": "таг",
+    "translation": "аж",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000010",
+    "createdAt": "2026-05-26T10:00:09.000Z",
+    "category": [
+      "1778594680022"
+    ]
+  },
+  {
+    "word": "эдэпэ",
+    "transcription": "эдЭпЭ",
+    "translation": "адский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000011",
+    "createdAt": "2026-05-26T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "живаътгс",
+    "transcription": "живальтЭйс",
+    "translation": "адресовать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000012",
+    "createdAt": "2026-05-26T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "живаъфо",
+    "transcription": "живАльфо",
+    "translation": "адресный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000013",
+    "createdAt": "2026-05-26T10:00:12.000Z",
+    "category": []
+  },
+  {
+    "word": "живаъто",
+    "transcription": "живАльто",
+    "translation": "адресат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000014",
+    "createdAt": "2026-05-26T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "жюваъто",
+    "transcription": "жювАльто",
+    "translation": "адресат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000015",
+    "createdAt": "2026-05-26T10:00:14.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "живаъ",
+    "transcription": "живАль",
+    "translation": "адрес",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000016",
+    "createdAt": "2026-05-26T10:00:15.000Z",
+    "category": []
+  },
+  {
+    "word": "адмиралзгфо",
+    "transcription": "адмиралзЭйфо",
+    "translation": "адмиральский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000017",
+    "createdAt": "2026-05-26T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "адмирал",
+    "transcription": "адмирАл",
+    "translation": "адмирал",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000018",
+    "createdAt": "2026-05-26T10:00:17.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "уравгс",
+    "transcription": "уравЭйс",
+    "translation": "администрировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000019",
+    "createdAt": "2026-05-26T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "уравинью",
+    "transcription": "уравИнью",
+    "translation": "администрирование",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000020",
+    "createdAt": "2026-05-26T10:00:19.000Z",
+    "category": []
+  },
+  {
+    "word": "урави",
+    "transcription": "уравИ",
+    "translation": "администрация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000021",
+    "createdAt": "2026-05-26T10:00:20.000Z",
+    "category": []
+  },
+  {
+    "word": "уравито",
+    "transcription": "уравИто",
+    "translation": "администратор",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000022",
+    "createdAt": "2026-05-26T10:00:21.000Z",
+    "category": []
+  },
+  {
+    "word": "уравгфо",
+    "transcription": "уравЭйфо",
+    "translation": "административный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000023",
+    "createdAt": "2026-05-26T10:00:22.000Z",
+    "category": []
+  },
+  {
+    "word": "юсътъгцо",
+    "transcription": "юсэльтЭйчо",
+    "translation": "адент",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748500000024",
+    "createdAt": "2026-05-26T10:00:23.000Z",
+    "category": []
   }
 ]
