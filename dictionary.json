@@ -3020,5 +3020,365 @@
     "id": "1748500000024",
     "createdAt": "2026-05-26T10:00:23.000Z",
     "category": []
+  },
+  {
+    "word": "акваториа",
+    "transcription": "акватОриа",
+    "translation": "акватория",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000001",
+    "createdAt": "2026-05-26T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аквариум",
+    "transcription": "аквАриум",
+    "translation": "аквариум",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000002",
+    "createdAt": "2026-05-26T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акваръ",
+    "transcription": "акварЭль",
+    "translation": "акварель",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000003",
+    "createdAt": "2026-05-26T10:00:02.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аквамарин",
+    "transcription": "аквамарИн",
+    "translation": "аквамарин",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000004",
+    "createdAt": "2026-05-26T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аквалангист",
+    "transcription": "аквалангист",
+    "translation": "аквалангист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000005",
+    "createdAt": "2026-05-26T10:00:04.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аквланццо",
+    "transcription": "аквалАнчо",
+    "translation": "аквалангист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000006",
+    "createdAt": "2026-05-26T10:00:05.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "акваланг",
+    "transcription": "аквалАнг",
+    "translation": "акваланг",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000007",
+    "createdAt": "2026-05-26T10:00:06.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акациа",
+    "transcription": "акАциа",
+    "translation": "акация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000008",
+    "createdAt": "2026-05-26T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "церодъы",
+    "transcription": "церодЭлы",
+    "translation": "академия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000009",
+    "createdAt": "2026-05-26T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "церодъфо",
+    "transcription": "церодЭльфо",
+    "translation": "академический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000010",
+    "createdAt": "2026-05-26T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "церодъ",
+    "transcription": "церодЭльо",
+    "translation": "академик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000011",
+    "createdAt": "2026-05-26T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "чсберг",
+    "transcription": "Айсберг",
+    "translation": "айсберг",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000012",
+    "createdAt": "2026-05-26T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "чва",
+    "transcription": "айва",
+    "translation": "айва",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000013",
+    "createdAt": "2026-05-26T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ай",
+    "transcription": "ай",
+    "translation": "ай",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000014",
+    "createdAt": "2026-05-26T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "лаля",
+    "transcription": "лаля",
+    "translation": "аистенок",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000015",
+    "createdAt": "2026-05-26T10:00:14.000Z",
+    "category": []
+  },
+  {
+    "word": "лало",
+    "transcription": "лАло",
+    "translation": "аист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000016",
+    "createdAt": "2026-05-26T10:00:15.000Z",
+    "category": []
+  },
+  {
+    "word": "азу",
+    "transcription": "азУ",
+    "translation": "азу",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000017",
+    "createdAt": "2026-05-26T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "азото",
+    "transcription": "азОто",
+    "translation": "азот",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000018",
+    "createdAt": "2026-05-26T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "аз-яаъ",
+    "transcription": "аз-яАль",
+    "translation": "Азовское море",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000019",
+    "createdAt": "2026-05-26T10:00:18.000Z",
+    "category": [
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "азиа",
+    "transcription": "Азиа",
+    "translation": "Азия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000020",
+    "createdAt": "2026-05-26T10:00:19.000Z",
+    "category": [
+      "1778594680011",
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "азимуто",
+    "transcription": "Азимуто",
+    "translation": "азимут",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000021",
+    "createdAt": "2026-05-26T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "азиаты",
+    "transcription": "азиаты",
+    "translation": "азиаты",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000022",
+    "createdAt": "2026-05-26T10:00:21.000Z",
+    "category": []
+  },
+  {
+    "word": "азиатофо",
+    "transcription": "азиАтофо",
+    "translation": "азиатский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000023",
+    "createdAt": "2026-05-26T10:00:22.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "азиатка",
+    "transcription": "азиатка",
+    "translation": "азиатка",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000024",
+    "createdAt": "2026-05-26T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "азиато",
+    "transcription": "азиАто",
+    "translation": "азиат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748600000025",
+    "createdAt": "2026-05-26T10:00:24.000Z",
+    "category": [
+      "1778594680011"
+    ]
   }
 ]
