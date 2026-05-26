@@ -3380,5 +3380,350 @@
     "category": [
       "1778594680011"
     ]
+  },
+  {
+    "word": "зераъбиньоъ",
+    "transcription": "зеральбиньоль",
+    "translation": "актуализация флуктуаций \"0\"",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000001",
+    "createdAt": "2026-05-26T10:00:00.000Z",
+    "category": [
+      "1778594680016",
+      "1778594680012",
+      "1778594679979",
+      "1778594680009"
+    ]
+  },
+  {
+    "word": "зераъфгйль",
+    "transcription": "зеральфэйль",
+    "translation": "актуализация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000002",
+    "createdAt": "2026-05-26T10:00:01.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "зергйофо",
+    "transcription": "зерЭйофо",
+    "translation": "активный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000003",
+    "createdAt": "2026-05-26T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "зергйли",
+    "transcription": "зерЭйли",
+    "translation": "активность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000004",
+    "createdAt": "2026-05-26T10:00:03.000Z",
+    "category": []
+  },
+  {
+    "word": "зергйто",
+    "transcription": "зерЭйто",
+    "translation": "активист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000005",
+    "createdAt": "2026-05-26T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "зерэгтгс",
+    "transcription": "зерэйтЭйс",
+    "translation": "активировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000006",
+    "createdAt": "2026-05-26T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "зерэгтгфо",
+    "transcription": "зерэйтЭйфо",
+    "translation": "активированный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000007",
+    "createdAt": "2026-05-26T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "зерэгтИнью",
+    "transcription": "зерэйтИнью",
+    "translation": "активирование",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000008",
+    "createdAt": "2026-05-26T10:00:07.000Z",
+    "category": []
+  },
+  {
+    "word": "зерэгнгс",
+    "transcription": "зерэйнЭйс",
+    "translation": "активизировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000009",
+    "createdAt": "2026-05-26T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "зерэгнИ",
+    "transcription": "зерэйнИ",
+    "translation": "актив",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000010",
+    "createdAt": "2026-05-26T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "зергйоцо",
+    "transcription": "зерЭйчо",
+    "translation": "актер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000011",
+    "createdAt": "2026-05-26T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "зергйф",
+    "transcription": "зерЭйф",
+    "translation": "акт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000012",
+    "createdAt": "2026-05-26T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "аксиОма",
+    "transcription": "аксиОма",
+    "translation": "аксиома",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000013",
+    "createdAt": "2026-05-26T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "асуруфъ",
+    "transcription": "асуруфЭль",
+    "translation": "акселерация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000014",
+    "createdAt": "2026-05-26T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "акробАтика",
+    "transcription": "акробАтика",
+    "translation": "акробатика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000015",
+    "createdAt": "2026-05-26T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акробАто",
+    "transcription": "акробАто",
+    "translation": "акробат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000016",
+    "createdAt": "2026-05-26T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "тъфофо",
+    "transcription": "тЭльфофо",
+    "translation": "аккуратный, опрятный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000017",
+    "createdAt": "2026-05-26T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "тъфоъ",
+    "transcription": "тЭльфоЭль",
+    "translation": "аккуратность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000018",
+    "createdAt": "2026-05-26T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "хавдафгто",
+    "transcription": "хавдафЭйто",
+    "translation": "аккумулятор",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000019",
+    "createdAt": "2026-05-26T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "акеедИто",
+    "transcription": "акередИто",
+    "translation": "аккредитив",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000020",
+    "createdAt": "2026-05-26T10:00:19.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акОрдофо",
+    "transcription": "акОрдофо",
+    "translation": "аккордный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000021",
+    "createdAt": "2026-05-26T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акОрдо",
+    "transcription": "акОрдо",
+    "translation": "аккорд",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000022",
+    "createdAt": "2026-05-26T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "хатевэллЕ",
+    "transcription": "хатервэллЕ",
+    "translation": "аккомпанемент",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000023",
+    "createdAt": "2026-05-26T10:00:22.000Z",
+    "category": []
+  },
+  {
+    "word": "атакгс",
+    "transcription": "атакЭйс",
+    "translation": "акклиматизировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000024",
+    "createdAt": "2026-05-26T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "атакчЯъ",
+    "transcription": "атакайЯль",
+    "translation": "акклиматизация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748700000025",
+    "createdAt": "2026-05-26T10:00:24.000Z",
+    "category": []
   }
 ]
