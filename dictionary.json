@@ -3805,8 +3805,8 @@
     ]
   },
   {
-    "word": "зэги",
-    "transcription": "зерэйИ",
+    "word": "зегци",
+    "transcription": "зерэйцИ",
     "translation": "акция",
     "example": "",
     "example2": "",
@@ -3814,7 +3814,8 @@
     "audio2": "",
     "id": 1748311740007,
     "createdAt": "2026-05-27T05:15:00.007Z",
-    "category": []
+    "category": [],
+    "transcription2": ""
   },
   {
     "word": "зегцео",
