@@ -3925,8 +3925,8 @@
     "category": []
   },
   {
-    "word": "акустийгфо",
-    "transcription": "акустийфо",
+    "word": "акустиццгфо",
+    "transcription": "акустичэйфо",
     "translation": "акустический",
     "example": "",
     "example2": "",
@@ -3936,7 +3936,8 @@
     "createdAt": "2026-05-27T05:15:00.017Z",
     "category": [
       "1778594680011"
-    ]
+    ],
+    "transcription2": ""
   },
   {
     "word": "акустика",
