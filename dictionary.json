@@ -4254,7 +4254,7 @@
   },
   {
     "word": "этея",
-    "transcription": "этея",
+    "transcription": "этеря",
     "translation": "аллегория",
     "example": "",
     "example2": "",
@@ -4264,7 +4264,9 @@
     "id": 1748800000012,
     "createdAt": "2026-06-01T21:31:00.012Z",
     "createdBy": "ya.kodan76@ya.ru",
-    "category": []
+    "category": [
+      "1778594680020"
+    ]
   },
   {
     "word": "этеяпэ",
