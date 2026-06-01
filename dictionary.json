@@ -1,0 +1,369 @@
+[
+  {
+    "word": "аътернофо",
+    "transcription": "альтЕрнофо",
+    "translation": "альтруистичный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000001",
+    "createdAt": "2026-05-27T10:00:00.000Z",
+    "category": []
+  },
+  {
+    "word": "аътерниц",
+    "transcription": "альтЕрнИц",
+    "translation": "альтруист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000002",
+    "createdAt": "2026-05-27T10:00:01.000Z",
+    "category": []
+  },
+  {
+    "word": "аътерно",
+    "transcription": "альтЕрно",
+    "translation": "альтруизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000003",
+    "createdAt": "2026-05-27T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "аътист",
+    "transcription": "альтИст",
+    "translation": "альтист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000004",
+    "createdAt": "2026-05-27T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътиц",
+    "transcription": "АльтИц",
+    "translation": "альтист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000005",
+    "createdAt": "2026-05-27T10:00:04.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "этернофо",
+    "transcription": "этЕрнофо",
+    "translation": "альтернативный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000006",
+    "createdAt": "2026-05-27T10:00:05.000Z",
+    "category": [
+      "1778594680008",
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "этернова",
+    "transcription": "этЕрнОва",
+    "translation": "альтернатива",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000007",
+    "createdAt": "2026-05-27T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "аъто",
+    "transcription": "АльтО",
+    "translation": "альт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000008",
+    "createdAt": "2026-05-27T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътны",
+    "transcription": "альтны",
+    "translation": "Альпы",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000009",
+    "createdAt": "2026-05-27T10:00:08.000Z",
+    "category": [
+      "1778594680011",
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "аътпинист",
+    "transcription": "альтпинИст",
+    "translation": "альпинист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000010",
+    "createdAt": "2026-05-27T10:00:09.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътпинисто",
+    "transcription": "альтпинИсто",
+    "translation": "альпинист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000011",
+    "createdAt": "2026-05-27T10:00:10.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аътпиниз",
+    "transcription": "альтпинИз",
+    "translation": "альпинизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000012",
+    "createdAt": "2026-05-27T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътпифо",
+    "transcription": "альтпИфо",
+    "translation": "альпийский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000013",
+    "createdAt": "2026-05-27T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "мераъхо",
+    "transcription": "меррАльхо",
+    "translation": "альманах",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000014",
+    "createdAt": "2026-05-27T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "аътбом",
+    "transcription": "альтбОм",
+    "translation": "альбом",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000015",
+    "createdAt": "2026-05-27T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътбинос",
+    "transcription": "альтбИнОс",
+    "translation": "альбинос",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000016",
+    "createdAt": "2026-05-27T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътбатрос",
+    "transcription": "альтбатрОс",
+    "translation": "альбатрос",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000017",
+    "createdAt": "2026-05-27T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътгопельфо",
+    "transcription": "альтгопЭльфо",
+    "translation": "алчный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000018",
+    "createdAt": "2026-05-27T10:00:17.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "зерэнэ",
+    "transcription": "зЕрэнэ",
+    "translation": "алчный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000019",
+    "createdAt": "2026-05-27T10:00:18.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аътгопель",
+    "transcription": "альтгопЭль",
+    "translation": "алчность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000020",
+    "createdAt": "2026-05-27T10:00:19.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "зерэнци",
+    "transcription": "зЕрэнцИ",
+    "translation": "алчность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000021",
+    "createdAt": "2026-05-27T10:00:20.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "аътхимма",
+    "transcription": "альтхИмма",
+    "translation": "алхимия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000022",
+    "createdAt": "2026-05-27T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътхимфо",
+    "transcription": "альтхИмфо",
+    "translation": "алхимический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000023",
+    "createdAt": "2026-05-27T10:00:22.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аътхимц",
+    "transcription": "альтхИмц",
+    "translation": "алхимик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000024",
+    "createdAt": "2026-05-27T10:00:23.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "эльорсибо",
+    "transcription": "эльорсИбо",
+    "translation": "азбука, алфавит",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1748900000025",
+    "createdAt": "2026-05-27T10:00:24.000Z",
+    "category": []
+  }
+]
