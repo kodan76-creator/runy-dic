@@ -1,0 +1,317 @@
+[
+  {
+    "word": "энтэкихоно",
+    "transcription": "энтэкихОнО",
+    "translation": "антициклон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэш",
+    "transcription": "энтЭш",
+    "translation": "антитело",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": []
+  },
+  {
+    "word": "энтэстато",
+    "transcription": "энтэстАто",
+    "translation": "антистатик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэсэпсо",
+    "transcription": "энтэсЭпсо",
+    "translation": "антисептик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэпва",
+    "transcription": "энтЭпва",
+    "translation": "антипод",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "антилопа",
+    "transcription": "антилОпа",
+    "translation": "антилопа",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэкваропэ",
+    "transcription": "энтэкваропЭ",
+    "translation": "антикварный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэквариат",
+    "transcription": "энтэквариАт",
+    "translation": "антиквариат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "энтэквар",
+    "transcription": "энтэквАр",
+    "translation": "антиквар",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "чаъгоъва",
+    "transcription": "чальгольва",
+    "translation": "антивещество",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "ццээп",
+    "transcription": "чЭрэп",
+    "translation": "антивещество (иного)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": [
+      "1778594680020",
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "ъбиото",
+    "transcription": "эльбиото",
+    "translation": "антибиотик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "энтэ",
+    "transcription": "энтэ",
+    "translation": "анти-",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680007"
+    ]
+  },
+  {
+    "word": "антэна",
+    "transcription": "антЭна",
+    "translation": "антенна",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "АНТХКРКТИКА",
+    "transcription": "антАрктика",
+    "translation": "Антарктика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680011",
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "штаъгордпэ",
+    "transcription": "штальгордпЭ",
+    "translation": "антагонистический, оппозиционный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "шгтопэ",
+    "transcription": "шЭйтопЭ",
+    "translation": "антагонистический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "штаъгоорд",
+    "transcription": "штальгоОрд",
+    "translation": "антагонист, оппозиционер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "шгтод",
+    "transcription": "шЭйтод",
+    "translation": "антагонист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "штаъго",
+    "transcription": "штальго",
+    "translation": "антагонизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "шгтош",
+    "transcription": "шЭйтош",
+    "translation": "антагонизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749400000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  }
+]
