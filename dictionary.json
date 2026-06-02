@@ -1,0 +1,394 @@
+[
+  {
+    "word": "шаазто",
+    "transcription": "шаазто",
+    "translation": "арестант",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "шаато",
+    "transcription": "шаАто",
+    "translation": "арестант",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "шааз",
+    "transcription": "шааз",
+    "translation": "арест",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "шаза",
+    "transcription": "шАза",
+    "translation": "арест",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "дайяндгс",
+    "transcription": "дайяндЭйс",
+    "translation": "арендовать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "дайяндато",
+    "transcription": "дайяндАто",
+    "translation": "арендатор",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "дайянда",
+    "transcription": "дайЯнда",
+    "translation": "аренда",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "аряна",
+    "transcription": "арЯна",
+    "translation": "арена",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ариал",
+    "transcription": "ариАл",
+    "translation": "ареал",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "хэльцэгс",
+    "transcription": "хэльцэрЭйс",
+    "translation": "аргументировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "хэльцэль",
+    "transcription": "хэльцэрЭль",
+    "translation": "аргументация",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "сэльцэль",
+    "transcription": "сэльцэрЭль",
+    "translation": "аргумент",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "аргон",
+    "transcription": "аргОн",
+    "translation": "аргон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ахчи",
+    "transcription": "ахчи",
+    "translation": "арбуз",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "ерэпане",
+    "transcription": "ерэпанЕ",
+    "translation": "арбитраж",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": []
+  },
+  {
+    "word": "ерэпано",
+    "transcription": "ерэпАно",
+    "translation": "арбитр",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": []
+  },
+  {
+    "word": "арбале",
+    "transcription": "арбалЕ",
+    "translation": "арбалет",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "арахис",
+    "transcription": "архАис",
+    "translation": "арахис",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "лэльво",
+    "transcription": "лЭльво",
+    "translation": "аптекарь",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "лэльва",
+    "transcription": "лЭльва",
+    "translation": "аптека",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": []
+  },
+  {
+    "word": "аптгс",
+    "transcription": "апретЭйс",
+    "translation": "апробировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "апто",
+    "transcription": "апрЕто",
+    "translation": "априори",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "айрэльфо",
+    "transcription": "айрэльфо",
+    "translation": "апрельский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": []
+  },
+  {
+    "word": "айрэль",
+    "transcription": "айрэль",
+    "translation": "апрель",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "жераз",
+    "transcription": "жЕрраз",
+    "translation": "аппетит",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": []
+  },
+  {
+    "word": "апэндэ",
+    "transcription": "апэндЕ",
+    "translation": "аппендицит",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000026",
+    "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "апэндикс",
+    "transcription": "апэндикс",
+    "translation": "аппендикс",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000027",
+    "createdAt": "2026-05-28T10:00:26.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "апэндиксо",
+    "transcription": "апЭндиксо",
+    "translation": "аппендикс",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749600000028",
+    "createdAt": "2026-05-28T10:00:27.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  }
+]
