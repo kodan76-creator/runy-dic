@@ -1,5 +1,12 @@
 [
   {
+    "id": "1780413648568",
+    "timestamp": "2026-06-02T15:20:48.568Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Анг\""
+  },
+  {
     "id": "1780351373432",
     "timestamp": "2026-06-01T22:02:53.432Z",
     "action": "search",
