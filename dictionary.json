@@ -218,7 +218,7 @@
     "createdAt": "2026-04-07T17:27:27.705Z"
   },
   {
-    "word": "я овгю фа уулъ...",
+    "word": "я овгю фа уулъ!",
     "transcription": "я овэЮ фа урулЭль",
     "translation": "Я иду по Пути!",
     "example": "",
@@ -227,7 +227,8 @@
     "audio": "ya_put_runy.mp3",
     "audio2": "ya_put_rus.mp3",
     "id": 1745607325466,
-    "createdAt": "2026-04-25T18:55:25.466Z"
+    "createdAt": "2026-04-25T18:55:25.466Z",
+    "category": []
   },
   {
     "word": "ыжо*",
