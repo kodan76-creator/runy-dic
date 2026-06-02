@@ -1,0 +1,361 @@
+[
+  {
+    "word": "артеиа",
+    "transcription": "артЕриа",
+    "translation": "артерия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "артеиаъфо",
+    "transcription": "артериАльфо",
+    "translation": "артериальный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "хаъо",
+    "transcription": "хадЭльо",
+    "translation": "артельщик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "хаъ",
+    "transcription": "хадЭль",
+    "translation": "артель",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": []
+  },
+  {
+    "word": "артазианфо",
+    "transcription": "артазиАнфо",
+    "translation": "артезианский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "шатэва",
+    "transcription": "шатЭва",
+    "translation": "арсенал",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "берафо",
+    "transcription": "бЕрафо",
+    "translation": "ароматный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "бера",
+    "transcription": "бЕра",
+    "translation": "аромат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": []
+  },
+  {
+    "word": "ураъ",
+    "transcription": "урАль",
+    "translation": "армия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "ураъфо",
+    "transcription": "урАльфо",
+    "translation": "армейский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "арматурццо",
+    "transcription": "арматУрчо",
+    "translation": "арматурщик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "арматура",
+    "transcription": "арматУра",
+    "translation": "арматура",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "арктика",
+    "transcription": "Арктика",
+    "translation": "Арктика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011",
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "тарэше",
+    "transcription": "тарэшЭ",
+    "translation": "Арканы Таро",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "вацэръ",
+    "transcription": "вацэрЭль",
+    "translation": "арка",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": []
+  },
+  {
+    "word": "ариа",
+    "transcription": "Ариа",
+    "translation": "ария",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "арифматичгфо",
+    "transcription": "арифматичЭйфо",
+    "translation": "арифметический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "арифматика",
+    "transcription": "арифмАтика",
+    "translation": "арифметика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "афэгеро",
+    "transcription": "афэйЕро",
+    "translation": "аритмия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "ъцэртаъ",
+    "transcription": "эльцэртАль",
+    "translation": "аристократия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": []
+  },
+  {
+    "word": "ъцэртаъфо",
+    "transcription": "эльцэртАльфо",
+    "translation": "аристократический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": []
+  },
+  {
+    "word": "ъцэртаъж",
+    "transcription": "эльцэртАльж",
+    "translation": "аристократизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": []
+  },
+  {
+    "word": "ъцерто",
+    "transcription": "эльцЕрто",
+    "translation": "аристократ",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": []
+  },
+  {
+    "word": "ауцерццо",
+    "transcription": "ауцЕрчо",
+    "translation": "ариец",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "шаэг",
+    "transcription": "шазЭй",
+    "translation": "арестовывать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "шаэгс",
+    "transcription": "шазЭйс",
+    "translation": "арестовывать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749700000026",
+    "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  }
+]
