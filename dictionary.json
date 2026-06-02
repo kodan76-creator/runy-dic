@@ -1,363 +1,385 @@
 [
   {
-    "word": "аваддон",
-    "transcription": "аваддон",
-    "translation": "Аваддон, ангел-губитель",
-    "example": "",
-    "example2": "та дежгп хъ ът дъхгзи ти шабе",
-    "transcription2": "",
-    "audio": "",
-    "audio2": "",
-    "id": "1749200000001",
-    "createdAt": "2026-05-28T10:00:00.000Z",
-    "category": [
-      "1778594680012",
-      "1778594679979"
-    ]
-  },
-  {
-    "word": "анхъо",
-    "transcription": "анхЭльо",
-    "translation": "ангел",
+    "word": "важибль",
+    "transcription": "важИблъ",
+    "translation": "ансамбль",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000002",
+    "id": "1749300000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": []
+  },
+  {
+    "word": "анонсгс",
+    "transcription": "анонсЭйс",
+    "translation": "анонсировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749300000002",
     "createdAt": "2026-05-28T10:00:01.000Z",
     "category": [
       "1778594680011"
     ]
   },
   {
-    "word": "анхкар",
-    "transcription": "ангАр",
-    "translation": "ангар",
+    "word": "анонс",
+    "transcription": "анОнс",
+    "translation": "анонс",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000003",
+    "id": "1749300000003",
     "createdAt": "2026-05-28T10:00:02.000Z",
     "category": [
       "1778594680011"
     ]
   },
   {
-    "word": "экронотэ",
-    "transcription": "экронотЭ",
-    "translation": "анахронический",
+    "word": "пинь",
+    "transcription": "пИньо",
+    "translation": "аномалия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000004",
+    "id": "1749300000004",
     "createdAt": "2026-05-28T10:00:03.000Z",
     "category": []
   },
   {
-    "word": "экронот",
-    "transcription": "экронОт",
-    "translation": "анахронизм",
+    "word": "анодгс",
+    "transcription": "анодЭйс",
+    "translation": "анодировать",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000005",
+    "id": "1749300000005",
     "createdAt": "2026-05-28T10:00:04.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "анатомиа",
-    "transcription": "анатОмиа",
-    "translation": "анатомия",
+    "word": "анодо",
+    "transcription": "анОдо",
+    "translation": "анод",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000006",
+    "id": "1749300000006",
     "createdAt": "2026-05-28T10:00:05.000Z",
     "category": [
       "1778594680011"
     ]
   },
   {
-    "word": "анатомгс",
-    "transcription": "анатомЭйс",
-    "translation": "анатомировать",
+    "word": "аноти",
+    "transcription": "анотИ",
+    "translation": "аннотация",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000007",
+    "id": "1749300000007",
     "createdAt": "2026-05-28T10:00:06.000Z",
     "category": [
       "1778594680011"
     ]
   },
   {
-    "word": "ватжитэ",
-    "transcription": "ватжитЭ",
-    "translation": "анархия, безвластие",
+    "word": "чрасъжь",
+    "transcription": "айрасэльжИньо",
+    "translation": "превращение (метаморфозы), аннигиляция",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000008",
+    "id": "1749300000008",
     "createdAt": "2026-05-28T10:00:07.000Z",
-    "category": []
+    "category": [
+      "1778594680010"
+    ]
   },
   {
-    "word": "ватжитэпэ",
-    "transcription": "ватжитэпЭ",
-    "translation": "анархический",
+    "word": "анексэш",
+    "transcription": "анексэш",
+    "translation": "аннексия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000009",
+    "id": "1749300000009",
     "createdAt": "2026-05-28T10:00:08.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "ватжито",
-    "transcription": "ватжИто",
-    "translation": "анархист",
+    "word": "анкэтгс",
+    "transcription": "анкэтЭйс",
+    "translation": "анкетировать",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000010",
+    "id": "1749300000010",
     "createdAt": "2026-05-28T10:00:09.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "ватжищи",
-    "transcription": "ватжищИ",
-    "translation": "анархизм",
+    "word": "анкэта",
+    "transcription": "анкЭта",
+    "translation": "анкета",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000011",
+    "id": "1749300000011",
     "createdAt": "2026-05-28T10:00:10.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "ананас",
-    "transcription": "ананАс",
-    "translation": "ананас",
+    "word": "анис",
+    "transcription": "анИс",
+    "translation": "анис",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000012",
+    "id": "1749300000012",
     "createdAt": "2026-05-28T10:00:11.000Z",
     "category": [
       "1778594680011"
     ]
   },
   {
-    "word": "шатыкъ",
-    "transcription": "шатыкЭль",
-    "translation": "аналогия",
+    "word": "анилин",
+    "transcription": "анилИн",
+    "translation": "анилин",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000013",
+    "id": "1749300000013",
     "createdAt": "2026-05-28T10:00:12.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "шатыкофо",
-    "transcription": "шатЫкофо",
-    "translation": "аналогичный",
+    "word": "анэстэзи",
+    "transcription": "анэстэзИ",
+    "translation": "анестезия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000014",
+    "id": "1749300000014",
     "createdAt": "2026-05-28T10:00:13.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "шатыко",
-    "transcription": "шатЫко",
-    "translation": "аналог",
+    "word": "анэстээш",
+    "transcription": "анэстээш",
+    "translation": "анестезия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000015",
+    "id": "1749300000015",
     "createdAt": "2026-05-28T10:00:14.000Z",
-    "category": []
+    "category": [
+      "1778594680020"
+    ]
   },
   {
-    "word": "овъзотофо",
-    "transcription": "овэльзОтофо",
-    "translation": "аналитический",
+    "word": "анэстэзо",
+    "transcription": "анэстэзо",
+    "translation": "анестезиолог",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000016",
+    "id": "1749300000016",
     "createdAt": "2026-05-28T10:00:15.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "овъзото",
-    "transcription": "овэльзОто",
-    "translation": "аналитик",
+    "word": "анэмиа",
+    "transcription": "анэмИа",
+    "translation": "анемия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000017",
+    "id": "1749300000017",
     "createdAt": "2026-05-28T10:00:16.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "овъзгс",
-    "transcription": "овэльзЭйс",
-    "translation": "анализировать",
+    "word": "анэмэпэ",
+    "transcription": "анэмэпэ",
+    "translation": "анемичный",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000018",
+    "id": "1749300000018",
     "createdAt": "2026-05-28T10:00:17.000Z",
-    "category": []
+    "category": [
+      "1778594680011"
+    ]
   },
   {
-    "word": "овъзо",
-    "transcription": "овЭльзо",
-    "translation": "анализ",
+    "word": "хайбекофо",
+    "transcription": "хайбЕркофо",
+    "translation": "анекдотичный",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000019",
+    "id": "1749300000019",
     "createdAt": "2026-05-28T10:00:18.000Z",
     "category": []
   },
   {
-    "word": "анаконда",
-    "transcription": "анакОнда",
-    "translation": "анаконда",
+    "word": "хайбеко",
+    "transcription": "хайбЕрко",
+    "translation": "анекдот",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000020",
+    "id": "1749300000020",
     "createdAt": "2026-05-28T10:00:19.000Z",
-    "category": [
-      "1778594680011"
-    ]
+    "category": []
   },
   {
-    "word": "анабиоз",
-    "transcription": "анабиОз",
-    "translation": "анабиоз",
+    "word": "ангелиа",
+    "transcription": "ангЭлиа",
+    "translation": "Англия",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000021",
+    "id": "1749300000021",
     "createdAt": "2026-05-28T10:00:20.000Z",
-    "category": [
-      "1778594680011"
-    ]
+    "category": []
   },
   {
-    "word": "амфора",
-    "transcription": "Амфора",
-    "translation": "амфора",
+    "word": "ангъццика",
+    "transcription": "ангэльчика",
+    "translation": "англичанка",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000022",
+    "id": "1749300000022",
     "createdAt": "2026-05-28T10:00:21.000Z",
-    "category": [
-      "1778594680011"
-    ]
+    "category": []
   },
   {
-    "word": "амфитео",
-    "transcription": "амфитЕро",
-    "translation": "амфитеатр",
+    "word": "ангъицц",
+    "transcription": "ангэльич",
+    "translation": "англичанин",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000023",
+    "id": "1749300000023",
     "createdAt": "2026-05-28T10:00:22.000Z",
-    "category": [
-      "1778594680011"
-    ]
+    "category": []
   },
   {
-    "word": "амфибиа",
-    "transcription": "амфИБиа",
-    "translation": "амфибия",
+    "word": "ангъицы",
+    "transcription": "ангэльицы",
+    "translation": "англичане",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000024",
+    "id": "1749300000024",
     "createdAt": "2026-05-28T10:00:23.000Z",
-    "category": [
-      "1778594680011"
-    ]
+    "category": []
   },
   {
-    "word": "амур",
-    "transcription": "амУр",
-    "translation": "амур",
+    "word": "ангъифо",
+    "transcription": "ангэльифо",
+    "translation": "английский",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000025",
+    "id": "1749300000025",
     "createdAt": "2026-05-28T10:00:24.000Z",
     "category": []
   },
   {
-    "word": "амунито",
-    "transcription": "амунИто",
-    "translation": "амуниция",
+    "word": "энхэш",
+    "transcription": "энхэш",
+    "translation": "ангина",
     "example": "",
     "example2": "",
     "transcription2": "",
     "audio": "",
     "audio2": "",
-    "id": "1749200000026",
+    "id": "1749300000026",
     "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": []
+  },
+  {
+    "word": "анхъофо",
+    "transcription": "анхЭльофо",
+    "translation": "ангельский",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749300000027",
+    "createdAt": "2026-05-28T10:00:26.000Z",
     "category": [
       "1778594680011"
     ]
