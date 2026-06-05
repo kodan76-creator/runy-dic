@@ -8319,5 +8319,389 @@
     "id": "1749900000026",
     "createdAt": "2026-05-28T10:00:25.000Z",
     "category": []
+  },
+  {
+    "word": "ътсъ",
+    "transcription": "эльтсЭль",
+    "translation": "атом",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": []
+  },
+  {
+    "word": "атолл",
+    "transcription": "атОлл",
+    "translation": "атолл",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ътсуфеа",
+    "transcription": "эльтсуфЕра",
+    "translation": "атмосфера",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "ътчфо",
+    "transcription": "эльтАйфо",
+    "translation": "атлетический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": []
+  },
+  {
+    "word": "ътчка",
+    "transcription": "эльтАйка",
+    "translation": "атлетика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "ътчъ",
+    "transcription": "эльтАйль",
+    "translation": "атлетизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "ътчо",
+    "transcription": "эльтАйо",
+    "translation": "атлет",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "атлас",
+    "transcription": "Атлас",
+    "translation": "атлас",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "атъе",
+    "transcription": "атэльЕ",
+    "translation": "ателье",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "атаман",
+    "transcription": "атамАн",
+    "translation": "атаман",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "гжургс",
+    "transcription": "эйжурЭйс",
+    "translation": "атаковать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "гжура",
+    "transcription": "эйжУра",
+    "translation": "атака",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "асфаътгс",
+    "transcription": "асуфальтЭйс",
+    "translation": "асфальтировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "асфаъто",
+    "transcription": "асуфАльто",
+    "translation": "асфальт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "зорингццофо",
+    "transcription": "зоринэйчофо",
+    "translation": "астроцитный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680009"
+    ]
+  },
+  {
+    "word": "зорингц",
+    "transcription": "зоринэйц",
+    "translation": "астроцит",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680009"
+    ]
+  },
+  {
+    "word": "зориме",
+    "transcription": "зоримЕ",
+    "translation": "астрономия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "зоримефо",
+    "transcription": "зоримЕрфо",
+    "translation": "астрономический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "зоримео",
+    "transcription": "зоримЕро",
+    "translation": "астроном",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "зоринаъ",
+    "transcription": "зоринАль",
+    "translation": "астрология",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": []
+  },
+  {
+    "word": "зоринаъфо",
+    "transcription": "зоринАльфо",
+    "translation": "астрологический",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": []
+  },
+  {
+    "word": "зоринаъто",
+    "transcription": "зоринАльто",
+    "translation": "астролог",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": []
+  },
+  {
+    "word": "зориноъ",
+    "transcription": "зоринОль",
+    "translation": "астрал, астральный мир",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": []
+  },
+  {
+    "word": "зориноъфо",
+    "transcription": "зоринОльфо",
+    "translation": "астральный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "астра",
+    "transcription": "Астра",
+    "translation": "астра",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "жэто",
+    "transcription": "жЭто",
+    "translation": "астматик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000026",
+    "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": []
+  },
+  {
+    "word": "жэтш",
+    "transcription": "жэтш",
+    "translation": "астма",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000027",
+    "createdAt": "2026-05-28T10:00:26.000Z",
+    "category": []
+  },
+  {
+    "word": "астеоид",
+    "transcription": "астерОид",
+    "translation": "астероид",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750000000028",
+    "createdAt": "2026-05-28T10:00:27.000Z",
+    "category": [
+      "1778594680011"
+    ]
   }
 ]
