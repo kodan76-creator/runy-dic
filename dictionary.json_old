@@ -7955,5 +7955,369 @@
     "category": [
       "1778594680011"
     ]
+  },
+  {
+    "word": "эстэнэш",
+    "transcription": "эстэнЭш",
+    "translation": "астения",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "эстэнэд",
+    "transcription": "эстэнЭд",
+    "translation": "астеник",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "хгматгс",
+    "transcription": "хэйматЭйс",
+    "translation": "ассоциировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": []
+  },
+  {
+    "word": "хгмата",
+    "transcription": "хэймАта",
+    "translation": "ассоциация (объединение лиц или учреждений)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": []
+  },
+  {
+    "word": "ъто",
+    "transcription": "Эльто",
+    "translation": "ассоциация (связь между представлениями)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "ътофо",
+    "transcription": "Эльтофо",
+    "translation": "ассоциативный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "асгжин",
+    "transcription": "асэйжИн",
+    "translation": "ассортимент",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "асгжи",
+    "transcription": "асэйжИ",
+    "translation": "ассорти",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": []
+  },
+  {
+    "word": "бомаътгс",
+    "transcription": "бомальтЭйс",
+    "translation": "ассистировать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "бомаъто",
+    "transcription": "бомАльто",
+    "translation": "ассистент",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "хгбъ",
+    "transcription": "хэйбЭль",
+    "translation": "ассамблея",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "аспиронтура",
+    "transcription": "аспиронтУра",
+    "translation": "аспирантура",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аспиранто",
+    "transcription": "аспирАнто",
+    "translation": "аспирант",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ыбъ",
+    "transcription": "возбЭль",
+    "translation": "аспект",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": []
+  },
+  {
+    "word": "аскэтопэ",
+    "transcription": "аскетопЭ",
+    "translation": "аскетичный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аскэтиш",
+    "transcription": "аскэтиш",
+    "translation": "аскетизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "аскэт",
+    "transcription": "аскЭт",
+    "translation": "аскет",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "шахчжънифо",
+    "transcription": "шахайжЭльнифо",
+    "translation": "асинхронный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "шахчжънис",
+    "transcription": "шахайжЭльнис",
+    "translation": "асинхронизм",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "асгмеиа",
+    "transcription": "асэймерИа",
+    "translation": "асимметрия",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "асгмегфо",
+    "transcription": "асэймерЭйфо",
+    "translation": "асимметричный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "асэпса",
+    "transcription": "асЭпса",
+    "translation": "асептика",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "асбасто",
+    "transcription": "асбАсто",
+    "translation": "асбест",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ас",
+    "transcription": "ас",
+    "translation": "ас",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ар-ехкард",
+    "transcription": "ар-ергАрд",
+    "translation": "арьергард",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "важъь",
+    "transcription": "важэйльИньо",
+    "translation": "архитектура, зодчество",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1749900000026",
+    "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": []
   }
 ]
