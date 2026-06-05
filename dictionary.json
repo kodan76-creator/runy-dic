@@ -1,0 +1,354 @@
+[
+  {
+    "word": "асте",
+    "transcription": "астЕ",
+    "translation": "базар",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": []
+  },
+  {
+    "word": "базаътофо",
+    "transcription": "базальтофо",
+    "translation": "базальтовый",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "базаъто",
+    "transcription": "базальто",
+    "translation": "базальт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "айха",
+    "transcription": "Айха",
+    "translation": "база",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": []
+  },
+  {
+    "word": "бадминтон",
+    "transcription": "бадминтОн",
+    "translation": "бадминтон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "багульник",
+    "transcription": "багУльник",
+    "translation": "багульник",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "фегержъфо",
+    "transcription": "фэйержЭльфо",
+    "translation": "багряный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "фегержъ",
+    "transcription": "фэйержЭль",
+    "translation": "багрянец",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": []
+  },
+  {
+    "word": "фегергфо",
+    "transcription": "фэйерЭйфо",
+    "translation": "багровый",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": []
+  },
+  {
+    "word": "фегергс",
+    "transcription": "фэйерЭйс",
+    "translation": "багроветь",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": []
+  },
+  {
+    "word": "багор",
+    "transcription": "багОр",
+    "translation": "багор",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баги",
+    "transcription": "багИ",
+    "translation": "багет",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "багажфо",
+    "transcription": "багАжфо",
+    "translation": "багажный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "багажник",
+    "transcription": "багАжник",
+    "translation": "багажник",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "багаж",
+    "transcription": "багАж",
+    "translation": "багаж",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "айжа",
+    "transcription": "Айжа",
+    "translation": "бабушка",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": []
+  },
+  {
+    "word": "цазыга",
+    "transcription": "цазЫга",
+    "translation": "бабочка",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "стервит",
+    "transcription": "стЕрвит",
+    "translation": "бабник",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "стерщика",
+    "transcription": "стерщИка",
+    "translation": "бабка",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "бабка",
+    "transcription": "бАбка",
+    "translation": "бабка (спец.)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "стервапэ",
+    "transcription": "стервапЭ",
+    "translation": "бабий",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": []
+  },
+  {
+    "word": "дэрэща",
+    "transcription": "дэрЭща",
+    "translation": "яга, баба-яга (старая)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": []
+  },
+  {
+    "word": "ъфайяъ",
+    "transcription": "эльфайяль",
+    "translation": "СамоСущая Мать, яга, баба-яга",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": [
+      "1778594680008",
+      "1778594680010"
+    ]
+  },
+  {
+    "word": "стерва",
+    "transcription": "стЕрва",
+    "translation": "баба (исключение: РОО)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": [
+      "1778594679991"
+    ]
+  },
+  {
+    "word": "ве",
+    "transcription": "ве",
+    "translation": "б, бы (частица)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750300000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680022"
+    ]
+  }
+]
