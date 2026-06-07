@@ -195,6 +195,7 @@ body {
 
 :root {
   --app-header-height: 110px;
+  --app-viewport-height: 100svh;
 }
 
 /* 📱 Основной контейнер приложения */
@@ -375,7 +376,7 @@ body {
   display: grid;
   gap: 20px;
   overflow-y: auto;
-  max-height: calc(100vh - var(--app-header-height) - 30px);
+  max-height: calc(var(--app-viewport-height) - var(--app-header-height) - 30px);
   padding: 20px 8px 40px;
   box-sizing: border-box;
 }
@@ -981,7 +982,7 @@ body {
     padding: 12px;
     max-width: 100%;
     overflow-y: auto;
-    max-height: calc(100vh - var(--app-header-height) - 120px);
+    max-height: calc(var(--app-viewport-height) - var(--app-header-height) - 16px);
   }
 
   /* Cards: compact and readable */

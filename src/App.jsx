@@ -217,8 +217,25 @@ function Home({ user, onLogout }) {
 
   useEffect(() => {
     // prevent body scroll so only center results area scrolls
+    const updateViewportHeight = () => {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight
+      document.documentElement.style.setProperty('--app-viewport-height', `${viewportHeight}px`)
+    }
+
+    updateViewportHeight()
     document.body.classList.add('app-no-scroll')
-    return () => { document.body.classList.remove('app-no-scroll'); stopAudio() }
+    window.addEventListener('resize', updateViewportHeight)
+    window.visualViewport?.addEventListener('resize', updateViewportHeight)
+    window.visualViewport?.addEventListener('scroll', updateViewportHeight)
+
+    return () => {
+      document.body.classList.remove('app-no-scroll')
+      document.documentElement.style.removeProperty('--app-viewport-height')
+      window.removeEventListener('resize', updateViewportHeight)
+      window.visualViewport?.removeEventListener('resize', updateViewportHeight)
+      window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
+      stopAudio()
+    }
   }, [])
   
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
