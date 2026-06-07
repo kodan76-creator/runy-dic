@@ -109,6 +109,29 @@ body {
   cursor: not-allowed;
 }
 
+.admin-launch-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #FFD700;
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.admin-launch-btn:hover:not(:disabled) {
+  background: #FFA500;
+}
+
+.admin-launch-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 /* Кнопка выхода пользователя */
 .logout-btn-user {
   background: #7b1fa2;

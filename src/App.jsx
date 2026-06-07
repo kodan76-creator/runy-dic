@@ -57,6 +57,9 @@ function UserAuthForm({ onLogin }) {
         <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
+        <button className="admin-launch-btn" type="button" onClick={() => { window.location.hash = '/admin' }} disabled={loading}>
+          Запустить админку
+        </button>
       </div>
     </div>
   )
