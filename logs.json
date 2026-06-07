@@ -1,5 +1,33 @@
 [
   {
+    "id": "1780850280805",
+    "timestamp": "2026-06-07T16:38:00.805Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Бабу\""
+  },
+  {
+    "id": "1780850278686",
+    "timestamp": "2026-06-07T16:37:58.686Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Баб\""
+  },
+  {
+    "id": "1780850277185",
+    "timestamp": "2026-06-07T16:37:57.185Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ба\""
+  },
+  {
+    "id": "1780850274859",
+    "timestamp": "2026-06-07T16:37:54.859Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Б\""
+  },
+  {
     "id": "1780849264524",
     "timestamp": "2026-06-07T16:21:04.524Z",
     "action": "login",
