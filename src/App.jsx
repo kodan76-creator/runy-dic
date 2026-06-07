@@ -138,6 +138,11 @@ function Home({ user, onLogout }) {
     onLogout()
   }
 
+  const openAdminPanel = () => {
+    const adminUrl = `${window.location.origin}${window.location.pathname}#/admin`
+    window.open(adminUrl, '_blank', 'noopener,noreferrer')
+  }
+
   const getAudioSrc = (fileName) => {
     if (!fileName) return ''
     if (/^https?:\/\//i.test(fileName)) return fileName
@@ -340,6 +345,9 @@ function Home({ user, onLogout }) {
             )}
           </div>
         </div>
+        <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
+          Админка
+        </button>
         <button className="logout-btn-user" onClick={handleLogout}>
           👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
         </button>
