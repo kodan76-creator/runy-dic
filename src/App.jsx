@@ -345,12 +345,14 @@ function Home({ user, onLogout }) {
             )}
           </div>
         </div>
-        <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
-          Админка
-        </button>
-        <button className="logout-btn-user" onClick={handleLogout}>
-          👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
-        </button>
+        <div className="header-actions">
+          <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
+            Админка
+          </button>
+          <button className="logout-btn-user" onClick={handleLogout}>
+            👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
+          </button>
+        </div>
       </div>
 
       {showFilterModal && (

@@ -157,6 +157,14 @@ body {
   display: block;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  order: 6;
+}
+
 .header-admin-btn {
   background: #FFD700;
   color: #000000;
@@ -167,8 +175,6 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: background 0.3s;
-  margin-left: auto;
-  order: 6;
   white-space: nowrap;
 }
 
@@ -740,7 +746,7 @@ body {
 /* Адаптивность */
 @media (max-width: 768px) {
   :root {
-    --app-header-height: 360px;
+    --app-header-height: 320px;
   }
 
   .container {
@@ -804,16 +810,20 @@ body {
   }
 
   .logout-btn-user {
-    order: 7;
-    align-self: flex-end;
+    align-self: center;
     margin-left: 0;
     font-size: 14px;
     padding: 10px 14px;
   }
 
-  .header-admin-btn {
+  .header-actions {
     order: 6;
     align-self: flex-end;
+    margin-left: 0;
+    gap: 8px;
+  }
+
+  .header-admin-btn {
     margin-left: 0;
     padding: 10px 14px;
     font-size: 14px;
@@ -875,7 +885,7 @@ body {
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
   :root {
-    --app-header-height: 360px;
+    --app-header-height: 320px;
   }
 
   /* Header: stacked, compact and centered */
@@ -947,13 +957,18 @@ body {
 
   .logout-btn-user {
     align-self: center;
-    margin-top: 6px;
+    margin-top: 0;
     padding: 8px 12px;
     font-size: 14px;
   }
 
+  .header-actions {
+    align-self: flex-end;
+    margin-left: 0;
+    gap: 8px;
+  }
+
   .header-admin-btn {
-    align-self: center;
     margin-left: 0;
     padding: 9px 12px;
     font-size: 14px;
