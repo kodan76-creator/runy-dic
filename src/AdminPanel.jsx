@@ -63,8 +63,24 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
 
   // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
   useEffect(() => {
+    const updateViewportHeight = () => {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight
+      document.documentElement.style.setProperty('--admin-viewport-height', `${viewportHeight}px`)
+    }
+
+    updateViewportHeight()
     document.body.classList.add('admin-no-scroll')
-    return () => { document.body.classList.remove('admin-no-scroll') }
+    window.addEventListener('resize', updateViewportHeight)
+    window.visualViewport?.addEventListener('resize', updateViewportHeight)
+    window.visualViewport?.addEventListener('scroll', updateViewportHeight)
+
+    return () => {
+      document.body.classList.remove('admin-no-scroll')
+      document.documentElement.style.removeProperty('--admin-viewport-height')
+      window.removeEventListener('resize', updateViewportHeight)
+      window.visualViewport?.removeEventListener('resize', updateViewportHeight)
+      window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
+    }
   }, [])
 
   const filteredWords = useMemo(() => {

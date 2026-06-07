@@ -10,10 +10,12 @@
 /* Админ-панель */
 html, body { height: 100%; background-color: #aa3bff; }
 
+:root { --admin-viewport-height: 100svh; --admin-top-offset: 650px; }
+
 /* When admin is open, prevent body scroll so only center panel scrolls */
 .admin-no-scroll { overflow: hidden !important; }
 
-.admin-panel { height: 100vh; background-color: #7b1fa2; padding: 20px; padding-top: 650px; overflow: hidden; }
+.admin-panel { height: var(--admin-viewport-height); background-color: #7b1fa2; padding: 20px; padding-top: var(--admin-top-offset); overflow: hidden; box-sizing: border-box; }
 .admin-fixed-container { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 0; z-index: 1000; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .admin-header { display: flex; justify-content: space-between; align-items: center; background: #aa3bff; padding: 15px 20px; border-radius: 12px 12px 0 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #7b1fa2; }
 .admin-header h2 { margin: 0; color: white; }
@@ -134,7 +136,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .admin-content { max-width: 1200px; margin: 0 auto; overflow: hidden; }
 
 /* Main dictionary list should be scrollable (only section that scrolls full content) */
-.words-list { overflow-y: auto; max-height: calc(100vh - 680px); }
+.words-list { overflow-y: auto; max-height: calc(var(--admin-viewport-height) - var(--admin-top-offset) - 30px); }
 .words-list::-webkit-scrollbar { width: 12px; }
 .words-list::-webkit-scrollbar-track { background: transparent; }
 .words-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid transparent; }
@@ -166,14 +168,24 @@ html, body { height: 100%; background-color: #aa3bff; }
 
 /* Адаптивность */
 @media (max-width: 768px) {
+  :root {
+    --admin-top-offset: 10px;
+  }
+
   .admin-panel {
-    padding-top: 380px;
     padding-left: 10px;
     padding-right: 10px;
+    overflow-y: auto;
   }
   
   .admin-fixed-container {
+    position: static;
     padding: 0 10px;
+  }
+
+  .admin-content {
+    overflow: visible;
+    margin-top: 12px;
   }
   
   .admin-header {
@@ -302,6 +314,11 @@ html, body { height: 100%; background-color: #aa3bff; }
   .words-count {
     font-size: 16px;
   }
+
+  .words-list {
+    max-height: none;
+    overflow: visible;
+  }
   
   .users-section h3,
   .logs-header h3 {
@@ -311,8 +328,13 @@ html, body { height: 100%; background-color: #aa3bff; }
 
 /* Для очень маленьких экранов */
 @media (max-width: 480px) {
+  :root {
+    --admin-top-offset: 8px;
+  }
+
   .admin-panel {
-    padding-top: 420px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   
   .admin-header h2 {
@@ -355,12 +377,21 @@ html, body { height: 100%; background-color: #aa3bff; }
     padding: 6px 12px;
     font-size: 13px;
   }
+
+  .words-list {
+    max-height: none;
+  }
 }
 
 /* Landscape orientation на маленьких экранах */
 @media (max-width: 768px) and (orientation: landscape) {
+  :root {
+    --admin-top-offset: 10px;
+  }
+
   .admin-panel {
-    padding-top: 280px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .container {
