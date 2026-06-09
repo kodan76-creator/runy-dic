@@ -1,0 +1,398 @@
+[
+  {
+    "word": "бандура",
+    "transcription": "бандУра",
+    "translation": "бандура",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бандероъ",
+    "transcription": "бандерОль",
+    "translation": "бандероль",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бандаж",
+    "transcription": "бандАж",
+    "translation": "бандаж",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "банан",
+    "transcription": "банАн",
+    "translation": "банан",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "поппэ",
+    "transcription": "попЭ",
+    "translation": "банальный, тривиальный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": []
+  },
+  {
+    "word": "попь",
+    "transcription": "попИньо",
+    "translation": "банальность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": []
+  },
+  {
+    "word": "бамперо",
+    "transcription": "бАмперо",
+    "translation": "бампер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бамбук",
+    "transcription": "бамбУк",
+    "translation": "бамбук",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баъясина",
+    "transcription": "бальЯсина",
+    "translation": "балясина",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "балык",
+    "transcription": "балЫк",
+    "translation": "балык",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "балифо",
+    "transcription": "балИфо",
+    "translation": "бальный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": []
+  },
+  {
+    "word": "бали",
+    "transcription": "балИ",
+    "translation": "бальность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "баъзам",
+    "transcription": "бальзАм",
+    "translation": "бальзам",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "ВЪ-ЯАЪ",
+    "transcription": "вАль-яАль",
+    "translation": "Балтийское море",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594679976"
+    ]
+  },
+  {
+    "word": "баълдъ",
+    "transcription": "бальдЭль",
+    "translation": "баловство",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": []
+  },
+  {
+    "word": "баъдо",
+    "transcription": "бАльдо",
+    "translation": "баловень",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": []
+  },
+  {
+    "word": "баълдгс",
+    "transcription": "бальдЭйс",
+    "translation": "баловать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": []
+  },
+  {
+    "word": "баъдофо",
+    "transcription": "бАльдофо",
+    "translation": "балованный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": []
+  },
+  {
+    "word": "баллон",
+    "transcription": "баллОн",
+    "translation": "баллон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "балласт",
+    "transcription": "баллАст",
+    "translation": "балласт",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баллада",
+    "transcription": "баллАда",
+    "translation": "баллада",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "балл",
+    "transcription": "балл",
+    "translation": "балл",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "балкон",
+    "transcription": "балкОн",
+    "translation": "балкон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "шгсо",
+    "transcription": "шЭйсо",
+    "translation": "балка (ложбина, овраг)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": []
+  },
+  {
+    "word": "балка",
+    "transcription": "бАлка",
+    "translation": "балка (техн.)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "кивертомчстро",
+    "transcription": "кивертомАйстро",
+    "translation": "балетмейстер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000026",
+    "createdAt": "2026-05-28T10:00:25.000Z",
+    "category": []
+  },
+  {
+    "word": "кивето",
+    "transcription": "кивЕрто",
+    "translation": "балет",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000027",
+    "createdAt": "2026-05-28T10:00:26.000Z",
+    "category": []
+  },
+  {
+    "word": "киверина",
+    "transcription": "киверИна",
+    "translation": "балерина",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750500000028",
+    "createdAt": "2026-05-28T10:00:27.000Z",
+    "category": []
+  }
+]
