@@ -1,5 +1,12 @@
 [
   {
+    "id": "1781201243520",
+    "timestamp": "2026-06-11T18:07:23.520Z",
+    "action": "search",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Поиск: \"бали\""
+  },
+  {
     "id": "1781201237790",
     "timestamp": "2026-06-11T18:07:17.790Z",
     "action": "login",
