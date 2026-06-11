@@ -10725,5 +10725,372 @@
     "category": [
       "1778594680011"
     ]
+  },
+  {
+    "word": "баста",
+    "transcription": "бАста",
+    "translation": "баста, прекращение, достаточно, шабаш (кончай работу)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "акваъби",
+    "transcription": "аквальбИ",
+    "translation": "бассейн",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": []
+  },
+  {
+    "word": "басма",
+    "transcription": "бАсма",
+    "translation": "басма",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баскэтболист",
+    "transcription": "баскэтболист",
+    "translation": "баскетболист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баскэтболиц",
+    "transcription": "баскэтболиц",
+    "translation": "баскетболист",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "баскэтбол",
+    "transcription": "баскэтбОл",
+    "translation": "баскетбол",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бас",
+    "transcription": "бас",
+    "translation": "бас",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бар-ео",
+    "transcription": "бар-Еро",
+    "translation": "барьер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бархатфо",
+    "transcription": "бАрхатфо",
+    "translation": "бархатный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бархатофо",
+    "transcription": "бАрхатофо",
+    "translation": "бархатистый",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "бархато",
+    "transcription": "бАрхато",
+    "translation": "бархат",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "вгсан",
+    "transcription": "вэйсАн",
+    "translation": "бархан",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": []
+  },
+  {
+    "word": "бартео",
+    "transcription": "бАртеро",
+    "translation": "бартер",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барсук",
+    "transcription": "барсУк",
+    "translation": "барсук",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барс",
+    "transcription": "барс",
+    "translation": "барс",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барон",
+    "transcription": "барОн",
+    "translation": "барон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баратаме",
+    "transcription": "баратамЕ",
+    "translation": "барометр",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барокко",
+    "transcription": "барОкко",
+    "translation": "барокко",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баразчме",
+    "transcription": "баразаймЕ",
+    "translation": "барокамера",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": []
+  },
+  {
+    "word": "аюбаро",
+    "transcription": "аюбАро",
+    "translation": "бармен",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": []
+  },
+  {
+    "word": "баркас",
+    "transcription": "баркАс",
+    "translation": "баркас",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барк",
+    "transcription": "барк",
+    "translation": "барк",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баритон",
+    "transcription": "баритОн",
+    "translation": "баритон",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "барий",
+    "transcription": "бАрий",
+    "translation": "барий",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000024",
+    "createdAt": "2026-05-28T10:00:23.000Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "баржа",
+    "transcription": "бАржа",
+    "translation": "баржа",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1750800000025",
+    "createdAt": "2026-05-28T10:00:24.000Z",
+    "category": [
+      "1778594680011"
+    ]
   }
 ]
