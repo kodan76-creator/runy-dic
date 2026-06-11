@@ -11519,5 +11519,359 @@
     "category": [
       "1778594680011"
     ]
+  },
+  {
+    "word": "б-е-дг",
+    "transcription": "бальгодЭй",
+    "translation": "бедствовать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000001",
+    "createdAt": "2026-05-28T10:00:00.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпээй",
+    "transcription": "рэпэрЭй",
+    "translation": "бедствовать",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000002",
+    "createdAt": "2026-05-28T10:00:01.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-дэ",
+    "transcription": "бальгодэ",
+    "translation": "бедствие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000003",
+    "createdAt": "2026-05-28T10:00:02.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпээ",
+    "transcription": "рэпэрэ",
+    "translation": "бедствие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000004",
+    "createdAt": "2026-05-28T10:00:03.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-дэпэ",
+    "transcription": "бальгодэпЭ",
+    "translation": "бедственный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000005",
+    "createdAt": "2026-05-28T10:00:04.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпээпэ",
+    "transcription": "рэпэрэпэ",
+    "translation": "бедственный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000006",
+    "createdAt": "2026-05-28T10:00:05.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "бегдо",
+    "transcription": "берЭйдо",
+    "translation": "бедро",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000007",
+    "createdAt": "2026-05-28T10:00:06.000Z",
+    "category": []
+  },
+  {
+    "word": "б-е-тээг",
+    "transcription": "бальготэрЭй",
+    "translation": "бедокурить, набедокурить",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000008",
+    "createdAt": "2026-05-28T10:00:07.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэтэй",
+    "transcription": "рэтЭй",
+    "translation": "бедокурить",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000009",
+    "createdAt": "2026-05-28T10:00:08.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-тээ",
+    "transcription": "бальготэрэ",
+    "translation": "бедокур",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000010",
+    "createdAt": "2026-05-28T10:00:09.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэто",
+    "transcription": "рЭто",
+    "translation": "бедокур",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000011",
+    "createdAt": "2026-05-28T10:00:10.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-пэд",
+    "transcription": "бальгопэд",
+    "translation": "бедняк",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000012",
+    "createdAt": "2026-05-28T10:00:11.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэк",
+    "transcription": "рэпЭк",
+    "translation": "бедняк",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000013",
+    "createdAt": "2026-05-28T10:00:12.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-пэх",
+    "transcription": "бальгопэх",
+    "translation": "бедняга",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000014",
+    "createdAt": "2026-05-28T10:00:13.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэд",
+    "transcription": "рэпЭд",
+    "translation": "бедняга",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000015",
+    "createdAt": "2026-05-28T10:00:14.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-пэ",
+    "transcription": "бальгопэ",
+    "translation": "бедный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000016",
+    "createdAt": "2026-05-28T10:00:15.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэ",
+    "transcription": "рэпЭ",
+    "translation": "бедный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000017",
+    "createdAt": "2026-05-28T10:00:16.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-та",
+    "transcription": "бальгота",
+    "translation": "беднота",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000018",
+    "createdAt": "2026-05-28T10:00:17.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэща",
+    "transcription": "рэпЭща",
+    "translation": "беднота",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000019",
+    "createdAt": "2026-05-28T10:00:18.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-щи",
+    "transcription": "бальгощи",
+    "translation": "бедность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000020",
+    "createdAt": "2026-05-28T10:00:19.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэщи",
+    "transcription": "рэпэщИ",
+    "translation": "бедность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000021",
+    "createdAt": "2026-05-28T10:00:20.000Z",
+    "category": [
+      "1778594680020"
+    ]
+  },
+  {
+    "word": "б-е-пэй",
+    "transcription": "бальгопЭй",
+    "translation": "беднеть",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000022",
+    "createdAt": "2026-05-28T10:00:21.000Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ]
+  },
+  {
+    "word": "рэпэй",
+    "transcription": "рэпЭй",
+    "translation": "беднеть",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1751000000023",
+    "createdAt": "2026-05-28T10:00:22.000Z",
+    "category": [
+      "1778594680020"
+    ]
   }
 ]
