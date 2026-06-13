@@ -30,7 +30,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .tab-btn.active { background: #aa3bff; color: white; border-color: #aa3bff; }
 
 /* Форма */
-.form-section { background: white; padding: 12px; padding-bottom: 8px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; max-height: min(520px, calc(var(--admin-viewport-height) - var(--admin-top-offset) - 40px)); overflow: auto; }
+.form-section { background: white; padding: 12px; padding-bottom: 8px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; max-height: min(900px, calc(var(--admin-viewport-height) - var(--admin-top-offset) - 8px)); overflow: auto; }
 /* Reduce scrollbar visual impact inside the compact form */
 .form-section::-webkit-scrollbar { width: 10px; }
 .form-section::-webkit-scrollbar-thumb { background: rgba(123,31,162,0.3); border-radius: 6px; }
