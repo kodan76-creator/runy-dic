@@ -15,8 +15,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 /* When admin is open, prevent body scroll so only center panel scrolls */
 .admin-no-scroll { overflow: hidden !important; }
 
-.admin-panel { height: var(--admin-viewport-height); background-color: #7b1fa2; padding: 20px; padding-top: 0; overflow: hidden; box-sizing: border-box; }
-.admin-fixed-container { position: relative; top: auto; left: auto; right: auto; display: flex; flex-direction: column; gap: 0; z-index: 1000; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.admin-panel { height: var(--admin-viewport-height); background-color: #7b1fa2; padding: 20px; padding-top: var(--admin-top-offset); overflow: hidden; box-sizing: border-box; }
+.admin-fixed-container { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 0; z-index: 1000; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .admin-header { display: flex; justify-content: space-between; align-items: center; background: #aa3bff; padding: 15px 20px; border-radius: 12px 12px 0 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #7b1fa2; }
 .admin-header h2 { margin: 0; color: white; }
 .admin-info { display: flex; align-items: center; gap: 15px; color: white; }
