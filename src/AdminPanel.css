@@ -47,7 +47,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-form input, .word-form textarea.single-line-textarea { width: 100%; padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
 .word-form input:focus, .word-form textarea.single-line-textarea:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: #666666; }
-.word-form textarea.single-line-textarea { height: 42px; resize: vertical; line-height: 1.2; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
+.word-form textarea.single-line-textarea { height: 42px; resize: vertical; line-height: 1.2; }
 .form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
 .save-btn, .cancel-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
 .save-btn { background: #aa3bff; color: white; }
