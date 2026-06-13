@@ -10,7 +10,7 @@
 /* Админ-панель */
 html, body { height: 100%; background-color: #aa3bff; }
 
-:root { --admin-viewport-height: 100svh; --admin-top-offset: 650px; }
+:root { --admin-viewport-height: 100svh; --admin-top-offset: 220px; }
 
 /* When admin is open, prevent body scroll so only center panel scrolls */
 .admin-no-scroll { overflow: hidden !important; }
