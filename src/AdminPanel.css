@@ -44,13 +44,9 @@ html, body { height: 100%; background-color: #aa3bff; }
 /* Двухколоночная форма */
 .word-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
 .form-column { display: flex; flex-direction: column; gap: 10px; }
-.word-form input, .word-form textarea { width: 100%; padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
-.word-form input:focus, .word-form textarea:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.word-form input::placeholder, .word-form textarea::placeholder { color: #666666; }
-/* Make textareas taller and allow vertical resize */
-.word-form textarea { min-height: 52px; resize: vertical; line-height: 1.3; }
-.form-column textarea[rows="3"] { min-height: 80px; }
-.form-column textarea { font-family: inherit; }
+.word-form input { width: 100%; padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.word-form input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
+.word-form input::placeholder { color: #666666; }
 .form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
 .save-btn, .cancel-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
 .save-btn { background: #aa3bff; color: white; }
