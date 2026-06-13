@@ -1,5 +1,47 @@
 [
   {
+    "id": "1781259170589",
+    "timestamp": "2026-06-12T10:12:50.589Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Оста\""
+  },
+  {
+    "id": "1781259167958",
+    "timestamp": "2026-06-12T10:12:47.958Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Ост\""
+  },
+  {
+    "id": "1781201955164",
+    "timestamp": "2026-06-11T18:19:15.164Z",
+    "action": "search",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Поиск: \"аквала\""
+  },
+  {
+    "id": "1781201952360",
+    "timestamp": "2026-06-11T18:19:12.360Z",
+    "action": "search",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Поиск: \"аква\""
+  },
+  {
+    "id": "1781201243520",
+    "timestamp": "2026-06-11T18:07:23.520Z",
+    "action": "search",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Поиск: \"бали\""
+  },
+  {
+    "id": "1781201237790",
+    "timestamp": "2026-06-11T18:07:17.790Z",
+    "action": "login",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1781039847387",
     "timestamp": "2026-06-09T21:17:27.387Z",
     "action": "search",
