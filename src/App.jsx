@@ -283,22 +283,38 @@ function Home({ user, onLogout }) {
     window.visualViewport?.addEventListener('resize', updateViewportHeight)
     window.visualViewport?.addEventListener('scroll', updateViewportHeight)
 
-    // also observe mutations in header to update height when content changes
+    // observe size changes to header to update height when content or layout changes
     let observer = null
     try {
-      if (headerRef.current && window.MutationObserver) {
-        observer = new MutationObserver(() => updateHeaderHeight())
-        observer.observe(headerRef.current, { childList: true, subtree: true, attributes: true })
+      if (headerRef.current) {
+        if (window.ResizeObserver) {
+          observer = new ResizeObserver(() => updateHeaderHeight())
+          observer.observe(headerRef.current)
+        } else if (window.MutationObserver) {
+          observer = new MutationObserver(() => updateHeaderHeight())
+          observer.observe(headerRef.current, { childList: true, subtree: true, attributes: true })
+        }
       }
     } catch (e) { /* ignore */ }
+
+    // also respond to orientation changes and force a couple updates to catch late layout shifts
+    const onOrientation = () => { updateHeaderHeight(); setTimeout(updateHeaderHeight, 200); setTimeout(updateHeaderHeight, 600) }
+    window.addEventListener('orientationchange', onOrientation)
+
+    // small deferred updates to handle font loading / dynamic wrapping
+    const deferred1 = setTimeout(updateHeaderHeight, 100)
+    const deferred2 = setTimeout(updateHeaderHeight, 500)
 
     return () => {
       document.body.classList.remove('app-no-scroll')
       document.documentElement.style.removeProperty('--app-viewport-height')
       window.removeEventListener('resize', updateViewportHeight)
       window.removeEventListener('resize', updateHeaderHeight)
+      window.removeEventListener('orientationchange', onOrientation)
       window.visualViewport?.removeEventListener('resize', updateViewportHeight)
       window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
+      clearTimeout(deferred1)
+      clearTimeout(deferred2)
       if (observer) observer.disconnect()
       stopAudio()
     }
