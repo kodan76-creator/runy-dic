@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "userEmail": "ya.kodan76@ya.ru",
+    "favorites": ["12345","67890"],
+    "updatedAt": "2026-06-17T14:28:00.000Z"
+  }
+]
