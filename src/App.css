@@ -745,6 +745,7 @@ body {
   margin-right: 8px;
 }
 .favorites-toggle.active { color: #ff6b81; }
+.fav-count { display: inline-block; background: #fff; color: #7b1fa2; font-weight: 700; border-radius: 12px; padding: 2px 8px; margin-left: 6px; font-size: 12px; vertical-align: middle; }
 
 .audio-btn-bottom {
   position: absolute;

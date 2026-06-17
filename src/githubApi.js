@@ -7,6 +7,7 @@ const ADMINS_FILE = 'admins.json'
 const USERS_FILE = 'users.json'
 const LOGS_FILE = 'logs.json'
 const CATEGORIES_FILE = 'categories.json'
+const FAVORITES_FILE = 'favorites.json'
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
 const getHeaders = () => ({
 'Authorization': `token ${TOKEN}`,
@@ -251,7 +252,55 @@ export const logSearch = async (term, userEmail) => {
 if (!term?.trim()) return
 addLog({ action: 'search', userEmail, details: `Поиск: "${term}"` }).catch(() => {})
 }
+
 export const logAudioPlay = async (file, userEmail) => {
 if (!file) return
 addLog({ action: 'audio_played', userEmail, details: `Аудио: ${file}` }).catch(() => {})
+}
+
+// FAVORITES per-user stored in FAVORITES_FILE
+export const getFavoritesForUser = async (userEmail) => {
+  if (!userEmail) return []
+  try {
+    const { data } = await fetchGitHubFile(FAVORITES_FILE)
+    if (!Array.isArray(data)) return []
+    const rec = data.find(r => String(r.userEmail).toLowerCase() === String(userEmail).toLowerCase())
+    return rec && Array.isArray(rec.favorites) ? rec.favorites : []
+  } catch (e) {
+    console.error('getFavoritesForUser error:', e)
+    return []
+  }
+}
+
+export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
+  if (!userEmail) throw new Error('userEmail required')
+  let retries = 0
+  const maxRetries = 3
+  while (retries < maxRetries) {
+    try {
+      const { data: all, sha } = await fetchGitHubFile(FAVORITES_FILE)
+      const arr = Array.isArray(all) ? all : []
+      const normalized = (favoritesArray || []).map(String)
+      const existingIdx = arr.findIndex(r => String(r.userEmail).toLowerCase() === String(userEmail).toLowerCase())
+      const now = new Date().toISOString()
+      if (existingIdx === -1) {
+        arr.push({ userEmail, favorites: normalized, updatedAt: now })
+      } else {
+        arr[existingIdx] = { ...arr[existingIdx], favorites: normalized, updatedAt: now }
+      }
+      await updateGitHubFile(FAVORITES_FILE, arr, sha)
+      return true
+    } catch (error) {
+      if (error.message.includes('409') || error.message.includes('Conflict')) {
+        retries++
+        console.warn(`Favorites update conflict, retrying ${retries}/${maxRetries}...`)
+        await new Promise(res => setTimeout(res, 500 + retries * 200))
+        continue
+      }
+      console.error('updateFavoritesForUser error:', error)
+      return false
+    }
+  }
+  console.error('Failed to update favorites after retries')
+  return false
 }

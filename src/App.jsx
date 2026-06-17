@@ -83,29 +83,48 @@ function Home({ user, onLogout }) {
   
   // load favorites for current user from localStorage
   useEffect(() => {
+    let mounted = true
     if (!user || !user.email) return
-    try {
-      const raw = localStorage.getItem(`favorites:${user.email}`)
-      if (raw) {
-        const arr = JSON.parse(raw)
-        setFavorites(new Set(Array.isArray(arr) ? arr : []))
-      } else {
-        setFavorites(new Set())
+    // load from server, fallback to localStorage
+    const load = async () => {
+      try {
+        const server = await getFavoritesForUser(user.email)
+        if (mounted && Array.isArray(server)) {
+          setFavorites(new Set(server))
+          return
+        }
+      } catch (e) {
+        console.warn('Failed to load favorites from server, falling back to localStorage', e)
       }
-    } catch (e) {
-      console.error('Failed to load favorites', e)
-      setFavorites(new Set())
+
+      try {
+        const raw = localStorage.getItem(`favorites:${user.email}`)
+        if (raw) {
+          const arr = JSON.parse(raw)
+          if (mounted) setFavorites(new Set(Array.isArray(arr) ? arr : []))
+        } else if (mounted) {
+          setFavorites(new Set())
+        }
+      } catch (e) {
+        console.error('Failed to load favorites from localStorage', e)
+        if (mounted) setFavorites(new Set())
+      }
     }
+    load()
+    return () => { mounted = false }
   }, [user])
 
-  // persist favorites on change
+  // persist favorites on change (push to server, fallback to localStorage)
   useEffect(() => {
     if (!user || !user.email) return
-    try {
-      localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites)))
-    } catch (e) {
-      console.error('Failed to save favorites', e)
+    const save = async () => {
+      try {
+        await updateFavoritesForUser(user.email, Array.from(favorites))
+      } catch (e) {
+        try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
+      }
     }
+    save()
   }, [favorites, user])
 
   const toggleFavorite = (id) => {
@@ -467,6 +486,7 @@ function Home({ user, onLogout }) {
         <div className="header-actions">
           <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
             {showOnlyFavorites ? '❤️' : '🤍'}
+            <span className="fav-count">{favorites.size}</span>
           </button>
           <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
             Админка
