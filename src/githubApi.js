@@ -291,8 +291,10 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
       if (existingIdx === -1) {
         arr.push({ userEmail, favorites: normalized, updatedAt: now })
       } else {
-        // Replace this user's entry (user intent overrides) but keep other users' edits
-        arr[existingIdx] = { ...arr[existingIdx], favorites: normalized, updatedAt: now }
+        // Merge server and client favorites to avoid losing concurrent additions
+        const serverFavs = Array.isArray(arr[existingIdx]?.favorites) ? arr[existingIdx].favorites.map(String) : []
+        const merged = Array.from(new Set([...serverFavs, ...normalized]))
+        arr[existingIdx] = { ...arr[existingIdx], favorites: merged, updatedAt: now }
       }
 
       // Try to write using the sha we just fetched
@@ -313,7 +315,9 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
           if (idx === -1) {
             latestArr.push({ userEmail, favorites: normalized, updatedAt: now })
           } else {
-            latestArr[idx] = { ...latestArr[idx], favorites: normalized, updatedAt: now }
+            const serverFavs = Array.isArray(latestArr[idx]?.favorites) ? latestArr[idx].favorites.map(String) : []
+            const merged = Array.from(new Set([...serverFavs, ...normalized]))
+            latestArr[idx] = { ...latestArr[idx], favorites: merged, updatedAt: now }
           }
           // Try immediate write with the fresh sha
           await updateGitHubFile(FAVORITES_FILE, latestArr, latestSha)
