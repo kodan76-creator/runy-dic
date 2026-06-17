@@ -257,6 +257,8 @@ function Home({ user, onLogout }) {
     if (!stopPlaylistRef.current) setIsPlaying(false)
   }
 
+  const headerRef = useRef(null)
+
   useEffect(() => {
     // prevent body scroll so only center results area scrolls
     const updateViewportHeight = () => {
@@ -264,18 +266,40 @@ function Home({ user, onLogout }) {
       document.documentElement.style.setProperty('--app-viewport-height', `${viewportHeight}px`)
     }
 
+    const updateHeaderHeight = () => {
+      try {
+        const h = headerRef.current?.offsetHeight || 110
+        document.documentElement.style.setProperty('--app-header-height', `${h}px`)
+      } catch (e) {
+        document.documentElement.style.setProperty('--app-header-height', `110px`)
+      }
+    }
+
     updateViewportHeight()
+    updateHeaderHeight()
     document.body.classList.add('app-no-scroll')
     window.addEventListener('resize', updateViewportHeight)
+    window.addEventListener('resize', updateHeaderHeight)
     window.visualViewport?.addEventListener('resize', updateViewportHeight)
     window.visualViewport?.addEventListener('scroll', updateViewportHeight)
+
+    // also observe mutations in header to update height when content changes
+    let observer = null
+    try {
+      if (headerRef.current && window.MutationObserver) {
+        observer = new MutationObserver(() => updateHeaderHeight())
+        observer.observe(headerRef.current, { childList: true, subtree: true, attributes: true })
+      }
+    } catch (e) { /* ignore */ }
 
     return () => {
       document.body.classList.remove('app-no-scroll')
       document.documentElement.style.removeProperty('--app-viewport-height')
       window.removeEventListener('resize', updateViewportHeight)
+      window.removeEventListener('resize', updateHeaderHeight)
       window.visualViewport?.removeEventListener('resize', updateViewportHeight)
       window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
+      if (observer) observer.disconnect()
       stopAudio()
     }
   }, [])
@@ -330,7 +354,7 @@ function Home({ user, onLogout }) {
   
       return (
     <div className="container">
-      <div className="header">
+      <div className="header" ref={headerRef}>
         <button
           className={`listen-btn ${isPlaying ? 'playing' : ''}`}
           onClick={handleListenAll}
