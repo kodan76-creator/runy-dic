@@ -114,17 +114,31 @@ function Home({ user, onLogout }) {
     return () => { mounted = false }
   }, [user])
 
+  const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
+
   // persist favorites on change (push to server, fallback to localStorage)
   useEffect(() => {
     if (!user || !user.email) return
+    let mounted = true
     const save = async () => {
+      setFavoritesSyncStatus('saving')
       try {
-        await updateFavoritesForUser(user.email, Array.from(favorites))
+        const ok = await updateFavoritesForUser(user.email, Array.from(favorites))
+        if (mounted) {
+          if (ok) setFavoritesSyncStatus('idle')
+          else {
+            setFavoritesSyncStatus('error')
+            try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
+          }
+        }
       } catch (e) {
+        console.error('Failed to sync favorites to server:', e)
+        if (mounted) setFavoritesSyncStatus('error')
         try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
       }
     }
     save()
+    return () => { mounted = false }
   }, [favorites, user])
 
   const toggleFavorite = (id) => {
@@ -484,10 +498,25 @@ function Home({ user, onLogout }) {
           </div>
         </div>
         <div className="header-actions">
-          <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
-            {showOnlyFavorites ? '❤️' : '🤍'}
-            <span className="fav-count">{favorites.size}</span>
-          </button>
+          <div className="favorites-block">
+            <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
+              {showOnlyFavorites ? '❤️' : '🤍'}
+              <span className="fav-count">{favorites.size}</span>
+            </button>
+            <div className="fav-status" title={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации. Нажмите, чтобы попытаться снова.' : favoritesSyncStatus === 'saving' ? 'Сохраняется...' : 'Синхронизировано'} onClick={async () => {
+              if (!user || !user.email) return
+              setFavoritesSyncStatus('saving')
+              try {
+                const ok = await updateFavoritesForUser(user.email, Array.from(favorites))
+                setFavoritesSyncStatus(ok ? 'idle' : 'error')
+              } catch (e) {
+                console.error('Manual sync failed', e)
+                setFavoritesSyncStatus('error')
+              }
+            }}>
+              {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
+            </div>
+          </div>
           <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
             Админка
           </button>

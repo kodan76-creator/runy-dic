@@ -165,6 +165,36 @@ body {
   order: 6;
 }
 
+/* favorites block in header */
+.favorites-block {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.fav-status {
+width: 26px;
+height: 26px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border-radius: 8px;
+background: rgba(255,255,255,0.12);
+color: white;
+font-weight: 700;
+cursor: pointer;
+user-select: none;
+}
+
+.fav-status:hover {
+background: rgba(255,255,255,0.2);
+}
+
+.fav-status[title^="Ошибка"] {
+background: #ff8a80;
+color: #5a0000;
+}
+
 .header-admin-btn {
   background: #FFD700;
   color: #000000;
