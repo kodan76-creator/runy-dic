@@ -80,6 +80,7 @@ function Home({ user, onLogout }) {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
+  const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
   
   // load favorites for current user from localStorage
   useEffect(() => {
@@ -116,29 +117,29 @@ function Home({ user, onLogout }) {
 
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
-  // persist favorites on change (push to server, fallback to localStorage)
+  // persist favorites on change (enqueue write to server, fallback to localStorage)
   useEffect(() => {
     if (!user || !user.email) return
-    let mounted = true
-    const save = async () => {
+    const saveTask = async () => {
       setFavoritesSyncStatus('saving')
       try {
         const ok = await updateFavoritesForUser(user.email, Array.from(favorites))
-        if (mounted) {
-          if (ok) setFavoritesSyncStatus('idle')
-          else {
-            setFavoritesSyncStatus('error')
-            try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
-          }
+        if (ok) setFavoritesSyncStatus('idle')
+        else {
+          setFavoritesSyncStatus('error')
+          try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
         }
       } catch (e) {
         console.error('Failed to sync favorites to server:', e)
-        if (mounted) setFavoritesSyncStatus('error')
+        setFavoritesSyncStatus('error')
         try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
       }
     }
-    save()
-    return () => { mounted = false }
+
+    // enqueue write to serialize concurrent updates
+    writeQueueRef.current = writeQueueRef.current.then(() => saveTask()).catch(err => { console.error('Favorites queue task error', err) })
+
+    return () => {}
   }, [favorites, user])
 
   const toggleFavorite = (id) => {
