@@ -305,6 +305,19 @@ function Home({ user, onLogout }) {
     const deferred1 = setTimeout(updateHeaderHeight, 100)
     const deferred2 = setTimeout(updateHeaderHeight, 500)
 
+    // short polling for cases where browser switches rendering mode (e.g., 'request desktop site')
+    const poll = setInterval(updateHeaderHeight, 200)
+    const stopPoll = setTimeout(() => clearInterval(poll), 2000)
+
+    // when page becomes visible again, recalc (covers tab switching or browser UI changes)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        updateHeaderHeight()
+        setTimeout(updateHeaderHeight, 120)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
     return () => {
       document.body.classList.remove('app-no-scroll')
       document.documentElement.style.removeProperty('--app-viewport-height')
@@ -315,6 +328,9 @@ function Home({ user, onLogout }) {
       window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
       clearTimeout(deferred1)
       clearTimeout(deferred2)
+      clearTimeout(stopPoll)
+      clearInterval(poll)
+      document.removeEventListener('visibilitychange', onVisibility)
       if (observer) observer.disconnect()
       stopAudio()
     }
