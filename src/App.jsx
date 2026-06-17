@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories, getFavoritesForUser, updateFavoritesForUser } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
