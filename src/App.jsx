@@ -91,7 +91,8 @@ function Home({ user, onLogout }) {
       try {
         const server = await getFavoritesForUser(user.email)
         if (mounted && Array.isArray(server)) {
-          setFavorites(new Set(server))
+          // normalize ids to strings for consistent comparisons
+          setFavorites(new Set(server.map(String)))
           return
         }
       } catch (e) {
@@ -102,7 +103,7 @@ function Home({ user, onLogout }) {
         const raw = localStorage.getItem(`favorites:${user.email}`)
         if (raw) {
           const arr = JSON.parse(raw)
-          if (mounted) setFavorites(new Set(Array.isArray(arr) ? arr : []))
+          if (mounted) setFavorites(new Set((Array.isArray(arr) ? arr : []).map(String)))
         } else if (mounted) {
           setFavorites(new Set())
         }
@@ -143,10 +144,11 @@ function Home({ user, onLogout }) {
   }, [favorites, user])
 
   const toggleFavorite = (id) => {
+    const idStr = String(id)
     setFavorites(prev => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      if (next.has(idStr)) next.delete(idStr)
+      else next.add(idStr)
       return next
     })
   }
@@ -415,7 +417,7 @@ function Home({ user, onLogout }) {
     })
         .filter(item => {
           if (!showOnlyFavorites) return true
-          return favorites.has(item.id)
+        return favorites.has(String(item.id))
         })
   
       return (
@@ -554,8 +556,8 @@ function Home({ user, onLogout }) {
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
             {/* favorite button top-right */}
-            <button className={`favorite-btn ${favorites.has(item.id) ? 'active' : ''}`} onClick={() => toggleFavorite(item.id)} title={favorites.has(item.id) ? 'Убрать из избранного' : 'Добавить в избранное'}>
-              {favorites.has(item.id) ? '❤️' : '🤍'}
+            <button className={`favorite-btn ${favorites.has(String(item.id)) ? 'active' : ''}`} onClick={() => toggleFavorite(item.id)} title={favorites.has(String(item.id)) ? 'Убрать из избранного' : 'Добавить в избранное'}>
+              {favorites.has(String(item.id)) ? '❤️' : '🤍'}
             </button>
             {item.audio && (
               <button className="audio-btn" onClick={() => handleSingleAudio(item.audio)} title="Слушать слово">
