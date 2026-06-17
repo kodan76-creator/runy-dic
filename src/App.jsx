@@ -124,7 +124,8 @@ function Home({ user, onLogout }) {
     const saveTask = async () => {
       setFavoritesSyncStatus('saving')
       try {
-        const ok = await updateFavoritesForUser(user.email, Array.from(favorites))
+        const now = new Date().toISOString()
+        const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
         if (ok) setFavoritesSyncStatus('idle')
         else {
           setFavoritesSyncStatus('error')
@@ -510,7 +511,8 @@ function Home({ user, onLogout }) {
               if (!user || !user.email) return
               setFavoritesSyncStatus('saving')
               try {
-                const ok = await updateFavoritesForUser(user.email, Array.from(favorites))
+                const now = new Date().toISOString()
+                const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
                 setFavoritesSyncStatus(ok ? 'idle' : 'error')
               } catch (e) {
                 console.error('Manual sync failed', e)
