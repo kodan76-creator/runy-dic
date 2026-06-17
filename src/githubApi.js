@@ -291,10 +291,29 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
       if (existingIdx === -1) {
         arr.push({ userEmail, favorites: normalized, updatedAt: now })
       } else {
-        // Merge server and client favorites to avoid losing concurrent additions
+        // Smart merge: respect deletions from the client
         const serverFavs = Array.isArray(arr[existingIdx]?.favorites) ? arr[existingIdx].favorites.map(String) : []
-        const merged = Array.from(new Set([...serverFavs, ...normalized]))
-        arr[existingIdx] = { ...arr[existingIdx], favorites: merged, updatedAt: now }
+        const serverSet = new Set(serverFavs)
+        const clientSet = new Set(normalized)
+        let mergedArr
+        // If client removed items (client is subset of server) -> treat as deletion (replace)
+        const isSubset = [...clientSet].every(x => serverSet.has(x))
+        if (isSubset) {
+          mergedArr = Array.from(clientSet)
+        } else {
+          // Otherwise (adds or mixed) - prefer client's intent but keep any server-only items that client didn't explicitly remove
+          // Compute adds and removes
+          const toRemove = serverFavs.filter(x => !clientSet.has(x))
+          const toAdd = normalized.filter(x => !serverSet.has(x))
+          if (toAdd.length > 0 && toRemove.length === 0) {
+            // only additions -> union
+            mergedArr = Array.from(new Set([...serverFavs, ...normalized]))
+          } else {
+            // mixed changes or ambiguous -> use client's list to reflect user's final state
+            mergedArr = Array.from(clientSet)
+          }
+        }
+        arr[existingIdx] = { ...arr[existingIdx], favorites: mergedArr, updatedAt: now }
       }
 
       // Try to write using the sha we just fetched
@@ -315,9 +334,24 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
           if (idx === -1) {
             latestArr.push({ userEmail, favorites: normalized, updatedAt: now })
           } else {
+            // Smart merge on retry: same logic as above
             const serverFavs = Array.isArray(latestArr[idx]?.favorites) ? latestArr[idx].favorites.map(String) : []
-            const merged = Array.from(new Set([...serverFavs, ...normalized]))
-            latestArr[idx] = { ...latestArr[idx], favorites: merged, updatedAt: now }
+            const serverSet = new Set(serverFavs)
+            const clientSet = new Set(normalized)
+            let mergedArr
+            const isSubset = [...clientSet].every(x => serverSet.has(x))
+            if (isSubset) {
+              mergedArr = Array.from(clientSet)
+            } else {
+              const toRemove = serverFavs.filter(x => !clientSet.has(x))
+              const toAdd = normalized.filter(x => !serverSet.has(x))
+              if (toAdd.length > 0 && toRemove.length === 0) {
+                mergedArr = Array.from(new Set([...serverFavs, ...normalized]))
+              } else {
+                mergedArr = Array.from(clientSet)
+              }
+            }
+            latestArr[idx] = { ...latestArr[idx], favorites: mergedArr, updatedAt: now }
           }
           // Try immediate write with the fresh sha
           await updateGitHubFile(FAVORITES_FILE, latestArr, latestSha)
