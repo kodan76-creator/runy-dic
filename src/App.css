@@ -931,10 +931,10 @@ body {
 
   /* Header: stacked, compact and centered */
   .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: relative; /* keep header in flow on very small screens too */
+    top: auto;
+    left: auto;
+    right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -948,7 +948,7 @@ body {
 
   /* Container should start below header */
   .container {
-    padding-top: calc(var(--app-header-height) + 12px);
+    padding-top: 20px; /* header occupies flow so only small padding needed */
     padding-left: 8px;
     padding-right: 8px;
   }
