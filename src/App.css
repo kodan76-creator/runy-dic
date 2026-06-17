@@ -783,13 +783,20 @@ body {
     --app-header-height: 320px;
   }
 
+  /* On mobile make header part of document flow to avoid overlap */
   .container {
-    padding-top: calc(var(--app-header-height) + 20px);
+    /* header will occupy space, so only small top padding is needed */
+    padding-top: 20px;
     padding-left: 8px;
     padding-right: 8px;
   }
 
   .header {
+    position: relative; /* was fixed on desktop */
+    top: auto;
+    left: auto;
+    right: auto;
+    max-width: none;
     flex-direction: column;
     align-items: center;
     gap: 14px;
