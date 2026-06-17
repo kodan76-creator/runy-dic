@@ -76,9 +76,51 @@ function Home({ user, onLogout }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState([]) // array of category ids
+  const [favorites, setFavorites] = useState(new Set())
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
   
+  // load favorites for current user from localStorage
+  useEffect(() => {
+    if (!user || !user.email) return
+    try {
+      const raw = localStorage.getItem(`favorites:${user.email}`)
+      if (raw) {
+        const arr = JSON.parse(raw)
+        setFavorites(new Set(Array.isArray(arr) ? arr : []))
+      } else {
+        setFavorites(new Set())
+      }
+    } catch (e) {
+      console.error('Failed to load favorites', e)
+      setFavorites(new Set())
+    }
+  }, [user])
+
+  // persist favorites on change
+  useEffect(() => {
+    if (!user || !user.email) return
+    try {
+      localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites)))
+    } catch (e) {
+      console.error('Failed to save favorites', e)
+    }
+  }, [favorites, user])
+
+  const toggleFavorite = (id) => {
+    setFavorites(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const clearFavorites = () => {
+    setFavorites(new Set())
+  }
+
   useEffect(() => {
     if (!user) return
     const loadWords = async () => {
@@ -281,8 +323,12 @@ function Home({ user, onLogout }) {
       const key = sortMode === 'runes' ? 'word' : 'translation'
       return (a[key] || '').localeCompare(b[key] || '', 'ru')
     })
+        .filter(item => {
+          if (!showOnlyFavorites) return true
+          return favorites.has(item.id)
+        })
   
-  return (
+      return (
     <div className="container">
       <div className="header">
         <button
@@ -363,6 +409,9 @@ function Home({ user, onLogout }) {
           </div>
         </div>
         <div className="header-actions">
+          <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
+            {showOnlyFavorites ? '❤️' : '🤍'}
+          </button>
           <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
             Админка
           </button>
@@ -398,6 +447,10 @@ function Home({ user, onLogout }) {
       <div className="results">
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
+            {/* favorite button top-right */}
+            <button className={`favorite-btn ${favorites.has(item.id) ? 'active' : ''}`} onClick={() => toggleFavorite(item.id)} title={favorites.has(item.id) ? 'Убрать из избранного' : 'Добавить в избранное'}>
+              {favorites.has(item.id) ? '❤️' : '🤍'}
+            </button>
             {item.audio && (
               <button className="audio-btn" onClick={() => handleSingleAudio(item.audio)} title="Слушать слово">
                 🔊
