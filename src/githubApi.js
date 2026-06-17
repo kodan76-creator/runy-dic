@@ -275,27 +275,55 @@ export const getFavoritesForUser = async (userEmail) => {
 export const updateFavoritesForUser = async (userEmail, favoritesArray) => {
   if (!userEmail) throw new Error('userEmail required')
   let retries = 0
-  const maxRetries = 3
+  const maxRetries = 5
+  const baseDelay = 400
+
   while (retries < maxRetries) {
     try {
+      // Fetch latest server state and sha
       const { data: all, sha } = await fetchGitHubFile(FAVORITES_FILE)
       const arr = Array.isArray(all) ? all : []
+
+      // Normalize incoming favorites
       const normalized = (favoritesArray || []).map(String)
       const existingIdx = arr.findIndex(r => String(r.userEmail).toLowerCase() === String(userEmail).toLowerCase())
       const now = new Date().toISOString()
       if (existingIdx === -1) {
         arr.push({ userEmail, favorites: normalized, updatedAt: now })
       } else {
+        // Replace this user's entry (user intent overrides) but keep other users' edits
         arr[existingIdx] = { ...arr[existingIdx], favorites: normalized, updatedAt: now }
       }
+
+      // Try to write using the sha we just fetched
       await updateGitHubFile(FAVORITES_FILE, arr, sha)
       return true
     } catch (error) {
-      if (error.message.includes('409') || error.message.includes('Conflict')) {
+      // On conflict, fetch server again and attempt immediate merge+write with new sha
+      if (error.message && (error.message.includes('409') || error.message.includes('Conflict'))) {
         retries++
-        console.warn(`Favorites update conflict, retrying ${retries}/${maxRetries}...`)
-        await new Promise(res => setTimeout(res, 500 + retries * 200))
-        continue
+        console.warn(`Favorites update conflict, attempt ${retries}/${maxRetries}`)
+        try {
+          // Re-fetch latest and merge deterministically: set our user's entry on top of latest server list
+          const { data: latestAll, sha: latestSha } = await fetchGitHubFile(FAVORITES_FILE)
+          const latestArr = Array.isArray(latestAll) ? latestAll : []
+          const normalized = (favoritesArray || []).map(String)
+          const idx = latestArr.findIndex(r => String(r.userEmail).toLowerCase() === String(userEmail).toLowerCase())
+          const now = new Date().toISOString()
+          if (idx === -1) {
+            latestArr.push({ userEmail, favorites: normalized, updatedAt: now })
+          } else {
+            latestArr[idx] = { ...latestArr[idx], favorites: normalized, updatedAt: now }
+          }
+          // Try immediate write with the fresh sha
+          await updateGitHubFile(FAVORITES_FILE, latestArr, latestSha)
+          return true
+        } catch (innerErr) {
+          console.warn('Retry write after conflict failed:', innerErr)
+          // exponential backoff before next loop
+          await new Promise(res => setTimeout(res, baseDelay * retries + Math.random() * 200))
+          continue
+        }
       }
       console.error('updateFavoritesForUser error:', error)
       return false
