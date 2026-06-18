@@ -338,6 +338,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                     <button onClick={() => handleEditCategory(cat)} className="edit-btn">✏️</button>
                     <button onClick={() => handleDeleteCategory(cat.id)} className="delete-btn">🗑️</button>
                   </div>
+
+                  <button className="card-scroll-top-btn admin" onClick={() => { const el = document.querySelector('.categories-list') || wordsListRef.current; if (el && typeof el.scrollTo === 'function') el.scrollTo({ top: 0, behavior: 'smooth' }); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Вверх">⬆</button>
                 </div>
               ))}
             </div>
@@ -359,6 +361,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                     {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
                     <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
                   </div>
+
+                  <button className="card-scroll-top-btn admin" onClick={() => { const el = document.querySelector('.users-grid') || wordsListRef.current; if (el && typeof el.scrollTo === 'function') el.scrollTo({ top: 0, behavior: 'smooth' }); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Вверх">⬆</button>
                 </div>
               ))}
             </div>
@@ -381,6 +385,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                   <span className="log-action">{log.action}</span>
                   <span className="log-user">{log.userEmail || 'system'}</span>
                   <span className="log-details">{log.details}</span>
+
+                  <button className="card-scroll-top-btn admin" onClick={() => { const el = document.querySelector('.logs-list') || wordsListRef.current; if (el && typeof el.scrollTo === 'function') el.scrollTo({ top: 0, behavior: 'smooth' }); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} title="Вверх">⬆</button>
                 </div>
               ))}
             </div>
