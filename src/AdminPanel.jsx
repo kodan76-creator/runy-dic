@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
 import './AdminPanel.css'
 
@@ -32,6 +32,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const wordsListRef = useRef(null)
+  const scrollWordsToTop = () => {
+    const el = wordsListRef.current || document.querySelector('.words-list')
+    if (el && typeof el.scrollTo === 'function') el.scrollTo({ top: 0, behavior: 'smooth' })
+    else window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const [authLoading, setAuthLoading] = useState(false)
 
   // Categories
@@ -383,7 +389,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
       </div>
 
       <div className="admin-content">
-        <div className="words-list">
+        <div className="words-list" ref={wordsListRef}>
           {activeTab === 'dictionary' && (
             <>
               {loading && !editingId && <div className="loading">Загрузка...</div>}
@@ -411,6 +417,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                       <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
                       <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
                     </div>
+
+                    <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
                   </div>
                 )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
               </div>

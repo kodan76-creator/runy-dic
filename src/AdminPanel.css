@@ -382,6 +382,29 @@ html, body { height: 100%; background-color: #aa3bff; }
   .words-list {
     max-height: none;
   }
+
+/* Кнопка "вверх" внутри карточки (админ) */
+.card-scroll-top-btn.admin {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.12);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.card-scroll-top-btn.admin:hover { background: rgba(0,0,0,0.18); transform: translateY(-3px); }
+@media (max-width: 768px) {
+  .card-scroll-top-btn.admin { right: 10px; bottom: 10px; width: 38px; height: 38px; font-size: 16px; }
+}
 }
 
 /* Landscape orientation на маленьких экранах */
