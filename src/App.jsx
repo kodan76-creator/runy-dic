@@ -81,6 +81,16 @@ function Home({ user, onLogout }) {
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
+  const resultsRef = useRef(null)
+
+  const scrollResultsToTop = () => {
+    const el = resultsRef.current || document.querySelector('.results')
+    if (el && typeof el.scrollTo === 'function') {
+      el.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
   
   // load favorites for current user from localStorage
   useEffect(() => {
@@ -554,7 +564,7 @@ function Home({ user, onLogout }) {
         </div>
       )}
 
-      <div className="results">
+      <div className="results" ref={resultsRef}>
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
             {/* favorite button top-right */}
@@ -585,6 +595,9 @@ function Home({ user, onLogout }) {
                 🔊
               </button>
             )}
+
+            {/* Кнопка "вверх" внутри карточки */}
+            <button className="card-scroll-top-btn" onClick={scrollResultsToTop} title="Вверх">⬆</button>
           </div>
         )) : <p>Ничего не найдено</p>}
       </div>
