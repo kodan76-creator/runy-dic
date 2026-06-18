@@ -35,8 +35,14 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const wordsListRef = useRef(null)
   const scrollWordsToTop = () => {
     const el = wordsListRef.current || document.querySelector('.words-list')
-    if (el && typeof el.scrollTo === 'function') el.scrollTo({ top: 0, behavior: 'smooth' })
-    else window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (!el) { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
+    const canScroll = el.scrollHeight > el.clientHeight
+    if (canScroll && typeof el.scrollTo === 'function') {
+      el.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      // fallback to window scroll for layouts where page scrolls instead of container
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
   const [authLoading, setAuthLoading] = useState(false)
 
