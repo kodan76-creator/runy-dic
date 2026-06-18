@@ -35,12 +35,34 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const wordsListRef = useRef(null)
   const scrollWordsToTop = () => {
     const el = wordsListRef.current || document.querySelector('.words-list')
-    if (!el) { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
-    const canScroll = el.scrollHeight > el.clientHeight
-    if (canScroll && typeof el.scrollTo === 'function') {
-      el.scrollTo({ top: 0, behavior: 'smooth' })
-    } else {
-      // fallback to window scroll for layouts where page scrolls instead of container
+    // Detect mobile by viewport width or UA
+    const isMobile = (typeof window !== 'undefined') && (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent))
+
+    if (el) {
+      const canScroll = el.scrollHeight > el.clientHeight
+      if (canScroll && typeof el.scrollTo === 'function') {
+        el.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+    }
+
+    // If on mobile and body scrolling is prevented by admin-no-scroll, temporarily enable it so page can scroll
+    try {
+      const body = document.body
+      const needsTempEnable = isMobile && body && body.classList.contains('admin-no-scroll')
+      if (needsTempEnable) {
+        body.classList.remove('admin-no-scroll')
+        // small timeout to allow layout to update before scrolling
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setTimeout(() => {
+          // restore prevention after scroll
+          body.classList.add('admin-no-scroll')
+        }, 450)
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } catch (e) {
+      // last resort
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
