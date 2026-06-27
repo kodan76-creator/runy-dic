@@ -1,7 +1,10 @@
 [
   {
     "userEmail": "ya.kodan76@ya.ru",
-    "favorites": [],
-    "updatedAt": "2026-06-27T18:01:38.312Z"
+    "favorites": [
+      "1745607325466",
+      "1781437337643"
+    ],
+    "updatedAt": "2026-06-27T18:01:40.628Z"
   }
 ]
