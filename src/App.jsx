@@ -532,7 +532,7 @@ function Home({ user, onLogout }) {
               {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
             </div>
           </div>
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.role === 'user') && (
             <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
               Админка
             </button>
@@ -657,10 +657,10 @@ function App() {
         <Route
           path="/admin"
           element={
-            user?.role === 'admin' ? (
-              <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
+            user?.role === 'admin' || user?.role === 'user' ? (
+              <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
             ) : (
-              <Navigate to={user?.role === 'user' ? '/' : '/auth'} replace />
+              <Navigate to="/auth" replace />
             )
           }
         />
