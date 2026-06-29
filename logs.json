@@ -1,5 +1,89 @@
 [
   {
+    "id": "1781975528009",
+    "timestamp": "2026-06-20T17:12:08.009Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"отч\""
+  },
+  {
+    "id": "1781975524751",
+    "timestamp": "2026-06-20T17:12:04.751Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"от\""
+  },
+  {
+    "id": "1781912571553",
+    "timestamp": "2026-06-19T23:42:51.553Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: ya_put_rus.mp3"
+  },
+  {
+    "id": "1781912567760",
+    "timestamp": "2026-06-19T23:42:47.760Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: ya_put_runy.mp3"
+  },
+  {
+    "id": "1781912562131",
+    "timestamp": "2026-06-19T23:42:42.131Z",
+    "action": "audio_played",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Аудио: ya_put_runy.mp3"
+  },
+  {
+    "id": "1781912394856",
+    "timestamp": "2026-06-19T23:39:54.856Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я и\""
+  },
+  {
+    "id": "1781912367953",
+    "timestamp": "2026-06-19T23:39:27.953Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я ид\""
+  },
+  {
+    "id": "1781912366145",
+    "timestamp": "2026-06-19T23:39:26.145Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я и\""
+  },
+  {
+    "id": "1781912364877",
+    "timestamp": "2026-06-19T23:39:24.877Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я \""
+  },
+  {
+    "id": "1781912344359",
+    "timestamp": "2026-06-19T23:39:04.359Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я ид\""
+  },
+  {
+    "id": "1781912341846",
+    "timestamp": "2026-06-19T23:39:01.846Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я и\""
+  },
+  {
+    "id": "1781912339662",
+    "timestamp": "2026-06-19T23:38:59.662Z",
+    "action": "search",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Поиск: \"Я\""
+  },
+  {
     "id": "1781800502323",
     "timestamp": "2026-06-18T16:35:02.323Z",
     "action": "login",
