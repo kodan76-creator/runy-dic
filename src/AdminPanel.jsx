@@ -15,7 +15,7 @@ const getSavedAdmin = () => {
   }
 }
 
-function AdminPanel({ onAdminLogin, onAdminLogout }) {
+function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [adminUser, setAdminUser] = useState(getSavedAdmin)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -86,10 +86,13 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
+  const activeUser = currentUser?.role === 'admin' || currentUser?.role === 'user' ? currentUser : adminUser
+  const isRestrictedUser = Boolean(currentUser && currentUser.role === 'user')
+
   const loadWords = async () => {
     setLoading(true)
     try {
-      const { data } = await getDictionary()
+      const { data } = await getDictionary(activeUser)
       setWords(data || [])
     } catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
@@ -98,15 +101,19 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
 
   useEffect(() => {
-    if (adminUser) {
+    if (activeUser) {
       Promise.resolve().then(() => {
         loadWords()
-        loadUsers()
-        loadLogs()
-        loadCategories()
+        if (!isRestrictedUser) {
+          loadUsers()
+          loadLogs()
+          loadCategories()
+        } else {
+          loadCategories()
+        }
       })
     }
-  }, [adminUser])
+  }, [activeUser, isRestrictedUser])
 
   // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
   useEffect(() => {
@@ -166,8 +173,8 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
     try {
-      if (editingId) await updateWord(editingId, formData, adminUser?.email)
-      else await addWord(formData, adminUser?.email)
+      if (editingId) await updateWord(editingId, formData, activeUser)
+      else await addWord(formData, activeUser?.email, activeUser)
       setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null); await loadWords()
     } catch (err) { setError(err.message) }
@@ -201,7 +208,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
 
   const handleDelete = async (id) => {
     if (window.confirm('Удалить эту карточку?')) {
-      try { await deleteWord(id, adminUser?.email); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
+      try { await deleteWord(id, activeUser); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
     }
   }
 
@@ -262,7 +269,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
 
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
-  if (!adminUser) {
+  if (!adminUser && !currentUser) {
     return (
       <div className="admin-login">
         <div className="login-box">
@@ -284,15 +291,19 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
-            <span>{adminUser.email}</span>
+            <span>{activeUser?.email || adminUser?.email}</span>
             <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
         </div>
         <div className="admin-tabs">
           <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
-          <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
-          <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
-          <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
+          {!isRestrictedUser && (
+            <>
+              <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
+              <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
+              <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
+            </>
+          )}
         </div>
 
         {activeTab === 'dictionary' && (
@@ -352,6 +363,7 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
               </div>
               {error && <div className="error">{error}</div>}
             </form>
+            {isRestrictedUser && <p className="no-results">Вы можете добавлять слова только в свой словарь. Для общего словаря нужен доступ paid=true.</p>}
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
           </div>
         )}
@@ -454,10 +466,12 @@ function AdminPanel({ onAdminLogin, onAdminLogout }) {
                       {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
                       {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
                     </div>
-                    <div className="word-actions">
-                      <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-                      <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
-                    </div>
+                    {!isRestrictedUser && (
+                      <div className="word-actions">
+                        <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+                        <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
+                      </div>
+                    )}
 
                     <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
                   </div>

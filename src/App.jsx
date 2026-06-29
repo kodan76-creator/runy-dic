@@ -21,7 +21,7 @@ function UserAuthForm({ onLogin }) {
       if (isLogin) {
         const user = await verifyUser(email, password)
         if (user) {
-          const userWithRole = { ...user, role: user.role || 'user' }
+          const userWithRole = { ...user, role: user.role || 'user', paid: user.paid ?? false }
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
         } else {
@@ -31,7 +31,7 @@ function UserAuthForm({ onLogin }) {
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         await registerUser(email, password)
-        setError('Аккаунт заблокирован. Для разблокировки обратитесь к администратору.')
+        setError('Регистрация успешна. Теперь войдите в аккаунт.')
         setIsLogin(true)
         setPassword('')
         setConfirmPassword('')
@@ -172,7 +172,7 @@ function Home({ user, onLogout }) {
     if (!user) return
     const loadWords = async () => {
       try {
-        const { data } = await getDictionary()
+        const { data } = await getDictionary(user)
         const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
@@ -532,9 +532,11 @@ function Home({ user, onLogout }) {
               {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
             </div>
           </div>
-          <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
-            Админка
-          </button>
+          {user?.role === 'admin' && (
+            <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
+              Админка
+            </button>
+          )}
           <button className="logout-btn-user" onClick={handleLogout}>
             👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
           </button>
@@ -636,7 +638,7 @@ function App() {
   const [user, setUser] = useState(getSavedUser)
   
   const handleUserLogin = (userData) => {
-    setUser({ ...userData, role: userData.role || 'user' })
+    setUser({ ...userData, role: userData.role || 'user', paid: userData.paid ?? false })
   }
   
   const handleUserLogout = () => {
@@ -652,7 +654,16 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin" element={<AdminPanel onAdminLogin={(u) => setUser({ ...u, role: 'admin' })} onAdminLogout={handleAdminLogout} />} />
+        <Route
+          path="/admin"
+          element={
+            user?.role === 'admin' ? (
+              <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
+            ) : (
+              <Navigate to={user?.role === 'user' ? '/' : '/auth'} replace />
+            )
+          }
+        />
         
         {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
         <Route
@@ -667,7 +678,9 @@ function App() {
         <Route
           path="/"
           element={
-            user?.role === 'user' ? (
+            user?.role === 'admin' ? (
+              <Navigate to="/admin" replace />
+            ) : user?.role === 'user' ? (
               <Home user={user} onLogout={handleUserLogout} />
             ) : (
               <Navigate to="/auth" replace />
