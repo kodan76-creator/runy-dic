@@ -223,8 +223,33 @@ await updateGitHubFile(LOGS_FILE, [], sha)
 }
 // 📚 СЛОВАРЬ
 export const getDictionary = async (user) => {
-  const fileName = getDictionaryFileName(user)
-  return fetchGitHubFile(fileName)
+  try {
+    // If the user is a paid regular user, return merged view of shared dictionary and personal file
+    if (user && typeof user === 'object' && user.role === 'user' && user.paid) {
+      const shared = await fetchGitHubFile(DATA_FILE)
+      const personalName = getDictionaryFileName(user)
+      const personal = await fetchGitHubFile(personalName)
+      const sharedArr = Array.isArray(shared.data) ? shared.data : []
+      const personalArr = Array.isArray(personal.data) ? personal.data : []
+
+      // Merge with deduplication by id when available, otherwise by word+translation
+      const map = new Map()
+      const add = (it) => {
+        if (!it) return
+        const key = it.id ? `id:${it.id}` : `w:${String(it.word||'')}_t:${String(it.translation||'')}`
+        if (!map.has(key)) map.set(key, it)
+      }
+      sharedArr.forEach(add)
+      personalArr.forEach(add)
+      return { data: Array.from(map.values()), sha: shared.sha || personal.sha || null }
+    }
+
+    const fileName = getDictionaryFileName(user)
+    return fetchGitHubFile(fileName)
+  } catch (e) {
+    console.error('getDictionary error:', e)
+    return { data: [], sha: null }
+  }
 }
 export const updateDictionary = async (newData, currentSha, user) => {
   const fileName = getDictionaryFileName(user)

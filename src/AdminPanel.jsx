@@ -294,6 +294,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             <span>{activeUser?.email || adminUser?.email}</span>
             <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
+
+          {/* UI hint moved to top: explain visibility based on role/paid */}
+          {activeUser?.role === 'user' && activeUser?.paid ? (
+            <p className="top-hint">Вы видите общий словарь (dictionary.json) и свой личный словарь.</p>
+          ) : (activeUser?.role === 'user' && !activeUser?.paid) ? (
+            <p className="top-hint">Вы можете добавлять слова только в свой словарь. Доступ к общему словарю требует роли admin.</p>
+          ) : null}
         </div>
         <div className="admin-tabs">
           <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
@@ -363,7 +370,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
               </div>
               {error && <div className="error">{error}</div>}
             </form>
-            {isRestrictedUser && <p className="no-results">Вы можете добавлять слова только в свой словарь. Доступ к общему словарю требует роли admin.</p>}
+            
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
           </div>
         )}
