@@ -613,13 +613,17 @@ const getSavedUser = () => {
   const currentUser = localStorage.getItem('currentUser')
   const isAdminRoute = window.location.hash.startsWith('#/admin')
 
-  if (isAdminRoute && adminUser) {
-    try {
-      const parsed = JSON.parse(adminUser)
-      return { ...parsed, role: 'admin' }
-    } catch {
-      localStorage.removeItem('adminUser')
+  // If opening admin route, prefer adminUser if present; otherwise don't auto-use currentUser
+  if (isAdminRoute) {
+    if (adminUser) {
+      try {
+        const parsed = JSON.parse(adminUser)
+        return { ...parsed, role: 'admin' }
+      } catch {
+        localStorage.removeItem('adminUser')
+      }
     }
+    return null
   }
 
   if (currentUser) {
