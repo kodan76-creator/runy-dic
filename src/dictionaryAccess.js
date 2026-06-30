@@ -1,8 +1,8 @@
 export const getDictionaryFileNameForEmail = (email) => {
   const normalized = String(email || '').trim().toLowerCase()
-  const atIndex = normalized.indexOf('@')
-  if (atIndex <= 0) return `${normalized || 'user'}.json`
-  return `${normalized.slice(0, atIndex)}.json`
+  const localPart = normalized.split('@')[0] || 'user'
+  if (!localPart) return 'user.json'
+  return `${localPart.replace(/[^a-z0-9._+-]+/g, '_')}.json`
 }
 
 export const resolveDictionaryFile = (user) => {
@@ -11,6 +11,6 @@ export const resolveDictionaryFile = (user) => {
     return getDictionaryFileNameForEmail(user)
   }
   if (user.role === 'admin') return 'dictionary.json'
-  if (user.role === 'user' && user.paid) return 'dictionary.json'
-  return getDictionaryFileNameForEmail(user.email)
+  if (user.role === 'user') return getDictionaryFileNameForEmail(user.email)
+  return 'user.json'
 }
