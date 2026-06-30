@@ -255,23 +255,38 @@ export const updateDictionary = async (newData, currentSha, user) => {
   const fileName = getDictionaryFileName(user)
   return updateGitHubFile(fileName, newData, currentSha)
 }
+import { getDictionaryFileNameForEmail } from './dictionaryAccess'
+
+const getWriteFileName = (userOrEmail) => {
+  // Determine file to write to. Users always write to their personal file; admins write to shared DATA_FILE.
+  if (!userOrEmail) return 'user.json'
+  if (typeof userOrEmail === 'string') return getDictionaryFileNameForEmail(userOrEmail)
+  if (userOrEmail.role === 'admin') return DATA_FILE
+  if (userOrEmail.role === 'user') return getDictionaryFileNameForEmail(userOrEmail.email || '')
+  // Fallback
+  return 'user.json'
+}
+
 export const addWord = async (wordData, userEmail, user = null) => {
-  const fileName = getDictionaryFileName(user || userEmail)
+  const target = user || userEmail
+  const fileName = getWriteFileName(target)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
-  await updateGitHubFile(fileName, [...dict, newWord], sha)
+  await updateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
   return newWord
 }
 export const updateWord = async (id, updatedData, user = null) => {
-  const fileName = getDictionaryFileName(user)
+  const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const updated = dict.map(w => w.id === id ? { ...w, ...updatedData } : w)
+  const arr = Array.isArray(dict) ? dict : []
+  const updated = arr.map(w => w.id === id ? { ...w, ...updatedData } : w)
   await updateGitHubFile(fileName, updated, sha)
 }
 export const deleteWord = async (id, user = null) => {
-  const fileName = getDictionaryFileName(user)
+  const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const filtered = dict.filter(w => w.id !== id)
+  const arr = Array.isArray(dict) ? dict : []
+  const filtered = arr.filter(w => w.id !== id)
   await updateGitHubFile(fileName, filtered, sha)
 }
 
