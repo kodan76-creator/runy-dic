@@ -363,7 +363,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
               </div>
               {error && <div className="error">{error}</div>}
             </form>
-            {isRestrictedUser && <p className="no-results">Вы можете добавлять слова только в свой словарь. Для общего словаря нужен доступ paid=true.</p>}
+            {isRestrictedUser && <p className="no-results">Вы можете добавлять слова только в свой словарь. Доступ к общему словарю требует роли admin.</p>}
             <h3 className="words-count">📚 Все слова ({words.length})</h3>
           </div>
         )}
