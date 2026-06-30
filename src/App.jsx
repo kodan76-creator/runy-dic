@@ -24,9 +24,11 @@ function UserAuthForm({ onLogin }) {
           const userWithRole = { ...user, role: user.role || 'user', paid: user.paid ?? false }
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
-        } else {
-          setError('Неверный email или пароль')
-        }
+        // navigate to app: admin -> /admin, user -> /
+        try { window.location.hash = userWithRole.role === 'admin' ? '/admin' : '/' } catch (e) { /* ignore */ }
+      } else {
+        setError('Неверный email или пароль')
+      }
       } else {
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
@@ -57,7 +59,7 @@ function UserAuthForm({ onLogin }) {
         <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
-        <button className="admin-launch-btn" type="button" onClick={() => { window.open(`${window.location.origin}${window.location.pathname}#/admin`, '_blank', 'noopener,noreferrer') }} disabled={loading}>
+        <button className="admin-launch-btn" type="button" onClick={() => { window.location.hash = '/admin' }} disabled={loading}>
           Запустить админку
         </button>
       </div>
