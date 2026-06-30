@@ -534,11 +534,9 @@ function Home({ user, onLogout }) {
               {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
             </div>
           </div>
-          {(user?.role === 'admin' || user?.role === 'user') && (
-            <button className="header-admin-btn" type="button" onClick={openAdminPanel}>
-              Админка
-            </button>
-          )}
+          <button className="header-admin-btn" type="button" onClick={() => { window.open(`${window.location.origin}${window.location.pathname}#/admin`, '_blank', 'noopener,noreferrer') }}>
+            Админка
+          </button>
           <button className="logout-btn-user" onClick={handleLogout}>
             👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
           </button>
@@ -658,13 +656,7 @@ function App() {
       <Routes>
         <Route
           path="/admin"
-          element={
-            user?.role === 'admin' ? (
-              <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          }
+          element={<AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />}
         />
         
         {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
