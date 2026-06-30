@@ -192,25 +192,39 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
 
   const handleEdit = (word) => {
-    setEditingId(word.id)
-    // Normalize existing category values to ids when possible
-    const raw = word.category ? (Array.isArray(word.category) ? word.category : [word.category]) : []
-    const normalized = raw.map(item => {
-      const found = categories.find(c => c.id === item || c.name === item)
-      return found ? found.id : item
-    })
-    setFormData({
-      word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
-      example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
-      audio: word.audio || '', audio2: word.audio2 || ''
-    })
-  }
+      // Only allow editing if admin or owner
+      const isAdmin = activeUser?.role === 'admin'
+      const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
+      if (!isAdmin && !isOwner) {
+        setError('Недостаточно прав для редактирования этой записи')
+        return
+      }
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Удалить эту карточку?')) {
-      try { await deleteWord(id, activeUser); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
+      setEditingId(word.id)
+      // Normalize existing category values to ids when possible
+      const raw = word.category ? (Array.isArray(word.category) ? word.category : [word.category]) : []
+      const normalized = raw.map(item => {
+        const found = categories.find(c => c.id === item || c.name === item)
+        return found ? found.id : item
+      })
+      setFormData({
+        word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
+        example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
+        audio: word.audio || '', audio2: word.audio2 || ''
+      })
     }
-  }
+
+    const handleDelete = async (id, wordOwnerEmail) => {
+      if (window.confirm('Удалить эту карточку?')) {
+        const isAdmin = activeUser?.role === 'admin'
+        const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(wordOwnerEmail || '').toLowerCase()
+        if (!isAdmin && !isOwner) {
+          setError('Недостаточно прав для удаления этой записи')
+          return
+        }
+        try { await deleteWord(id, activeUser); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
+      }
+    }
 
   // Categories handlers
   const loadCategories = async () => {
@@ -473,16 +487,23 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                       {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
                       {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
                     </div>
-                    {!isRestrictedUser && (
-                      <div className="word-actions">
-                        <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-                        <button onClick={() => handleDelete(word.id)} className="delete-btn">🗑️</button>
-                      </div>
-                    )}
 
-                    <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
-                  </div>
-                )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
+                                    {/* determine per-card edit permission: admins or owner only */}
+                                    {(() => {
+                                      const isAdmin = activeUser?.role === 'admin'
+                                      const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
+                                      const canEdit = isAdmin || isOwner
+                                      return canEdit ? (
+                                        <div className="word-actions">
+                                          <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+                                          <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
+                                        </div>
+                                      ) : null
+                                    })()}
+
+                                    <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
+                                  </div>
+                                )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
               </div>
             </>
           )}

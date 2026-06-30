@@ -279,15 +279,25 @@ export const updateWord = async (id, updatedData, user = null) => {
   const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? dict : []
-  const updated = arr.map(w => w.id === id ? { ...w, ...updatedData } : w)
-  await updateGitHubFile(fileName, updated, sha)
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx === -1) {
+    throw new Error('Запись не найдена или доступ запрещён')
+  }
+  arr[idx] = { ...arr[idx], ...updatedData }
+  await updateGitHubFile(fileName, arr, sha)
+  return arr[idx]
 }
 export const deleteWord = async (id, user = null) => {
   const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? dict : []
-  const filtered = arr.filter(w => w.id !== id)
-  await updateGitHubFile(fileName, filtered, sha)
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx === -1) {
+    throw new Error('Запись не найдена или доступ запрещён')
+  }
+  const removed = arr.splice(idx, 1)
+  await updateGitHubFile(fileName, arr, sha)
+  return removed[0]
 }
 
 // КАТЕГОРИИ
