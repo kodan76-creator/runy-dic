@@ -86,8 +86,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
-  const activeUser = currentUser?.role === 'admin' || currentUser?.role === 'user' ? currentUser : adminUser
-  const isRestrictedUser = Boolean(currentUser && currentUser.role === 'user')
+  // Active admin user: prefer explicit saved adminUser, otherwise allow currentUser only if admin
+  const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && currentUser.role === 'admin' ? currentUser : null)
+  // A non-admin (regular) user is restricted and should not be treated as admin here
+  const isRestrictedUser = Boolean(currentUser && currentUser.role === 'user' && !adminUser)
 
   const loadWords = async () => {
     setLoading(true)
@@ -283,7 +285,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
-  if (!adminUser && !currentUser) {
+  if (!adminUser && !(currentUser && currentUser.role === 'admin')) {
     return (
       <div className="admin-login">
         <div className="login-box">
