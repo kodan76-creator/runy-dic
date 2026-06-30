@@ -657,7 +657,11 @@ function App() {
         <Route
           path="/admin"
           element={
-            <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
+            user?.role === 'admin' ? (
+              <AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />
+            ) : (
+              <Navigate to="/auth" replace />
+            )
           }
         />
         
