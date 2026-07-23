@@ -17,8 +17,10 @@
   },
   {
     "userEmail": "test2@ya.ru",
-    "favorites": [],
-    "updatedAt": "2026-07-23T17:57:28.192Z"
+    "favorites": [
+      "1784824719921"
+    ],
+    "updatedAt": "2026-07-23T17:57:31.719Z"
   },
   {
     "userEmail": "winx0212@ya.ru",
