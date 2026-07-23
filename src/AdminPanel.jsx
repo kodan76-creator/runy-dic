@@ -369,7 +369,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           ) : null}
         </div>
         <div className="admin-tabs">
-          <button className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => setActiveTab('dictionary')}>📚 Словарь</button>
+          <button
+            className={`tab-btn ${activeTab === 'dictionary' ? 'active' : ''}`}
+            onClick={() => {
+              if (activeTab === 'dictionary') {
+                const appUrl = `${window.location.origin}${window.location.pathname}#/`
+                window.open(appUrl, '_blank', 'noopener,noreferrer')
+              } else {
+                setActiveTab('dictionary')
+              }
+            }}
+          >
+            📚 Словарь
+          </button>
           {!isRestrictedUser && (
             <>
               <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
