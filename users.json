@@ -60,7 +60,7 @@
     "passwordHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
     "createdAt": "2026-07-23T16:15:42.668Z",
     "role": "user",
-    "paid": false,
+    "paid": true,
     "isBlocked": false,
     "blockedAt": null,
     "blockedBy": null
