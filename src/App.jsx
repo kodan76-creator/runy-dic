@@ -80,6 +80,7 @@ function Home({ user, onLogout }) {
   const [selectedFilters, setSelectedFilters] = useState([]) // array of category ids
   const [favorites, setFavorites] = useState(new Set())
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
+  const [dictionarySourceFilter, setDictionarySourceFilter] = useState('all')
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
@@ -397,11 +398,17 @@ function Home({ user, onLogout }) {
     }
   }, [])
   
+  const hasSharedDictionaryAccess = Boolean(user?.paid)
+
   if (loading) return <div className="loading-full">Загрузка словаря...</div>
   
   const filtered = words
     .filter(w => {
       const term = searchTerm.toLowerCase()
+      if (hasSharedDictionaryAccess && dictionarySourceFilter !== 'all') {
+        const expectedSource = dictionarySourceFilter === 'shared' ? 'shared' : 'personal'
+        if (w.__dictionarySource !== expectedSource) return false
+      }
       const matchesText = [
         w.word,
         w.transcription,
@@ -501,6 +508,41 @@ function Home({ user, onLogout }) {
             руны
           </label>
         </div>
+        {hasSharedDictionaryAccess && (
+          <div className="dictionary-source-mode">
+            <span className="filter-title">Словари:</span>
+            <label className="mode-label">
+              <input
+                type="radio"
+                name="dictionarySourceFilter"
+                value="all"
+                checked={dictionarySourceFilter === 'all'}
+                onChange={() => setDictionarySourceFilter('all')}
+              />
+              все
+            </label>
+            <label className="mode-label">
+              <input
+                type="radio"
+                name="dictionarySourceFilter"
+                value="personal"
+                checked={dictionarySourceFilter === 'personal'}
+                onChange={() => setDictionarySourceFilter('personal')}
+              />
+              свой
+            </label>
+            <label className="mode-label">
+              <input
+                type="radio"
+                name="dictionarySourceFilter"
+                value="shared"
+                checked={dictionarySourceFilter === 'shared'}
+                onChange={() => setDictionarySourceFilter('shared')}
+              />
+              основной
+            </label>
+          </div>
+        )}
         <div className="search-row">
           <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
             <span className="filter-label">Фильтр</span>

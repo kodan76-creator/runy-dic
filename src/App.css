@@ -349,6 +349,15 @@ color: #5a0000;
   color: white;
 }
 
+.dictionary-source-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  order: 5;
+  color: white;
+}
+
 .filter-title {
   font-size: 14px;
   font-weight: 700;
@@ -365,7 +374,7 @@ color: #5a0000;
   max-width: 400px;
   min-width: 220px;
 
-  order: 5;
+  order: 6;
   margin-top: 0;
 }
 
@@ -926,8 +935,17 @@ color: #5a0000;
     flex-direction: row;
   }
 
-  .search-wrapper {
+  .dictionary-source-mode {
     order: 5;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .search-wrapper {
+    order: 6;
     max-width: 100%;
     width: 100%;
     margin-top: 0;
@@ -1055,7 +1073,8 @@ color: #5a0000;
 
   /* Controls stacked */
   .play-mode,
-  .filter-mode {
+  .filter-mode,
+  .dictionary-source-mode {
     width: 100%;
     display: flex;
     flex-direction: row;
