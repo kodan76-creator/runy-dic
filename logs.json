@@ -1,5 +1,55 @@
 [
   {
+    "id": "1784846085092",
+    "timestamp": "2026-07-23T22:34:45.092Z",
+    "action": "login",
+    "userEmail": "admin@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784846066200",
+    "timestamp": "2026-07-23T22:34:26.200Z",
+    "action": "logout",
+    "userEmail": "test2@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1784846047171",
+    "timestamp": "2026-07-23T22:34:07.171Z",
+    "action": "login",
+    "userEmail": "test2@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784846030010",
+    "timestamp": "2026-07-23T22:33:50.010Z",
+    "action": "logout",
+    "userEmail": "test2@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1784845995639",
+    "timestamp": "2026-07-23T22:33:15.639Z",
+    "action": "user_updated",
+    "userEmail": "test2@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false"
+  },
+  {
+    "id": "1784845894202",
+    "timestamp": "2026-07-23T22:31:34.202Z",
+    "action": "login",
+    "userEmail": "test2@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784845832556",
+    "timestamp": "2026-07-23T22:30:32.556Z",
+    "action": "login",
+    "userEmail": "admin@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1784844994129",
     "timestamp": "2026-07-23T22:16:34.129Z",
     "action": "login",
