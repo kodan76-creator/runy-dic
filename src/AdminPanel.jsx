@@ -40,6 +40,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [userSearchTerm, setUserSearchTerm] = useState('')
   const wordsListRef = useRef(null)
   const scrollWordsToTop = () => {
     const el = wordsListRef.current || document.querySelector('.words-list')
@@ -156,6 +157,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     f.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
     return f
   }, [searchTerm, words])
+
+  const filteredUsers = useMemo(() => {
+    const term = userSearchTerm.trim().toLowerCase()
+    if (!term) return users
+
+    return users.filter(u =>
+      String(u?.email || '').toLowerCase().includes(term) ||
+      String(u?.role || '').toLowerCase().includes(term)
+    )
+  }, [userSearchTerm, users])
 
   const handleLogin = async (e) => {
     e.preventDefault(); setError(''); setAuthLoading(true)
@@ -493,9 +504,23 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
         {activeTab === 'users' && (
           <div className="users-section">
-            <h3>👥 Пользователи ({users.length})</h3>
+            <h3>👥 Пользователи ({filteredUsers.length})</h3>
+            <div className="search-container">
+              <div className="search-wrapper">
+                <input
+                  type="text"
+                  placeholder="🔍 Поиск пользователя..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                {userSearchTerm && (
+                  <button className="search-clear-btn" onClick={() => setUserSearchTerm('')} title="Очистить поиск">❌</button>
+                )}
+              </div>
+            </div>
             <div className="users-grid">
-              {users.map(u => (
+              {filteredUsers.length > 0 ? filteredUsers.map(u => (
                 <div key={u.id} className={`user-card ${u.isBlocked ? 'blocked' : ''}`}>
                   <div className="user-info">
                     <p className="user-email">{u.email}</p>
@@ -539,7 +564,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     </div>
                   )}
                 </div>
-              ))}
+              )) : <div className="no-results">{userSearchTerm ? 'Пользователь не найден' : 'Пользователи не найдены'}</div>}
             </div>
           </div>
         )}
