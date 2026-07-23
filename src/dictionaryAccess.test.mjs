@@ -2,9 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { getDictionaryFileNameForEmail, resolveDictionaryFile } from './dictionaryAccess.js'
 
-test('admins use shared dictionary, users always use personal dictionary', () => {
+test('admins and paid users can read shared dictionary, unpaid users use personal dictionary', () => {
   assert.equal(resolveDictionaryFile({ role: 'admin', email: 'admin@example.com' }), 'dictionary.json')
-  assert.equal(resolveDictionaryFile({ role: 'user', paid: true, email: 'user@example.com' }), 'user.json')
+  assert.equal(resolveDictionaryFile({ role: 'user', paid: true, email: 'user@example.com' }), 'dictionary.json')
   assert.equal(resolveDictionaryFile({ role: 'user', paid: false, email: 'user@example.com' }), 'user.json')
   assert.equal(resolveDictionaryFile('user@example.com'), 'user.json')
 })

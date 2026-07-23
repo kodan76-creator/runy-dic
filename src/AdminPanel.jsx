@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
+import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -24,6 +24,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [logs, setLogs] = useState([])
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
+  const [userEditingId, setUserEditingId] = useState(null)
+  const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
+  const [userSaving, setUserSaving] = useState(false)
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
@@ -277,6 +280,33 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       try { await deleteUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
     }
   }
+  const handleEditUser = (user) => {
+    setError('')
+    setUserEditingId(user.id)
+    setUserFormData({
+      email: user.email || '',
+      role: user.role === 'admin' ? 'admin' : 'user',
+      paid: Boolean(user.paid)
+    })
+  }
+  const handleCancelEditUser = () => {
+    setUserEditingId(null)
+    setUserFormData({ email: '', role: 'user', paid: false })
+  }
+  const handleSaveUser = async (e) => {
+    e.preventDefault()
+    setError('')
+    setUserSaving(true)
+    try {
+      await updateUser(userEditingId, userFormData, adminUser?.email || activeUser?.email)
+      handleCancelEditUser()
+      await loadUsers()
+      await loadLogs()
+    } catch (err) {
+      setError('Ошибка редактирования пользователя: ' + err.message)
+    }
+    setUserSaving(false)
+  }
   const handleClearLogs = async () => {
     if (window.confirm('Очистить логи?')) {
       try { await clearLogs(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
@@ -428,13 +458,45 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 <div key={u.id} className={`user-card ${u.isBlocked ? 'blocked' : ''}`}>
                   <div className="user-info">
                     <p className="user-email">{u.email}</p>
+                    <p className="user-meta">Роль: {u.role === 'admin' ? 'Админ' : 'Пользователь'}</p>
+                    <p className="user-meta">Оплата: {u.paid ? 'Оплачено' : 'Не оплачено'}</p>
                     <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
                     {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
                   </div>
-                  <div className="user-actions">
-                    {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
-                    <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
-                  </div>
+                  {userEditingId === u.id ? (
+                    <form className="user-edit-form" onSubmit={handleSaveUser}>
+                      <input
+                        type="email"
+                        value={userFormData.email}
+                        onChange={e => setUserFormData({ ...userFormData, email: e.target.value })}
+                        required
+                      />
+                      <select
+                        value={userFormData.role}
+                        onChange={e => setUserFormData({ ...userFormData, role: e.target.value })}
+                      >
+                        <option value="admin">Админ</option>
+                        <option value="user">Пользователь</option>
+                      </select>
+                      <select
+                        value={userFormData.paid ? 'paid' : 'unpaid'}
+                        onChange={e => setUserFormData({ ...userFormData, paid: e.target.value === 'paid' })}
+                      >
+                        <option value="paid">Оплачено</option>
+                        <option value="unpaid">Не оплачено</option>
+                      </select>
+                      <div className="user-edit-actions">
+                        <button type="submit" className="save-user-btn" disabled={userSaving}>{userSaving ? 'Сохранение...' : 'Сохранить'}</button>
+                        <button type="button" className="cancel-user-btn" onClick={handleCancelEditUser} disabled={userSaving}>Отмена</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="user-actions">
+                      <button onClick={() => handleEditUser(u)} className="edit-user-btn">Редактировать</button>
+                      {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
+                      <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

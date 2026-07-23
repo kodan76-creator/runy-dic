@@ -11,7 +11,7 @@ export const resolveDictionaryFile = (user) => {
     return getDictionaryFileNameForEmail(user)
   }
   if (user.role === 'admin') return 'dictionary.json'
-  // For role === 'user' always use per-user file (do not allow writing to shared dictionary.json)
+  if (user.role === 'user' && user.paid) return 'dictionary.json'
   if (user.role === 'user') return getDictionaryFileNameForEmail(user.email)
   return 'user.json'
 }

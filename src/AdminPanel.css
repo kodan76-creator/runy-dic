@@ -102,16 +102,28 @@ html, body { height: 100%; background-color: #aa3bff; }
 .user-card.blocked { background: #f44336; opacity: 0.8; }
 .user-info { flex: 1; }
 .user-email { margin: 0 0 5px 0; font-weight: bold; color: white; font-size: 16px; }
+.user-meta { margin: 0 0 5px 0; color: #fff; font-size: 13px; font-weight: 600; }
 .user-date { margin: 0 0 5px 0; color: #e9d5ff; font-size: 12px; }
 .user-blocked { margin: 0; color: #fff; font-size: 12px; font-weight: bold; }
-.user-actions { display: flex; gap: 10px; }
-.block-btn, .unblock-btn, .delete-user-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
+.user-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.block-btn, .unblock-btn, .delete-user-btn, .edit-user-btn, .save-user-btn, .cancel-user-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
+.edit-user-btn { background: #2196f3; color: white; }
+.edit-user-btn:hover { background: #1976d2; }
 .block-btn { background: #f44336; color: white; }
 .block-btn:hover { background: #d32f2f; }
 .unblock-btn { background: #4caf50; color: white; }
 .unblock-btn:hover { background: #388e3c; }
 .delete-user-btn { background: #7b1fa2; color: white; }
 .delete-user-btn:hover { background: #5e1780; }
+.user-edit-form { display: grid; grid-template-columns: minmax(180px, 1.3fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr); gap: 10px; align-items: center; flex: 1.6; }
+.user-edit-form input, .user-edit-form select { width: 100%; padding: 9px 10px; border: 2px solid #7b1fa2; border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: #111; outline: none; }
+.user-edit-form input:focus, .user-edit-form select:focus { border-color: #aa3bff; box-shadow: 0 0 8px rgba(123, 31, 162, 0.35); }
+.user-edit-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; }
+.save-user-btn { background: #4caf50; color: white; }
+.save-user-btn:hover { background: #388e3c; }
+.save-user-btn:disabled, .cancel-user-btn:disabled { background: #ccc; cursor: not-allowed; }
+.cancel-user-btn { background: #9e9e9e; color: white; }
+.cancel-user-btn:hover { background: #757575; }
 
 /* Логи */
 .logs-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; max-height: 500px; overflow-y: auto; }
@@ -268,10 +280,22 @@ html, body { height: 100%; background-color: #aa3bff; }
     width: 100%;
     justify-content: center;
   }
+
+  .user-edit-form {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .user-edit-actions {
+    justify-content: center;
+  }
   
   .block-btn,
   .unblock-btn,
-  .delete-user-btn {
+  .delete-user-btn,
+  .edit-user-btn,
+  .save-user-btn,
+  .cancel-user-btn {
     padding: 8px 16px;
     font-size: 14px;
   }

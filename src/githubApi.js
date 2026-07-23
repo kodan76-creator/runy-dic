@@ -1,5 +1,5 @@
 // src/githubApi.js
-import { resolveDictionaryFile } from './dictionaryAccess'
+import { getDictionaryFileNameForEmail, resolveDictionaryFile } from './dictionaryAccess'
 
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
@@ -171,6 +171,31 @@ u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } :
 await updateGitHubFile(USERS_FILE, updated, sha)
 addLog({ action: 'user_unblocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
 }
+export const updateUser = async (userId, updatedData, adminEmail) => {
+const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+const user = users.find(u => u.id === userId)
+if (!user) throw new Error('Пользователь не найден')
+
+const email = String(updatedData.email || '').trim()
+if (!email) throw new Error('Email не может быть пустым')
+if (!['admin', 'user'].includes(updatedData.role)) throw new Error('Некорректная роль пользователя')
+
+const duplicate = users.find(u =>
+u.id !== userId && String(u?.email || '').toLowerCase() === email.toLowerCase()
+)
+if (duplicate) throw new Error('Пользователь с таким email уже существует')
+
+const paid = Boolean(updatedData.paid)
+const updated = users.map(u =>
+u.id === userId ? { ...u, email, role: updatedData.role, paid } : u
+)
+await updateGitHubFile(USERS_FILE, updated, sha)
+addLog({ action: 'user_updated', userEmail: email, adminEmail, details: `role=${updatedData.role}, paid=${paid}` }).catch(() => {})
+
+const changed = updated.find(u => u.id === userId)
+const { passwordHash: _, ...safeUser } = changed
+return safeUser
+}
 export const deleteUser = async (userId, adminEmail) => {
 const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
 const user = users.find(u => u.id === userId)
@@ -227,7 +252,7 @@ export const getDictionary = async (user) => {
     // If the user is a paid regular user, return merged view of shared dictionary and personal file
     if (user && typeof user === 'object' && user.role === 'user' && user.paid) {
       const shared = await fetchGitHubFile(DATA_FILE)
-      const personalName = getDictionaryFileName(user)
+      const personalName = getDictionaryFileNameForEmail(user.email)
       const personal = await fetchGitHubFile(personalName)
       const sharedArr = Array.isArray(shared.data) ? shared.data : []
       const personalArr = Array.isArray(personal.data) ? personal.data : []
@@ -255,8 +280,6 @@ export const updateDictionary = async (newData, currentSha, user) => {
   const fileName = getDictionaryFileName(user)
   return updateGitHubFile(fileName, newData, currentSha)
 }
-import { getDictionaryFileNameForEmail } from './dictionaryAccess'
-
 const getWriteFileName = (userOrEmail) => {
   // Determine file to write to. Users always write to their personal file; admins write to shared DATA_FILE.
   if (!userOrEmail) return 'user.json'
