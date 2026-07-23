@@ -17,7 +17,9 @@
   },
   {
     "userEmail": "test2@ya.ru",
-    "favorites": [],
-    "updatedAt": "2026-07-23T17:10:44.096Z"
+    "favorites": [
+      "1784824719921"
+    ],
+    "updatedAt": "2026-07-23T17:10:46.890Z"
   }
 ]
