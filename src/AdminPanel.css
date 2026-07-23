@@ -31,7 +31,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .tab-btn.active { background: #aa3bff; color: white; border-color: #aa3bff; }
 
 /* Форма */
-.form-section { background: white; padding: 15px; padding-bottom: 10px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
+.form-section { background: white; padding: 6px 15px 10px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
 .search-container { margin-bottom: 15px; }
 
 /* ✅ Обёртка поиска и крестик */
@@ -56,7 +56,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .save-btn:disabled { background: #ccc; cursor: not-allowed; }
 .cancel-btn { background: #9e9e9e; color: white; }
 .cancel-btn:hover { background: #757575; }
-.dictionary-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.dictionary-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .dictionary-toolbar .search-container { margin-bottom: 0; flex: 1; }
 .dictionary-toolbar .search-wrapper { max-width: none; margin: 0; }
 .words-count { margin: 0; color: #aa3bff; text-align: left; font-size: 18px; padding-top: 0; white-space: nowrap; }
