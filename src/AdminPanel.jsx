@@ -158,6 +158,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       const admin = await verifyAdmin(email, password)
       if (admin) {
         const userData = { email, role: 'admin', loginAt: new Date().toISOString() }
+        localStorage.removeItem('currentUser')
         localStorage.setItem('adminUser', JSON.stringify(userData))
         setAdminUser(userData); setEmail(''); setPassword('')
         if (onAdminLogin) onAdminLogin(userData)
@@ -168,7 +169,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
 
   const handleLogout = async () => {
-    localStorage.removeItem('adminUser')  // ✅ Только админ
+    localStorage.removeItem('adminUser')
+    localStorage.removeItem('currentUser')
     setAdminUser(null)
     setWords([])
     setUsers([])

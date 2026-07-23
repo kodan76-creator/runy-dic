@@ -650,7 +650,15 @@ function App() {
   const [user, setUser] = useState(getSavedUser)
   
   const handleUserLogin = (userData) => {
-    setUser({ ...userData, role: userData.role || 'user', paid: userData.paid ?? false })
+    const nextUser = { ...userData, role: userData.role || 'user', paid: userData.paid ?? false }
+    if (nextUser.role === 'admin') {
+      localStorage.removeItem('currentUser')
+      localStorage.setItem('adminUser', JSON.stringify(nextUser))
+    } else {
+      localStorage.removeItem('adminUser')
+      localStorage.setItem('currentUser', JSON.stringify(nextUser))
+    }
+    setUser(nextUser)
   }
   
   const handleUserLogout = () => {
@@ -660,6 +668,7 @@ function App() {
 
   const handleAdminLogout = () => {
     localStorage.removeItem('adminUser')
+    localStorage.removeItem('currentUser')
     setUser(null)
   }
   
@@ -668,7 +677,12 @@ function App() {
       <Routes>
         <Route
           path="/admin"
-          element={<AdminPanel currentUser={user} onAdminLogin={(u) => setUser({ ...u, role: u.role || 'admin', paid: u.paid ?? false })} onAdminLogout={handleAdminLogout} />}
+          element={<AdminPanel currentUser={user} onAdminLogin={(u) => {
+            const nextUser = { ...u, role: u.role || 'admin', paid: u.paid ?? false }
+            localStorage.removeItem('currentUser')
+            localStorage.setItem('adminUser', JSON.stringify(nextUser))
+            setUser(nextUser)
+          }} onAdminLogout={handleAdminLogout} />}
         />
         
         {/* ✅ ИСПРАВЛЕНО: Правильная проверка ролей */}
