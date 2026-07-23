@@ -1,5 +1,117 @@
 [
   {
+    "id": "1784846898669",
+    "timestamp": "2026-07-23T22:48:18.669Z",
+    "action": "user_updated",
+    "userEmail": "test2@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false, paidAt=2026-07-23T22:48:10.696Z, unpaidAt=2026-07-23T22:48:17.177Z"
+  },
+  {
+    "id": "1784846892305",
+    "timestamp": "2026-07-23T22:48:12.305Z",
+    "action": "user_updated",
+    "userEmail": "test2@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-23T22:48:10.696Z, unpaidAt=-"
+  },
+  {
+    "id": "1784846884596",
+    "timestamp": "2026-07-23T22:48:04.596Z",
+    "action": "user_updated",
+    "userEmail": "admin@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=admin, paid=true, paidAt=2026-07-23T22:48:03.036Z, unpaidAt=2026-07-23T22:47:50.463Z"
+  },
+  {
+    "id": "1784846879447",
+    "timestamp": "2026-07-23T22:47:59.447Z",
+    "action": "user_updated",
+    "userEmail": "admin@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=admin, paid=false, paidAt=-, unpaidAt=2026-07-23T22:47:50.463Z"
+  },
+  {
+    "id": "1784846871832",
+    "timestamp": "2026-07-23T22:47:51.832Z",
+    "action": "user_updated",
+    "userEmail": "admin@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=admin, paid=false, paidAt=-, unpaidAt=2026-07-23T22:47:50.463Z"
+  },
+  {
+    "id": "1784846852745",
+    "timestamp": "2026-07-23T22:47:32.745Z",
+    "action": "user_updated",
+    "userEmail": "winx0212@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-23T22:47:31.316Z, unpaidAt=2026-07-23T22:47:25.453Z"
+  },
+  {
+    "id": "1784846846841",
+    "timestamp": "2026-07-23T22:47:26.841Z",
+    "action": "user_updated",
+    "userEmail": "winx0212@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false, paidAt=-, unpaidAt=2026-07-23T22:47:25.453Z"
+  },
+  {
+    "id": "1784846834307",
+    "timestamp": "2026-07-23T22:47:14.307Z",
+    "action": "user_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-23T22:47:12.875Z, unpaidAt=2026-07-23T22:47:06.566Z"
+  },
+  {
+    "id": "1784846828243",
+    "timestamp": "2026-07-23T22:47:08.243Z",
+    "action": "user_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false, paidAt=-, unpaidAt=2026-07-23T22:47:06.566Z"
+  },
+  {
+    "id": "1784846821798",
+    "timestamp": "2026-07-23T22:47:01.798Z",
+    "action": "user_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=-, unpaidAt=-"
+  },
+  {
+    "id": "1784846813685",
+    "timestamp": "2026-07-23T22:46:53.685Z",
+    "action": "user_updated",
+    "userEmail": "ya.kostima11@yandex.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-23T22:46:52.279Z, unpaidAt=2026-07-23T22:46:46.875Z"
+  },
+  {
+    "id": "1784846808440",
+    "timestamp": "2026-07-23T22:46:48.440Z",
+    "action": "user_updated",
+    "userEmail": "ya.kostima11@yandex.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false, paidAt=-, unpaidAt=2026-07-23T22:46:46.875Z"
+  },
+  {
+    "id": "1784846795407",
+    "timestamp": "2026-07-23T22:46:35.407Z",
+    "action": "user_updated",
+    "userEmail": "citer2380@gmail.com",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-23T22:46:33.874Z, unpaidAt=2026-07-23T22:46:24.571Z"
+  },
+  {
+    "id": "1784846786296",
+    "timestamp": "2026-07-23T22:46:26.296Z",
+    "action": "user_updated",
+    "userEmail": "citer2380@gmail.com",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=false, paidAt=-, unpaidAt=2026-07-23T22:46:24.571Z"
+  },
+  {
     "id": "1784846085092",
     "timestamp": "2026-07-23T22:34:45.092Z",
     "action": "login",
