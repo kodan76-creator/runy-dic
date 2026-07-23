@@ -413,19 +413,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
         {activeTab === 'dictionary' && (
           <div className="form-section">
-            <div className="search-container">
-              {/* ✅ ИСПРАВЛЕНО: Обёртка и крестик */}
-              <div className="search-wrapper">
-                <input
-                  type="text"
-                  placeholder="🔍 Поиск слова..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                {searchTerm && (
-                  <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
-                )}
+            <div className="dictionary-toolbar">
+              <h3 className="words-count">📚 Все слова ({words.length})</h3>
+              <div className="search-container">
+                {/* ✅ ИСПРАВЛЕНО: Обёртка и крестик */}
+                <div className="search-wrapper">
+                  <input
+                    type="text"
+                    placeholder="🔍 Поиск слова..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                  {searchTerm && (
+                    <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -468,8 +471,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
               </div>
               {error && <div className="error">{error}</div>}
             </form>
-            
-            <h3 className="words-count">📚 Все слова ({words.length})</h3>
           </div>
         )}
 
