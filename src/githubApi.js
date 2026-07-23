@@ -290,6 +290,22 @@ const getWriteFileName = (userOrEmail) => {
   return 'user.json'
 }
 
+export const ensureUserDictionaryFile = async (userOrEmail) => {
+  const fileName = getWriteFileName(userOrEmail)
+
+  if (fileName === DATA_FILE) {
+    return { fileName, exists: true, created: false }
+  }
+
+  const { sha } = await fetchGitHubFile(fileName)
+  if (sha) {
+    return { fileName, exists: true, created: false }
+  }
+
+  await updateGitHubFile(fileName, [], null)
+  return { fileName, exists: false, created: true }
+}
+
 export const addWord = async (wordData, userEmail, user = null) => {
   const target = user || userEmail
   const fileName = getWriteFileName(target)

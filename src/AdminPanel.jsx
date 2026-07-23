@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -174,6 +174,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       const user = await verifyUser(email, password)
       if (user && user.role === 'user') {
         const userData = { ...user, role: 'user', paid: user.paid ?? false, loginAt: new Date().toISOString() }
+        try {
+          const ensureResult = await ensureUserDictionaryFile(userData)
+          if (ensureResult?.created) {
+            console.info(`Created missing personal dictionary file: ${ensureResult.fileName}`)
+          }
+        } catch (ensureErr) {
+          console.error('Failed to ensure personal dictionary file:', ensureErr)
+        }
+
         localStorage.removeItem('adminUser')
         localStorage.setItem('currentUser', JSON.stringify(userData))
         setAdminUser(null); setEmail(''); setPassword('')
