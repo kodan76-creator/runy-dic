@@ -230,7 +230,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .admin-content { max-width: 1200px; margin: 0 auto; overflow: hidden; }
 
 /* Main dictionary list should be scrollable (only section that scrolls full content) */
-.words-list { overflow-y: auto; height: calc(var(--admin-viewport-height) - var(--admin-top-offset) - 10px); max-height: none; margin-top: -4px; box-sizing: border-box; }
+.words-list { overflow-y: auto; height: calc(var(--admin-viewport-height) - var(--admin-top-offset) - 10px); max-height: none;  }
 .words-list::-webkit-scrollbar { width: 12px; }
 .words-list::-webkit-scrollbar-track { background: transparent; }
 .words-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid transparent; }
