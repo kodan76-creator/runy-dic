@@ -26,5 +26,19 @@
     "id": "1784820736122",
     "createdAt": "2026-07-23T15:32:16.122Z",
     "createdBy": "test@ya.ru"
+  },
+  {
+    "word": "3",
+    "transcription": "3",
+    "translation": "3",
+    "category": [],
+    "example": "3",
+    "example2": "3",
+    "transcription2": "3",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820777633",
+    "createdAt": "2026-07-23T15:32:57.633Z",
+    "createdBy": "test@ya.ru"
   }
 ]
