@@ -1,5 +1,12 @@
 [
   {
+    "id": "1784823371027",
+    "timestamp": "2026-07-23T16:16:11.027Z",
+    "action": "login",
+    "userEmail": "test2@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1784823344280",
     "timestamp": "2026-07-23T16:15:44.280Z",
     "action": "register",
