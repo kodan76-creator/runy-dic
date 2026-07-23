@@ -1,5 +1,13 @@
 [
   {
+    "id": "1784819752956",
+    "timestamp": "2026-07-23T15:15:52.956Z",
+    "action": "user_updated",
+    "userEmail": "ya.kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=admin, paid=true"
+  },
+  {
     "id": "1784819698251",
     "timestamp": "2026-07-23T15:14:58.251Z",
     "action": "login",
