@@ -613,7 +613,7 @@ const getSavedUser = () => {
   const currentUser = localStorage.getItem('currentUser')
   const isAdminRoute = window.location.hash.startsWith('#/admin')
 
-  // If opening admin route, prefer adminUser if present; otherwise don't auto-use currentUser
+  // If opening admin route, prefer adminUser; regular users get restricted dictionary-only admin mode.
   if (isAdminRoute) {
     if (adminUser) {
       try {
@@ -621,6 +621,14 @@ const getSavedUser = () => {
         return { ...parsed, role: 'admin' }
       } catch {
         localStorage.removeItem('adminUser')
+      }
+    }
+    if (currentUser) {
+      try {
+        const parsed = JSON.parse(currentUser)
+        return { ...parsed, role: parsed.role || 'user', paid: parsed.paid ?? false }
+      } catch {
+        localStorage.removeItem('currentUser')
       }
     }
     return null

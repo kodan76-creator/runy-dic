@@ -89,15 +89,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
-  // Active admin user: prefer explicit saved adminUser, otherwise allow currentUser only if admin
-  const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && currentUser.role === 'admin' ? currentUser : null)
+  // Active user: admins get full panel, regular users get restricted dictionary-only panel.
+  const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
   // A non-admin (regular) user is restricted and should not be treated as admin here
   const isRestrictedUser = Boolean(currentUser && currentUser.role === 'user' && !adminUser)
 
   const loadWords = async () => {
     setLoading(true)
     try {
-      const { data } = await getDictionary(activeUser)
+      const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
+      const { data } = await getDictionary(dictionaryOwner)
       setWords(data || [])
     } catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
@@ -315,7 +316,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
-  if (!adminUser && !(currentUser && currentUser.role === 'admin')) {
+  if (!adminUser && !(currentUser && ['admin', 'user'].includes(currentUser.role))) {
     return (
       <div className="admin-login">
         <div className="login-box">
@@ -342,10 +343,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           </div>
 
           {/* UI hint moved to top: explain visibility based on role/paid */}
-          {activeUser?.role === 'user' && activeUser?.paid ? (
-            <p className="top-hint">Вы видите общий словарь (dictionary.json) и свой личный словарь.</p>
-          ) : (activeUser?.role === 'user' && !activeUser?.paid) ? (
-            <p className="top-hint">Вы можете добавлять слова только в свой словарь. Доступ к общему словарю требует роли admin.</p>
+          {activeUser?.role === 'user' ? (
+            <p className="top-hint">Вы видите и редактируете только свой личный словарь.</p>
           ) : null}
         </div>
         <div className="admin-tabs">
