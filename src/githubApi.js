@@ -123,6 +123,10 @@ passwordHash,
 createdAt: new Date().toISOString(),
 role: 'user',
 paid: false,
+paidAt: null,
+paidBy: null,
+unpaidAt: null,
+unpaidBy: null,
 isBlocked: false,
 blockedAt: null,
 blockedBy: null
@@ -186,11 +190,41 @@ u.id !== userId && String(u?.email || '').toLowerCase() === email.toLowerCase()
 if (duplicate) throw new Error('Пользователь с таким email уже существует')
 
 const paid = Boolean(updatedData.paid)
-const updated = users.map(u =>
-u.id === userId ? { ...u, email, role: updatedData.role, paid } : u
-)
+const now = new Date().toISOString()
+const updated = users.map(u => {
+  if (u.id !== userId) return u
+
+  const previousPaid = Boolean(u.paid)
+  const next = {
+    ...u,
+    email,
+    role: updatedData.role,
+    paid,
+  }
+
+  if (previousPaid !== paid) {
+    if (paid) {
+      next.paidAt = now
+      next.paidBy = adminEmail
+      next.unpaidAt = u.unpaidAt || null
+      next.unpaidBy = u.unpaidBy || null
+    } else {
+      next.unpaidAt = now
+      next.unpaidBy = adminEmail
+      next.paidAt = u.paidAt || null
+      next.paidBy = u.paidBy || null
+    }
+  }
+
+  return next
+})
 await updateGitHubFile(USERS_FILE, updated, sha)
-addLog({ action: 'user_updated', userEmail: email, adminEmail, details: `role=${updatedData.role}, paid=${paid}` }).catch(() => {})
+addLog({
+  action: 'user_updated',
+  userEmail: email,
+  adminEmail,
+  details: `role=${updatedData.role}, paid=${paid}, paidAt=${updated.find(u => u.id === userId)?.paidAt || '-'}, unpaidAt=${updated.find(u => u.id === userId)?.unpaidAt || '-'}`
+}).catch(() => {})
 
 const changed = updated.find(u => u.id === userId)
 const { passwordHash: _, ...safeUser } = changed

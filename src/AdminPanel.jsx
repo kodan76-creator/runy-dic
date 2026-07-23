@@ -502,6 +502,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     <p className="user-meta">Роль: {u.role === 'admin' ? 'Админ' : 'Пользователь'}</p>
                     <p className="user-meta">Оплата: {u.paid ? 'Оплачено' : 'Не оплачено'}</p>
                     <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
+                    <p className="user-date">Оплачено: {formatDate(u.paidAt)}</p>
+                    <p className="user-date">Не оплачено: {formatDate(u.unpaidAt)}</p>
                     {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
                   </div>
                   {userEditingId === u.id ? (
