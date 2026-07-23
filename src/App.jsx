@@ -679,8 +679,13 @@ function App() {
           path="/admin"
           element={<AdminPanel currentUser={user} onAdminLogin={(u) => {
             const nextUser = { ...u, role: u.role || 'admin', paid: u.paid ?? false }
-            localStorage.removeItem('currentUser')
-            localStorage.setItem('adminUser', JSON.stringify(nextUser))
+            if (nextUser.role === 'admin') {
+              localStorage.removeItem('currentUser')
+              localStorage.setItem('adminUser', JSON.stringify(nextUser))
+            } else {
+              localStorage.removeItem('adminUser')
+              localStorage.setItem('currentUser', JSON.stringify(nextUser))
+            }
             setUser(nextUser)
           }} onAdminLogout={handleAdminLogout} />}
         />

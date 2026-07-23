@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -7,7 +7,12 @@ const getSavedAdmin = () => {
   if (!savedAdmin) return null
 
   try {
-    return JSON.parse(savedAdmin)
+    const parsed = JSON.parse(savedAdmin)
+    if (parsed?.role !== 'admin') {
+      localStorage.removeItem('adminUser')
+      return null
+    }
+    return parsed
   } catch (e) {
     console.error('Error parsing adminUser:', e)
     localStorage.removeItem('adminUser')
@@ -92,7 +97,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // Active user: admins get full panel, regular users get restricted dictionary-only panel.
   const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
   // A non-admin (regular) user is restricted and should not be treated as admin here
-  const isRestrictedUser = Boolean(currentUser && currentUser.role === 'user' && !adminUser)
+  const isRestrictedUser = activeUser?.role === 'user'
 
   const loadWords = async () => {
     setLoading(true)
@@ -157,13 +162,27 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try {
       const admin = await verifyAdmin(email, password)
       if (admin) {
-        const userData = { email, role: 'admin', loginAt: new Date().toISOString() }
+        const userData = { ...admin, role: 'admin', loginAt: new Date().toISOString() }
         localStorage.removeItem('currentUser')
         localStorage.setItem('adminUser', JSON.stringify(userData))
         setAdminUser(userData); setEmail(''); setPassword('')
         if (onAdminLogin) onAdminLogin(userData)
-        await loadWords(); await loadUsers(); await loadLogs()
-      } else { setError('Неверный email или пароль') }
+        setAuthLoading(false)
+        return
+      }
+
+      const user = await verifyUser(email, password)
+      if (user && user.role === 'user') {
+        const userData = { ...user, role: 'user', paid: user.paid ?? false, loginAt: new Date().toISOString() }
+        localStorage.removeItem('adminUser')
+        localStorage.setItem('currentUser', JSON.stringify(userData))
+        setAdminUser(null); setEmail(''); setPassword('')
+        if (onAdminLogin) onAdminLogin(userData)
+        setAuthLoading(false)
+        return
+      }
+
+      setError('Неверный email или пароль')
     } catch (err) { console.error(err); setError('Ошибка авторизации: ' + err.message) }
     setAuthLoading(false)
   }
