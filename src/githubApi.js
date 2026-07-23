@@ -254,8 +254,8 @@ export const getDictionary = async (user) => {
       const shared = await fetchGitHubFile(DATA_FILE)
       const personalName = getDictionaryFileNameForEmail(user.email)
       const personal = await fetchGitHubFile(personalName)
-      const sharedArr = Array.isArray(shared.data) ? shared.data : []
-      const personalArr = Array.isArray(personal.data) ? personal.data : []
+      const sharedArr = Array.isArray(shared.data) ? shared.data.map(item => ({ ...item, __dictionarySource: 'shared' })) : []
+      const personalArr = Array.isArray(personal.data) ? personal.data.map(item => ({ ...item, __dictionarySource: 'personal' })) : []
 
       // Merge with deduplication by id when available, otherwise by word+translation
       const map = new Map()

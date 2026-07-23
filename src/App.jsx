@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories, getFavoritesForUser, updateFavoritesForUser } from './githubApi'
 import AdminPanel from './AdminPanel'
@@ -175,7 +175,10 @@ function Home({ user, onLogout }) {
     const loadWords = async () => {
       try {
         const { data } = await getDictionary(user)
-        const sortedData = [...(data || [])].sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
+        const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
+        const sortedData = [...(data || [])]
+          .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
+          .sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
         setWords(sortedData)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
     }
@@ -198,6 +201,15 @@ function Home({ user, onLogout }) {
   const clearFilters = () => setSelectedFilters([])
 
   const applyFilters = () => setShowFilterModal(false)
+
+  const dictionaryStats = useMemo(() => {
+    const personal = words.filter(item => item.__dictionarySource === 'personal').length
+    return { personal, total: words.length }
+  }, [words])
+
+  const getDictionarySourceLabel = (item) => (
+    item.__dictionarySource === 'shared' ? 'Общий словарь' : 'Личный словарь'
+  )
 
   const renderCategory = (category) => {
     const values = Array.isArray(category) ? category : [category]
@@ -514,6 +526,10 @@ function Home({ user, onLogout }) {
           </div>
         </div>
         <div className="header-actions">
+          <div className="dictionary-stats" title="Количество карточек в словарях">
+            <span>Личных: {dictionaryStats.personal}</span>
+            <span>Всего: {dictionaryStats.total}</span>
+          </div>
           <div className="favorites-block">
             <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
               {showOnlyFavorites ? '❤️' : '🤍'}
@@ -569,6 +585,9 @@ function Home({ user, onLogout }) {
       <div className="results" ref={resultsRef}>
         {filtered.length > 0 ? filtered.map(item => (
           <div key={item.id} className="card">
+            <div className={`dictionary-source ${item.__dictionarySource === 'shared' ? 'shared' : 'personal'}`}>
+              {getDictionarySourceLabel(item)}
+            </div>
             {/* favorite button top-right */}
             <button className={`favorite-btn ${favorites.has(String(item.id)) ? 'active' : ''}`} onClick={() => toggleFavorite(item.id)} title={favorites.has(String(item.id)) ? 'Убрать из избранного' : 'Добавить в избранное'}>
               {favorites.has(String(item.id)) ? '❤️' : '🤍'}
