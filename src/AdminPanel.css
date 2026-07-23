@@ -2,7 +2,8 @@
 .admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #7b1fa2; padding: 20px; }
 .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px; }
 .login-box h2 { text-align: center; margin-bottom: 30px; color: #aa3bff; }
-.login-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.login-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
+.login-box input::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .login-box input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .login-btn { width: 100%; padding: 10px 20px; background: #aa3bff; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background 0.3s; }
 .login-btn:hover { background: #7b1fa2; }
@@ -35,18 +36,18 @@ html, body { height: 100%; background-color: #aa3bff; }
 
 /* ✅ Обёртка поиска и крестик */
 .search-wrapper { position: relative; display: flex; align-items: center; width: 100%; max-width: 400px; margin: 0 auto; }
-.search-input { width: 100%; padding: 10px; padding-right: 40px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.search-input { width: 100%; padding: 10px; padding-right: 40px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
 .search-input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.search-input::placeholder { color: #666666; }
+.search-input::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .search-clear-btn { position: absolute; right: 12px; background: transparent; border: none; font-size: 16px; cursor: pointer; padding: 5px 8px; opacity: 0.6; transition: opacity 0.3s; z-index: 10; }
 .search-clear-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* Двухколоночная форма */
 .word-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
 .form-column { display: flex; flex-direction: column; gap: 10px; }
-.word-form input, .word-form textarea.single-line-textarea { width: 100%; padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.word-form input, .word-form textarea.single-line-textarea { width: 100%; padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
 .word-form input:focus, .word-form textarea.single-line-textarea:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: #666666; }
+.word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .word-form textarea.single-line-textarea { height: 42px; resize: vertical; line-height: 1.2; scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1;}
 .form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
 .save-btn, .cancel-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
@@ -61,7 +62,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 .categories-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
 .category-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
 .category-form .form-buttons { display: flex; gap: 10px; justify-content: flex-start; margin-top: 0; grid-column: auto; }
-.category-form input { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; }
+.category-form input { padding: 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
+.category-form input::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .category-form input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .category-checkboxes { display: flex; flex-direction: column; gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; }
 .cat-item { position: relative; display: flex; align-items: center; gap: 8px; }
