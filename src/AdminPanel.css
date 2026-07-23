@@ -93,19 +93,73 @@ html, body { height: 100%; background-color: #aa3bff; }
 /* Пользователи */
 .users-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; }
 .users-section h3 { margin-top: 0; color: #aa3bff; margin-bottom: 15px; text-align: center; font-size: 20px; }
-.users-grid { display: grid; gap: 15px; max-height: 360px; overflow-y: auto; padding-right: 8px; }
+.users-grid {
+  display: grid;
+  gap: 15px;
+  max-height: clamp(300px, 52vh, 520px);
+  overflow-y: auto;
+  padding-right: 8px;
+  align-content: start;
+}
 .users-grid::-webkit-scrollbar { width: 12px; }
 .users-grid::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
 .users-grid::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
 .users-grid { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
-.user-card { display: flex; justify-content: space-between; align-items: center; background: #c084fc; padding: 15px; border-radius: 8px; border: 2px solid #7b1fa2; }
-.user-card.blocked { background: #f44336; opacity: 0.8; }
-.user-info { flex: 1; }
-.user-email { margin: 0 0 5px 0; font-weight: bold; color: white; font-size: 16px; }
-.user-meta { margin: 0 0 5px 0; color: #fff; font-size: 13px; font-weight: 600; }
-.user-date { margin: 0 0 5px 0; color: #e9d5ff; font-size: 12px; }
-.user-blocked { margin: 0; color: #fff; font-size: 12px; font-weight: bold; }
-.user-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.user-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+  gap: 14px;
+  align-items: start;
+  background: linear-gradient(180deg, #d59cff 0%, #c084fc 100%);
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #7b1fa2;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+}
+.user-card.blocked { background: linear-gradient(180deg, #ff8f8f 0%, #f44336 100%); opacity: 0.94; }
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.user-email {
+  margin: 0;
+  font-weight: 700;
+  color: white;
+  font-size: 16px;
+  word-break: break-word;
+  background: rgba(123, 31, 162, 0.22);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.user-meta {
+  margin: 0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.user-date {
+  margin: 0;
+  color: #f3e6ff;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.user-blocked {
+  margin: 0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.user-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+}
 .block-btn, .unblock-btn, .delete-user-btn, .edit-user-btn, .save-user-btn, .cancel-user-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
 .edit-user-btn { background: #2196f3; color: white; }
 .edit-user-btn:hover { background: #1976d2; }
@@ -115,10 +169,31 @@ html, body { height: 100%; background-color: #aa3bff; }
 .unblock-btn:hover { background: #388e3c; }
 .delete-user-btn { background: #7b1fa2; color: white; }
 .delete-user-btn:hover { background: #5e1780; }
-.user-edit-form { display: grid; grid-template-columns: minmax(180px, 1.3fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr); gap: 10px; align-items: center; flex: 1.6; }
-.user-edit-form input, .user-edit-form select { width: 100%; padding: 9px 10px; border: 2px solid #7b1fa2; border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: #111; outline: none; }
+.user-edit-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.3fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+.user-edit-form input, .user-edit-form select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 2px solid #7b1fa2;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  background: #fff;
+  color: #111;
+  outline: none;
+}
 .user-edit-form input:focus, .user-edit-form select:focus { border-color: #aa3bff; box-shadow: 0 0 8px rgba(123, 31, 162, 0.35); }
-.user-edit-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; }
+.user-edit-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
 .save-user-btn { background: #4caf50; color: white; }
 .save-user-btn:hover { background: #388e3c; }
 .save-user-btn:disabled, .cancel-user-btn:disabled { background: #ccc; cursor: not-allowed; }
