@@ -207,7 +207,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .cancel-user-btn:hover { background: #757575; }
 
 /* Логи */
-.logs-section { background: white; padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; max-height: 500px; overflow-y: auto; }
+.logs-section { background: white; padding: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 3px solid #7b1fa2; border-top: none; max-height: 500px; overflow-y: auto; }
 .logs-section::-webkit-scrollbar { width: 12px; }
 .logs-section::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
 .logs-section::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
