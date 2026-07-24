@@ -50,14 +50,14 @@
     "passwordHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
     "createdAt": "2026-05-05T15:49:44.369Z",
     "role": "user",
-    "paid": false,
+    "paid": true,
     "isBlocked": false,
     "blockedAt": null,
     "blockedBy": null,
     "unpaidAt": "2026-07-24T00:45:24.294Z",
     "unpaidBy": "admin@ya.ru",
-    "paidAt": "2026-07-23T22:47:31.316Z",
-    "paidBy": "ya.kodan76@ya.ru"
+    "paidAt": "2026-07-24T01:22:51.384Z",
+    "paidBy": "admin@ya.ru"
   },
   {
     "id": "1784820018822",
