@@ -1,5 +1,12 @@
 [
   {
+    "id": "1784856407754",
+    "timestamp": "2026-07-24T01:26:47.754Z",
+    "action": "logout",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Выход"
+  },
+  {
     "id": "1784856244108",
     "timestamp": "2026-07-24T01:24:04.108Z",
     "action": "audio_played",
