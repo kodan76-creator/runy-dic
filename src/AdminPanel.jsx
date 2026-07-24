@@ -41,6 +41,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [userSearchTerm, setUserSearchTerm] = useState('')
+  const [userPaymentFilter, setUserPaymentFilter] = useState('all')
+  const [userRoleFilter, setUserRoleFilter] = useState('all')
   const wordsListRef = useRef(null)
   const scrollWordsToTop = () => {
     const el = wordsListRef.current || document.querySelector('.words-list')
@@ -160,13 +162,21 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const filteredUsers = useMemo(() => {
     const term = userSearchTerm.trim().toLowerCase()
-    if (!term) return users
 
-    return users.filter(u =>
-      String(u?.email || '').toLowerCase().includes(term) ||
-      String(u?.role || '').toLowerCase().includes(term)
-    )
-  }, [userSearchTerm, users])
+    return users.filter(u => {
+      const paymentLabel = u?.paid ? 'оплачено' : 'не оплачено'
+      const matchesPaymentFilter = userPaymentFilter === 'all' || (userPaymentFilter === 'paid' ? Boolean(u?.paid) : !u?.paid)
+      const matchesRoleFilter = userRoleFilter === 'all' || (userRoleFilter === 'admin' ? u?.role === 'admin' : u?.role !== 'admin')
+      const matchesSearch = !term || (
+        String(u?.email || '').toLowerCase().includes(term) ||
+        String(u?.role || '').toLowerCase().includes(term) ||
+        paymentLabel.includes(term) ||
+        String(u?.paid ?? '').toLowerCase().includes(term)
+      )
+
+      return matchesPaymentFilter && matchesRoleFilter && matchesSearch
+    })
+  }, [userPaymentFilter, userRoleFilter, userSearchTerm, users])
 
   const handleLogin = async (e) => {
     e.preventDefault(); setError(''); setAuthLoading(true)
@@ -506,18 +516,30 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         {activeTab === 'users' && (
           <div className="users-section">
             <h3>👥 Пользователи ({filteredUsers.length})</h3>
-            <div className="search-container">
-              <div className="search-wrapper">
-                <input
-                  type="text"
-                  placeholder="🔍 Поиск пользователя..."
-                  value={userSearchTerm}
-                  onChange={(e) => setUserSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                {userSearchTerm && (
-                  <button className="search-clear-btn" onClick={() => setUserSearchTerm('')} title="Очистить поиск">❌</button>
-                )}
+            <div className="users-toolbar">
+              <div className="search-container">
+                <div className="search-wrapper">
+                  <input
+                    type="text"
+                    placeholder="🔍 Поиск пользователя..."
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                  {userSearchTerm && (
+                    <button className="search-clear-btn" onClick={() => setUserSearchTerm('')} title="Очистить поиск">❌</button>
+                  )}
+                </div>
+              </div>
+              <div className="user-payment-filters">
+                <button type="button" className={`filter-chip ${userPaymentFilter === 'all' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('all')}>Все</button>
+                <button type="button" className={`filter-chip ${userPaymentFilter === 'paid' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('paid')}>Оплачено</button>
+                <button type="button" className={`filter-chip ${userPaymentFilter === 'unpaid' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('unpaid')}>Не оплачено</button>
+              </div>
+              <div className="user-role-filters">
+                <button type="button" className={`filter-chip ${userRoleFilter === 'all' ? 'active' : ''}`} onClick={() => setUserRoleFilter('all')}>Все</button>
+                <button type="button" className={`filter-chip ${userRoleFilter === 'admin' ? 'active' : ''}`} onClick={() => setUserRoleFilter('admin')}>Админ</button>
+                <button type="button" className={`filter-chip ${userRoleFilter === 'user' ? 'active' : ''}`} onClick={() => setUserRoleFilter('user')}>Пользователь</button>
               </div>
             </div>
             <div className="users-grid">
