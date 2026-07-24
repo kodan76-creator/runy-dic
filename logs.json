@@ -1,5 +1,27 @@
 [
   {
+    "id": "1784851484855",
+    "timestamp": "2026-07-24T00:04:44.855Z",
+    "action": "user_updated",
+    "userEmail": "test2@ya.ru",
+    "adminEmail": "admin@ya.ru",
+    "details": "role=user, paid=true, paidAt=2026-07-24T00:04:43.255Z, unpaidAt=2026-07-23T22:48:17.177Z"
+  },
+  {
+    "id": "1784851434973",
+    "timestamp": "2026-07-24T00:03:54.973Z",
+    "action": "login",
+    "userEmail": "admin@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784851363736",
+    "timestamp": "2026-07-24T00:02:43.736Z",
+    "action": "login",
+    "userEmail": "test2@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1784846898669",
     "timestamp": "2026-07-23T22:48:18.669Z",
     "action": "user_updated",
