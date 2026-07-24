@@ -1,5 +1,54 @@
 [
   {
+    "id": "1784855383411",
+    "timestamp": "2026-07-24T01:09:43.412Z",
+    "action": "login",
+    "userEmail": "admin@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784855254782",
+    "timestamp": "2026-07-24T01:07:34.782Z",
+    "action": "login",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784854880961",
+    "timestamp": "2026-07-24T01:01:20.961Z",
+    "action": "login",
+    "userEmail": "admin@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784854082430",
+    "timestamp": "2026-07-24T00:48:02.430Z",
+    "action": "login",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784854010846",
+    "timestamp": "2026-07-24T00:46:50.846Z",
+    "action": "search",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Поиск: \"9\""
+  },
+  {
+    "id": "1784853988766",
+    "timestamp": "2026-07-24T00:46:28.766Z",
+    "action": "login",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784853976200",
+    "timestamp": "2026-07-24T00:46:16.200Z",
+    "action": "logout",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Выход"
+  },
+  {
     "id": "1784853926049",
     "timestamp": "2026-07-24T00:45:26.049Z",
     "action": "user_updated",
