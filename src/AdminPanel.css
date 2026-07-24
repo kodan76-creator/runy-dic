@@ -35,11 +35,11 @@ html, body { height: 100%; background-color: #aa3bff; }
 .search-container { margin-bottom: 15px; }
 
 /* ✅ Обёртка поиска и крестик */
-.search-wrapper { position: relative; display: flex; align-items: center; width: 100%; max-width: 400px; margin: 0 auto; }
-.search-input { width: 100%; padding: 10px; padding-right: 40px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
+.search-wrapper { position: relative; display: flex; align-items: center; width: 100%; max-width: 400px; margin: 0 auto; min-width: 0; }
+.search-input { width: 100%; padding: 8px 34px 8px 10px; border: 3px solid #7b1fa2; border-radius: 8px; font-size: 13px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; min-width: 0; }
 .search-input:focus { border: 3px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
-.search-input::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
-.search-clear-btn { position: absolute; right: 12px; background: transparent; border: none; font-size: 16px; cursor: pointer; padding: 5px 8px; opacity: 0.6; transition: opacity 0.3s; z-index: 10; }
+.search-input::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 13px; line-height: 1.2; }
+.search-clear-btn { position: absolute; right: 8px; background: transparent; border: none; font-size: 14px; cursor: pointer; padding: 4px 6px; opacity: 0.6; transition: opacity 0.3s; z-index: 10; }
 .search-clear-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* Двухколоночная форма */
@@ -243,18 +243,18 @@ html, body { height: 100%; background-color: #aa3bff; }
 .words-list { scrollbar-width: thin; scrollbar-color: #7b1fa2 transparent; }
 .words-list { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px #0000001a; }
 .words-grid { display: grid; gap: 15px; }
-.word-item { position: relative; display: flex; justify-content: space-between; align-items: flex-start; background: #c084fc; padding: 20px; border-radius: 12px; border: 2px solid #aa3bff; border-left: 6px solid #aa3bff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); line-height: 1.5; }
-.word-content { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.word-item { position: relative; display: flex; justify-content: space-between; align-items: flex-start; background: #c084fc; padding: 20px; border-radius: 12px; border: 2px solid #aa3bff; border-left: 6px solid #aa3bff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); line-height: 1.5; box-sizing: border-box; width: 100%; max-width: 100%; }
+.word-content { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .word-item .word-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; line-height: 1.5; width: 100%; }
-.word-title { margin: 0; font-size: 45px; color: #FFD700; font-family: 'Dao Rus', sans-serif; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); line-height: 1.3; white-space: pre-wrap; }
-.word-transcription { margin: 0; color: #006400; font-style: italic; font-size: 20px; line-height: 1.5; transform: translateY(2px); white-space: pre-wrap; }
-.word-translation { margin: 0 0 8px 0; color: white; font-size: 18px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); line-height: 1.5; white-space: pre-wrap; }
-.word-category { color: rgb(83 75 183); font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.word-title { margin: 0; font-size: 45px; color: #FFD700; font-family: 'Dao Rus', sans-serif; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
+.word-transcription { margin: 0; color: #006400; font-style: italic; font-size: 20px; line-height: 1.5; transform: translateY(2px); white-space: pre-wrap; overflow-wrap: anywhere; }
+.word-translation { margin: 0 0 8px 0; color: white; font-size: 18px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.word-category { color: rgb(83 75 183); font-size: 14px; font-weight: 600; margin-bottom: 6px; overflow-wrap: anywhere; }
 .word-item .examples { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; line-height: 1.5; margin-top: 8px; width: 100%; }
-.word-example { margin: 0; color: #9c27b0; font-style: italic; font-size: 20px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; white-space: pre-wrap; }
+.word-example { margin: 0; color: #9c27b0; font-style: italic; font-size: 20px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .word-dash { color: #9c27b0; font-weight: bold; margin: 0 4px; }
-.word-example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 27px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; white-space: pre-wrap; }
-.word-transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #006400; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); line-height: 1.5; white-space: nowrap; }
+.word-example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 27px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
+.word-transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #006400; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
 .word-actions { display: flex; gap: 10px; flex-shrink: 0; align-self: flex-start; }
 .edit-btn, .delete-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
 .edit-btn { background: #2196f3; }
@@ -269,34 +269,57 @@ html, body { height: 100%; background-color: #aa3bff; }
 /* Адаптивность */
 @media (max-width: 768px) {
   :root {
-    --admin-top-offset: 10px;
+    --admin-top-offset: 0px;
   }
 
   .admin-panel {
-    padding-left: 10px;
-    padding-right: 10px;
+    height: auto;
+    min-height: 100svh;
+    padding-top: 0;
+    padding-left: 6px;
+    padding-right: 6px;
     overflow-y: auto;
   }
   
   .admin-fixed-container {
     position: static;
-    padding: 0 10px;
+    width: 100%;
+    max-width: none;
+    padding: 0;
   }
 
   .admin-content {
     overflow: visible;
-    margin-top: 12px;
+    margin-top: 8px;
+  }
+
+  .words-list {
+    height: auto;
+    min-height: 280px;
+    max-height: none;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .admin-header,
+  .admin-tabs,
+  .form-section,
+  .categories-section,
+  .users-section,
+  .logs-section {
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .admin-header {
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     text-align: center;
-    padding: 12px 15px;
+    padding: 10px 12px;
   }
   
   .admin-header h2 {
-    font-size: 18px;
+    font-size: 17px;
   }
   
   .admin-info {
@@ -312,15 +335,15 @@ html, body { height: 100%; background-color: #aa3bff; }
   .admin-tabs {
     flex-wrap: wrap;
     justify-content: center;
-    padding: 10px 15px;
-    gap: 8px;
+    padding: 8px 10px;
+    gap: 6px;
   }
   
   .tab-btn {
-    flex: 1;
-    min-width: 100px;
-    padding: 10px 15px;
-    font-size: 13px;
+    flex: 1 1 calc(50% - 6px);
+    min-width: 90px;
+    padding: 8px 10px;
+    font-size: 12px;
   }
   
   /* Двухколоночная форма - одна колонка на мобильных */
@@ -332,6 +355,23 @@ html, body { height: 100%; background-color: #aa3bff; }
     width: 100%;
   }
   
+  .dictionary-toolbar {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dictionary-toolbar .search-container {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .words-count {
+    font-size: 15px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
   .word-form input {
     padding: 12px;
     font-size: 16px; /* Предотвращает зум на iOS */
@@ -364,6 +404,16 @@ html, body { height: 100%; background-color: #aa3bff; }
   .users-toolbar .search-container {
     width: 100%;
     flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .search-wrapper {
+    max-width: 100%;
+  }
+
+  .search-input {
+    font-size: 12px;
+    padding: 7px 30px 7px 9px;
   }
 
   .user-payment-filters,
@@ -404,17 +454,40 @@ html, body { height: 100%; background-color: #aa3bff; }
   
   /* Карточки слов */
   .word-title {
-    font-size: 36px;
+    font-size: clamp(28px, 8vw, 36px);
   }
   
+  .word-transcription,
   .word-example2,
   .word-transcription2 {
-    font-size: 20px;
+    font-size: clamp(16px, 4.8vw, 20px);
+  }
+  
+  .word-translation,
+  .word-example,
+  .word-category {
+    font-size: clamp(15px, 4.2vw, 18px);
   }
   
   .word-item {
     padding: 15px;
     flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
+
+  .word-content {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .word-item .word-row,
+  .word-item .examples {
+    width: 100%;
+    max-width: 100%;
   }
   
   .word-actions {
@@ -476,19 +549,19 @@ html, body { height: 100%; background-color: #aa3bff; }
   }
   
   .word-title {
-    font-size: 32px;
+    font-size: clamp(24px, 7.5vw, 32px);
   }
   
   .word-translation {
-    font-size: 16px;
+    font-size: clamp(14px, 4vw, 16px);
   }
   
   .word-example {
-    font-size: 15px;
+    font-size: clamp(14px, 4vw, 15px);
   }
   
   .word-example2 {
-    font-size: 18px;
+    font-size: clamp(16px, 4.8vw, 18px);
   }
   
   .word-form input {

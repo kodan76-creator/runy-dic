@@ -131,13 +131,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
   useEffect(() => {
+    const isMobileLayout = typeof window !== 'undefined' && (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent))
     const updateViewportHeight = () => {
       const viewportHeight = window.visualViewport?.height || window.innerHeight
       document.documentElement.style.setProperty('--admin-viewport-height', `${viewportHeight}px`)
     }
 
     updateViewportHeight()
-    document.body.classList.add('admin-no-scroll')
+
+    if (!isMobileLayout) {
+      document.body.classList.add('admin-no-scroll')
+    }
+
     window.addEventListener('resize', updateViewportHeight)
     window.visualViewport?.addEventListener('resize', updateViewportHeight)
     window.visualViewport?.addEventListener('scroll', updateViewportHeight)
