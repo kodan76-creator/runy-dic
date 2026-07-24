@@ -907,7 +907,7 @@ color: #5a0000;
   .listen-btn {
     order: 1;
     width: 100%;
-    min-height: 48px;
+    min-height: 20px;
     border-radius: 14px;
     font-size: 18px;
   }
@@ -1065,8 +1065,8 @@ color: #5a0000;
   .listen-btn {
     width: 100%;
     max-width: 440px;
-    padding: 14px 20px;
-    font-size: 20px;
+    padding: 5px 20px;
+    font-size: 15px;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   }
