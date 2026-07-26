@@ -361,5 +361,21 @@
     "audio2": "",
     "id": 1744645682639,
     "createdAt": "2026-04-14T17:48:02.639Z"
+  },
+  {
+    "word": "фецъ",
+    "transcription": "фаИс-су аль-гО цЭрэ Эль",
+    "translation": "Защита личности",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785037971349",
+    "createdAt": "2026-07-26T03:52:51.349Z",
+    "createdBy": "kodan76@ya.ru"
   }
 ]
