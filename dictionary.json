@@ -61,54 +61,6 @@
     ]
   },
   {
-    "word": "ъфъ*",
-    "transcription": "эльфЭль",
-    "translation": "дом",
-    "example": "Дом на улице.",
-    "example2": "ъфъ ваи ъфълица.",
-    "transcription2": "эльфЭль ваИ эльфЭлица",
-    "audio": "",
-    "audio2": "",
-    "id": 1743959289711,
-    "createdAt": "2026-04-06T17:48:09.711Z"
-  },
-  {
-    "word": "жъ",
-    "transcription": "жэль",
-    "translation": "день",
-    "example": "Сегодня солнечный день.",
-    "example2": "сежъ жчхъцфо жъ.",
-    "transcription2": "сержЭль жайхЭльцфо жэль",
-    "audio": "den_runy.mp3",
-    "audio2": "den_r_prim.mp3",
-    "id": 1743947872806,
-    "createdAt": "2026-04-06T14:37:52.806Z"
-  },
-  {
-    "word": "нгси*",
-    "transcription": "найсИ",
-    "translation": "июнь",
-    "example": "Давно прошёл июнь.",
-    "example2": "юзу хатхчжгп нчси.",
-    "transcription2": "юзУ хатхайжЭйп найсИ",
-    "audio": "",
-    "audio2": "",
-    "id": 1744645245344,
-    "createdAt": "2026-04-14T17:40:45.344Z"
-  },
-  {
-    "word": "лчси*",
-    "transcription": "лайсИ",
-    "translation": "июль",
-    "example": "Давно прошёл июнь, июль.",
-    "example2": "юзу хатхчжгп нгси, лгси.",
-    "transcription2": "юзУ хатхайжЭйп найсИ, лайсИ.",
-    "audio": "",
-    "audio2": "",
-    "id": 1744645682639,
-    "createdAt": "2026-04-14T17:48:02.639Z"
-  },
-  {
     "word": "тва",
     "transcription": "тва",
     "translation": "2, два",
