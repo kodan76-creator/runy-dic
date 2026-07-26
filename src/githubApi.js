@@ -68,13 +68,13 @@ export const ensureUserAudioFolder = async (userEmail) => {
 }
 
 // 🎵 Загрузка MP3-файла в папку пользователя
-export const uploadAudioFile = async (file, userEmail) => {
+export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
   if (!file.name.toLowerCase().endsWith('.mp3')) throw new Error('Допускаются только MP3-файлы')
 
   const folder = emailToFolderName(userEmail)
   const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
-  const filePath = `public/audio/${folder}/${safeName}`
+  const filePath = rootUpload ? `public/audio/${safeName}` : `public/audio/${folder}/${safeName}`
 
   // Проверяем, не существует ли уже файл с таким именем
   const existingSha = await getGitHubFileSha(filePath)
@@ -95,7 +95,7 @@ export const uploadAudioFile = async (file, userEmail) => {
   // Загружаем через GitHub API (напрямую, минуя updateGitHubFile, т.к. content уже base64)
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
   const body = {
-    message: `Upload audio: ${safeName} for ${folder}`,
+    message: `Upload audio: ${safeName}${rootUpload ? '' : ' for ' + folder}`,
     content: base64,
     branch: GITHUB_BRANCH
   }
@@ -105,21 +105,21 @@ export const uploadAudioFile = async (file, userEmail) => {
     throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
   }
 
-  return { path: safeName, folder, name: safeName }
+  return { path: safeName, folder: rootUpload ? '' : folder, name: safeName }
 }
 
 // 🗑️ Удаление аудиофайла из папки пользователя
-export const deleteAudioFile = async (fileName, userEmail) => {
+export const deleteAudioFile = async (fileName, userEmail, rootUpload = false) => {
   if (!fileName || !userEmail) throw new Error('Имя файла или пользователь не указаны')
   const folder = emailToFolderName(userEmail)
-  const filePath = `public/audio/${folder}/${fileName}`
+  const filePath = rootUpload ? `public/audio/${fileName}` : `public/audio/${folder}/${fileName}`
 
   // Получаем SHA напрямую через API (без декодирования бинарного контента)
   const sha = await getGitHubFileSha(filePath)
   if (!sha) throw new Error('Файл не найден')
 
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
-  const body = { message: `Delete audio: ${fileName} from ${folder}`, sha, branch: GITHUB_BRANCH }
+  const body = { message: `Delete audio: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
   const response = await fetch(url, { method: 'DELETE', headers: getHeaders(), body: JSON.stringify(body) })
   if (!response.ok) {
     const err = await response.json().catch(() => ({}))

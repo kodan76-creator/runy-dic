@@ -252,8 +252,9 @@ function Home({ user, onLogout }) {
     if (/^https?:\/\//i.test(fileName)) return fileName
     // Если имя файла содержит "/" — путь уже полный (старый формат)
     if (fileName.includes('/')) return `${import.meta.env.BASE_URL}audio/${fileName}`
-    // Если передана папка пользователя — ищем в её подпапке
+    // Если передана папка пользователя — ищем в её подпапке (личный словарь)
     if (userFolder) return `${import.meta.env.BASE_URL}audio/${userFolder}/${fileName}`
+    // Общий словарь — файлы в корне public/audio/
     return `${import.meta.env.BASE_URL}audio/${fileName}`
   }
 
@@ -293,10 +294,10 @@ function Home({ user, onLogout }) {
     })
   }
 
-  const handleSingleAudio = async (fileName) => {
+  const handleSingleAudio = async (fileName, isPersonal) => {
     stopPlaylistRef.current = false
     setIsPlaying(true)
-    const userFolder = user?.email ? emailToFolderName(user.email) : null
+    const userFolder = isPersonal && user?.email ? emailToFolderName(user.email) : null
     await playAudioFile(fileName, userFolder)
     if (!stopPlaylistRef.current) setIsPlaying(false)
   }
@@ -310,15 +311,19 @@ function Home({ user, onLogout }) {
     const cards = playMode === 'random'
       ? [...filtered].sort(() => Math.random() - 0.5)
       : filtered
-    const playlist = cards.flatMap(item => [item.audio, item.audio2].filter(Boolean))
+    const playlist = cards.flatMap(item => {
+      const isPersonal = item.__dictionarySource === 'personal'
+      return [item.audio, item.audio2].filter(Boolean).map(f => ({ fileName: f, isPersonal }))
+    })
     if (playlist.length === 0) return
 
     stopPlaylistRef.current = false
     setIsPlaying(true)
 
-    const userFolder = user?.email ? emailToFolderName(user.email) : null
-    for (const fileName of playlist) {
+    const userFolderBase = user?.email ? emailToFolderName(user.email) : null
+    for (const { fileName, isPersonal } of playlist) {
       if (stopPlaylistRef.current) break
+      const userFolder = isPersonal ? userFolderBase : null
       await playAudioFile(fileName, userFolder)
     }
 
@@ -641,7 +646,7 @@ function Home({ user, onLogout }) {
               {favorites.has(String(item.id)) ? '❤️' : '🤍'}
             </button>
             {item.audio && (
-              <button className="audio-btn" onClick={() => handleSingleAudio(item.audio)} title="Слушать слово">
+              <button className="audio-btn" onClick={() => handleSingleAudio(item.audio, item.__dictionarySource === 'personal')} title="Слушать слово">
                 🔊
               </button>
             )}
@@ -660,7 +665,7 @@ function Home({ user, onLogout }) {
               </div>
             )}
             {item.audio2 && (
-              <button className="audio-btn-bottom" onClick={() => handleSingleAudio(item.audio2)} title="Слушать пример">
+              <button className="audio-btn-bottom" onClick={() => handleSingleAudio(item.audio2, item.__dictionarySource === 'personal')} title="Слушать пример">
                 🔊
               </button>
             )}

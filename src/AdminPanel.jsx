@@ -270,7 +270,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading(key)
     setError('')
     try {
-      const result = await uploadAudioFile(file, activeUser.email)
+      const result = await uploadAudioFile(file, activeUser.email, !isRestrictedUser)
       setFormData(prev => ({ ...prev, [key]: result.path }))
     } catch (err) {
       setError('Ошибка загрузки аудио: ' + err.message)
@@ -288,7 +288,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading(key)
     setError('')
     try {
-      await deleteAudioFile(fileName, activeUser.email)
+      await deleteAudioFile(fileName, activeUser.email, !isRestrictedUser)
       setFormData(prev => ({ ...prev, [key]: '' }))
     } catch (err) {
       setError('Ошибка удаления аудио: ' + err.message)
