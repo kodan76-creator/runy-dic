@@ -101,11 +101,15 @@ export const deleteAudioFile = async (fileName, userEmail) => {
   const folder = emailToFolderName(userEmail)
   const filePath = `public/audio/${folder}/${fileName}`
 
-  const { sha } = await fetchGitHubFile(filePath)
-  if (!sha) throw new Error('Файл не найден')
+  // Получаем SHA напрямую через API (без декодирования бинарного контента)
+  const headUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`
+  const headResp = await fetch(headUrl, { headers: getHeaders() })
+  if (!headResp.ok) throw new Error('Файл не найден')
+  const headData = await headResp.json()
+  if (!headData.sha) throw new Error('Файл не найден')
 
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
-  const body = { message: `Delete audio: ${fileName} from ${folder}`, sha, branch: GITHUB_BRANCH }
+  const body = { message: `Delete audio: ${fileName} from ${folder}`, sha: headData.sha, branch: GITHUB_BRANCH }
   const response = await fetch(url, { method: 'DELETE', headers: getHeaders(), body: JSON.stringify(body) })
   if (!response.ok) {
     const err = await response.json().catch(() => ({}))
