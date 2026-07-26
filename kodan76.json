@@ -442,5 +442,21 @@
     "id": "1785038504850",
     "createdAt": "2026-07-26T04:01:44.850Z",
     "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЖЦ",
+    "transcription": "Алу цЭрэ",
+    "translation": "Да святится Имя Твое",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038619083",
+    "createdAt": "2026-07-26T04:03:39.083Z",
+    "createdBy": "kodan76@ya.ru"
   }
 ]
