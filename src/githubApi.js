@@ -370,6 +370,28 @@ export const deleteWord = async (id, user = null) => {
   }
   const removed = arr.splice(idx, 1)
   await updateGitHubFile(fileName, arr, sha)
+
+  // Удалить ID из всех списков избранного в favorites.json
+  try {
+    const idStr = String(id)
+    const { data: favData, sha: favSha } = await fetchGitHubFile(FAVORITES_FILE)
+    if (Array.isArray(favData)) {
+      let changed = false
+      const updated = favData.map(entry => {
+        if (Array.isArray(entry.favorites) && entry.favorites.includes(idStr)) {
+          changed = true
+          return { ...entry, favorites: entry.favorites.filter(f => f !== idStr) }
+        }
+        return entry
+      })
+      if (changed) {
+        await updateGitHubFile(FAVORITES_FILE, updated, favSha)
+      }
+    }
+  } catch (e) {
+    console.error('Failed to remove word from favorites after deletion:', e)
+  }
+
   return removed[0]
 }
 
