@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -32,6 +32,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userEditingId, setUserEditingId] = useState(null)
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
   const [userSaving, setUserSaving] = useState(false)
+  const [audioUploading, setAudioUploading] = useState('')
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
@@ -251,6 +252,31 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       return found ? [found.id] : [categ]
     }
     return []
+  }
+
+  const handleAudioUpload = async (e, field) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.name.toLowerCase().endsWith('.mp3')) {
+      setError('Допускаются только MP3-файлы')
+      e.target.value = ''
+      return
+    }
+    if (!activeUser?.email) {
+      setError('Не удалось определить пользователя')
+      return
+    }
+    const key = field === 'audio2' ? 'audio2' : 'audio'
+    setAudioUploading(key)
+    setError('')
+    try {
+      const result = await uploadAudioFile(file, activeUser.email)
+      setFormData(prev => ({ ...prev, [key]: result.path }))
+    } catch (err) {
+      setError('Ошибка загрузки аудио: ' + err.message)
+    }
+    setAudioUploading('')
+    e.target.value = ''
   }
 
   const handleEdit = (word) => {
@@ -477,8 +503,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
                 <input type="text" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
                 <input type="text" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
-                <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
-                <input type="text" placeholder="Audio2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
+                <div className="audio-upload-row">
+                  <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
+                  <label className="audio-upload-btn" title="Загрузить MP3">
+                    📎
+                    <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
+                  </label>
+                  {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
+                </div>
+                <div className="audio-upload-row">
+                  <input type="text" placeholder="Audio2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
+                  <label className="audio-upload-btn" title="Загрузить MP3">
+                    📎
+                    <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
+                  </label>
+                  {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
+                </div>
               </div>
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>

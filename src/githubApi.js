@@ -54,6 +54,47 @@ export const ensureUserAudioFolder = async (userEmail) => {
   }
 }
 
+// 🎵 Загрузка MP3-файла в папку пользователя
+export const uploadAudioFile = async (file, userEmail) => {
+  if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
+  if (!file.name.toLowerCase().endsWith('.mp3')) throw new Error('Допускаются только MP3-файлы')
+
+  const folder = emailToFolderName(userEmail)
+  const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
+  const filePath = `public/audio/${folder}/${safeName}`
+
+  // Проверяем, не существует ли уже файл с таким именем
+  const existing = await fetchGitHubFile(filePath)
+  if (existing.sha) {
+    // Файл уже есть — просто возвращаем путь
+    return { path: `${folder}/${safeName}`, folder, name: safeName, existed: true }
+  }
+
+  // Читаем файл как base64
+  const arrayBuffer = await file.arrayBuffer()
+  const bytes = new Uint8Array(arrayBuffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  const base64 = btoa(binary)
+
+  // Загружаем через GitHub API (напрямую, минуя updateGitHubFile, т.к. content уже base64)
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
+  const body = {
+    message: `Upload audio: ${safeName} for ${folder}`,
+    content: base64,
+    branch: GITHUB_BRANCH
+  }
+  const response = await fetch(url, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
+  }
+
+  return { path: `${folder}/${safeName}`, folder, name: safeName }
+}
+
 // ✅ ИСПРАВЛЕНО: Всегда возвращаем { data, sha }
 const fetchGitHubFile = async (fileName) => {
 try {
