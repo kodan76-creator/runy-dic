@@ -32,6 +32,28 @@ throw e
 }
 const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)))
 const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)))
+
+// 📁 Создание папки пользователя в public/audio/
+const emailToFolderName = (email) => {
+  return String(email || '').toLowerCase().replace(/[^a-z0-9._-]/g, '_')
+}
+
+export const ensureUserAudioFolder = async (userEmail) => {
+  if (!userEmail) return
+  const folder = emailToFolderName(userEmail)
+  const filePath = `public/audio/${folder}/.gitkeep`
+  try {
+    const { sha } = await fetchGitHubFile(filePath)
+    if (sha) return { created: false, folder } // уже существует
+    // Файл не найден — создаём
+    await updateGitHubFile(filePath, [], null)
+    return { created: true, folder }
+  } catch (e) {
+    console.error('ensureUserAudioFolder error:', e)
+    return { created: false, folder, error: e.message }
+  }
+}
+
 // ✅ ИСПРАВЛЕНО: Всегда возвращаем { data, sha }
 const fetchGitHubFile = async (fileName) => {
 try {
@@ -90,6 +112,7 @@ const user = users.find(u => u?.email?.toLowerCase() === email?.toLowerCase())
 if (user?.role === 'admin') {
   const inputHash = await hashPassword(password)
   if (inputHash === user.passwordHash) {
+    ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on admin login:', e))
     const { passwordHash: _, ...safeUser } = user
     return { ...safeUser, role: 'admin', loginAt: new Date().toISOString() }
   }
@@ -99,6 +122,7 @@ const admin = admins.find(a => a?.email?.toLowerCase() === email?.toLowerCase())
 if (!admin) return null
 const inputHash = await hashPassword(password)
 if (inputHash !== admin.passwordHash) return null
+ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on admin login:', e))
 return { email: admin.email, role: 'admin', loginAt: new Date().toISOString() }
 } catch (e) {
 console.error('verifyAdmin error:', e)
@@ -133,6 +157,7 @@ blockedBy: null
 }
 await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
 addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
+ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on register:', e))
 const { passwordHash: _, ...safeUser } = newUser
 // ✅ Возвращаем с role: 'user'
 return { ...safeUser, role: 'user' }
@@ -148,6 +173,7 @@ const inputHash = await hashPassword(password)
 if (inputHash !== user.passwordHash) return null
 
 addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
+ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on login:', e))
 
 const { passwordHash: _, ...safeUser } = user
 return { ...safeUser, role: user.role || 'user' }
