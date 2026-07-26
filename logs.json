@@ -1,5 +1,68 @@
 [
   {
+    "id": "1784883485341",
+    "timestamp": "2026-07-24T08:58:05.341Z",
+    "action": "login",
+    "userEmail": "winx0212@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1784858856688",
+    "timestamp": "2026-07-24T02:07:36.688Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"Дед\""
+  },
+  {
+    "id": "1784858854616",
+    "timestamp": "2026-07-24T02:07:34.616Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"Де\""
+  },
+  {
+    "id": "1784858851682",
+    "timestamp": "2026-07-24T02:07:31.682Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"Д\""
+  },
+  {
+    "id": "1784858808501",
+    "timestamp": "2026-07-24T02:06:48.501Z",
+    "action": "audio_played",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Аудио: osen_runy.mp3"
+  },
+  {
+    "id": "1784858805778",
+    "timestamp": "2026-07-24T02:06:45.778Z",
+    "action": "audio_played",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1784858802179",
+    "timestamp": "2026-07-24T02:06:42.179Z",
+    "action": "audio_played",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
+    "id": "1784858780660",
+    "timestamp": "2026-07-24T02:06:20.660Z",
+    "action": "audio_played",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Аудио: 1_r_prim.mp3"
+  },
+  {
+    "id": "1784858778523",
+    "timestamp": "2026-07-24T02:06:18.523Z",
+    "action": "audio_played",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Аудио: 1_runy.mp3"
+  },
+  {
     "id": "1784857909018",
     "timestamp": "2026-07-24T01:51:49.018Z",
     "action": "login",
