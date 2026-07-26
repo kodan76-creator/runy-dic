@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -279,6 +279,23 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     e.target.value = ''
   }
 
+  const handleAudioDelete = async (field) => {
+    const key = field === 'audio2' ? 'audio2' : 'audio'
+    const fileName = formData[key]
+    if (!fileName) return
+    if (!activeUser?.email) { setError('Не удалось определить пользователя'); return }
+    if (!window.confirm(`Удалить аудиофайл «${fileName}»?`)) return
+    setAudioUploading(key)
+    setError('')
+    try {
+      await deleteAudioFile(fileName, activeUser.email)
+      setFormData(prev => ({ ...prev, [key]: '' }))
+    } catch (err) {
+      setError('Ошибка удаления аудио: ' + err.message)
+    }
+    setAudioUploading('')
+  }
+
   const handleEdit = (word) => {
       // Only allow editing if admin or owner
       const isAdmin = activeUser?.role === 'admin'
@@ -509,6 +526,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     📎
                     <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
                   </label>
+                  {formData.audio && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio')} disabled={audioUploading === 'audio'}>🗑️</button>}
                   {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
                 </div>
                 <div className="audio-upload-row">
@@ -517,6 +535,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     📎
                     <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
                   </label>
+                  {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
                   {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
                 </div>
               </div>

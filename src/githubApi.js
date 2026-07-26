@@ -34,7 +34,7 @@ const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)))
 const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)))
 
 // 📁 Создание папки пользователя в public/audio/
-const emailToFolderName = (email) => {
+export const emailToFolderName = (email) => {
   return String(email || '').toLowerCase().replace(/[^a-z0-9._-]/g, '_')
 }
 
@@ -67,7 +67,7 @@ export const uploadAudioFile = async (file, userEmail) => {
   const existing = await fetchGitHubFile(filePath)
   if (existing.sha) {
     // Файл уже есть — просто возвращаем путь
-    return { path: `${folder}/${safeName}`, folder, name: safeName, existed: true }
+    return { path: safeName, folder, name: safeName, existed: true }
   }
 
   // Читаем файл как base64
@@ -92,7 +92,26 @@ export const uploadAudioFile = async (file, userEmail) => {
     throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
   }
 
-  return { path: `${folder}/${safeName}`, folder, name: safeName }
+  return { path: safeName, folder, name: safeName }
+}
+
+// 🗑️ Удаление аудиофайла из папки пользователя
+export const deleteAudioFile = async (fileName, userEmail) => {
+  if (!fileName || !userEmail) throw new Error('Имя файла или пользователь не указаны')
+  const folder = emailToFolderName(userEmail)
+  const filePath = `public/audio/${folder}/${fileName}`
+
+  const { sha } = await fetchGitHubFile(filePath)
+  if (!sha) throw new Error('Файл не найден')
+
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
+  const body = { message: `Delete audio: ${fileName} from ${folder}`, sha, branch: GITHUB_BRANCH }
+  const response = await fetch(url, { method: 'DELETE', headers: getHeaders(), body: JSON.stringify(body) })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(`Ошибка удаления: ${err.message || response.statusText}`)
+  }
+  return { deleted: true, name: fileName }
 }
 
 // ✅ ИСПРАВЛЕНО: Всегда возвращаем { data, sha }

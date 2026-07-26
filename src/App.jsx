@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories, getFavoritesForUser, updateFavoritesForUser } from './githubApi'
+import { verifyUser, registerUser, logoutUser, getDictionary, logSearch, logAudioPlay, getCategories, getFavoritesForUser, updateFavoritesForUser, emailToFolderName } from './githubApi'
 import AdminPanel from './AdminPanel'
 import './App.css'
 
@@ -247,9 +247,13 @@ function Home({ user, onLogout }) {
     window.open(adminUrl, '_blank', 'noopener,noreferrer')
   }
 
-  const getAudioSrc = (fileName) => {
+  const getAudioSrc = (fileName, userFolder) => {
     if (!fileName) return ''
     if (/^https?:\/\//i.test(fileName)) return fileName
+    // Если имя файла содержит "/" — путь уже полный (старый формат)
+    if (fileName.includes('/')) return `${import.meta.env.BASE_URL}audio/${fileName}`
+    // Если передана папка пользователя — ищем в её подпапке
+    if (userFolder) return `${import.meta.env.BASE_URL}audio/${userFolder}/${fileName}`
     return `${import.meta.env.BASE_URL}audio/${fileName}`
   }
 
@@ -263,7 +267,7 @@ function Home({ user, onLogout }) {
     setIsPlaying(false)
   }
 
-  const playAudioFile = (fileName) => {
+  const playAudioFile = (fileName, userFolder) => {
     return new Promise((resolve) => {
       if (!fileName) {
         resolve()
@@ -274,7 +278,7 @@ function Home({ user, onLogout }) {
         currentAudioRef.current.pause()
       }
 
-      const audio = new Audio(getAudioSrc(fileName))
+      const audio = new Audio(getAudioSrc(fileName, userFolder))
       currentAudioRef.current = audio
       logAudioPlay(fileName, user?.email)
 
@@ -292,7 +296,8 @@ function Home({ user, onLogout }) {
   const handleSingleAudio = async (fileName) => {
     stopPlaylistRef.current = false
     setIsPlaying(true)
-    await playAudioFile(fileName)
+    const userFolder = user?.email ? emailToFolderName(user.email) : null
+    await playAudioFile(fileName, userFolder)
     if (!stopPlaylistRef.current) setIsPlaying(false)
   }
 
@@ -311,9 +316,10 @@ function Home({ user, onLogout }) {
     stopPlaylistRef.current = false
     setIsPlaying(true)
 
+    const userFolder = user?.email ? emailToFolderName(user.email) : null
     for (const fileName of playlist) {
       if (stopPlaylistRef.current) break
-      await playAudioFile(fileName)
+      await playAudioFile(fileName, userFolder)
     }
 
     if (!stopPlaylistRef.current) setIsPlaying(false)
