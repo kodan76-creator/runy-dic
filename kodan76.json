@@ -458,5 +458,21 @@
     "id": "1785038619083",
     "createdAt": "2026-07-26T04:03:39.083Z",
     "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "КЦ",
+    "transcription": "кИйг цЭрэ",
+    "translation": "Да будет Воля (и Любовь) Твоя",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038705610",
+    "createdAt": "2026-07-26T04:05:05.610Z",
+    "createdBy": "kodan76@ya.ru"
   }
 ]
