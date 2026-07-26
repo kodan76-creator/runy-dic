@@ -257,7 +257,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // Only allow editing if admin or owner
       const isAdmin = activeUser?.role === 'admin'
       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
-      if (!isAdmin && !isOwner) {
+      if (!isAdmin && !isOwner && !isRestrictedUser) {
         setError('Недостаточно прав для редактирования этой записи')
         return
       }
@@ -280,7 +280,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       if (window.confirm('Удалить эту карточку?')) {
         const isAdmin = activeUser?.role === 'admin'
         const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(wordOwnerEmail || '').toLowerCase()
-        if (!isAdmin && !isOwner) {
+        if (!isAdmin && !isOwner && !isRestrictedUser) {
           setError('Недостаточно прав для удаления этой записи')
           return
         }
@@ -650,7 +650,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                                     {(() => {
                                       const isAdmin = activeUser?.role === 'admin'
                                       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
-                                      const canEdit = isAdmin || isOwner
+                                      // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
+                                      const canEdit = isAdmin || isOwner || isRestrictedUser
                                       return canEdit ? (
                                         <div className="word-actions">
                                           <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
