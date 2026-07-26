@@ -222,7 +222,7 @@
   },
   {
     "word": "ЪРЖЫ",
-    "transcription": "эль рАдо Алу воз",
+    "transcription": "Эль рАдо Алу воз",
     "translation": "Защита дороги",
     "example": "",
     "example2": "",
@@ -230,7 +230,8 @@
     "audio": "",
     "audio2": "",
     "id": 1744544860282,
-    "createdAt": "2026-04-13T11:47:40.282Z"
+    "createdAt": "2026-04-13T11:47:40.282Z",
+    "category": []
   },
   {
     "word": "юзу*",
