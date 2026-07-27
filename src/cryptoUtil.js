@@ -9,15 +9,17 @@ const SALT = 'runy-dic-salt-v1' // Фиксированный соль для е
 
 let cachedKey = null
 
+// Статический ключ шифрования (одинаков на всех компьютерах)
+const STATIC_ENCRYPTION_KEY = 'RunyDic2024SecretKey!@#$%^&*()_+-=[]{}|;:\'",./<>?'
+
 /**
- * Получить ключ шифрования из переменной окружения
+ * Получить ключ шифрования: сначала из VITE_ENCRYPTION_KEY,
+ * затем статический (для доменных УЗ где .env может не подхватиться)
  */
 const getPassphrase = () => {
   const key = import.meta.env.VITE_ENCRYPTION_KEY
-  if (!key) {
-    throw new Error('VITE_ENCRYPTION_KEY не задан. Добавьте его в .env файл.')
-  }
-  return key
+  if (key) return key
+  return STATIC_ENCRYPTION_KEY
 }
 
 /**
