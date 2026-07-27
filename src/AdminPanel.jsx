@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -92,6 +92,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
   }
   const [authLoading, setAuthLoading] = useState(false)
+
+  // Миграция шифрования
+  const [migrationLoading, setMigrationLoading] = useState(false)
+  const [migrationResult, setMigrationResult] = useState(null)
 
   // Categories
   const [categories, setCategories] = useState([])
@@ -413,6 +417,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
   }
 
+  const handleMigrateEncryption = async () => {
+    if (!window.confirm('Зашифровать все JSON-файлы в репозитории? Это действие зашифрует данные на GitHub.')) return
+    setMigrationLoading(true)
+    setMigrationResult(null)
+    try {
+      const result = await migrateAllFiles()
+      setMigrationResult(result)
+    } catch (err) {
+      setMigrationResult([{ file: 'error', status: 'error', error: err.message }])
+    }
+    setMigrationLoading(false)
+  }
+
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
   if (!adminUser && !(currentUser && ['admin', 'user'].includes(currentUser.role))) {
@@ -465,6 +482,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
               <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
               <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
               <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
+              <button className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`} onClick={() => setActiveTab('security')}>🔐 Безопасность</button>
             </>
           )}
         </div>
@@ -674,6 +692,54 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   <span className="log-details">{log.details}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'security' && (
+          <div className="logs-section">
+            <div className="logs-header">
+              <h3>🔐 Шифрование данных</h3>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <p style={{ marginBottom: '16px', color: '#ccc' }}>
+                Зашифрует все JSON-файлы в репозитории с помощью AES-256-GCM.
+                После миграции файлы будут храниться в зашифрованном виде, но приложение будет автоматически расшифровывать их при чтении.
+              </p>
+              <button
+                onClick={handleMigrateEncryption}
+                disabled={migrationLoading}
+                className="clear-logs-btn"
+                style={{ marginBottom: '16px' }}
+              >
+                {migrationLoading ? '⏳ Шифрование...' : '🔐 Зашифровать все файлы'}
+              </button>
+              {migrationResult && (
+                <div style={{ marginTop: '12px' }}>
+                  <h4 style={{ color: '#fff', marginBottom: '8px' }}>Результат:</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '14px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #555' }}>
+                        <th style={{ padding: '6px', textAlign: 'left' }}>Файл</th>
+                        <th style={{ padding: '6px', textAlign: 'left' }}>Статус</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {migrationResult.map((r, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid #333' }}>
+                          <td style={{ padding: '6px' }}>{r.file}</td>
+                          <td style={{ padding: '6px' }}>
+                            {r.status === 'encrypted' && '✅ Зашифрован'}
+                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
+                            {r.status === 'not_found' && '⏭️ Не найден'}
+                            {r.status === 'error' && `❌ Ошибка: ${r.error}`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}

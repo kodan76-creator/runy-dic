@@ -1,5 +1,6 @@
 // src/githubApi.js
 import { getDictionaryFileNameForEmail, resolveDictionaryFile } from './dictionaryAccess'
+import { encrypt, decrypt, isEncrypted } from './cryptoUtil'
 
 const GITHUB_OWNER = 'kodan76-creator'
 const GITHUB_REPO = 'runy-dic'
@@ -142,9 +143,22 @@ if (!response.ok) {
 const fileData = await response.json()
 if (!fileData.content) return { data: [], sha: null }
 
-const raw = base64ToUtf8(fileData.content)
+let raw = base64ToUtf8(fileData.content)
 const cleaned = raw.replace(/^\uFEFF/, '').trim()
-const content = cleaned ? JSON.parse(cleaned) : []
+
+// 🔐 Расшифровка: если данные зашифрованы — расшифровываем
+let textToParse = cleaned
+if (isEncrypted(cleaned)) {
+  try {
+    textToParse = await decrypt(cleaned)
+  } catch (decErr) {
+    console.error(`Decrypt ${fileName} error:`, decErr)
+    // Если не удалось расшифровать — пробуем как есть (обратная совместимость)
+    textToParse = cleaned
+  }
+}
+
+const content = textToParse ? JSON.parse(textToParse) : []
 
 // ✅ ИСПРАВЛЕНО: Возвращаем { data, sha }
 return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
@@ -155,7 +169,9 @@ return { data: [], sha: null }
 }
 const updateGitHubFile = async (fileName, newData, currentSha) => {
 try {
-const content = utf8ToBase64(JSON.stringify(newData, null, 2))
+// 🔐 Шифрование: зашифровываем JSON перед записью
+const encrypted = await encrypt(JSON.stringify(newData))
+const content = utf8ToBase64(encrypted)
 const body = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
 if (currentSha) body.sha = currentSha
 const response = await fetch(
@@ -675,4 +691,86 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUp
     console.error('Failed to persist favorites intent to queue after retries:', e)
   }
   return false
+}
+
+// 🔐 МИГРАЦИЯ: Зашифровать все существующие JSON-файлы
+// Вызывать из консоли: await migrateAllFiles()
+export const migrateAllFiles = async () => {
+  const filesToMigrate = [
+    DATA_FILE,
+    ADMINS_FILE,
+    USERS_FILE,
+    LOGS_FILE,
+    CATEGORIES_FILE,
+    FAVORITES_FILE,
+    QUEUE_FILE,
+    // Персональные словари
+    'kodan76.json',
+    'ya.kodan76.json',
+    'winx0212.json',
+    'test.json',
+    'test2.json',
+    'dictionary.json2'
+  ]
+
+  const results = []
+  for (const fileName of filesToMigrate) {
+    try {
+      console.log(`🔄 Проверяю ${fileName}...`)
+      const { data, sha } = await fetchGitHubFileRaw(fileName)
+      if (!sha) {
+        console.log(`⏭️ ${fileName}: не найден, пропускаю`)
+        results.push({ file: fileName, status: 'not_found' })
+        continue
+      }
+
+      // Проверяем, зашифрован ли уже
+      if (isEncrypted(data)) {
+        console.log(`✅ ${fileName}: уже зашифрован`)
+        results.push({ file: fileName, status: 'already_encrypted' })
+        continue
+      }
+
+      // Зашифровываем и записываем
+      const encrypted = await encrypt(JSON.stringify(data))
+      const content = utf8ToBase64(encrypted)
+      const body = { message: `🔐 Encrypt ${fileName}`, content, sha, branch: GITHUB_BRANCH }
+      const response = await fetch(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+        { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+      )
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.message || response.statusText)
+      }
+      console.log(`🔐 ${fileName}: зашифрован`)
+      results.push({ file: fileName, status: 'encrypted' })
+    } catch (e) {
+      console.error(`❌ ${fileName}: ошибка —`, e.message)
+      results.push({ file: fileName, status: 'error', error: e.message })
+    }
+  }
+
+  console.log('\n📊 Результат миграции:')
+  console.table(results)
+  return results
+}
+
+// Сытой fetch (без расшифровки) — для миграции
+const fetchGitHubFileRaw = async (fileName) => {
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
+    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    if (!response.ok) {
+      if (response.status === 404) return { data: null, sha: null }
+      throw new Error(`HTTP ${response.status}`)
+    }
+    const fileData = await response.json()
+    if (!fileData.content) return { data: null, sha: null }
+    const raw = base64ToUtf8(fileData.content)
+    return { data: raw.replace(/^\uFEFF/, '').trim(), sha: fileData.sha }
+  } catch (error) {
+    console.error(`FetchRaw ${fileName} error:`, error)
+    return { data: null, sha: null }
+  }
 }
