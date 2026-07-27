@@ -210,6 +210,7 @@ if (user?.role === 'admin') {
   const inputHash = await hashPassword(password)
   if (inputHash === user.passwordHash) {
     ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on admin login:', e))
+    ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on admin login:', e))
     const { passwordHash: _, ...safeUser } = user
     return { ...safeUser, role: 'admin', loginAt: new Date().toISOString() }
   }
@@ -220,6 +221,7 @@ if (!admin) return null
 const inputHash = await hashPassword(password)
 if (inputHash !== admin.passwordHash) return null
 ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on admin login:', e))
+ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on admin login:', e))
 return { email: admin.email, role: 'admin', loginAt: new Date().toISOString() }
 } catch (e) {
 console.error('verifyAdmin error:', e)
@@ -255,6 +257,7 @@ blockedBy: null
 await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
 addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
 ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on register:', e))
+ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on register:', e))
 const { passwordHash: _, ...safeUser } = newUser
 // ✅ Возвращаем с role: 'user'
 return { ...safeUser, role: 'user' }
@@ -271,6 +274,7 @@ if (inputHash !== user.passwordHash) return null
 
 addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
 ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on login:', e))
+ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on login:', e))
 
 const { passwordHash: _, ...safeUser } = user
 return { ...safeUser, role: user.role || 'user' }
