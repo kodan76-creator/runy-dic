@@ -1,1 +1,44 @@
-"[\n  {\n    \"word\": \"6666666666666666\",\n    \"transcription\": \"666666666666\",\n    \"translation\": \"66666666666666666\",\n    \"category\": [],\n    \"example\": \"6666666666\",\n    \"example2\": \"66666666666\",\n    \"transcription2\": \"6666666666\",\n    \"audio\": \"666666666\",\n    \"audio2\": \"66666666666\",\n    \"id\": \"1784823423482\",\n    \"createdAt\": \"2026-07-23T16:17:03.482Z\",\n    \"createdBy\": \"test2@ya.ru\"\n  },\n  {\n    \"word\": \"777777\",\n    \"transcription\": \"Ggggg\",\n    \"translation\": \"Njhhhhh\",\n    \"category\": [],\n    \"example\": \"\",\n    \"example2\": \"\",\n    \"transcription2\": \"\",\n    \"audio\": \"\",\n    \"audio2\": \"\",\n    \"id\": \"1784824671169\",\n    \"createdAt\": \"2026-07-23T16:37:51.169Z\",\n    \"createdBy\": \"test2@ya.ru\"\n  },\n  {\n    \"word\": \"Ррааолдлрпа\",\n    \"transcription\": \"Cxdgjnn\",\n    \"translation\": \"Kbcfhjnn\",\n    \"category\": [],\n    \"example\": \"\",\n    \"example2\": \"\",\n    \"transcription2\": \"\",\n    \"audio\": \"\",\n    \"audio2\": \"\",\n    \"id\": \"1784824719921\",\n    \"createdAt\": \"2026-07-23T16:38:39.921Z\",\n    \"createdBy\": \"test2@ya.ru\"\n  }\n]"
+[
+  {
+    "word": "6666666666666666",
+    "transcription": "666666666666",
+    "translation": "66666666666666666",
+    "category": [],
+    "example": "6666666666",
+    "example2": "66666666666",
+    "transcription2": "6666666666",
+    "audio": "666666666",
+    "audio2": "66666666666",
+    "id": "1784823423482",
+    "createdAt": "2026-07-23T16:17:03.482Z",
+    "createdBy": "test2@ya.ru"
+  },
+  {
+    "word": "777777",
+    "transcription": "Ggggg",
+    "translation": "Njhhhhh",
+    "category": [],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1784824671169",
+    "createdAt": "2026-07-23T16:37:51.169Z",
+    "createdBy": "test2@ya.ru"
+  },
+  {
+    "word": "Ррааолдлрпа",
+    "transcription": "Cxdgjnn",
+    "translation": "Kbcfhjnn",
+    "category": [],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1784824719921",
+    "createdAt": "2026-07-23T16:38:39.921Z",
+    "createdBy": "test2@ya.ru"
+  }
+]
