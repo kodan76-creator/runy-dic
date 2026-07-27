@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -101,6 +101,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [selectedFiles, setSelectedFiles] = useState(new Set())
   const [decryptLoading, setDecryptLoading] = useState(false)
   const [decryptResult, setDecryptResult] = useState(null)
+  const [encryptLoading, setEncryptLoading] = useState(false)
+  const [encryptResult, setEncryptResult] = useState(null)
 
   // Categories
   const [categories, setCategories] = useState([])
@@ -451,6 +453,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setFilesStatus(status)
       setSelectedFiles(new Set())
       setDecryptResult(null)
+      setEncryptResult(null)
     } catch (err) {
       console.error('loadFilesStatus error:', err)
     }
@@ -465,12 +468,26 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try {
       const result = await decryptFiles(Array.from(selectedFiles))
       setDecryptResult(result)
-      // Обновить статус после расшифровки
       await loadFilesStatus()
     } catch (err) {
       setDecryptResult([{ file: 'error', status: 'error', error: err.message }])
     }
     setDecryptLoading(false)
+  }
+
+  const handleEncryptSelected = async () => {
+    if (selectedFiles.size === 0) return
+    if (!window.confirm(`Зашифровать ${selectedFiles.size} файл(ов)? Данные на GitHub будут зашифрованы.`)) return
+    setEncryptLoading(true)
+    setEncryptResult(null)
+    try {
+      const result = await encryptFiles(Array.from(selectedFiles))
+      setEncryptResult(result)
+      await loadFilesStatus()
+    } catch (err) {
+      setEncryptResult([{ file: 'error', status: 'error', error: err.message }])
+    }
+    setEncryptLoading(false)
   }
 
   const toggleFileSelection = (fileName) => {
@@ -485,6 +502,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const selectAllEncrypted = () => {
     const needAction = filesStatus.filter(f => f.encrypted || f.broken).map(f => f.file)
     setSelectedFiles(new Set(needAction))
+  }
+
+  const selectAllPlain = () => {
+    const plain = filesStatus.filter(f => f.encrypted === false && f.status === 'plain').map(f => f.file)
+    setSelectedFiles(new Set(plain))
   }
 
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
@@ -823,17 +845,34 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                       className="refresh-logs-btn"
                       style={{ fontSize: '12px', padding: '4px 10px' }}
                     >
-                      Выбрать все (зашифрованные + сломанные)
+                      Выбрать зашифрованные + сломанные
+                    </button>
+                    <button
+                      onClick={selectAllPlain}
+                      className="refresh-logs-btn"
+                      style={{ fontSize: '12px', padding: '4px 10px' }}
+                    >
+                      Выбрать открытые
                     </button>
                     {selectedFiles.size > 0 && (
-                      <button
-                        onClick={handleDecryptSelected}
-                        disabled={decryptLoading}
-                        className="clear-logs-btn"
-                        style={{ fontSize: '12px', padding: '4px 10px' }}
-                      >
-                        {decryptLoading ? '⏳ Расшифровка...' : `🔓 Расшифровать (${selectedFiles.size})`}
-                      </button>
+                      <>
+                        <button
+                          onClick={handleDecryptSelected}
+                          disabled={decryptLoading}
+                          className="clear-logs-btn"
+                          style={{ fontSize: '12px', padding: '4px 10px' }}
+                        >
+                          {decryptLoading ? '⏳ Расшифровка...' : `🔓 Расшифровать (${selectedFiles.size})`}
+                        </button>
+                        <button
+                          onClick={handleEncryptSelected}
+                          disabled={encryptLoading}
+                          className="clear-logs-btn"
+                          style={{ fontSize: '12px', padding: '4px 10px', background: '#2d6a4f', borderColor: '#2d6a4f' }}
+                        >
+                          {encryptLoading ? '⏳ Шифрование...' : `🔐 Зашифровать (${selectedFiles.size})`}
+                        </button>
+                      </>
                     )}
                   </div>
 
@@ -900,6 +939,33 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                             {r.status === 'decrypted' && '🔓 Расшифрован'}
                             {r.status === 'repaired' && '🔧 Восстановлен'}
                             {r.status === 'not_encrypted' && '📄 Уже открытый'}
+                            {r.status === 'not_found' && '⏭️ Не найден'}
+                            {r.status === 'error' && `❌ ${r.error}`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {encryptResult && (
+                <div style={{ marginTop: '12px' }}>
+                  <h4 style={{ color: '#fff', marginBottom: '6px' }}>Результат шифрования:</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #555' }}>
+                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Файл</th>
+                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Статус</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {encryptResult.map((r, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid #333' }}>
+                          <td style={{ padding: '4px 6px' }}>{r.file}</td>
+                          <td style={{ padding: '4px 6px' }}>
+                            {r.status === 'encrypted' && '🔐 Зашифрован'}
+                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
                             {r.status === 'not_found' && '⏭️ Не найден'}
                             {r.status === 'error' && `❌ ${r.error}`}
                           </td>

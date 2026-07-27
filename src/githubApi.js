@@ -908,3 +908,49 @@ export const decryptFiles = async (fileNames) => {
   }
   return results
 }
+
+// 🔐 Зашифровать один файл
+export const encryptFile = async (fileName) => {
+  try {
+    const { data, sha } = await fetchGitHubFileRaw(fileName)
+    if (!sha) return { file: fileName, status: 'not_found' }
+    if (isEncrypted(data)) return { file: fileName, status: 'already_encrypted' }
+
+    // Если файл сломан (двойное кодирование) — сначала восстанавливаем
+    let contentToEncrypt = data
+    if (data.startsWith('"')) {
+      try {
+        const inner = JSON.parse(data)
+        if (typeof inner === 'string') {
+          contentToEncrypt = JSON.stringify(JSON.parse(inner), null, 2)
+        }
+      } catch { /* не двойное — шифруем как есть */ }
+    }
+
+    const encrypted = await encrypt(contentToEncrypt)
+    const content = utf8ToBase64(encrypted)
+    const body = { message: `🔐 Encrypt ${fileName}`, content, sha, branch: GITHUB_BRANCH }
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+      { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+    )
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(err.message || response.statusText)
+    }
+    return { file: fileName, status: 'encrypted' }
+  } catch (e) {
+    console.error(`EncryptFile ${fileName} error:`, e)
+    return { file: fileName, status: 'error', error: e.message }
+  }
+}
+
+// 🔐 Зашифровать несколько файлов
+export const encryptFiles = async (fileNames) => {
+  const results = []
+  for (const fileName of fileNames) {
+    const result = await encryptFile(fileName)
+    results.push(result)
+  }
+  return results
+}
