@@ -774,3 +774,86 @@ const fetchGitHubFileRaw = async (fileName) => {
     return { data: null, sha: null }
   }
 }
+
+// 🔐 Расшифровать один файл
+export const decryptFile = async (fileName) => {
+  try {
+    const { data, sha } = await fetchGitHubFileRaw(fileName)
+    if (!sha) return { file: fileName, status: 'not_found' }
+    if (!isEncrypted(data)) return { file: fileName, status: 'not_encrypted' }
+
+    const decrypted = await decrypt(data)
+    // Проверяем, что расшифрованные данные — валидный JSON
+    JSON.parse(decrypted)
+
+    const content = utf8ToBase64(decrypted)
+    const body = { message: `🔓 Decrypt ${fileName}`, content, sha, branch: GITHUB_BRANCH }
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+      { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+    )
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(err.message || response.statusText)
+    }
+    return { file: fileName, status: 'decrypted' }
+  } catch (e) {
+    console.error(`DecryptFile ${fileName} error:`, e)
+    return { file: fileName, status: 'error', error: e.message }
+  }
+}
+
+// 🔐 Проверить статус шифрования всех файлов
+const KNOWN_FILES = [
+  DATA_FILE, ADMINS_FILE, USERS_FILE, LOGS_FILE,
+  CATEGORIES_FILE, FAVORITES_FILE, QUEUE_FILE
+]
+
+export const checkFilesEncryptionStatus = async () => {
+  // Сначала сканируем known файлы + ищем персональные словари в favorites
+  let personalFiles = []
+  try {
+    const { data: favData } = await fetchGitHubFileRaw(FAVORITES_FILE)
+    if (favData && isEncrypted(favData)) {
+      // Favorites зашифрован — расшифруем чтобы прочитать список пользователей
+      const decrypted = await decrypt(favData)
+      const parsed = JSON.parse(decrypted)
+      if (Array.isArray(parsed)) {
+        personalFiles = parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
+      }
+    } else if (favData) {
+      const parsed = JSON.parse(favData)
+      if (Array.isArray(parsed)) {
+        personalFiles = parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
+      }
+    }
+  } catch { /* ignore */ }
+
+  const allFiles = [...new Set([...KNOWN_FILES, ...personalFiles])]
+  const results = []
+
+  for (const fileName of allFiles) {
+    try {
+      const { data, sha } = await fetchGitHubFileRaw(fileName)
+      if (!sha) {
+        results.push({ file: fileName, encrypted: null, status: 'not_found' })
+        continue
+      }
+      const encrypted = isEncrypted(data)
+      results.push({ file: fileName, encrypted, status: encrypted ? 'encrypted' : 'plain' })
+    } catch {
+      results.push({ file: fileName, encrypted: null, status: 'error' })
+    }
+  }
+  return results
+}
+
+// 🔐 Расшифровать несколько файлов
+export const decryptFiles = async (fileNames) => {
+  const results = []
+  for (const fileName of fileNames) {
+    const result = await decryptFile(fileName)
+    results.push(result)
+  }
+  return results
+}
