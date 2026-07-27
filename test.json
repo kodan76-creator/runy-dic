@@ -1,1 +1,44 @@
-"[\n  {\n    \"word\": \"1\",\n    \"transcription\": \"1\",\n    \"translation\": \"1\",\n    \"category\": [],\n    \"example\": \"1\",\n    \"example2\": \"1\",\n    \"transcription2\": \"\",\n    \"audio\": \"\",\n    \"audio2\": \"\",\n    \"id\": \"1784820586586\",\n    \"createdAt\": \"2026-07-23T15:29:46.586Z\",\n    \"createdBy\": \"test@ya.ru\"\n  },\n  {\n    \"word\": \"2\",\n    \"transcription\": \"2\",\n    \"translation\": \"2\",\n    \"category\": [],\n    \"example\": \"2\",\n    \"example2\": \"2\",\n    \"transcription2\": \"2\",\n    \"audio\": \"\",\n    \"audio2\": \"\",\n    \"id\": \"1784820736122\",\n    \"createdAt\": \"2026-07-23T15:32:16.122Z\",\n    \"createdBy\": \"test@ya.ru\"\n  },\n  {\n    \"word\": \"3\",\n    \"transcription\": \"3\",\n    \"translation\": \"3\",\n    \"category\": [],\n    \"example\": \"3\",\n    \"example2\": \"3\",\n    \"transcription2\": \"3\",\n    \"audio\": \"\",\n    \"audio2\": \"\",\n    \"id\": \"1784820777633\",\n    \"createdAt\": \"2026-07-23T15:32:57.633Z\",\n    \"createdBy\": \"test@ya.ru\"\n  }\n]"
+[
+  {
+    "word": "1",
+    "transcription": "1",
+    "translation": "1",
+    "category": [],
+    "example": "1",
+    "example2": "1",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820586586",
+    "createdAt": "2026-07-23T15:29:46.586Z",
+    "createdBy": "test@ya.ru"
+  },
+  {
+    "word": "2",
+    "transcription": "2",
+    "translation": "2",
+    "category": [],
+    "example": "2",
+    "example2": "2",
+    "transcription2": "2",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820736122",
+    "createdAt": "2026-07-23T15:32:16.122Z",
+    "createdBy": "test@ya.ru"
+  },
+  {
+    "word": "3",
+    "transcription": "3",
+    "translation": "3",
+    "category": [],
+    "example": "3",
+    "example2": "3",
+    "transcription2": "3",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820777633",
+    "createdAt": "2026-07-23T15:32:57.633Z",
+    "createdBy": "test@ya.ru"
+  }
+]
