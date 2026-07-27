@@ -483,8 +483,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
 
   const selectAllEncrypted = () => {
-    const encrypted = filesStatus.filter(f => f.encrypted).map(f => f.file)
-    setSelectedFiles(new Set(encrypted))
+    const needAction = filesStatus.filter(f => f.encrypted || f.broken).map(f => f.file)
+    setSelectedFiles(new Set(needAction))
   }
 
   const formatDate = (d) => d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
@@ -823,7 +823,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                       className="refresh-logs-btn"
                       style={{ fontSize: '12px', padding: '4px 10px' }}
                     >
-                      Выбрать все зашифрованные
+                      Выбрать все (зашифрованные + сломанные)
                     </button>
                     {selectedFiles.size > 0 && (
                       <button
@@ -843,11 +843,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                         <th style={{ padding: '4px 6px', width: '30px' }}>
                           <input
                             type="checkbox"
-                            checked={selectedFiles.size === filesStatus.filter(f => f.encrypted).length && filesStatus.filter(f => f.encrypted).length > 0}
+                            checked={selectedFiles.size === filesStatus.filter(f => f.encrypted || f.broken).length && filesStatus.filter(f => f.encrypted || f.broken).length > 0}
                             onChange={() => {
-                              const encrypted = filesStatus.filter(f => f.encrypted)
-                              if (selectedFiles.size === encrypted.length) setSelectedFiles(new Set())
-                              else setSelectedFiles(new Set(encrypted.map(f => f.file)))
+                              const needAction = filesStatus.filter(f => f.encrypted || f.broken)
+                              if (selectedFiles.size === needAction.length) setSelectedFiles(new Set())
+                              else setSelectedFiles(new Set(needAction.map(f => f.file)))
                             }}
                           />
                         </th>
@@ -870,7 +870,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                           <td style={{ padding: '4px 6px' }}>{f.file}</td>
                           <td style={{ padding: '4px 6px' }}>
                             {f.encrypted === true && '🔒 Зашифрован'}
-                            {f.encrypted === false && '📄 Открытый текст'}
+                            {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан (двойное кодирование)'}
+                            {f.encrypted === false && f.status === 'plain' && '📄 Открытый текст'}
                             {f.status === 'not_found' && '⏭️ Не найден'}
                             {f.status === 'error' && '❌ Ошибка'}
                           </td>
@@ -897,6 +898,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                           <td style={{ padding: '4px 6px' }}>{r.file}</td>
                           <td style={{ padding: '4px 6px' }}>
                             {r.status === 'decrypted' && '🔓 Расшифрован'}
+                            {r.status === 'repaired' && '🔧 Восстановлен'}
                             {r.status === 'not_encrypted' && '📄 Уже открытый'}
                             {r.status === 'not_found' && '⏭️ Не найден'}
                             {r.status === 'error' && `❌ ${r.error}`}

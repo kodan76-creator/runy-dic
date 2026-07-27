@@ -153,9 +153,16 @@ if (isEncrypted(cleaned)) {
     textToParse = await decrypt(cleaned)
   } catch (decErr) {
     console.error(`Decrypt ${fileName} error:`, decErr)
-    // Если не удалось расшифровать — пробуем как есть (обратная совместимость)
     textToParse = cleaned
   }
+}
+
+// Исправление двойного кодирования: если расшифрованный результат — JSON-строка
+if (typeof textToParse === 'string' && textToParse.startsWith('"')) {
+  try {
+    const inner = JSON.parse(textToParse)
+    if (typeof inner === 'string') textToParse = inner
+  } catch { /* оставляем как есть */ }
 }
 
 const content = textToParse ? JSON.parse(textToParse) : []
@@ -731,8 +738,8 @@ export const migrateAllFiles = async () => {
         continue
       }
 
-      // Зашифровываем и записываем
-      const encrypted = await encrypt(JSON.stringify(data))
+      // Зашифровываем и записываем (data — уже строка, НЕ нужно оборачивать в JSON.stringify)
+      const encrypted = await encrypt(data)
       const content = utf8ToBase64(encrypted)
       const body = { message: `🔐 Encrypt ${fileName}`, content, sha, branch: GITHUB_BRANCH }
       const response = await fetch(
@@ -780,13 +787,48 @@ export const decryptFile = async (fileName) => {
   try {
     const { data, sha } = await fetchGitHubFileRaw(fileName)
     if (!sha) return { file: fileName, status: 'not_found' }
-    if (!isEncrypted(data)) return { file: fileName, status: 'not_encrypted' }
+    if (!isEncrypted(data)) {
+      // Проверяем, не имеет ли файл двойное кодирование без шифрования
+      if (data.startsWith('"')) {
+        try {
+          const inner = JSON.parse(data)
+          if (typeof inner === 'string') {
+            // Двойное кодирование без шифрования — восстанавливаем
+            const parsed = JSON.parse(inner)
+            const formatted = JSON.stringify(parsed, null, 2)
+            const content = utf8ToBase64(formatted)
+            const body = { message: `🔧 Repair ${fileName} (fix double-encoding)`, content, sha, branch: GITHUB_BRANCH }
+            const response = await fetch(
+              `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+              { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+            )
+            if (!response.ok) throw new Error('Failed to repair')
+            return { file: fileName, status: 'repaired' }
+          }
+        } catch { /* не двойное кодирование — пропускаем */ }
+      }
+      return { file: fileName, status: 'not_encrypted' }
+    }
 
-    const decrypted = await decrypt(data)
+    let decrypted = await decrypt(data)
+
+    // Исправление двойного кодирования: если результат — JSON-строка (начинается с "),
+    // распарсить её чтобы получить настоящий JSON
+    if (typeof decrypted === 'string' && decrypted.startsWith('"')) {
+      try {
+        const parsed = JSON.parse(decrypted)
+        if (typeof parsed === 'string') {
+          decrypted = parsed // был двойной stringify — берём распарсенную строку
+        }
+      } catch { /* не строка — оставляем как есть */ }
+    }
+
     // Проверяем, что расшифрованные данные — валидный JSON
-    JSON.parse(decrypted)
+    const parsed = JSON.parse(decrypted)
+    // Форматируем красиво для консистентности
+    const formatted = Array.isArray(parsed) ? JSON.stringify(parsed, null, 2) : JSON.stringify(parsed, null, 2)
 
-    const content = utf8ToBase64(decrypted)
+    const content = utf8ToBase64(formatted)
     const body = { message: `🔓 Decrypt ${fileName}`, content, sha, branch: GITHUB_BRANCH }
     const response = await fetch(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
@@ -836,13 +878,22 @@ export const checkFilesEncryptionStatus = async () => {
     try {
       const { data, sha } = await fetchGitHubFileRaw(fileName)
       if (!sha) {
-        results.push({ file: fileName, encrypted: null, status: 'not_found' })
+        results.push({ file: fileName, encrypted: null, status: 'not_found', broken: false })
         continue
       }
       const encrypted = isEncrypted(data)
-      results.push({ file: fileName, encrypted, status: encrypted ? 'encrypted' : 'plain' })
+      // Проверяем двойное кодирование: файл не зашифрован, но начинается с "
+      let broken = false
+      if (!encrypted && data && data.startsWith('"')) {
+        try {
+          const inner = JSON.parse(data)
+          if (typeof inner === 'string') broken = true
+        } catch { /* ok */ }
+      }
+      const status = encrypted ? 'encrypted' : broken ? 'broken' : 'plain'
+      results.push({ file: fileName, encrypted, status, broken })
     } catch {
-      results.push({ file: fileName, encrypted: null, status: 'error' })
+      results.push({ file: fileName, encrypted: null, status: 'error', broken: false })
     }
   }
   return results
