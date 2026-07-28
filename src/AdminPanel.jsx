@@ -33,6 +33,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
   const [userSaving, setUserSaving] = useState(false)
   const [audioUploading, setAudioUploading] = useState('')
+  const msgTimeoutRef = useRef(null)
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ text, type })
+    if (msgTimeoutRef.current) clearTimeout(msgTimeoutRef.current)
+    msgTimeoutRef.current = setTimeout(() => setMessage(''), 4000)
+  }
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
@@ -40,6 +47,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [userSearchTerm, setUserSearchTerm] = useState('')
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
@@ -254,11 +262,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
     try {
-      if (editingId) await updateWord(editingId, formData, activeUser)
-      else await addWord(formData, activeUser?.email, activeUser)
+      if (editingId) {
+        await updateWord(editingId, formData, activeUser)
+        showMessage('✅ Карточка обновлена')
+      } else {
+        await addWord(formData, activeUser?.email, activeUser)
+        showMessage('✅ Карточка добавлена')
+      }
       setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' })
       setEditingId(null); await loadWords()
-    } catch (err) { setError(err.message) }
+    } catch (err) {
+      setError(err.message)
+      showMessage('❌ ' + err.message, 'error')
+    }
     setLoading(false)
   }
 
@@ -287,11 +303,21 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     const key = field === 'audio2' ? 'audio2' : 'audio'
     setAudioUploading(key)
     setError('')
+    const oldName = formData[key]
     try {
       const result = await uploadAudioFile(file, activeUser.email, !isRestrictedUser)
       setFormData(prev => ({ ...prev, [key]: result.path }))
+      showMessage(`✅ Аудиофайл «${result.path}» загружен${result.existed ? ' (уже существовал)' : ''}`)
+      // Если был старый файл и он не совпадает с новым — удаляем старый
+      if (oldName && oldName !== result.path) {
+        try {
+          await deleteAudioFile(oldName, activeUser.email, !isRestrictedUser)
+        } catch { /* не критично */ }
+      }
     } catch (err) {
-      setError('Ошибка загрузки аудио: ' + err.message)
+      const errMsg = err.message || 'Неизвестная ошибка'
+      setError('❌ Ошибка загрузки аудио: ' + errMsg)
+      showMessage('❌ Ошибка загрузки аудио: ' + errMsg, 'error')
     }
     setAudioUploading('')
     e.target.value = ''
@@ -308,8 +334,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try {
       await deleteAudioFile(fileName, activeUser.email, !isRestrictedUser)
       setFormData(prev => ({ ...prev, [key]: '' }))
+      showMessage(`✅ Аудиофайл «${fileName}» удалён`)
     } catch (err) {
-      setError('Ошибка удаления аудио: ' + err.message)
+      const errMsg = err.message || 'Неизвестная ошибка'
+      setError('❌ Ошибка удаления аудио: ' + errMsg)
+      showMessage('❌ Ошибка удаления аудио: ' + errMsg, 'error')
     }
     setAudioUploading('')
   }
@@ -345,7 +374,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           setError('Недостаточно прав для удаления этой записи')
           return
         }
-        try { await deleteWord(id, activeUser); await loadWords() } catch (err) { setError('Ошибка удаления: ' + err.message) }
+        try {
+          await deleteWord(id, activeUser)
+          await loadWords()
+          showMessage('✅ Карточка удалена')
+        } catch (err) {
+          setError('Ошибка удаления: ' + err.message)
+          showMessage('❌ ' + err.message, 'error')
+        }
       }
     }
 
@@ -529,6 +565,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   return (
     <div className="admin-panel">
+      {message && <div className={`admin-message ${message.type || 'success'}`}>{message.text}</div>}
       <div className="admin-fixed-container">
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>

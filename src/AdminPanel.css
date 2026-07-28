@@ -271,6 +271,29 @@ html, body { height: 100%; background-color: #aa3bff; }
 .delete-btn { background: #f44336; }
 .delete-btn:hover { transform: scale(1.1); }
 .error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; margin-top: 10px; grid-column: 1 / -1; }
+
+/* Уведомление об успехе/ошибке */
+.admin-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  animation: msgFadeIn 0.3s ease, msgFadeOut 0.5s ease 3.5s forwards;
+  pointer-events: none;
+  max-width: 90vw;
+  text-align: center;
+}
+.admin-message.success { background: #e8f5e9; color: #2e7d32; border: 2px solid #4caf50; }
+.admin-message.error { background: #ffebee; color: #c62828; border: 2px solid #ef5350; }
+
+@keyframes msgFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes msgFadeOut { from { opacity: 1; } to { opacity: 0; } }
 .loading { text-align: center; padding: 20px; color: #666; }
 .no-results { text-align: center; padding: 40px; color: #666; font-size: 18px; }
 .word-audio { margin: 8px 0 0 0; color: #e9d5ff; font-size: 14px; font-style: italic; }
