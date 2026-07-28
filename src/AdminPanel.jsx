@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -33,6 +33,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
   const [userSaving, setUserSaving] = useState(false)
   const [audioUploading, setAudioUploading] = useState('')
+  const currentAudioRef = useRef(null)
   const msgTimeoutRef = useRef(null)
 
   const showMessage = (text, type = 'success') => {
@@ -53,6 +54,35 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
   const [userRoleFilter, setUserRoleFilter] = useState('all')
   const wordsListRef = useRef(null)
+  const getAudioSrc = (fileName, userFolder) => {
+    if (!fileName) return ''
+    const base = import.meta.env.BASE_URL || '/'
+    if (fileName.includes('/')) return `${base}audio/${fileName}`
+    if (userFolder) return `${base}audio/${userFolder}/${fileName}`
+    return `${base}audio/${fileName}`
+  }
+
+  const stopAudio = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current.currentTime = 0
+      currentAudioRef.current = null
+    }
+  }
+
+  const playAudioFile = (fileName) => {
+    stopAudio()
+    // Админ — общий словарь (audio в корне public/audio/), пользователь — личный (audio/{emailFolder}/)
+    const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
+    const src = getAudioSrc(fileName, userFolder)
+    const audio = new Audio(src)
+    currentAudioRef.current = audio
+    const finish = () => { if (currentAudioRef.current === audio) currentAudioRef.current = null }
+    audio.addEventListener('ended', finish, { once: true })
+    audio.addEventListener('error', finish, { once: true })
+    audio.play().catch(finish)
+  }
+
   const scrollWordsToTop = () => {
     const el = wordsListRef.current || document.querySelector('.words-list')
     const isMobile = (typeof window !== 'undefined') && (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent))
@@ -1045,8 +1075,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                         {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
                         {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
                       </div>
-                      {word.audio && <p className="word-audio">🔊 {word.audio}</p>}
-                      {word.audio2 && <p className="word-audio">🔊 {word.audio2}</p>}
+                      {word.audio && (
+                        <p className="word-audio">
+                          🔊 {word.audio}
+                          <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
+                        </p>
+                      )}
+                      {word.audio2 && (
+                        <p className="word-audio">
+                          🔊 {word.audio2}
+                          <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio2)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
+                        </p>
+                      )}
                     </div>
 
                                     {/* determine per-card edit permission: admins or owner only */}
