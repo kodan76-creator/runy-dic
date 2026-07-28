@@ -312,7 +312,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       if (oldName && oldName !== result.path) {
         try {
           await deleteAudioFile(oldName, activeUser.email, !isRestrictedUser)
-        } catch { /* не критично */ }
+        } catch { /* файл мог быть уже удалён — не критично */ }
       }
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
@@ -337,8 +337,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       showMessage(`✅ Аудиофайл «${fileName}» удалён`)
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
-      setError('❌ Ошибка удаления аудио: ' + errMsg)
-      showMessage('❌ Ошибка удаления аудио: ' + errMsg, 'error')
+      // Если файл не найден — всё равно очищаем поле, т.к. файла уже нет
+      if (errMsg.includes('не найден')) {
+        setFormData(prev => ({ ...prev, [key]: '' }))
+        showMessage(`⚠️ Файл «${fileName}» не найден на сервере — поле очищено`)
+      } else {
+        setError('❌ Ошибка удаления аудио: ' + errMsg)
+        showMessage('❌ Ошибка удаления аудио: ' + errMsg, 'error')
+      }
     }
     setAudioUploading('')
   }
