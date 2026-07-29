@@ -79,8 +79,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     currentAudioRef.current = audio
     const finish = () => { if (currentAudioRef.current === audio) currentAudioRef.current = null }
     audio.addEventListener('ended', finish, { once: true })
-    audio.addEventListener('error', finish, { once: true })
-    audio.play().catch(finish)
+    audio.addEventListener('error', () => {
+      finish()
+      showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
+    }, { once: true })
+    audio.play().catch(() => {
+      finish()
+      showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
+    })
   }
 
   const scrollWordsToTop = () => {
@@ -337,7 +343,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try {
       const result = await uploadAudioFile(file, activeUser.email, !isRestrictedUser)
       setFormData(prev => ({ ...prev, [key]: result.path }))
-      showMessage(`✅ Аудиофайл «${result.path}» загружен${result.existed ? ' (уже существовал)' : ''}`)
+      showMessage(`✅ Аудиофайл «${result.path}» загружен`)
       // Если был старый файл и он не совпадает с новым — удаляем старый
       if (oldName && oldName !== result.path) {
         try {
