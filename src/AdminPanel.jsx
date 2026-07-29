@@ -649,6 +649,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           <div className="form-section">
             <div className="dictionary-toolbar">
               <h3 className="words-count">📚 Все слова ({words.length})</h3>
+              <button
+                type="button"
+                className="refresh-logs-btn"
+                onClick={loadWords}
+                disabled={loading}
+                style={{ marginRight: '8px', fontSize: '13px', padding: '4px 10px' }}
+              >
+                {loading ? '⏳' : '🔄 Обновить'}
+              </button>
               <div className="search-container">
                 {/* ✅ ИСПРАВЛЕНО: Обёртка и крестик */}
                 <div className="search-wrapper">
