@@ -112,18 +112,30 @@ export const deleteAudioFile = async (fileName, userEmail, rootUpload = false) =
   const folder = emailToFolderName(userEmail)
   const filePath = rootUpload ? `public/audio/${fileName}` : `public/audio/${folder}/${fileName}`
 
-  // Получаем SHA напрямую через API (без декодирования бинарного контента)
-  const sha = await getGitHubFileSha(filePath)
-  if (!sha) throw new Error('Файл не найден')
+  let retries = 0
+  const maxRetries = 5
 
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
-  const body = { message: `Delete audio: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
-  const response = await fetch(url, { method: 'DELETE', headers: getHeaders(), body: JSON.stringify(body) })
-  if (!response.ok) {
+  while (retries < maxRetries) {
+    // Получаем SHA напрямую через API (без декодирования бинарного контента)
+    const sha = await getGitHubFileSha(filePath)
+    if (!sha) throw new Error('Файл не найден')
+
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
+    const body = { message: `Delete audio: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
+    const response = await fetch(url, { method: 'DELETE', headers: getHeaders(), body: JSON.stringify(body) })
+    if (response.ok) return { deleted: true, name: fileName }
+
     const err = await response.json().catch(() => ({}))
-    throw new Error(`Ошибка удаления: ${err.message || response.statusText}`)
+    const errMsg = err.message || response.statusText
+    if (response.status === 409 || errMsg.includes('Conflict')) {
+      retries++
+      console.warn(`Delete audio conflict, retrying ${retries}/${maxRetries}...`)
+      await new Promise(res => setTimeout(res, 500 + retries * 300))
+    } else {
+      throw new Error(`Ошибка удаления: ${errMsg}`)
+    }
   }
-  return { deleted: true, name: fileName }
+  throw new Error('Ошибка удаления: конфликт версий, попробуйте позже')
 }
 
 // ✅ ИСПРАВЛЕНО: Всегда возвращаем { data, sha }
