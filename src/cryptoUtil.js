@@ -8,18 +8,46 @@ const PBKDF2_ITERATIONS = 100_000
 const SALT = 'runy-dic-salt-v1' // Фиксированный соль для единообразия
 
 let cachedKey = null
-
-// Статический ключ шифрования (одинаков на всех компьютерах)
-const STATIC_ENCRYPTION_KEY = 'RunyDic2024SecretKey!@#$%^&*()_+-=[]{}|;:\'",./<>?'
+let cachedPassphrase = null
 
 /**
- * Получить ключ шифрования: сначала из VITE_ENCRYPTION_KEY,
- * затем статический (для доменных УЗ где .env может не подхватиться)
+ * Получить ключ шифрования:
+ * 1. Из VITE_ENCRYPTION_KEY в .env (для разработки)
+ * 2. Из GitHub Repository Variables (ENCRYPTION_KEY)
+ *    Только владелец репозитория может задать/изменить эту переменную в настройках GitHub.
  */
-const getPassphrase = () => {
-  const key = import.meta.env.VITE_ENCRYPTION_KEY
-  if (key) return key
-  return STATIC_ENCRYPTION_KEY
+const getPassphrase = async () => {
+  if (cachedPassphrase) return cachedPassphrase
+
+  // 1. Пробуем из .env (локальная разработка)
+  const envKey = import.meta.env.VITE_ENCRYPTION_KEY
+  if (envKey) {
+    cachedPassphrase = envKey
+    return cachedPassphrase
+  }
+
+  // 2. Читаем из GitHub Repository Variables (только через API)
+  const token = import.meta.env.VITE_GITHUB_TOKEN
+  if (!token) throw new Error('VITE_GITHUB_TOKEN не задан — не удалось получить ключ шифрования')
+
+  const url = 'https://api.github.com/repos/kodan76-creator/runy-dic/actions/variables/ENCRYPTION_KEY'
+  const resp = await fetch(url, {
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  })
+
+  if (!resp.ok) {
+    throw new Error(
+      'ENCRYPTION_KEY не найден. Переменная репозитория ENCRYPTION_KEY должна быть задана ' +
+      'в Settings → Secrets and variables → Actions в GitHub.'
+    )
+  }
+
+  const data = await resp.json()
+  cachedPassphrase = data.value
+  return cachedPassphrase
 }
 
 /**
@@ -28,7 +56,7 @@ const getPassphrase = () => {
 const getKey = async () => {
   if (cachedKey) return cachedKey
 
-  const passphrase = getPassphrase()
+  const passphrase = await getPassphrase()
   const encoder = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
