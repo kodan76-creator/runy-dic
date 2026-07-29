@@ -77,6 +77,9 @@ export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
   const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
   const filePath = rootUpload ? `public/audio/${safeName}` : `public/audio/${folder}/${safeName}`
 
+  // Получаем SHA, если файл уже существует (для перезаписи)
+  const existingSha = await getGitHubFileSha(filePath)
+
   // Читаем файл как base64
   const arrayBuffer = await file.arrayBuffer()
   const bytes = new Uint8Array(arrayBuffer)
@@ -93,13 +96,14 @@ export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
     content: base64,
     branch: GITHUB_BRANCH
   }
+  if (existingSha) body.sha = existingSha  // если файл есть — перезаписываем
   const response = await fetch(url, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) })
   if (!response.ok) {
     const err = await response.json().catch(() => ({}))
     throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
   }
 
-  return { path: safeName, folder: rootUpload ? '' : folder, name: safeName, existed: false }
+  return { path: safeName, folder: rootUpload ? '' : folder, name: safeName }
 }
 
 // 🗑️ Удаление аудиофайла из папки пользователя
