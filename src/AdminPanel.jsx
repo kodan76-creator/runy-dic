@@ -56,10 +56,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const wordsListRef = useRef(null)
   const getAudioSrc = (fileName, userFolder) => {
     if (!fileName) return ''
-    const base = import.meta.env.BASE_URL || '/'
-    if (fileName.includes('/')) return `${base}audio/${fileName}`
-    if (userFolder) return `${base}audio/${userFolder}/${fileName}`
-    return `${base}audio/${fileName}`
+    // Прямая ссылка на raw.githubusercontent.com — не требует пересборки сайта
+    const base = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/audio/'
+    if (fileName.includes('/')) return `${base}${fileName}`
+    if (userFolder) return `${base}${userFolder}/${fileName}`
+    return `${base}${fileName}`
   }
 
   const stopAudio = () => {
