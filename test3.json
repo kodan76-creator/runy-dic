@@ -1,1 +1,46 @@
-ENC:v1:+/PYlPmMMG3pPOIw03wYwkclTyBNsu7Kc+P4pUECcV63qnCfWmOXjhlEIE//fGXXl/LH/CKxRA9cduUL4vpeqJbYGkrYo/k3uZlm7PfHWizh6WB8mVfUnWEMUN9ULupfiNrlp48fqk2OQBvOFLNiTpvlauwoSuEB5U9nhqOzBJ8aXct3UOzFYtLamwpU5i+slY9lAAB57M/E0UWUnuTrQmfp+C8Z+emIAiS0ZO8Gdgf0Khf7xyxzhvChLOeMPwD6WzHBAeOvIYvsj+fzQdGRWTLD+nwg10gGFOnEtYldBYUi3U+A2Zy6cylZyF1iaWdds9nz7plX0tm40sscwHU/kmZVh5+C+JFH+Up5fu/a8q4iZ0vSlMd4XqFemyEg2jYFbRVYSsJZ2Aiv5vOLDtxkL4oX7OgJSrWZcFoKSa5tkIN0Z2CFQQ/Fnc3XJI/G4hlZoH1El7nXiRw5C97uS8NL6clS6tkCP+hchm2ZDOFrHUj9yN0ifdaI23ZAnlJvvi8dyPpOsCDamkCQLEkMlr0O3Fi2GSzMWxVa+EzetQee0kgzzBSWbfIpe3n9CGak0klVT7HDKJGeVW6Njz8CC34Soyl8HYQetKPKO+r43t8HBsnIJbKsHD3s1RgMK/BMCVZSRW25iIVs128PPTHIT/iBAEhunvw4m5NcV7WYIkNs/+xJW2N+RtaJLunJDQ5b3RxysXvsH8/5PfzR8jvSp+dM4w+eSyXOWMbnv+6nAxSBF/2UyR0ZNGVHmBhfZpEi2XBBCnydUR5kE94oFZudxRgAn5MAWxQTDpu4Q16R/90O5YsqbCVk+h1opprRsZOVRYLXhSwZz+AHhWkTA4kUUmzlaHYpZ6gby0WqA/YpWfFQ6kzqnLT5YmEMD6UJ26uO9TenKsGufd3dhATc3w1JqagIJUhvNge4fXHCPg9Nc7QaWOK7ezh3HFI/RBCo/vTARLcGi47uNQn3pICT8gKEtCeUOZcS7yaP
+[
+  {
+    "word": "1111",
+    "transcription": "2222",
+    "translation": "33333",
+    "category": [
+      "1778594679967"
+    ],
+    "example": "444",
+    "example2": "555",
+    "transcription2": "666",
+    "audio": "",
+    "audio2": "",
+    "id": "1785153812554",
+    "createdAt": "2026-07-27T12:03:32.554Z",
+    "createdBy": "test3@ya.ru"
+  },
+  {
+    "word": "222",
+    "transcription": "333",
+    "translation": "444",
+    "category": [],
+    "example": "555",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785153856854",
+    "createdAt": "2026-07-27T12:04:16.854Z",
+    "createdBy": "test3@ya.ru"
+  },
+  {
+    "word": "444",
+    "transcription": "555",
+    "translation": "555",
+    "category": [],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785195521697",
+    "createdAt": "2026-07-27T23:38:41.697Z",
+    "createdBy": "test3@ya.ru"
+  }
+]
