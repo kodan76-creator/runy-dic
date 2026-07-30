@@ -66,8 +66,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 .upload-spinner { font-size: 16px; animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 .dictionary-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.dictionary-toolbar .search-container { margin-bottom: 0; flex: 1; }
-.dictionary-toolbar .search-wrapper { max-width: none; margin: 0; }
+.dictionary-toolbar .search-container { margin-bottom: 0; flex: 1; min-width: 0; }
+.dictionary-toolbar .search-wrapper { max-width: none; margin: 0; min-width: 0; }
 .words-count { margin: 0; color: #aa3bff; text-align: left; font-size: 18px; padding-top: 0; white-space: nowrap; }
 
 /* КАТЕГОРИИ */
@@ -640,6 +640,17 @@ box-shadow: 0 6px 18px rgba(0,0,0,0.25);
 @media (max-width: 768px) {
 .card-scroll-top-btn.admin { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); width: 44px; height: 44px; font-size: 16px; }
 }
+}
+
+/* Экран менее 420px — поиск не должен вылезать */
+@media (max-width: 420px) {
+  .form-section {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .search-input {
+    padding-right: 30px;
+  }
 }
 
 /* Landscape orientation на маленьких экранах */
