@@ -96,6 +96,10 @@ html, body { height: 100%; background-color: #aa3bff; }
 .categories-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
 .categories-list { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
 .category-item { display: flex; justify-content: space-between; align-items: center; background: #f3e5f5; padding: 12px; border-radius: 8px; border: 2px solid #7b1fa2; }
+.category-order { display: flex; flex-direction: column; gap: 2px; margin-right: 8px; }
+.move-btn { padding: 2px 6px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; background: transparent; line-height: 1; }
+.move-btn:hover:not(:disabled) { background: rgba(123, 31, 162, 0.1); }
+.move-btn:disabled { opacity: 0.3; cursor: default; }
 .category-info { display: flex; flex-direction: column; }
 .category-info strong { color: #7b1fa2; font-size: 16px; }
 .category-desc { color: #666; font-size: 13px; margin-top: 4px; }

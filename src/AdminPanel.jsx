@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -461,6 +461,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       try { await deleteCategory(id, adminUser?.email); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
     }
   }
+  const handleMoveCategoryUp = async (id) => {
+    try { await moveCategoryUp(id); await loadCategories() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveCategoryDown = async (id) => {
+    try { await moveCategoryDown(id); await loadCategories() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveCategoryToTop = async (id) => {
+    try { await moveCategoryToTop(id); await loadCategories() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
 
   const handleBlockUser = async (userId, userEmail) => {
     if (window.confirm(`Заблокировать ${userEmail}?`)) {
@@ -749,8 +758,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             </div>
 
             <div className="categories-list">
-              {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map(cat => (
+              {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map((cat, idx) => (
                 <div key={cat.id} className="category-item">
+                  <div className="category-order">
+                    <button onClick={() => handleMoveCategoryToTop(cat.id)} className="move-btn" disabled={idx === 0} title="В начало">⏫</button>
+                    <button onClick={() => handleMoveCategoryUp(cat.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
+                    <button onClick={() => handleMoveCategoryDown(cat.id)} className="move-btn" disabled={idx === categories.length - 1} title="Переместить вниз">⬇️</button>
+                  </div>
                   <div className="category-info">
                     <strong>{cat.name}</strong>
                     {cat.description && <div className="category-desc">{cat.description}</div>}
