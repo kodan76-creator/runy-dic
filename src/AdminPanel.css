@@ -259,6 +259,7 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-item { position: relative; display: flex; justify-content: space-between; align-items: flex-start; background: #c084fc; padding: 20px; border-radius: 12px; border: 2px solid #aa3bff; border-left: 6px solid #aa3bff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); line-height: 1.5; box-sizing: border-box; width: 100%; max-width: 100%; }
 .word-content { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .word-item .word-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; line-height: 1.5; width: 100%; }
+.word-number { position: absolute; top: 8px; left: 10px; font-size: 18px; color: rgba(255,255,255,0.7); font-weight: bold; min-width: 24px; text-align: right; }
 .word-title { margin: 0; font-size: 45px; color: #FFD700; font-family: 'Dao Rus', sans-serif; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
 .word-transcription { margin: 0; color: #006400; font-style: italic; font-size: 20px; line-height: 1.5; transform: translateY(2px); white-space: pre-wrap; overflow-wrap: anywhere; }
 .word-translation { margin: 0 0 8px 0; color: white; font-size: 18px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -268,7 +269,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-dash { color: #9c27b0; font-weight: bold; margin: 0 4px; }
 .word-example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 27px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
 .word-transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #006400; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
-.word-actions { display: flex; gap: 10px; flex-shrink: 0; align-self: flex-start; }
+.word-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-self: flex-start; align-items: center; }
+.word-order { display: flex; gap: 2px; }
 .edit-btn, .delete-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
 .edit-btn { background: #2196f3; }
 .edit-btn:hover { transform: scale(1.1); }
@@ -530,6 +532,10 @@ html, body { height: 100%; background-color: #aa3bff; }
     margin-top: 15px;
     width: 100%;
     justify-content: center;
+    flex-direction: column;
+  }
+  .word-order {
+    gap: 6px;
   }
   
   .edit-btn,

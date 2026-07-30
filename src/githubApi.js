@@ -531,6 +531,45 @@ export const deleteWord = async (id, user = null) => {
   return removed[0]
 }
 
+export const moveWordUp = async (id, user = null) => {
+  const fileName = getWriteFileName(user)
+  const { data: dict, sha } = await fetchGitHubFile(fileName)
+  const arr = Array.isArray(dict) ? [...dict] : []
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx <= 0) return
+  ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
+  await updateGitHubFile(fileName, arr, sha)
+}
+export const moveWordDown = async (id, user = null) => {
+  const fileName = getWriteFileName(user)
+  const { data: dict, sha } = await fetchGitHubFile(fileName)
+  const arr = Array.isArray(dict) ? [...dict] : []
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx === -1 || idx >= arr.length - 1) return
+  ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
+  await updateGitHubFile(fileName, arr, sha)
+}
+export const moveWordToTop = async (id, user = null) => {
+  const fileName = getWriteFileName(user)
+  const { data: dict, sha } = await fetchGitHubFile(fileName)
+  const arr = Array.isArray(dict) ? [...dict] : []
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx <= 0) return
+  const [item] = arr.splice(idx, 1)
+  arr.unshift(item)
+  await updateGitHubFile(fileName, arr, sha)
+}
+export const moveWordToBottom = async (id, user = null) => {
+  const fileName = getWriteFileName(user)
+  const { data: dict, sha } = await fetchGitHubFile(fileName)
+  const arr = Array.isArray(dict) ? [...dict] : []
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx === -1 || idx >= arr.length - 1) return
+  const [item] = arr.splice(idx, 1)
+  arr.push(item)
+  await updateGitHubFile(fileName, arr, sha)
+}
+
 // КАТЕГОРИИ
 export const getCategories = async () => fetchGitHubFile(CATEGORIES_FILE)
 export const addCategory = async (categoryData, userEmail) => {

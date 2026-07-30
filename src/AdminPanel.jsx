@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -221,12 +221,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }, [activeTab, isRestrictedUser])
 
   const filteredWords = useMemo(() => {
-    let f = words.filter(w =>
+    return words.filter(w =>
       w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    f.sort((a, b) => (a.translation || '').localeCompare(b.translation || '', 'ru'))
-    return f
   }, [searchTerm, words])
 
   const filteredUsers = useMemo(() => {
@@ -427,6 +425,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         }
       }
     }
+
+  const handleMoveWordUp = async (id) => {
+    try { await moveWordUp(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveWordDown = async (id) => {
+    try { await moveWordDown(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveWordToTop = async (id) => {
+    try { await moveWordToTop(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveWordToBottom = async (id) => {
+    try { await moveWordToBottom(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
 
   // Categories handlers
   const loadCategories = async () => {
@@ -1091,8 +1102,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             <>
               {loading && !editingId && <div className="loading">Загрузка...</div>}
               <div className="words-grid">
-                {filteredWords.length > 0 ? filteredWords.map(word => (
+                {filteredWords.length > 0 ? filteredWords.map((word, idx) => (
                   <div key={word.id} className="word-item">
+                    <span className="word-number">{idx + 1}.</span>
                     <div className="word-content">
                       <div className="word-row">
                         <h4 className="word-title">{word.word}</h4>
@@ -1127,8 +1139,17 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                                       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
                                       // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
                                       const canEdit = isAdmin || isOwner || isRestrictedUser
+                                      const actualIdx = words.findIndex(w => w.id === word.id)
+                                      const isFirst = actualIdx === 0
+                                      const isLast = actualIdx === words.length - 1
                                       return canEdit ? (
                                         <div className="word-actions">
+                                          <div className="word-order">
+                                            <button onClick={() => handleMoveWordToTop(word.id)} className="move-btn" disabled={isFirst} title="В начало">⏫</button>
+                                            <button onClick={() => handleMoveWordUp(word.id)} className="move-btn" disabled={isFirst} title="Переместить вверх">⬆️</button>
+                                            <button onClick={() => handleMoveWordDown(word.id)} className="move-btn" disabled={isLast} title="Переместить вниз">⬇️</button>
+                                            <button onClick={() => handleMoveWordToBottom(word.id)} className="move-btn" disabled={isLast} title="В конец">⏬</button>
+                                          </div>
                                           <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
                                           <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
                                         </div>
