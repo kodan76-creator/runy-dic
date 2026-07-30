@@ -665,12 +665,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   )}
                 </div>
               </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
               <button
                 type="button"
                 className="refresh-logs-btn"
                 onClick={loadWords}
                 disabled={loading}
-                style={{ fontSize: '13px', padding: '4px 10px', marginTop: '6px' }}
+                style={{ fontSize: '13px', padding: '4px 10px' }}
               >
                 {loading ? '⏳' : '🔄 Обновить'}
               </button>
