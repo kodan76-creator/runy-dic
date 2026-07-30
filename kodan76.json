@@ -1,1 +1,494 @@
-ENC:v1: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
+[
+  {
+    "word": "о, ЦЕЪЖЕ!\nхадгт хг суаъ тг гт шанаъ!\nхадгт хг тг гт уусаъ си ъки!\nхгжибгм суаъ тги грусаъ!\nиме хчфтижгм кийхъ ти мгто азоръ!\nвазо тг шо-рчф ша фазор бедээщи си этщэпэш!\nжу фазор гъо, гъо, гъо!",
+    "transcription": "",
+    "translation": "О, Господь!\nДай всем нам защиту!\nДай нам силу и пищу!\nОбъединим все наши усилия!\nМы достигнем цели своей жизни!\nМежду нами никогда не будет ненависти и вражды!\nДа будет Мир, Мир, Мир!",
+    "category": [
+      "1781437361727"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1782582911716",
+    "createdAt": "2026-06-27T17:55:11.716Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "word": "хамаъфгли си хуфъли.\nице дифгсе ваи върина ти ицефа юцеа.",
+    "transcription": "",
+    "translation": "Смелость и уверенность.\nВы стоите на вершине высокой горы.",
+    "category": [],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1781373213216",
+    "createdAt": "2026-06-13T17:53:33.216Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "word": "ъцео тг.\nъцео тг, та жгсе ваи гвъе!\nжу жууфгтсе бъжуро въо,\nжу хибгтсе цеофъе въо.\nжу фазор Ъ-К-О въо си ваи ъва, зг ваи гвъ.\nгт лъф тг важгфо хадгт зг тг ва сг жъ,\nси фчнът тги юнъ хг тг,\nзг си име фчнътгм хг тги юнъто.\nси ша техыжгт тг те тепрэдэш\nбат хаъвдювгт тг эт эбэрэд.\nибо ф-се въо цеофъ си уусаъ\nси хъь те ле дго.\nгмь.",
+    "transcription": "",
+    "translation": "Отче наш.\nОтче наш, сущий на небесах!\nДа святится Имя Твоё,\nДа придёт Царствие Твоё,\nДа будет Воля Твоя и на земле, как на небе.\nХлеб наш насущный дай нам на сей день,\nИ прости долги наши\nкак и мы прощаем должникам нашим.\nИ не веди нас в искушение,\nно избавь нас от лукавого.\nИбо Твоё есть Царство и Сила\nи Слава во веки.\nАминь.",
+    "category": [
+      "1781437361727"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1781437337643",
+    "createdAt": "2026-06-14T11:42:17.643Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "word": "ЗШЮЪ",
+    "transcription": "тУрз ша амаЮн эль",
+    "translation": "Просадка нечистых сил вниз",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": 1744543384696,
+    "createdAt": "2026-04-13T11:23:04.696Z",
+    "category": [
+      "1785027725930"
+    ]
+  },
+  {
+    "word": "ф-сгпе жчфъ. юзу хатхчжгп нчси, лчси си чби. земчю ле хъфин ти мгто раъ.",
+    "transcription": "фаИс-сЭйпе жайфЭль. юзУ хатхайжЭйп найсИ, лайсИ си айбИ. зермЭйю ле хэльфИн ти мЭйто раль.",
+    "translation": "Было лето. Давно прошёл июнь, июль и август. Вижу плоды своей работы.",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "leto_runy.mp3",
+    "audio2": "leto_r_prim.mp3",
+    "id": 1745537239912,
+    "createdAt": "2026-04-24T23:27:19.912Z"
+  },
+  {
+    "word": "степэ",
+    "transcription": "стерпЭ",
+    "translation": "старое",
+    "example": "Старое - чужое.",
+    "example2": "степэ - сэфбэпэ",
+    "transcription2": "стерпЭ - сэфбЭпэ",
+    "audio": "staroe_runy.mp3",
+    "audio2": "staroe_r_prim.mp3",
+    "id": 1744367483021,
+    "createdAt": "2026-04-11T10:31:23.021Z",
+    "category": [
+      "1778594680011"
+    ]
+  },
+  {
+    "word": "хатхчжгп",
+    "transcription": "хатхайжЭйп",
+    "translation": "прошёл",
+    "example": "Давно прошёл июнь.",
+    "example2": "юзу хатхчжгп нчси.",
+    "transcription2": "юзУ хатхайжЭйп найсИ",
+    "audio": "",
+    "audio2": "",
+    "id": 1744644401472,
+    "createdAt": "2026-04-14T17:26:41.472Z",
+    "category": [
+      "1778594679977"
+    ]
+  },
+  {
+    "word": "си*",
+    "transcription": "си",
+    "translation": "и",
+    "example": "Давно прошёл июнь и июль.",
+    "example2": "юзу хатхчжгп нгси си лгси.",
+    "transcription2": "юзУ хатхайжЭйп найсИ си лайсИ.",
+    "audio": "",
+    "audio2": "",
+    "id": 1744645961094,
+    "createdAt": "2026-04-14T17:52:41.094Z",
+    "category": [
+      "1778594680014"
+    ]
+  },
+  {
+    "word": "дгсъ",
+    "transcription": "дэйсЭль",
+    "translation": "осень",
+    "example": "Сейчас осень.",
+    "example2": "се дгсъ.",
+    "transcription2": "се дэйсЭль",
+    "audio": "",
+    "audio2": "",
+    "id": 1744031835415,
+    "createdAt": "2026-04-07T17:17:15.415Z"
+  },
+  {
+    "word": "жчфъ*",
+    "transcription": "жайфЭль",
+    "translation": "лето",
+    "example": "Было лето.",
+    "example2": "ф-сгпе жчфъ.",
+    "transcription2": "фаИс-сэйпЕ жайфЭль",
+    "audio": "",
+    "audio2": "",
+    "id": 1744643662422,
+    "createdAt": "2026-04-14T17:14:22.422Z",
+    "category": []
+  },
+  {
+    "word": "рчби*",
+    "transcription": "райбИ",
+    "translation": "октябрь",
+    "example": "Придёт октябрь",
+    "example2": "хасхчжгсе рчби.",
+    "transcription2": "хасхайжЭйсе райбИ",
+    "audio": "",
+    "audio2": "",
+    "id": 1744032447705,
+    "createdAt": "2026-04-07T17:27:27.705Z"
+  },
+  {
+    "word": "я овгю фа уулъ!",
+    "transcription": "я овэЮ фа урулЭль",
+    "translation": "Я иду по Пути!",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "ya_put_runy.mp3",
+    "audio2": "ya_put_rus.mp3",
+    "id": 1745607325466,
+    "createdAt": "2026-04-25T18:55:25.466Z",
+    "category": []
+  },
+  {
+    "word": "ыжо*",
+    "transcription": "вОзжо",
+    "translation": "дед, дедушка",
+    "example": "Дедушка сидел за столом.",
+    "example2": "ыжо сидгп заи дгтъ.",
+    "transcription2": "вОзжо сидЭйп заИ дэйтЭль",
+    "audio": "",
+    "audio2": "",
+    "id": 1743962964933,
+    "createdAt": "2026-04-06T18:39:24.933Z",
+    "category": []
+  },
+  {
+    "word": "ЙТЪШ",
+    "transcription": "йех так эль ша",
+    "translation": "Остановка негативного",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": 1744543543122,
+    "createdAt": "2026-04-13T11:25:43.122Z",
+    "category": [
+      "1785027725930"
+    ]
+  },
+  {
+    "word": "ыгсь",
+    "transcription": "возэйсИньо",
+    "translation": "рождение",
+    "example": "С Днём Рождения!",
+    "example2": "хеи жъ ыгсь!",
+    "transcription2": "херИ жэль возэйсИньо",
+    "audio": "",
+    "audio2": "",
+    "id": 1744015283908,
+    "createdAt": "2026-04-07T12:41:23.908Z"
+  },
+  {
+    "word": "чяъ*",
+    "transcription": "айЯль",
+    "translation": "год",
+    "example": "С Новым Годом!",
+    "example2": "хеи диьфо чяъ!",
+    "transcription2": "херИ дИньофо яАль",
+    "audio": "",
+    "audio2": "",
+    "id": 1743958874411,
+    "createdAt": "2026-04-06T17:41:14.411Z",
+    "category": []
+  },
+  {
+    "word": "ЪРЖЫ",
+    "transcription": "Эль рАдо Алу воз",
+    "translation": "Защита дороги",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": 1744544860282,
+    "createdAt": "2026-04-13T11:47:40.282Z",
+    "category": []
+  },
+  {
+    "word": "юзу*",
+    "transcription": "юзУ",
+    "translation": "давно",
+    "example": "Давно прошёл июнь.",
+    "example2": "юзу хатхчжгп нчси.",
+    "transcription2": "юзУ хатхайжЭйп найсИ",
+    "audio": "",
+    "audio2": "",
+    "id": 1744644675644,
+    "createdAt": "2026-04-14T17:21:15.644Z",
+    "category": [
+      "1778594679998"
+    ]
+  },
+  {
+    "word": "счби",
+    "transcription": "сайбИ",
+    "translation": "сентябрь",
+    "example": "Идёт сентябрь",
+    "example2": "хифгсе счби.",
+    "transcription2": "хифЭйсе сайбИ",
+    "audio": "",
+    "audio2": "",
+    "id": 1744032079876,
+    "createdAt": "2026-04-07T17:21:19.876Z"
+  },
+  {
+    "word": "нчби*",
+    "transcription": "найбИ",
+    "translation": "ноябрь",
+    "example": "За ним и ноябрь.",
+    "example2": "заи сур си нгби.",
+    "transcription2": "заИ сур си найбИ.",
+    "audio": "",
+    "audio2": "",
+    "id": 1744367457465,
+    "createdAt": "2026-04-11T10:24:17.465Z"
+  },
+  {
+    "word": "ЗФЪ",
+    "transcription": "турз фаИс-су эль",
+    "translation": "Защита имущества",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": 1744545967807,
+    "createdAt": "2026-04-13T12:06:07.807Z"
+  },
+  {
+    "word": "диьфо*",
+    "transcription": "дИньофо",
+    "translation": "новое",
+    "example": "Новое - родное.",
+    "example2": "диьфо - ыгфо.",
+    "transcription2": "дИньофо - возЭйфо.",
+    "audio": "",
+    "audio2": "",
+    "id": 1744367906982,
+    "createdAt": "2026-04-11T10:38:26.982Z",
+    "category": [
+      "1778594679981"
+    ]
+  },
+  {
+    "word": "ЪО",
+    "transcription": "Эльо",
+    "translation": "Бог",
+    "example": "С Богом!",
+    "example2": "баъ ЪО!",
+    "transcription2": "бАль Эльо",
+    "audio": "BOG_runy.mp3",
+    "audio2": "BOG_r_prim.mp3",
+    "id": 1743959083983,
+    "createdAt": "2026-04-06T17:44:43.983Z",
+    "category": [
+      "1778594679978",
+      "1778594679981"
+    ]
+  },
+  {
+    "word": "ъфъ*",
+    "transcription": "эльфЭль",
+    "translation": "дом",
+    "example": "Дом на улице.",
+    "example2": "ъфъ ваи ъфълица.",
+    "transcription2": "эльфЭль ваИ эльфЭлица",
+    "audio": "",
+    "audio2": "",
+    "id": 1743959289711,
+    "createdAt": "2026-04-06T17:48:09.711Z"
+  },
+  {
+    "word": "жъ",
+    "transcription": "жэль",
+    "translation": "день",
+    "example": "Сегодня солнечный день.",
+    "example2": "сежъ жчхъцфо жъ.",
+    "transcription2": "сержЭль жайхЭльцфо жэль",
+    "audio": "den_runy.mp3",
+    "audio2": "den_r_prim.mp3",
+    "id": 1743947872806,
+    "createdAt": "2026-04-06T14:37:52.806Z"
+  },
+  {
+    "word": "нгси*",
+    "transcription": "найсИ",
+    "translation": "июнь",
+    "example": "Давно прошёл июнь.",
+    "example2": "юзу хатхчжгп нчси.",
+    "transcription2": "юзУ хатхайжЭйп найсИ",
+    "audio": "",
+    "audio2": "",
+    "id": 1744645245344,
+    "createdAt": "2026-04-14T17:40:45.344Z"
+  },
+  {
+    "word": "лчси*",
+    "transcription": "лайсИ",
+    "translation": "июль",
+    "example": "Давно прошёл июнь, июль.",
+    "example2": "юзу хатхчжгп нгси, лгси.",
+    "transcription2": "юзУ хатхайжЭйп найсИ, лайсИ.",
+    "audio": "",
+    "audio2": "",
+    "id": 1744645682639,
+    "createdAt": "2026-04-14T17:48:02.639Z"
+  },
+  {
+    "word": "ФЕЦЪ",
+    "transcription": "фаИс-су аль-гО цЭрэ Эль",
+    "translation": "Защита личности",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785037971349",
+    "createdAt": "2026-07-26T03:52:51.349Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЪЫБЖЛ",
+    "transcription": "Эль воз бЕркут Алу лаукАр",
+    "translation": "Улучшение состояния дела",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038173657",
+    "createdAt": "2026-07-26T03:56:13.657Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЪХЛ",
+    "transcription": "Эль хЕбо лаукАр",
+    "translation": "Улучшение партнерских отношений",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038297366",
+    "createdAt": "2026-07-26T03:58:17.366Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЪДЮКО",
+    "transcription": "Эль ырд амаЮн кИйг Орс",
+    "translation": "Сохранение семьи",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038403721",
+    "createdAt": "2026-07-26T04:00:03.721Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЪГЮМ",
+    "transcription": "Эль Эйса амаЮн мЭтр",
+    "translation": "Для учебных тренировок",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038504850",
+    "createdAt": "2026-07-26T04:01:44.850Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЖЦ",
+    "transcription": "Алу цЭрэ",
+    "translation": "Да святится Имя Твое",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038619083",
+    "createdAt": "2026-07-26T04:03:39.083Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "КЦ",
+    "transcription": "кИйг цЭрэ",
+    "translation": "Да будет Воля (и Любовь) Твоя",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038705610",
+    "createdAt": "2026-07-26T04:05:05.610Z",
+    "createdBy": "kodan76@ya.ru"
+  },
+  {
+    "word": "ЛЧЦ",
+    "transcription": "лаукАр айЯ цЭрэ",
+    "translation": "Да придет Царствие Твое!",
+    "category": [
+      "1785027725930"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785038784601",
+    "createdAt": "2026-07-26T04:06:24.601Z",
+    "createdBy": "kodan76@ya.ru"
+  }
+]
