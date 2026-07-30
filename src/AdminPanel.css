@@ -46,6 +46,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
 .form-column { display: flex; flex-direction: column; gap: 10px; }
 .word-form input, .word-form textarea.single-line-textarea { width: 100%; padding: 10px; border: 2px solid #7b1fa2; border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: #ffffff; color: #000000; outline: none; font-family: inherit; }
+.rune-input { font-family: 'Dao Rus', sans-serif; }
+.rune-input::placeholder { font-family: inherit; }
 .word-form input:focus, .word-form textarea.single-line-textarea:focus { border: 2px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .word-form textarea.single-line-textarea { height: 42px; resize: vertical; line-height: 1.2; scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1;}
