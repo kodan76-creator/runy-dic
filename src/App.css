@@ -1084,6 +1084,31 @@ color: #5a0000;
     gap: 8px;
   }
 
+  /* Компактные переключатели сортировки/словарей, чтобы помещались в одну строку на узких экранах */
+  .filter-mode,
+  .dictionary-source-mode {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 5px;
+  }
+
+  .filter-mode .mode-label,
+  .dictionary-source-mode .mode-label {
+    font-size: 12px;
+    gap: 3px;
+  }
+
+  .filter-mode .mode-label input[type="radio"],
+  .dictionary-source-mode .mode-label input[type="radio"] {
+    width: 14px;
+    height: 14px;
+  }
+
+  .filter-mode .filter-title,
+  .dictionary-source-mode .filter-title {
+    font-size: 12px;
+  }
+
   .mode-label {
     font-size: 16px;
   }
