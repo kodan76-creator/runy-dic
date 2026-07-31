@@ -447,7 +447,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     try {
       await moveWordToPosition(id, pos, activeUser)
-      setPositionInputs(prev => ({ ...prev, [id]: '' }))
+      setPositionInputs(prev => { const next = { ...prev }; delete next[id]; return next })
       await loadWords()
       showMessage('✅ Позиция обновлена')
     } catch (err) {
