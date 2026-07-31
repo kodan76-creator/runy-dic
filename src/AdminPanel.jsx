@@ -428,16 +428,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
 
   const handleMoveWordUp = async (id) => {
-    try { await moveWordUp(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveWordUp(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена вверх') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordDown = async (id) => {
-    try { await moveWordDown(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveWordDown(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена вниз') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToTop = async (id) => {
-    try { await moveWordToTop(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveWordToTop(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена в начало') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToBottom = async (id) => {
-    try { await moveWordToBottom(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveWordToBottom(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена в конец') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToPosition = async (id, posStr) => {
     const pos = parseInt(posStr, 10)
