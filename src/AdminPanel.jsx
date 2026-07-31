@@ -686,18 +686,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
-              <button
-                type="button"
-                className="refresh-logs-btn"
-                onClick={loadWords}
-                disabled={loading}
-                style={{ fontSize: '13px', padding: '4px 10px' }}
-              >
-                {loading ? '⏳' : '🔄 Обновить'}
-              </button>
-            </div>
-
             <form onSubmit={handleSubmit} className="word-form">
               <div className="form-column form-column-left">
                 <textarea rows={1} className="single-line-textarea" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
@@ -750,6 +738,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
                 {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' }) }}>Отмена</button>}
+                <button
+                  type="button"
+                  className="refresh-logs-btn dictionary-refresh-btn"
+                  onClick={loadWords}
+                  disabled={loading}
+                  style={{ fontSize: '13px', padding: '4px 10px' }}
+                >
+                  {loading ? '⏳' : '🔄 Обновить'}
+                </button>
               </div>
               {error && <div className="error">{error}</div>}
             </form>

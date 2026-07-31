@@ -49,7 +49,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-form input:focus, .word-form textarea.single-line-textarea:focus { border: 2px solid #7b1fa2; box-shadow: 0 0 12px rgba(123, 31, 162, 0.6); }
 .word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: #666666; opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
 .word-form textarea.single-line-textarea { height: 42px; resize: vertical; line-height: 1.2; scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1;}
-.form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+.form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: center; margin-top: 10px; position: relative; }
+.dictionary-refresh-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 .save-btn, .cancel-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
 .save-btn { background: #aa3bff; color: white; }
 .save-btn:hover { background: #7b1fa2; }
@@ -418,6 +419,12 @@ html, body { height: 100%; background-color: #aa3bff; }
   .form-buttons {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .dictionary-refresh-btn {
+    position: static;
+    transform: none;
+    align-self: flex-end;
   }
   
   .save-btn,
