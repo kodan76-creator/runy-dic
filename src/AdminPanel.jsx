@@ -851,9 +851,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 </div>
               </div>
               <div className="form-column form-column-right">
-                <input type="text" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
-                <input type="text" className="runic-input" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
-                <input type="text" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
+                <textarea rows={1} className="single-line-textarea" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
+                <textarea rows={1} className="single-line-textarea runic-input" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
+                <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
                 <div className="audio-upload-row">
                   <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
                   <label className="audio-upload-btn" title="Загрузить MP3">

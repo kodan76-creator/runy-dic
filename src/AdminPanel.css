@@ -53,8 +53,8 @@ html, body { height: 100%; background-color: #aa3bff; }
 /* Поля ввода на рунном языке — шрифт Dao Rus (введённые символы отображаются рунами) */
 .word-form input.runic-input, .word-form textarea.runic-input {
   font-family: 'Dao Rus', sans-serif;
-  font-size: 18px;
-  line-height: 1.3;
+  font-size: 25px;
+  line-height: 0.9;
 }
 .word-form input.runic-input::placeholder, .word-form textarea.runic-input::placeholder {
   font-family: var(--sans), 'Segoe UI', Arial, sans-serif;
