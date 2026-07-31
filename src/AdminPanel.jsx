@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
 import './AdminPanel.css'
 
@@ -36,11 +36,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const currentAudioRef = useRef(null)
   const msgTimeoutRef = useRef(null)
 
-  const showMessage = (text, type = 'success') => {
+  const showMessage = useCallback((text, type = 'success') => {
     setMessage({ text, type })
     if (msgTimeoutRef.current) clearTimeout(msgTimeoutRef.current)
     msgTimeoutRef.current = setTimeout(() => setMessage(''), 4000)
-  }
+  }, [])
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
@@ -55,24 +55,30 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
   const [userRoleFilter, setUserRoleFilter] = useState('all')
   const wordsListRef = useRef(null)
-  const getAudioSrc = (fileName, userFolder) => {
+
+  // Active user: admins get full panel, regular users get restricted dictionary-only panel.
+  const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
+  // A non-admin (regular) user is restricted and should not be treated as admin here
+  const isRestrictedUser = activeUser?.role === 'user'
+
+  const getAudioSrc = useCallback((fileName, userFolder) => {
     if (!fileName) return ''
     // Прямая ссылка на raw.githubusercontent.com — не требует пересборки сайта
     const base = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/audio/'
     if (fileName.includes('/')) return `${base}${fileName}`
     if (userFolder) return `${base}${userFolder}/${fileName}`
     return `${base}${fileName}`
-  }
+  }, [])
 
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause()
       currentAudioRef.current.currentTime = 0
       currentAudioRef.current = null
     }
-  }
+  }, [])
 
-  const playAudioFile = (fileName) => {
+  const playAudioFile = useCallback((fileName) => {
     stopAudio()
     // Админ — общий словарь (audio в корне public/audio/), пользователь — личный (audio/{emailFolder}/)
     const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
@@ -89,9 +95,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       finish()
       showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
     })
-  }
+  }, [stopAudio, getAudioSrc, isRestrictedUser, activeUser, emailToFolderName, showMessage])
 
-  const scrollWordsToTop = () => {
+  const scrollWordsToTop = useCallback(() => {
     const el = wordsListRef.current || document.querySelector('.words-list')
     const isMobile = (typeof window !== 'undefined') && (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent))
 
@@ -136,7 +142,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // last resort
       try { window.scrollTo({ top: 0 }) } catch (er) { /* ignore */ }
     }
-  }
+  }, [])
   const [authLoading, setAuthLoading] = useState(false)
 
   // Миграция шифрования
@@ -155,12 +161,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
-  // Active user: admins get full panel, regular users get restricted dictionary-only panel.
-  const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
-  // A non-admin (regular) user is restricted and should not be treated as admin here
-  const isRestrictedUser = activeUser?.role === 'user'
-
-  const loadWords = async () => {
+  const loadWords = useCallback(async () => {
     setLoading(true)
     try {
       const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
@@ -168,10 +169,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setWords(data || [])
     } catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
-  }
+  }, [isRestrictedUser, activeUser, getDictionary, setLoading, setWords, setError])
   // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
   // пока GitHub не отдаст актуальный порядок карточек
-  const refreshWordsAfterWrite = async () => {
+  const refreshWordsAfterWrite = useCallback(async () => {
     const beforeJson = JSON.stringify(words)
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
@@ -183,7 +184,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       } catch (e) { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
     }
-  }
+  }, [words, isRestrictedUser, activeUser, getDictionary, setWords])
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
 
@@ -242,6 +243,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
     )
   }, [searchTerm, words])
+
+  // Быстрый поиск индекса карточки в полном списке (вместо O(n²) findIndex в map)
+  const wordIndexMap = useMemo(() => {
+    const map = new Map()
+    words.forEach((w, i) => map.set(w.id, i))
+    return map
+  }, [words])
 
   const filteredUsers = useMemo(() => {
     const term = userSearchTerm.trim().toLowerCase()
@@ -400,7 +408,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('')
   }
 
-  const handleEdit = (word) => {
+  const handleEdit = useCallback((word) => {
       // Only allow editing if admin or owner
       const isAdmin = activeUser?.role === 'admin'
       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
@@ -421,9 +429,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
         audio: word.audio || '', audio2: word.audio2 || ''
       })
-    }
+    }, [activeUser, isRestrictedUser, categories, setEditingId, setFormData, setError])
 
-    const handleDelete = async (id, wordOwnerEmail) => {
+    const handleDelete = useCallback(async (id, wordOwnerEmail) => {
       if (window.confirm('Удалить эту карточку?')) {
         const isAdmin = activeUser?.role === 'admin'
         const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(wordOwnerEmail || '').toLowerCase()
@@ -440,37 +448,37 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           showMessage('❌ ' + err.message, 'error')
         }
       }
-    }
+    }, [activeUser, isRestrictedUser, loadWords, showMessage, setError])
 
-  const handleMoveWordUp = async (id) => {
+  const handleMoveWordUp = useCallback(async (id) => {
     try {
       const moved = await moveWordUp(id, activeUser)
       if (moved) await refreshWordsAfterWrite()
       showMessage(moved ? '✅ Карточка перемещена вверх' : 'Карточка уже вверху')
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }
-  const handleMoveWordDown = async (id) => {
+  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  const handleMoveWordDown = useCallback(async (id) => {
     try {
       const moved = await moveWordDown(id, activeUser)
       if (moved) await refreshWordsAfterWrite()
       showMessage(moved ? '✅ Карточка перемещена вниз' : 'Карточка уже внизу')
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }
-  const handleMoveWordToTop = async (id) => {
+  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  const handleMoveWordToTop = useCallback(async (id) => {
     try {
       const moved = await moveWordToTop(id, activeUser)
       if (moved) await refreshWordsAfterWrite()
       showMessage(moved ? '✅ Карточка перемещена в начало' : 'Карточка уже в начале')
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }
-  const handleMoveWordToBottom = async (id) => {
+  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  const handleMoveWordToBottom = useCallback(async (id) => {
     try {
       const moved = await moveWordToBottom(id, activeUser)
       if (moved) await refreshWordsAfterWrite()
       showMessage(moved ? '✅ Карточка перемещена в конец' : 'Карточка уже в конце')
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }
-  const handleMoveWordToPosition = async (id, posStr) => {
+  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  const handleMoveWordToPosition = useCallback(async (id, posStr) => {
     const pos = parseInt(posStr, 10)
     if (isNaN(pos) || pos < 1 || pos > words.length) {
       showMessage(`Укажите номер от 1 до ${words.length}`, 'error')
@@ -485,7 +493,89 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setError('Ошибка перемещения: ' + err.message)
       showMessage('❌ ' + err.message, 'error')
     }
-  }
+  }, [activeUser, refreshWordsAfterWrite, showMessage, setError, words.length, setPositionInputs])
+
+  // Мемоизация сетки карточек: перерисовываем карточки только когда меняются сами данные,
+  // а не при вводе символов в любом поле формы (иначе 900+ карточек перерисовываются на каждое нажатие)
+  const wordsGrid = useMemo(() => {
+    if (!(filteredWords.length > 0)) {
+      return <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>
+    }
+    return filteredWords.map((word, idx) => {
+      const isAdmin = activeUser?.role === 'admin'
+      const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
+      // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
+      const canEdit = isAdmin || isOwner || isRestrictedUser
+      const actualIdx = wordIndexMap.get(word.id) ?? -1
+      const isFirst = actualIdx === 0
+      const isLast = actualIdx === words.length - 1
+      return (
+        <div key={word.id} className="word-item">
+          <span className="word-number">{idx + 1}.</span>
+          <div className="word-content">
+            <div className="word-row">
+              <h4 className="word-title">{word.word}</h4>
+              {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
+            </div>
+            <p className="word-translation">{word.translation}</p>
+            {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
+              <div className="word-category">({Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === word.category)?.name || word.category)})</div>
+            )}
+            <div className="examples">
+              {word.example && <span className="word-example">{word.example}</span>}
+              {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
+              {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
+            </div>
+            {word.audio && (
+              <p className="word-audio">
+                🔊 {word.audio}
+                <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
+              </p>
+            )}
+            {word.audio2 && (
+              <p className="word-audio">
+                🔊 {word.audio2}
+                <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio2)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
+              </p>
+            )}
+          </div>
+
+          {canEdit ? (
+            <div className="word-actions">
+              <div className="word-order">
+                <button onClick={() => handleMoveWordToTop(word.id)} className="move-btn" disabled={isFirst} title="В начало">⏫</button>
+                <button onClick={() => handleMoveWordUp(word.id)} className="move-btn" disabled={isFirst} title="Переместить вверх">⬆️</button>
+                <button onClick={() => handleMoveWordDown(word.id)} className="move-btn" disabled={isLast} title="Переместить вниз">⬇️</button>
+                <button onClick={() => handleMoveWordToBottom(word.id)} className="move-btn" disabled={isLast} title="В конец">⏬</button>
+              </div>
+              <div className="word-position-set">
+                <input
+                  type="number"
+                  min="1"
+                  max={words.length}
+                  className="word-position-input"
+                  value={positionInputs[word.id] ?? actualIdx + 1}
+                  onChange={(e) => setPositionInputs(prev => ({ ...prev, [word.id]: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1) } }}
+                  title="Номер позиции"
+                />
+                <button
+                  type="button"
+                  className="word-position-btn"
+                  onClick={() => handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1)}
+                  title="Установить позицию"
+                >№</button>
+              </div>
+              <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
+              <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
+            </div>
+          ) : null}
+
+          <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
+        </div>
+      )
+    })
+  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
 
   // Categories handlers
   const loadCategories = async () => {
@@ -1146,83 +1236,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           {activeTab === 'dictionary' && (
             <>
               {loading && !editingId && <div className="loading">Загрузка...</div>}
-              <div className="words-grid">
-                {filteredWords.length > 0 ? filteredWords.map((word, idx) => (
-                  <div key={word.id} className="word-item">
-                    <span className="word-number">{idx + 1}.</span>
-                    <div className="word-content">
-                      <div className="word-row">
-                        <h4 className="word-title">{word.word}</h4>
-                        {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
-                      </div>
-                      <p className="word-translation">{word.translation}</p>
-                      {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
-                        <div className="word-category">({Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === word.category)?.name || word.category)})</div>
-                      )}
-                      <div className="examples">
-                        {word.example && <span className="word-example">{word.example}</span>}
-                        {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
-                        {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
-                      </div>
-                      {word.audio && (
-                        <p className="word-audio">
-                          🔊 {word.audio}
-                          <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
-                        </p>
-                      )}
-                      {word.audio2 && (
-                        <p className="word-audio">
-                          🔊 {word.audio2}
-                          <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio2)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
-                        </p>
-                      )}
-                    </div>
-
-                                    {/* determine per-card edit permission: admins or owner only */}
-                                    {(() => {
-                                      const isAdmin = activeUser?.role === 'admin'
-                                      const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
-                                      // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
-                                      const canEdit = isAdmin || isOwner || isRestrictedUser
-                                      const actualIdx = words.findIndex(w => w.id === word.id)
-                                      const isFirst = actualIdx === 0
-                                      const isLast = actualIdx === words.length - 1
-                                      return canEdit ? (
-                                        <div className="word-actions">
-                                          <div className="word-order">
-                                            <button onClick={() => handleMoveWordToTop(word.id)} className="move-btn" disabled={isFirst} title="В начало">⏫</button>
-                                            <button onClick={() => handleMoveWordUp(word.id)} className="move-btn" disabled={isFirst} title="Переместить вверх">⬆️</button>
-                                            <button onClick={() => handleMoveWordDown(word.id)} className="move-btn" disabled={isLast} title="Переместить вниз">⬇️</button>
-                                            <button onClick={() => handleMoveWordToBottom(word.id)} className="move-btn" disabled={isLast} title="В конец">⏬</button>
-                                          </div>
-                                          <div className="word-position-set">
-                                            <input
-                                              type="number"
-                                              min="1"
-                                              max={words.length}
-                                              className="word-position-input"
-                                              value={positionInputs[word.id] ?? actualIdx + 1}
-                                              onChange={(e) => setPositionInputs(prev => ({ ...prev, [word.id]: e.target.value }))}
-                                              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1) } }}
-                                              title="Номер позиции"
-                                            />
-                                            <button
-                                              type="button"
-                                              className="word-position-btn"
-                                              onClick={() => handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1)}
-                                              title="Установить позицию"
-                                            >№</button>
-                                          </div>
-                                          <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-                                          <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
-                                        </div>
-                                      ) : null
-                                    })()}
-
-                                    <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
-                                  </div>
-                                )) : <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>}
-              </div>
+              <div className="words-grid">{wordsGrid}</div>
             </>
           )}
         </div>
