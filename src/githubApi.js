@@ -569,6 +569,19 @@ export const moveWordToBottom = async (id, user = null) => {
   arr.push(item)
   await updateGitHubFile(fileName, arr, sha)
 }
+// Переместить карточку на указанную позицию (1-индексная)
+export const moveWordToPosition = async (id, position, user = null) => {
+  const fileName = getWriteFileName(user)
+  const { data: dict, sha } = await fetchGitHubFile(fileName)
+  const arr = Array.isArray(dict) ? [...dict] : []
+  const idx = arr.findIndex(w => w.id === id)
+  if (idx === -1) throw new Error('Запись не найдена или доступ запрещён')
+  const target = Math.min(Math.max(parseInt(position, 10) - 1, 0), arr.length - 1)
+  if (idx === target) return
+  const [item] = arr.splice(idx, 1)
+  arr.splice(target, 0, item)
+  await updateGitHubFile(fileName, arr, sha)
+}
 
 // КАТЕГОРИИ
 export const getCategories = async () => fetchGitHubFile(CATEGORIES_FILE)

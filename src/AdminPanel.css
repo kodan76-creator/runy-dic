@@ -272,6 +272,11 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-transcription2 { margin: 0 0 0 8px; font-family: sans-serif; font-size: 18px; color: #006400; font-style: italic; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15); line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
 .word-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-self: flex-start; align-items: center; }
 .word-order { display: flex; gap: 2px; }
+.word-position-set { display: flex; align-items: center; gap: 4px; }
+.word-position-input { width: 52px; padding: 4px 6px; border: 2px solid #7b1fa2; border-radius: 6px; font-size: 14px; text-align: center; background: #fff; color: #000; outline: none; }
+.word-position-input:focus { box-shadow: 0 0 8px rgba(123, 31, 162, 0.5); }
+.word-position-btn { padding: 4px 10px; border: none; border-radius: 6px; background: #7b1fa2; color: white; cursor: pointer; font-size: 14px; font-weight: 600; }
+.word-position-btn:hover { background: #5e1780; }
 .edit-btn, .delete-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
 .edit-btn { background: #2196f3; }
 .edit-btn:hover { transform: scale(1.1); }

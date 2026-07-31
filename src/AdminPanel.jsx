@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -50,6 +50,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [positionInputs, setPositionInputs] = useState({})
   const [userSearchTerm, setUserSearchTerm] = useState('')
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
   const [userRoleFilter, setUserRoleFilter] = useState('all')
@@ -437,6 +438,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
   const handleMoveWordToBottom = async (id) => {
     try { await moveWordToBottom(id, activeUser); await loadWords() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveWordToPosition = async (id, posStr) => {
+    const pos = parseInt(posStr, 10)
+    if (isNaN(pos) || pos < 1 || pos > words.length) {
+      showMessage(`Укажите номер от 1 до ${words.length}`, 'error')
+      return
+    }
+    try {
+      await moveWordToPosition(id, pos, activeUser)
+      setPositionInputs(prev => ({ ...prev, [id]: '' }))
+      await loadWords()
+      showMessage('✅ Позиция обновлена')
+    } catch (err) {
+      setError('Ошибка перемещения: ' + err.message)
+      showMessage('❌ ' + err.message, 'error')
+    }
   }
 
   // Categories handlers
@@ -1146,6 +1163,24 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                                             <button onClick={() => handleMoveWordUp(word.id)} className="move-btn" disabled={isFirst} title="Переместить вверх">⬆️</button>
                                             <button onClick={() => handleMoveWordDown(word.id)} className="move-btn" disabled={isLast} title="Переместить вниз">⬇️</button>
                                             <button onClick={() => handleMoveWordToBottom(word.id)} className="move-btn" disabled={isLast} title="В конец">⏬</button>
+                                          </div>
+                                          <div className="word-position-set">
+                                            <input
+                                              type="number"
+                                              min="1"
+                                              max={words.length}
+                                              className="word-position-input"
+                                              value={positionInputs[word.id] ?? actualIdx + 1}
+                                              onChange={(e) => setPositionInputs(prev => ({ ...prev, [word.id]: e.target.value }))}
+                                              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1) } }}
+                                              title="Номер позиции"
+                                            />
+                                            <button
+                                              type="button"
+                                              className="word-position-btn"
+                                              onClick={() => handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1)}
+                                              title="Установить позицию"
+                                            >№</button>
                                           </div>
                                           <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
                                           <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
