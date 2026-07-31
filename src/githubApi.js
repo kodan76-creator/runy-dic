@@ -536,38 +536,42 @@ export const moveWordUp = async (id, user = null) => {
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? [...dict] : []
   const idx = arr.findIndex(w => w.id === id)
-  if (idx <= 0) return
+  if (idx <= 0) return false
   ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
   await updateGitHubFile(fileName, arr, sha)
+  return true
 }
 export const moveWordDown = async (id, user = null) => {
   const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? [...dict] : []
   const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1 || idx >= arr.length - 1) return
+  if (idx === -1 || idx >= arr.length - 1) return false
   ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
   await updateGitHubFile(fileName, arr, sha)
+  return true
 }
 export const moveWordToTop = async (id, user = null) => {
   const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? [...dict] : []
   const idx = arr.findIndex(w => w.id === id)
-  if (idx <= 0) return
+  if (idx <= 0) return false
   const [item] = arr.splice(idx, 1)
   arr.unshift(item)
   await updateGitHubFile(fileName, arr, sha)
+  return true
 }
 export const moveWordToBottom = async (id, user = null) => {
   const fileName = getWriteFileName(user)
   const { data: dict, sha } = await fetchGitHubFile(fileName)
   const arr = Array.isArray(dict) ? [...dict] : []
   const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1 || idx >= arr.length - 1) return
+  if (idx === -1 || idx >= arr.length - 1) return false
   const [item] = arr.splice(idx, 1)
   arr.push(item)
   await updateGitHubFile(fileName, arr, sha)
+  return true
 }
 // Переместить карточку на указанную позицию (1-индексная)
 export const moveWordToPosition = async (id, position, user = null) => {
@@ -577,10 +581,11 @@ export const moveWordToPosition = async (id, position, user = null) => {
   const idx = arr.findIndex(w => w.id === id)
   if (idx === -1) throw new Error('Запись не найдена или доступ запрещён')
   const target = Math.min(Math.max(parseInt(position, 10) - 1, 0), arr.length - 1)
-  if (idx === target) return
+  if (idx === target) return false
   const [item] = arr.splice(idx, 1)
   arr.splice(target, 0, item)
   await updateGitHubFile(fileName, arr, sha)
+  return true
 }
 
 // КАТЕГОРИИ

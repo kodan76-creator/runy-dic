@@ -169,6 +169,21 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     } catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
   }
+  // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
+  // пока GitHub не отдаст актуальный порядок карточек
+  const refreshWordsAfterWrite = async () => {
+    const beforeJson = JSON.stringify(words)
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
+        const { data } = await getDictionary(dictionaryOwner)
+        const arr = Array.isArray(data) ? data : []
+        setWords(arr)
+        if (JSON.stringify(arr) !== beforeJson) return
+      } catch (e) { /* пробуем ещё раз */ }
+      await new Promise(res => setTimeout(res, 400))
+    }
+  }
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
 
@@ -428,16 +443,32 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
 
   const handleMoveWordUp = async (id) => {
-    try { await moveWordUp(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена вверх') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
+    try {
+      const moved = await moveWordUp(id, activeUser)
+      if (moved) await refreshWordsAfterWrite()
+      showMessage(moved ? '✅ Карточка перемещена вверх' : 'Карточка уже вверху')
+    } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordDown = async (id) => {
-    try { await moveWordDown(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена вниз') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
+    try {
+      const moved = await moveWordDown(id, activeUser)
+      if (moved) await refreshWordsAfterWrite()
+      showMessage(moved ? '✅ Карточка перемещена вниз' : 'Карточка уже внизу')
+    } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToTop = async (id) => {
-    try { await moveWordToTop(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена в начало') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
+    try {
+      const moved = await moveWordToTop(id, activeUser)
+      if (moved) await refreshWordsAfterWrite()
+      showMessage(moved ? '✅ Карточка перемещена в начало' : 'Карточка уже в начале')
+    } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToBottom = async (id) => {
-    try { await moveWordToBottom(id, activeUser); await loadWords(); showMessage('✅ Карточка перемещена в конец') } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
+    try {
+      const moved = await moveWordToBottom(id, activeUser)
+      if (moved) await refreshWordsAfterWrite()
+      showMessage(moved ? '✅ Карточка перемещена в конец' : 'Карточка уже в конце')
+    } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
   }
   const handleMoveWordToPosition = async (id, posStr) => {
     const pos = parseInt(posStr, 10)
@@ -446,10 +477,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       return
     }
     try {
-      await moveWordToPosition(id, pos, activeUser)
+      const moved = await moveWordToPosition(id, pos, activeUser)
       setPositionInputs(prev => { const next = { ...prev }; delete next[id]; return next })
-      await loadWords()
-      showMessage('✅ Позиция обновлена')
+      if (moved) await refreshWordsAfterWrite()
+      showMessage(moved ? '✅ Позиция обновлена' : 'Позиция не изменилась')
     } catch (err) {
       setError('Ошибка перемещения: ' + err.message)
       showMessage('❌ ' + err.message, 'error')
