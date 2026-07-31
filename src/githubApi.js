@@ -379,42 +379,64 @@ const { data } = await fetchGitHubFile(LOGS_FILE)
 return Array.isArray(data) ? data : []
 }
 
-// ✅ ИСПРАВЛЕНО: Добавлена логика повторных попыток (Retry) для ошибки 409 Conflict
+// 🔒 Сериализация записей в один файл.
+// GitHub Contents API НЕ поддерживает параллельные запросы к одному файлу —
+// одновременные GET→PUT гонятся и возвращают 409/422. Очередь выполняет
+// записи в файл строго по одной (последовательно), как рекомендует GitHub.
+const writeQueues = new Map() // fileName -> Promise-хвост очереди
+
+const withWriteLock = (fileName, task) => {
+  const prev = writeQueues.get(fileName) || Promise.resolve()
+  const next = prev.then(task, task)
+  // Хвост не должен "ломаться" при ошибке задачи
+  writeQueues.set(fileName, next.catch(() => {}))
+  return next
+}
+
+// Проверка: конфликт версий / анти-спам — такие ошибки стоит повторить
+const isRetryableGitHubError = (error) => {
+  const msg = error && error.message ? error.message : String(error)
+  return msg.includes('409') || msg.includes('422') || msg.includes('Conflict') || msg.includes('sha was supposed')
+}
+
+// ✅ ИСПРАВЛЕНО: Сериализованные записи + повторные попытки (Retry) для 409 и 422
 export const addLog = async (logData) => {
-  let retries = 0;
-  const maxRetries = 3;
-  
-  while (retries < maxRetries) {
-    try {
-      // 1. Получаем актуальные данные и sha
-      const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
-      const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
-      const updated = [newLog, ...logs].slice(0, 1000) // Ограничиваем до 1000 записей
-      
-      // 2. Пытаемся обновить
-      await updateGitHubFile(LOGS_FILE, updated, sha)
-      return newLog // Успех
-    } catch (error) {
-      // 3. Если ошибка "Conflict" (409), ждем и пробуем снова
-      if (error.message.includes('409') || error.message.includes('Conflict')) {
-        retries++;
-        console.warn(`Log update conflict, retrying ${retries}/${maxRetries}...`);
-        // Ждем 500мс + добавочное время для каждой попытки
-        await new Promise(res => setTimeout(res, 500 + retries * 200)); 
-      } else {
-        // Если ошибка другая — сразу выбрасываем
-        console.error('addLog error:', error)
-        return null
+  const newLog = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...logData }
+  const maxRetries = 4
+
+  return withWriteLock(LOGS_FILE, async () => {
+    let retries = 0
+    while (retries < maxRetries) {
+      try {
+        // 1. Получаем актуальные данные и sha
+        const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
+        const arr = Array.isArray(logs) ? logs : []
+        const updated = [newLog, ...arr].slice(0, 1000) // Ограничиваем до 1000 записей
+
+        // 2. Пытаемся обновить
+        await updateGitHubFile(LOGS_FILE, updated, sha)
+        return newLog // Успех
+      } catch (error) {
+        // 3. Конфликт версий / анти-спам (409/422) — ждем и пробуем снова
+        if (isRetryableGitHubError(error) && retries < maxRetries - 1) {
+          retries++
+          console.warn(`Log update conflict, retrying ${retries}/${maxRetries}...`)
+          await new Promise(res => setTimeout(res, 400 + retries * 300))
+        } else {
+          console.error('addLog error:', error)
+          return null
+        }
       }
     }
-  }
-  console.error('Failed to add log after retries')
-  return null
+    return null
+  })
 }
 
 export const clearLogs = async () => {
-const { sha } = await fetchGitHubFile(LOGS_FILE)
-await updateGitHubFile(LOGS_FILE, [], sha)
+  return withWriteLock(LOGS_FILE, async () => {
+    const { sha } = await fetchGitHubFile(LOGS_FILE)
+    await updateGitHubFile(LOGS_FILE, [], sha)
+  })
 }
 // 📚 СЛОВАРЬ
 export const getDictionary = async (user) => {
