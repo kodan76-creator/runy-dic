@@ -74,7 +74,7 @@ function Home({ user, onLogout }) {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [playMode, setPlayMode] = useState('sequential')
-  const [sortMode, setSortMode] = useState('translation')
+  const [sortMode, setSortMode] = useState('order')
   const [isPlaying, setIsPlaying] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState([]) // array of category ids
@@ -177,10 +177,10 @@ function Home({ user, onLogout }) {
       try {
         const { data } = await getDictionary(user)
         const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
-        const sortedData = [...(data || [])]
+        // Сохраняем порядок карточек как в файле словаря (последовательность, заданная в админке)
+        const orderedData = [...(data || [])]
           .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
-          .sort((a, b) => (a.translation || '').localeCompare(b.translation || ''))
-        setWords(sortedData)
+        setWords(orderedData)
       } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
     }
 
@@ -455,6 +455,7 @@ function Home({ user, onLogout }) {
       return true
     })
     .sort((a, b) => {
+      if (sortMode === 'order') return 0 // порядок админки (как в файле)
       const key = sortMode === 'runes' ? 'word' : 'translation'
       return (a[key] || '').localeCompare(b[key] || '', 'ru')
     })
@@ -498,6 +499,16 @@ function Home({ user, onLogout }) {
         <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
         <div className="filter-mode">
           <span className="filter-title">Сортировать:</span>
+          <label className="mode-label">
+            <input
+              type="radio"
+              name="sortMode"
+              value="order"
+              checked={sortMode === 'order'}
+              onChange={() => setSortMode('order')}
+            />
+            порядок
+          </label>
           <label className="mode-label">
             <input
               type="radio"
