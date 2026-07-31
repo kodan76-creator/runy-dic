@@ -44,7 +44,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
-    audio: '', audio2: ''
+    audio: '', audio2: '', textAlign: 'center'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -328,7 +328,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         await addWord(formData, activeUser?.email, activeUser)
         showMessage('✅ Карточка добавлена')
       }
-      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' })
+      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
       setEditingId(null); await loadWords()
     } catch (err) {
       setError(err.message)
@@ -427,7 +427,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setFormData({
         word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
         example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
-        audio: word.audio || '', audio2: word.audio2 || ''
+        audio: word.audio || '', audio2: word.audio2 || '', textAlign: word.textAlign || 'center'
       })
     }, [activeUser, isRestrictedUser, categories, setEditingId, setFormData, setError])
 
@@ -510,7 +510,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       const isFirst = actualIdx === 0
       const isLast = actualIdx === words.length - 1
       return (
-        <div key={word.id} className="word-item">
+        <div key={word.id} className={`word-item align-${word.textAlign || 'center'}`}>
           <span className="word-number">{idx + 1}.</span>
           <div className="word-content">
             <div className="word-row">
@@ -873,9 +873,32 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
                 </div>
               </div>
+              <div className="form-row align-control">
+                <span className="align-label">Выравнивание текста:</span>
+                <div className="align-buttons">
+                  <button
+                    type="button"
+                    className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, textAlign: 'left' })}
+                    title="По левому краю"
+                  >⯇ Слева</button>
+                  <button
+                    type="button"
+                    className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, textAlign: 'center' })}
+                    title="По центру"
+                  >⯇⯈ По центру</button>
+                  <button
+                    type="button"
+                    className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, textAlign: 'right' })}
+                    title="По правому краю"
+                  >Справа ⯈</button>
+                </div>
+              </div>
               <div className="form-buttons">
                 <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-                {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '' }) }}>Отмена</button>}
+                {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' }) }}>Отмена</button>}
                 <button
                   type="button"
                   className="refresh-logs-btn dictionary-refresh-btn"

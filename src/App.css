@@ -722,6 +722,17 @@ color: #5a0000;
   margin-bottom: 6px;
 }
 
+/* Выравнивание текста карточки (задаётся в админке: слева/по центру/справа) */
+.card.align-left .word-row { justify-content: flex-start; }
+.card.align-left .translation,
+.card.align-left .card-category { text-align: left; }
+.card.align-left .examples { justify-content: flex-start; }
+
+.card.align-right .word-row { justify-content: flex-end; }
+.card.align-right .translation,
+.card.align-right .card-category { text-align: right; }
+.card.align-right .examples { justify-content: flex-end; }
+
 /* Примеры */
 .examples {
   display: flex;

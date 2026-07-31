@@ -648,7 +648,7 @@ function Home({ user, onLogout }) {
 
       <div className="results" ref={resultsRef}>
         {filtered.length > 0 ? filtered.map(item => (
-          <div key={item.id} className="card">
+          <div key={item.id} className={`card align-${item.textAlign || 'center'}`}>
             <div className={`dictionary-source ${item.__dictionarySource === 'shared' ? 'shared' : 'personal'}`}>
               {getDictionarySourceLabel(item)}
             </div>
