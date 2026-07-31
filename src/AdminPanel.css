@@ -520,7 +520,7 @@ html, body { height: 100%; background-color: #aa3bff; }
   }
   
   .word-item {
-    padding: 15px;
+    padding: 36px 15px 15px;
     flex-direction: column;
     align-items: stretch;
     width: 100%;
