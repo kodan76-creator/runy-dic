@@ -73,14 +73,35 @@ function Home({ user, onLogout }) {
   const [words, setWords] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
-  const [playMode, setPlayMode] = useState('sequential')
-  const [sortMode, setSortMode] = useState('order')
+
+  // Настройки пользователя, сохраняемые в localStorage (по email, как и избранное)
+  const DEFAULT_SETTINGS = {
+    playMode: 'sequential',
+    sortMode: 'order',
+    dictionarySourceFilter: 'all',
+    selectedFilters: [],
+    showOnlyFavorites: false,
+  }
+  const loadSettings = () => {
+    if (!user?.email) return { ...DEFAULT_SETTINGS }
+    try {
+      const raw = localStorage.getItem(`settings:${user.email}`)
+      if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
+    } catch (e) {
+      console.error('Failed to load settings from localStorage', e)
+    }
+    return { ...DEFAULT_SETTINGS }
+  }
+  const savedSettings = loadSettings()
+
+  const [playMode, setPlayMode] = useState(savedSettings.playMode)
+  const [sortMode, setSortMode] = useState(savedSettings.sortMode)
   const [isPlaying, setIsPlaying] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
-  const [selectedFilters, setSelectedFilters] = useState([]) // array of category ids
+  const [selectedFilters, setSelectedFilters] = useState(savedSettings.selectedFilters) // array of category ids
   const [favorites, setFavorites] = useState(new Set())
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
-  const [dictionarySourceFilter, setDictionarySourceFilter] = useState('all')
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(savedSettings.showOnlyFavorites)
+  const [dictionarySourceFilter, setDictionarySourceFilter] = useState(savedSettings.dictionarySourceFilter)
   const currentAudioRef = useRef(null)
   const stopPlaylistRef = useRef(false)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
@@ -170,6 +191,22 @@ function Home({ user, onLogout }) {
   const clearFavorites = () => {
     setFavorites(new Set())
   }
+
+  // Сохраняем выбранные настройки (сортировка, режим воспроизведения, фильтры) в localStorage
+  useEffect(() => {
+    if (!user?.email) return
+    try {
+      localStorage.setItem(`settings:${user.email}`, JSON.stringify({
+        playMode,
+        sortMode,
+        dictionarySourceFilter,
+        selectedFilters,
+        showOnlyFavorites,
+      }))
+    } catch (e) {
+      console.error('Failed to save settings to localStorage', e)
+    }
+  }, [user, playMode, sortMode, dictionarySourceFilter, selectedFilters, showOnlyFavorites])
 
   useEffect(() => {
     if (!user) return
