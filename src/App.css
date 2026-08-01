@@ -725,12 +725,22 @@ color: #5a0000;
 /* Выравнивание текста карточки (задаётся в админке: слева/по центру/справа) */
 .card.align-left .word-row { justify-content: flex-start; }
 .card.align-left .translation,
-.card.align-left .card-category { text-align: left; }
+.card.align-left .card-category,
+.card.align-left .word,
+.card.align-left .transcription,
+.card.align-left .example,
+.card.align-left .example2,
+.card.align-left .transcription2 { text-align: left; }
 .card.align-left .examples { justify-content: flex-start; }
 
 .card.align-right .word-row { justify-content: flex-end; }
 .card.align-right .translation,
-.card.align-right .card-category { text-align: right; }
+.card.align-right .card-category,
+.card.align-right .word,
+.card.align-right .transcription,
+.card.align-right .example,
+.card.align-right .example2,
+.card.align-right .transcription2 { text-align: right; }
 .card.align-right .examples { justify-content: flex-end; }
 
 /* Примеры */

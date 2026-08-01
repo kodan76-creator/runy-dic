@@ -292,13 +292,23 @@ html, body { height: 100%; background-color: #aa3bff; }
 .word-item.align-left .word-row,
 .word-item.align-left .examples { justify-content: flex-start; }
 .word-item.align-left .word-translation,
-.word-item.align-left .word-category { text-align: left; }
+.word-item.align-left .word-category,
+.word-item.align-left .word-title,
+.word-item.align-left .word-transcription,
+.word-item.align-left .word-example,
+.word-item.align-left .word-example2,
+.word-item.align-left .word-transcription2 { text-align: left; }
 
 .word-item.align-right .word-content { text-align: right; align-items: flex-end; }
 .word-item.align-right .word-row,
 .word-item.align-right .examples { justify-content: flex-end; }
 .word-item.align-right .word-translation,
-.word-item.align-right .word-category { text-align: right; }
+.word-item.align-right .word-category,
+.word-item.align-right .word-title,
+.word-item.align-right .word-transcription,
+.word-item.align-right .word-example,
+.word-item.align-right .word-example2,
+.word-item.align-right .word-transcription2 { text-align: right; }
 .word-example { margin: 0; color: #9c27b0; font-style: italic; font-size: 20px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .word-dash { color: #9c27b0; font-weight: bold; margin: 0 4px; }
 .word-example2 { margin: 0; font-family: 'Dao Rus', sans-serif; font-style: italic; color: #FFD700; font-size: 27px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transform: translateY(-2px); line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
