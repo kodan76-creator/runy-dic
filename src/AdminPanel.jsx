@@ -1054,79 +1054,44 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             <div className="logs-header">
               <h3>🔐 Шифрование данных</h3>
             </div>
-            <div style={{ padding: '20px' }}>
-              {/* Секция 1: Зашифровать */}
-              <h4 style={{ color: '#fff', marginBottom: '8px' }}>Шифрование</h4>
-              <p style={{ marginBottom: '12px', color: '#aaa', fontSize: '13px' }}>
-                Зашифрует все JSON-файлы в репозитории с помощью AES-256-GCM.
-              </p>
-              <button
-                onClick={handleMigrateEncryption}
-                disabled={migrationLoading}
-                className="clear-logs-btn"
-                style={{ marginBottom: '8px' }}
-              >
-                {migrationLoading ? '⏳ Шифрование...' : '🔐 Зашифровать все файлы'}
-              </button>
-              {migrationResult && (
-                <div style={{ marginTop: '8px', marginBottom: '20px' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '6px' }}>Результат шифрования:</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '13px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #555' }}>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Файл</th>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {migrationResult.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                          <td style={{ padding: '4px 6px' }}>{r.file}</td>
-                          <td style={{ padding: '4px 6px' }}>
-                            {r.status === 'encrypted' && '✅ Зашифрован'}
-                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
-                            {r.status === 'not_found' && '⏭️ Не найден'}
-                            {r.status === 'error' && `❌ ${r.error}`}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+            <div style={{ padding: '10px 12px' }}>
+              {/* Инструменты */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
+                <button
+                  onClick={handleMigrateEncryption}
+                  disabled={migrationLoading}
+                  className="clear-logs-btn"
+                  style={{ fontSize: '13px', padding: '4px 12px' }}
+                >
+                  {migrationLoading ? '⏳ Шифрование...' : '🔐 Зашифровать все файлы'}
+                </button>
+                <button
+                  onClick={loadFilesStatus}
+                  disabled={filesStatusLoading}
+                  className="refresh-logs-btn"
+                  style={{ fontSize: '13px', padding: '4px 12px' }}
+                >
+                  {filesStatusLoading ? '⏳ Проверка...' : '🔄 Проверить статус файлов'}
+                </button>
+              </div>
 
-              <hr style={{ border: '1px solid #444', margin: '20px 0' }} />
-
-              {/* Секция 2: Статус файлов и расшифровка */}
-              <h4 style={{ color: '#fff', marginBottom: '8px' }}>Расшифровка файлов</h4>
-              <p style={{ marginBottom: '12px', color: '#aaa', fontSize: '13px' }}>
-                Проверяет статус всех файлов и позволяет расшифровать выбранные.
-              </p>
-              <button
-                onClick={loadFilesStatus}
-                disabled={filesStatusLoading}
-                className="refresh-logs-btn"
-                style={{ marginBottom: '12px' }}
-              >
-                {filesStatusLoading ? '⏳ Проверка...' : '🔄 Проверить статус файлов'}
-              </button>
-
+              {/* Выбор файлов */}
               {filesStatus.length > 0 && (
                 <div>
-                  <div style={{ marginBottom: '8px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ marginBottom: '6px', display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <button
                       onClick={selectAllEncrypted}
                       className="refresh-logs-btn"
-                      style={{ fontSize: '12px', padding: '4px 10px' }}
+                      style={{ fontSize: '12px', padding: '2px 8px' }}
                     >
-                      Выбрать зашифрованные + сломанные
+                      Зашифр.+сломан.
                     </button>
                     <button
                       onClick={selectAllPlain}
                       className="refresh-logs-btn"
-                      style={{ fontSize: '12px', padding: '4px 10px' }}
+                      style={{ fontSize: '12px', padding: '2px 8px' }}
                     >
-                      Выбрать открытые
+                      Открытые
                     </button>
                     {selectedFiles.size > 0 && (
                       <>
@@ -1134,7 +1099,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                           onClick={handleDecryptSelected}
                           disabled={decryptLoading}
                           className="clear-logs-btn"
-                          style={{ fontSize: '12px', padding: '4px 10px' }}
+                          style={{ fontSize: '12px', padding: '2px 8px' }}
                         >
                           {decryptLoading ? '⏳ Расшифровка...' : `🔓 Расшифровать (${selectedFiles.size})`}
                         </button>
@@ -1142,7 +1107,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                           onClick={handleEncryptSelected}
                           disabled={encryptLoading}
                           className="clear-logs-btn"
-                          style={{ fontSize: '12px', padding: '4px 10px', background: '#2d6a4f', borderColor: '#2d6a4f' }}
+                          style={{ fontSize: '12px', padding: '2px 8px', background: '#2d6a4f', borderColor: '#2d6a4f' }}
                         >
                           {encryptLoading ? '⏳ Шифрование...' : `🔐 Зашифровать (${selectedFiles.size})`}
                         </button>
@@ -1150,10 +1115,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     )}
                   </div>
 
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '13px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid #555' }}>
-                        <th style={{ padding: '4px 6px', width: '30px' }}>
+                        <th style={{ padding: '2px 6px', width: '30px' }}>
                           <input
                             type="checkbox"
                             checked={selectedFiles.size === filesStatus.filter(f => f.encrypted || f.broken).length && filesStatus.filter(f => f.encrypted || f.broken).length > 0}
@@ -1164,14 +1129,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                             }}
                           />
                         </th>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Файл</th>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Статус</th>
+                        <th style={{ padding: '2px 6px', textAlign: 'left' }}>Файл</th>
+                        <th style={{ padding: '2px 6px', textAlign: 'left' }}>Статус</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filesStatus.map((f, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid #333', opacity: f.status === 'not_found' ? 0.4 : 1 }}>
-                          <td style={{ padding: '4px 6px' }}>
+                          <td style={{ padding: '2px 6px' }}>
                             {f.encrypted !== null && (
                               <input
                                 type="checkbox"
@@ -1180,11 +1145,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                               />
                             )}
                           </td>
-                          <td style={{ padding: '4px 6px' }}>{f.file}</td>
-                          <td style={{ padding: '4px 6px' }}>
+                          <td style={{ padding: '2px 6px' }}>{f.file}</td>
+                          <td style={{ padding: '2px 6px' }}>
                             {f.encrypted === true && '🔒 Зашифрован'}
-                            {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан (двойное кодирование)'}
-                            {f.encrypted === false && f.status === 'plain' && '📄 Открытый текст'}
+                            {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан'}
+                            {f.encrypted === false && f.status === 'plain' && '📄 Открытый'}
                             {f.status === 'not_found' && '⏭️ Не найден'}
                             {f.status === 'error' && '❌ Ошибка'}
                           </td>
@@ -1195,21 +1160,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 </div>
               )}
 
-              {decryptResult && (
-                <div style={{ marginTop: '12px' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '6px' }}>Результат расшифровки:</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '13px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #555' }}>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Файл</th>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Статус</th>
-                      </tr>
-                    </thead>
+              {/* Результаты операций */}
+              {[
+                { label: 'Результат «Зашифровать все»:', data: migrationResult },
+                { label: 'Результат расшифровки:', data: decryptResult },
+                { label: 'Результат шифрования:', data: encryptResult },
+              ].filter(g => g.data && g.data.length > 0).map(group => (
+                <div key={group.label} style={{ marginTop: '8px' }}>
+                  <h4 style={{ color: '#fff', margin: '0 0 4px', fontSize: '13px' }}>{group.label}</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
                     <tbody>
-                      {decryptResult.map((r, i) => (
+                      {group.data.map((r, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                          <td style={{ padding: '4px 6px' }}>{r.file}</td>
-                          <td style={{ padding: '4px 6px' }}>
+                          <td style={{ padding: '2px 6px' }}>{r.file}</td>
+                          <td style={{ padding: '2px 6px' }}>
+                            {r.status === 'encrypted' && '🔐 Зашифрован'}
+                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
                             {r.status === 'decrypted' && '🔓 Расшифрован'}
                             {r.status === 'repaired' && '🔧 Восстановлен'}
                             {r.status === 'not_encrypted' && '📄 Уже открытый'}
@@ -1221,34 +1187,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                     </tbody>
                   </table>
                 </div>
-              )}
-
-              {encryptResult && (
-                <div style={{ marginTop: '12px' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '6px' }}>Результат шифрования:</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '13px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #555' }}>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Файл</th>
-                        <th style={{ padding: '4px 6px', textAlign: 'left' }}>Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {encryptResult.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                          <td style={{ padding: '4px 6px' }}>{r.file}</td>
-                          <td style={{ padding: '4px 6px' }}>
-                            {r.status === 'encrypted' && '🔐 Зашифрован'}
-                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
-                            {r.status === 'not_found' && '⏭️ Не найден'}
-                            {r.status === 'error' && `❌ ${r.error}`}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         )}

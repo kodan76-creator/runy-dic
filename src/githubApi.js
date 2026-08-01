@@ -12,8 +12,6 @@ const LOGS_FILE = 'logs.json'
 const CATEGORIES_FILE = 'categories.json'
 const FAVORITES_FILE = 'favorites.json'
 const QUEUE_FILE = 'favorites_queue.json'
-// Файлы, которые хранятся ОТКРЫТЫМ ТЕКСТОМ (без шифрования) — логи и избранное
-const PLAINTEXT_FILES = new Set([LOGS_FILE, FAVORITES_FILE, QUEUE_FILE])
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
 const getHeaders = () => ({
 'Authorization': `token ${TOKEN}`,
@@ -207,9 +205,9 @@ if (!currentSha) {
   }
 }
 
-// 🔐 Шифрование: зашифровываем JSON перед записью, кроме файлов из PLAINTEXT_FILES
+// 🔐 Шифрование: все JSON-файлы шифруются при записи (AES-GCM)
 const payload = JSON.stringify(newData)
-const encrypted = PLAINTEXT_FILES.has(fileName) ? payload : await encrypt(payload)
+const encrypted = await encrypt(payload)
 const content = utf8ToBase64(encrypted)
 const body = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
 if (currentSha) body.sha = currentSha
