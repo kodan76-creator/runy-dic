@@ -146,13 +146,14 @@ try {
 const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
 const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
 if (!response.ok) {
-  if (response.status === 404) return { data: [], sha: null }
+  if (response.status === 404) return { data: [], sha: null, ok: true, exists: false }
   const errText = await response.text().catch(() => '')
   throw new Error(`HTTP ${response.status}: ${errText}`)
 }
 
 const fileData = await response.json()
-if (!fileData.content) return { data: [], sha: null }
+const fileSha = fileData.sha || null
+if (!fileData.content) return { data: [], sha: fileSha, ok: true, exists: Boolean(fileSha) }
 
 let raw = base64ToUtf8(fileData.content)
 const cleaned = raw.replace(/^\uFEFF/, '').trim()
@@ -164,7 +165,9 @@ if (isEncrypted(cleaned)) {
     textToParse = await decrypt(cleaned)
   } catch (decErr) {
     console.error(`Decrypt ${fileName} error:`, decErr)
-    textToParse = cleaned
+    // Файл существует, но не читается — не теряем факт его существования,
+    // чтобы запись не превратилась в "HTTP 422: sha wasn't supplied" и не затёрла данные
+    return { data: [], sha: null, ok: false, exists: true }
   }
 }
 
@@ -176,17 +179,34 @@ if (typeof textToParse === 'string' && textToParse.startsWith('"')) {
   } catch { /* оставляем как есть */ }
 }
 
-const content = textToParse ? JSON.parse(textToParse) : []
+let content = []
+try {
+  content = textToParse ? JSON.parse(textToParse) : []
+} catch (parseErr) {
+  console.error(`Parse ${fileName} error:`, parseErr)
+  return { data: [], sha: null, ok: false, exists: true }
+}
 
-// ✅ ИСПРАВЛЕНО: Возвращаем { data, sha }
-return { data: Array.isArray(content) ? content : [], sha: fileData.sha }
+// ✅ Возвращаем { data, sha, ok, exists }
+return { data: Array.isArray(content) ? content : [], sha: fileSha, ok: true, exists: true }
 } catch (error) {
 console.error(`Fetch ${fileName} error:`, error)
-return { data: [], sha: null }
+// Сетевая/API-ошибка — существование файла неизвестно
+return { data: [], sha: null, ok: false, exists: null }
 }
 }
 const updateGitHubFile = async (fileName, newData, currentSha) => {
 try {
+// ⚠️ Защита от "HTTP 422: Invalid request. \"sha\" wasn't supplied.":
+// если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
+// Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
+if (!currentSha) {
+  const existingSha = await getGitHubFileSha(fileName)
+  if (existingSha) {
+    throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+  }
+}
+
 // 🔐 Шифрование: зашифровываем JSON перед записью, кроме файлов из PLAINTEXT_FILES
 const payload = JSON.stringify(newData)
 const encrypted = PLAINTEXT_FILES.has(fileName) ? payload : await encrypt(payload)
@@ -504,10 +524,34 @@ export const ensureUserDictionaryFile = async (userOrEmail) => {
 export const addWord = async (wordData, userEmail, user = null) => {
   const target = user || userEmail
   const fileName = getWriteFileName(target)
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
   const newWord = { ...wordData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
-  await updateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
-  return newWord
+
+  // Повторные попытки при временных сбоях чтения (rate-limit, конфликт версий),
+  // чтобы операция не падала с "HTTP 422: sha wasn't supplied"
+  const maxRetries = 4
+  let lastError = null
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const { data: dict, sha, exists, ok } = await fetchGitHubFile(fileName)
+      // Файл существует, но не читается — прерываем, чтобы не потерять данные
+      if (exists === true && !ok) {
+        throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
+      }
+      await updateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
+      return newWord
+    } catch (error) {
+      lastError = error
+      const retryable = isRetryableGitHubError(error) ||
+        /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
+      if (retryable && attempt < maxRetries - 1) {
+        console.warn(`addWord: ${error.message || error}, повторная попытка ${attempt + 1}/${maxRetries}`)
+        await new Promise(res => setTimeout(res, 400 + attempt * 300))
+        continue
+      }
+      throw error
+    }
+  }
+  throw lastError
 }
 export const updateWord = async (id, updatedData, user = null) => {
   const fileName = getWriteFileName(user)
