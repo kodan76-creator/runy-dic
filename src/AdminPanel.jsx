@@ -873,7 +873,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
                 </div>
                 <div className="form-row align-control">
-                  <span className="align-label">Выравнивание:</span>
+                  <span className="align-label">Выравнивание текста в карточке:</span>
                   <div className="align-buttons">
                     <button
                       type="button"
