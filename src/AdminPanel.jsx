@@ -880,19 +880,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                       className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
                       onClick={() => setFormData({ ...formData, textAlign: 'left' })}
                       title="По левому краю"
-                    >⯇ Слева</button>
+                    >⯇</button>
                     <button
                       type="button"
                       className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
                       onClick={() => setFormData({ ...formData, textAlign: 'center' })}
                       title="По центру"
-                    >⯇⯈ По центру</button>
+                    >⯇⯈</button>
                     <button
                       type="button"
                       className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
                       onClick={() => setFormData({ ...formData, textAlign: 'right' })}
                       title="По правому краю"
-                    >Справа ⯈</button>
+                    >⯈</button>
                   </div>
                 </div>
               </div>
