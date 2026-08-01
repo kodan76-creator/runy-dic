@@ -55,6 +55,7 @@ html, body { height: 100%; background-color: #aa3bff; }
   font-family: 'Dao Rus', sans-serif;
   font-size: 25px;
   line-height: 0.9;
+  color: #7b1fa2;
 }
 .word-form input.runic-input::placeholder, .word-form textarea.runic-input::placeholder {
   font-family: var(--sans), 'Segoe UI', Arial, sans-serif;
