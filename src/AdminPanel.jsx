@@ -855,7 +855,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                 <textarea rows={1} className="single-line-textarea runic-input" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
                 <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
                 <div className="audio-upload-row">
-                  <input type="text" placeholder="Audio файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
+                  <input type="text" placeholder="Аудио файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
                   <label className="audio-upload-btn" title="Загрузить MP3">
                     📎
                     <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
@@ -864,7 +864,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
                 </div>
                 <div className="audio-upload-row">
-                  <input type="text" placeholder="Audio2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
+                  <input type="text" placeholder="Аудио2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
                   <label className="audio-upload-btn" title="Загрузить MP3">
                     📎
                     <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
@@ -872,28 +872,28 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
                   {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
                   {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
                 </div>
-              </div>
-              <div className="form-row align-control">
-                <span className="align-label">Выравнивание текста:</span>
-                <div className="align-buttons">
-                  <button
-                    type="button"
-                    className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
-                    onClick={() => setFormData({ ...formData, textAlign: 'left' })}
-                    title="По левому краю"
-                  >⯇ Слева</button>
-                  <button
-                    type="button"
-                    className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
-                    onClick={() => setFormData({ ...formData, textAlign: 'center' })}
-                    title="По центру"
-                  >⯇⯈ По центру</button>
-                  <button
-                    type="button"
-                    className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
-                    onClick={() => setFormData({ ...formData, textAlign: 'right' })}
-                    title="По правому краю"
-                  >Справа ⯈</button>
+                <div className="form-row align-control">
+                  <span className="align-label">Выравнивание:</span>
+                  <div className="align-buttons">
+                    <button
+                      type="button"
+                      className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
+                      onClick={() => setFormData({ ...formData, textAlign: 'left' })}
+                      title="По левому краю"
+                    >⯇ Слева</button>
+                    <button
+                      type="button"
+                      className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
+                      onClick={() => setFormData({ ...formData, textAlign: 'center' })}
+                      title="По центру"
+                    >⯇⯈ По центру</button>
+                    <button
+                      type="button"
+                      className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
+                      onClick={() => setFormData({ ...formData, textAlign: 'right' })}
+                      title="По правому краю"
+                    >Справа ⯈</button>
+                  </div>
                 </div>
               </div>
               <div className="form-buttons">
