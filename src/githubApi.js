@@ -1013,27 +1013,54 @@ const KNOWN_FILES = [
   CATEGORIES_FILE, FAVORITES_FILE, QUEUE_FILE
 ]
 
+// Получить полный список JSON-файлов из репозитория (Git Trees API).
+// Возвращает JSON-файлы в корне репозитория (там лежат все данные), исключая
+// служебные package.json / package-lock.json, чтобы их случайно не зашифровать.
+const listRepoJsonFiles = async () => {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`
+  const resp = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+  if (!resp.ok) return null
+  const data = await resp.json()
+  if (!Array.isArray(data.tree)) return null
+  return data.tree
+    .filter(item => item.type === 'blob')
+    .map(item => item.path)
+    .filter(path =>
+      /\.json$/i.test(path) &&                    // только JSON
+      !/[/]/.test(path) &&                        // только в корне репозитория
+      !/^package(-lock)?\.json$/i.test(path)      // без package.json / package-lock.json
+    )
+}
+
+// Персональные словари пользователей, найденные в favorites.json (запасной вариант)
+const listPersonalFilesFromFavorites = async () => {
+  const { data: favData } = await fetchGitHubFileRaw(FAVORITES_FILE)
+  if (!favData) return []
+  const raw = isEncrypted(favData) ? await decrypt(favData) : favData
+  const parsed = JSON.parse(raw)
+  if (!Array.isArray(parsed)) return []
+  return parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
+}
+
 export const checkFilesEncryptionStatus = async () => {
-  // Сначала сканируем known файлы + ищем персональные словари в favorites
-  let personalFiles = []
+  let allFiles = [...KNOWN_FILES]
+
+  // 1. Пытаемся получить ПОЛНЫЙ список JSON-файлов из репозитория
   try {
-    const { data: favData } = await fetchGitHubFileRaw(FAVORITES_FILE)
-    if (favData && isEncrypted(favData)) {
-      // Favorites зашифрован — расшифруем чтобы прочитать список пользователей
-      const decrypted = await decrypt(favData)
-      const parsed = JSON.parse(decrypted)
-      if (Array.isArray(parsed)) {
-        personalFiles = parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
-      }
-    } else if (favData) {
-      const parsed = JSON.parse(favData)
-      if (Array.isArray(parsed)) {
-        personalFiles = parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
-      }
+    const repoFiles = await listRepoJsonFiles()
+    if (repoFiles && repoFiles.length > 0) {
+      allFiles = [...new Set([...allFiles, ...repoFiles])]
     }
   } catch { /* ignore */ }
 
-  const allFiles = [...new Set([...KNOWN_FILES, ...personalFiles])]
+  // 2. Если дерево не помогло — добираем персональные словари из favorites
+  if (allFiles.length <= KNOWN_FILES.length) {
+    try {
+      const personalFiles = await listPersonalFilesFromFavorites()
+      allFiles = [...new Set([...allFiles, ...personalFiles])]
+    } catch { /* ignore */ }
+  }
+
   const results = []
 
   for (const fileName of allFiles) {
