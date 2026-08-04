@@ -450,7 +450,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
   }
 
   .dictionary-toolbar .search-container {
-    flex: 1 1 0;
+    flex: 1 1 100%;
+    order: 3;
     min-width: 0;
   }
 
