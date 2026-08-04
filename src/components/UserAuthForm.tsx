@@ -47,13 +47,20 @@ function UserAuthForm({ onLogin }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <img src="/runy-dic/run_r.png" alt="Logo" className="auth-logo" />
+        <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="auth-logo" />
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
-          <input type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
-          <input type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
-          {!isLogin && <input type="password" placeholder="Подтвердите пароль" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} autoComplete="new-password" />}
-          {error && <div className="error">{error}</div>}
+          <label className="visually-hidden" htmlFor="auth-email">Email</label>
+          <input id="auth-email" type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
+          <label className="visually-hidden" htmlFor="auth-password">Пароль</label>
+          <input id="auth-password" type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
+          {!isLogin && (
+            <>
+              <label className="visually-hidden" htmlFor="auth-confirm">Подтвердите пароль</label>
+              <input id="auth-confirm" type="password" placeholder="Подтвердите пароль" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={loading} autoComplete="new-password" />
+            </>
+          )}
+          {error && <div className="error" role="alert">{error}</div>}
           <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
         </form>
         <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>

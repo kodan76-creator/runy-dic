@@ -17,21 +17,45 @@ export default function DictionaryTab({
   handleAudioDelete,
   loadWords,
 }) {
+  // Скачать весь словарь в JSON
+  const handleExport = () => {
+    if (!words || words.length === 0) return
+    const blob = new Blob([JSON.stringify(words, null, 2)], { type: 'application/json;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `dictionary-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="form-section">
       <div className="dictionary-toolbar">
         <h3 className="words-count">📚 Все слова ({words.length})</h3>
+        <button
+          type="button"
+          className="export-btn"
+          onClick={handleExport}
+          disabled={!words || words.length === 0}
+          title="Скачать весь словарь в JSON"
+        >
+          ⬇️ Экспорт
+        </button>
         <div className="search-container">
           <div className="search-wrapper">
             <input
               type="text"
               placeholder="🔍 Поиск слова..."
+              aria-label="Поиск по словарю"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
             {searchTerm && (
-              <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
+              <button className="search-clear-btn" onClick={() => setSearchTerm('')} aria-label="Очистить поиск" title="Очистить поиск">❌</button>
             )}
           </div>
         </div>
@@ -67,21 +91,21 @@ export default function DictionaryTab({
           <textarea rows={1} className="single-line-textarea runic-input" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
           <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
           <div className="audio-upload-row">
-            <input type="text" placeholder="Аудио файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
+            <input type="text" placeholder="Аудио файл (..._runy.mp3)" aria-label="Имя аудиофайла" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
             <label className="audio-upload-btn" title="Загрузить MP3">
               📎
-              <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
+              <input type="file" accept=".mp3" hidden aria-label="Загрузить аудиофайл" onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
             </label>
-            {formData.audio && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio')} disabled={audioUploading === 'audio'}>🗑️</button>}
+            {formData.audio && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить аудиофайл" onClick={() => handleAudioDelete('audio')} disabled={audioUploading === 'audio'}>🗑️</button>}
             {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
           </div>
           <div className="audio-upload-row">
-            <input type="text" placeholder="Аудио2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
+            <input type="text" placeholder="Аудио2 файл (..._r_prim.mp3)" aria-label="Имя второго аудиофайла" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
             <label className="audio-upload-btn" title="Загрузить MP3">
               📎
-              <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
+              <input type="file" accept=".mp3" hidden aria-label="Загрузить второй аудиофайл" onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
             </label>
-            {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
+            {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить второй аудиофайл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
             {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
           </div>
           <div className="form-row align-control">
@@ -91,18 +115,24 @@ export default function DictionaryTab({
                 type="button"
                 className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
                 onClick={() => setFormData({ ...formData, textAlign: 'left' })}
+                aria-label="Выровнять текст по левому краю"
+                aria-pressed={formData.textAlign === 'left'}
                 title="По левому краю"
               >←</button>
               <button
                 type="button"
                 className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
                 onClick={() => setFormData({ ...formData, textAlign: 'center' })}
+                aria-label="Выровнять текст по центру"
+                aria-pressed={formData.textAlign === 'center'}
                 title="По центру"
               >↔</button>
               <button
                 type="button"
                 className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
                 onClick={() => setFormData({ ...formData, textAlign: 'right' })}
+                aria-label="Выровнять текст по правому краю"
+                aria-pressed={formData.textAlign === 'right'}
                 title="По правому краю"
               >→</button>
             </div>

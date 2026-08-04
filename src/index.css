@@ -11,6 +11,28 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  /* 🎨 Палитра приложения (App.css / AdminPanel.css) */
+  --app-bg: #7b1fa2;          /* глубокий фиолетовый фон */
+  --app-accent: #aa3bff;      /* акцент / шапка */
+  --app-accent-soft: #f3e5f5; /* светлая подложка акцента */
+  --app-hover: #5e1780;       /* hover глубокого фона */
+  --app-danger: #f44336;
+  --surface: #ffffff;         /* светлая поверхность: формы, карточки */
+  --surface-text: #000000;
+  --surface-muted: #666666;
+  --surface-border: #7b1fa2;
+  --field-bg: #f5f5f5;
+  --field-bg-hover: #e0e0e0;
+  --disabled: #ccc;
+  --card-bg: #c084fc;         /* фон карточек слов */
+  --card-border: #aa3bff;
+  --rune: #ffd700;            /* рунический текст / акцентные кнопки */
+  --rune-hover: #ffa500;
+  --modal-bg: #ffffff;
+  --modal-text: #111111;
+  --input-shadow: rgba(123, 31, 162, 0.6);
+  --shadow-md: rgba(0, 0, 0, 0.3);
+
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
@@ -43,6 +65,27 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --app-bg: #2a1045;
+    --app-accent: #b06bff;
+    --app-accent-soft: #3a2450;
+    --app-hover: #6d3bb3;
+    --app-danger: #ef5350;
+    --surface: #1f2130;
+    --surface-text: #eceaf3;
+    --surface-muted: #9ca3af;
+    --surface-border: #6b46a1;
+    --field-bg: #2a2c3a;
+    --field-bg-hover: #343648;
+    --disabled: #3a3d4d;
+    --card-bg: #4a2a6b;
+    --card-border: #8b5cf6;
+    --rune: #ffd700;
+    --rune-hover: #ffa500;
+    --modal-bg: #242637;
+    --modal-text: #eceaf3;
+    --input-shadow: rgba(139, 92, 246, 0.6);
+    --shadow-md: rgba(0, 0, 0, 0.5);
   }
 
   #social .button-icon {
@@ -112,5 +155,32 @@ code {
 
 /* Force app background to purple so page edges don't turn dark in dark mode */
 html, body, #root {
-  background: #aa3bff;
+  background: var(--app-accent);
+}
+
+/* 🧩 Служебные утилиты */
+/* Невидимый, но доступный для скринридеров текст (для <label> без подписи) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Видимый фокус для клавиатуры (мышь не показывает обводку) */
+:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: #ffd700;
+  }
 }

@@ -6,10 +6,10 @@ export default function FilterModal({ open, categories, selectedFilters, onToggl
   if (!open) return null
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label="Фильтр по категориям">
       <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Фильтр по категориям</h3>
-        <div className="filter-list">
+        <h3 id="filter-modal-title">Фильтр по категориям</h3>
+        <div className="filter-list" role="group" aria-labelledby="filter-modal-title">
           {categories.length === 0 && <p>Категории не загружены</p>}
           {categories.map(cat => (
             <label key={cat.id} className="filter-item cat-item">

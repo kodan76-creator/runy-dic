@@ -12,6 +12,8 @@ export default function Home({ user, onLogout }) {
   const [words, setWords] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [reloadToken, setReloadToken] = useState(0)
 
   // Настройки пользователя, сохраняемые в localStorage (по email, как и избранное)
   const DEFAULT_SETTINGS = {
@@ -142,26 +144,30 @@ export default function Home({ user, onLogout }) {
 
   useEffect(() => {
     if (!user) return
+    let cancelled = false
+    setLoading(true)
+    setLoadError(false)
+
     const loadWords = async () => {
-      try {
-        const { data } = await getDictionary(user)
-        const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
-        // Сохраняем порядок карточек как в файле словаря (последовательность, заданная в админке)
-        const orderedData = [...(data || [])]
-          .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
-        setWords(orderedData)
-      } catch (err) { console.error('Ошибка загрузки:', err); setWords([]) }
+      const { data } = await getDictionary(user)
+      const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
+      // Сохраняем порядок карточек как в файле словаря (последовательность, заданная в админке)
+      const orderedData = [...(data || [])]
+        .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
+      if (!cancelled) setWords(orderedData)
     }
 
     const loadCategories = async () => {
-      try {
-        const { data } = await getCategories()
-        setCategories(Array.isArray(data) ? data : [])
-      } catch (err) { console.error('Ошибка загрузки категорий:', err); setCategories([]) }
+      const { data } = await getCategories()
+      if (!cancelled) setCategories(Array.isArray(data) ? data : [])
     }
 
-    Promise.all([loadWords(), loadCategories()]).finally(() => setLoading(false))
-  }, [user])
+    Promise.all([loadWords(), loadCategories()])
+      .catch((err) => { console.error('Ошибка загрузки:', err); if (!cancelled) setLoadError(true) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [user, reloadToken])
 
   // toggle category id in selectedFilters
   const toggleFilter = (id) => {
@@ -176,6 +182,25 @@ export default function Home({ user, onLogout }) {
     const personal = words.filter(item => item.__dictionarySource === 'personal').length
     return { personal, total: words.length }
   }, [words])
+
+  // Статистика по категориям (для шапки/панели над результатами)
+  const categoryCounts = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; count: number }>()
+    for (const w of words) {
+      let ids: string[] = []
+      if (Array.isArray(w.category)) ids = w.category
+      else if (typeof w.category === 'string' && w.category.trim().length > 0) {
+        const m = categories.find((c: any) => c.name === w.category)
+        if (m) ids = [m.id]
+      }
+      for (const id of ids) {
+        const entry = map.get(id) || { id, name: categories.find((c: any) => c.id === id)?.name || String(id), count: 0 }
+        entry.count += 1
+        map.set(id, entry)
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.count - a.count)
+  }, [words, categories])
 
   // Логирование поиска
   useEffect(() => {
@@ -262,7 +287,37 @@ export default function Home({ user, onLogout }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (loading) return <div className="loading-full">Загрузка словаря...</div>
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="results" aria-busy="true" aria-label="Загрузка словаря">
+          {[0, 1, 2, 3, 4, 5].map(i => (
+            <div className="skeleton-card" key={i} aria-hidden="true">
+              <div className="skeleton-line skeleton-short" />
+              <div className="skeleton-line skeleton-medium" />
+              <div className="skeleton-line skeleton-long" />
+            </div>
+          ))}
+          <span className="visually-hidden">Загрузка словаря...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError && words.length === 0) {
+    return (
+      <div className="container">
+        <div className="state-block error-state" role="alert">
+          <div className="state-icon" aria-hidden="true">⚠️</div>
+          <h2>Не удалось загрузить словарь</h2>
+          <p>Проверьте подключение к интернету и попробуйте ещё раз.</p>
+          <button className="state-retry-btn" onClick={() => setReloadToken(t => t + 1)}>
+            Повторить загрузку
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container">
@@ -296,7 +351,7 @@ export default function Home({ user, onLogout }) {
             Случайно
           </label>
         </div>
-        <img src="/runy-dic/run_r.png" alt="Logo" className="logo" />
+        <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="logo" />
         <div className="filter-mode">
           <span className="filter-title">Сортировать:</span>
           <label className="mode-label">
@@ -365,7 +420,7 @@ export default function Home({ user, onLogout }) {
             </label>
           </div>
         )}
-        <div className="search-row">
+          <div className="search-row">
           <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
             <span className="filter-label">Фильтр</span>
             {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
@@ -374,6 +429,7 @@ export default function Home({ user, onLogout }) {
             <input
               type="text"
               placeholder="Поиск по словарю..."
+              aria-label="Поиск по словарю"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -382,6 +438,7 @@ export default function Home({ user, onLogout }) {
               <button
                 className="search-clear-btn"
                 onClick={() => setSearchTerm('')}
+                aria-label="Очистить поиск"
                 title="Очистить поиск"
               >
                 ❌
@@ -395,22 +452,34 @@ export default function Home({ user, onLogout }) {
             <span>Всего: {dictionaryStats.total}</span>
           </div>
           <div className="favorites-block">
-            <button className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`} title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'} onClick={() => setShowOnlyFavorites(s => !s)}>
+            <button
+              className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`}
+              aria-label={showOnlyFavorites ? 'Показывать все карточки' : 'Показывать только избранное'}
+              aria-pressed={showOnlyFavorites}
+              title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'}
+              onClick={() => setShowOnlyFavorites(s => !s)}
+            >
               {showOnlyFavorites ? '❤️' : '🤍'}
               <span className="fav-count">{favorites.size}</span>
             </button>
-            <div className="fav-status" title={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации. Нажмите, чтобы попытаться снова.' : favoritesSyncStatus === 'saving' ? 'Сохраняется...' : 'Синхронизировано'} onClick={async () => {
-              if (!user || !user.email) return
-              setFavoritesSyncStatus('saving')
-              try {
-                const now = new Date().toISOString()
-                const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
-                setFavoritesSyncStatus(ok ? 'idle' : 'error')
-              } catch (e) {
-                console.error('Manual sync failed', e)
-                setFavoritesSyncStatus('error')
-              }
-            }}>
+            <div
+              className="fav-status"
+              role="status"
+              aria-label={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации избранного' : favoritesSyncStatus === 'saving' ? 'Сохранение избранного' : 'Избранное синхронизировано'}
+              title={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации. Нажмите, чтобы попытаться снова.' : favoritesSyncStatus === 'saving' ? 'Сохраняется...' : 'Синхронизировано'}
+              onClick={async () => {
+                if (!user || !user.email) return
+                setFavoritesSyncStatus('saving')
+                try {
+                  const now = new Date().toISOString()
+                  const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
+                  setFavoritesSyncStatus(ok ? 'idle' : 'error')
+                } catch (e) {
+                  console.error('Manual sync failed', e)
+                  setFavoritesSyncStatus('error')
+                }
+              }}
+            >
               {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
             </div>
           </div>
@@ -433,18 +502,48 @@ export default function Home({ user, onLogout }) {
         onReset={() => { clearFilters(); applyFilters() }}
       />
 
+      {categoryCounts.length > 0 && (
+        <div className="category-stats" aria-label="Статистика по категориям">
+          <span className="category-stats-title">Категории:</span>
+          {categoryCounts.map(({ id, name, count }) => (
+            <span key={id} className="category-stat-chip">
+              {name} <b>{count}</b>
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="results" ref={resultsRef}>
         {filtered.length > 0 ? filtered.map(item => (
           <WordCard
             key={item.id}
             item={item}
             categories={categories}
+            searchTerm={searchTerm}
             isFavorite={favorites.has(String(item.id))}
             onToggleFavorite={() => toggleFavorite(item.id)}
             onPlayAudio={audio.handleSingleAudio}
             onScrollTop={scrollResultsToTop}
           />
-        )) : <p>Ничего не найдено</p>}
+        )) : (
+          <div className="state-block empty-state">
+            <div className="state-icon" aria-hidden="true">🔍</div>
+            <h2>{words.length === 0 ? 'Словарь пуст' : 'Ничего не найдено'}</h2>
+            <p>
+              {words.length === 0
+                ? 'В словаре пока нет карточек.'
+                : 'По вашему запросу ничего не найдено. Попробуйте изменить запрос или фильтры.'}
+            </p>
+            {(searchTerm || selectedFilters.length > 0 || showOnlyFavorites) && (
+              <button
+                className="state-reset-btn"
+                onClick={() => { setSearchTerm(''); clearFilters(); setShowOnlyFavorites(false) }}
+              >
+                Сбросить поиск и фильтры
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
