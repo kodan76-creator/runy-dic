@@ -371,6 +371,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const handleImport = useCallback(async (imported, mode) => {
     setLoading(true)
     try {
+      const importedCount = Array.isArray(imported) ? imported.length : 0
       let finalArr
       if (mode === 'replace') {
         // Чистый старт: id идут 1,2,3... (уже правильные сохраняются)
@@ -389,7 +390,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         finalArr = Array.from(map.values())
       }
       await importDictionary(finalArr, activeUser)
-      showMessage(`✅ Импортировано слов: ${finalArr.length}`)
+      showMessage(`✅ Импортировано слов: ${importedCount}`)
       await loadWords()
     } catch (err) {
       const human = humanizeImportError(err)
