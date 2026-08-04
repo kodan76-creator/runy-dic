@@ -26,4 +26,11 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  // Playwright-спеки выполняются в Node, а не в браузере
+  {
+    files: ['**/*.spec.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

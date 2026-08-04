@@ -1,5 +1,11 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFile, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import DictionaryTab from './components/admin/DictionaryTab'
+import CategoriesTab from './components/admin/CategoriesTab'
+import UsersTab from './components/admin/UsersTab'
+import LogsTab from './components/admin/LogsTab'
+import SecurityTab from './components/admin/SecurityTab'
+import WordItem from './components/admin/WordItem'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -35,6 +41,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [audioUploading, setAudioUploading] = useState('')
   const currentAudioRef = useRef(null)
   const msgTimeoutRef = useRef(null)
+  const [message, setMessage] = useState('')
 
   const showMessage = useCallback((text, type = 'success') => {
     setMessage({ text, type })
@@ -48,7 +55,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [positionInputs, setPositionInputs] = useState({})
   const [userSearchTerm, setUserSearchTerm] = useState('')
@@ -95,7 +101,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       finish()
       showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
     })
-  }, [stopAudio, getAudioSrc, isRestrictedUser, activeUser, emailToFolderName, showMessage])
+  }, [stopAudio, getAudioSrc, isRestrictedUser, activeUser, showMessage])
 
   const scrollWordsToTop = useCallback(() => {
     const el = wordsListRef.current || document.querySelector('.words-list')
@@ -138,9 +144,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         })
         setTimeout(() => { adminPanel.style.overflow = prev }, 600)
       }
-    } catch (e) {
+    } catch {
       // last resort
-      try { window.scrollTo({ top: 0 }) } catch (er) { /* ignore */ }
+      try { window.scrollTo({ top: 0 }) } catch { /* ignore */ }
     }
   }, [])
   const [authLoading, setAuthLoading] = useState(false)
@@ -169,7 +175,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setWords(data || [])
     } catch (err) { setError('Ошибка: ' + err.message) }
     setLoading(false)
-  }, [isRestrictedUser, activeUser, getDictionary, setLoading, setWords, setError])
+  }, [isRestrictedUser, activeUser, setLoading, setWords, setError])
   // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
   // пока GitHub не отдаст актуальный порядок карточек
   const refreshWordsAfterWrite = useCallback(async () => {
@@ -181,12 +187,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         const arr = Array.isArray(data) ? data : []
         setWords(arr)
         if (JSON.stringify(arr) !== beforeJson) return
-      } catch (e) { /* пробуем ещё раз */ }
+      } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
     }
-  }, [words, isRestrictedUser, activeUser, getDictionary, setWords])
+  }, [words, isRestrictedUser, activeUser, setWords])
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
+  const loadCategories = async () => {
+    try {
+      const { data } = await getCategories()
+      setCategories(data || [])
+    } catch (err) { console.error('loadCategories error', err) }
+  }
 
   useEffect(() => {
     if (activeUser) {
@@ -201,6 +213,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         }
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUser, isRestrictedUser])
 
   // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
@@ -229,6 +242,20 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
     }
   }, [])
+
+  const loadFilesStatus = async () => {
+    setFilesStatusLoading(true)
+    try {
+      const status = await checkFilesEncryptionStatus()
+      setFilesStatus(status)
+      setSelectedFiles(new Set())
+      setDecryptResult(null)
+      setEncryptResult(null)
+    } catch (err) {
+      console.error('loadFilesStatus error:', err)
+    }
+    setFilesStatusLoading(false)
+  }
 
   // Автозагрузка статуса файлов при открытии вкладки "Безопасность"
   useEffect(() => {
@@ -335,16 +362,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       showMessage('❌ ' + err.message, 'error')
     }
     setLoading(false)
-  }
-
-  const resolveCategoryIds = (categ) => {
-    if (!categ) return []
-    if (Array.isArray(categ)) return categ
-    if (typeof categ === 'string') {
-      const found = categories.find(c => c.name === categ || c.id === categ)
-      return found ? [found.id] : [categ]
-    }
-    return []
   }
 
   const handleAudioUpload = async (e, field) => {
@@ -510,81 +527,32 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       const isFirst = actualIdx === 0
       const isLast = actualIdx === words.length - 1
       return (
-        <div key={word.id} className={`word-item align-${word.textAlign || 'center'}`}>
-          <span className="word-number">{idx + 1}.</span>
-          <div className="word-content">
-            <div className="word-row">
-              <h4 className="word-title">{word.word}</h4>
-              {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
-            </div>
-            <p className="word-translation">{word.translation}</p>
-            {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
-              <div className="word-category">({Array.isArray(word.category) ? word.category.map(id => (categories.find(c => c.id === id) || { name: id }).name).join('; ') : (categories.find(c => c.id === word.category)?.name || word.category)})</div>
-            )}
-            <div className="examples">
-              {word.example && <span className="word-example">{word.example}</span>}
-              {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
-              {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
-            </div>
-            {word.audio && (
-              <p className="word-audio">
-                🔊 {word.audio}
-                <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
-              </p>
-            )}
-            {word.audio2 && (
-              <p className="word-audio">
-                🔊 {word.audio2}
-                <button type="button" className="audio-play-btn" onClick={() => playAudioFile(word.audio2)} title="Воспроизвести" style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}>▶️</button>
-              </p>
-            )}
-          </div>
-
-          {canEdit ? (
-            <div className="word-actions">
-              <div className="word-order">
-                <button onClick={() => handleMoveWordToTop(word.id)} className="move-btn" disabled={isFirst} title="В начало">⏫</button>
-                <button onClick={() => handleMoveWordUp(word.id)} className="move-btn" disabled={isFirst} title="Переместить вверх">⬆️</button>
-                <button onClick={() => handleMoveWordDown(word.id)} className="move-btn" disabled={isLast} title="Переместить вниз">⬇️</button>
-                <button onClick={() => handleMoveWordToBottom(word.id)} className="move-btn" disabled={isLast} title="В конец">⏬</button>
-              </div>
-              <div className="word-position-set">
-                <input
-                  type="number"
-                  min="1"
-                  max={words.length}
-                  className="word-position-input"
-                  value={positionInputs[word.id] ?? actualIdx + 1}
-                  onChange={(e) => setPositionInputs(prev => ({ ...prev, [word.id]: e.target.value }))}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1) } }}
-                  title="Номер позиции"
-                />
-                <button
-                  type="button"
-                  className="word-position-btn"
-                  onClick={() => handleMoveWordToPosition(word.id, positionInputs[word.id] ?? actualIdx + 1)}
-                  title="Установить позицию"
-                >№</button>
-              </div>
-              <button onClick={() => handleEdit(word)} className="edit-btn">✏️</button>
-              <button onClick={() => handleDelete(word.id, word.createdBy)} className="delete-btn">🗑️</button>
-            </div>
-          ) : null}
-
-          <button className="card-scroll-top-btn admin" onClick={scrollWordsToTop} title="Вверх">⬆</button>
-        </div>
+        <WordItem
+          key={word.id}
+          word={word}
+          idx={idx}
+          canEdit={canEdit}
+          isFirst={isFirst}
+          isLast={isLast}
+          positionValue={positionInputs[word.id] ?? actualIdx + 1}
+          wordsLength={words.length}
+          categories={categories}
+          onMoveToTop={handleMoveWordToTop}
+          onMoveUp={handleMoveWordUp}
+          onMoveDown={handleMoveWordDown}
+          onMoveToBottom={handleMoveWordToBottom}
+          onPositionChange={(id, value) => setPositionInputs(prev => ({ ...prev, [id]: value }))}
+          onPositionSubmit={handleMoveWordToPosition}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onPlayAudio={playAudioFile}
+          onScrollTop={scrollWordsToTop}
+        />
       )
     })
   }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
 
   // Categories handlers
-  const loadCategories = async () => {
-    try {
-      const { data } = await getCategories()
-      setCategories(data || [])
-    } catch (err) { console.error('loadCategories error', err) }
-  }
-
   const handleCategorySubmit = async (e) => {
     e?.preventDefault?.()
     if (!categoryForm.name?.trim()) { setError('Имя категории не может быть пустым'); return }
@@ -681,20 +649,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setMigrationResult([{ file: 'error', status: 'error', error: err.message }])
     }
     setMigrationLoading(false)
-  }
-
-  const loadFilesStatus = async () => {
-    setFilesStatusLoading(true)
-    try {
-      const status = await checkFilesEncryptionStatus()
-      setFilesStatus(status)
-      setSelectedFiles(new Set())
-      setDecryptResult(null)
-      setEncryptResult(null)
-    } catch (err) {
-      console.error('loadFilesStatus error:', err)
-    }
-    setFilesStatusLoading(false)
   }
 
   const handleDecryptSelected = async () => {
@@ -805,391 +759,93 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         </div>
 
         {activeTab === 'dictionary' && (
-          <div className="form-section">
-            <div className="dictionary-toolbar">
-              <h3 className="words-count">📚 Все слова ({words.length})</h3>
-              <div className="search-container">
-                {/* ✅ ИСПРАВЛЕНО: Обёртка и крестик */}
-                <div className="search-wrapper">
-                  <input
-                    type="text"
-                    placeholder="🔍 Поиск слова..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                  {searchTerm && (
-                    <button className="search-clear-btn" onClick={() => setSearchTerm('')} title="Очистить поиск">❌</button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <form onSubmit={handleSubmit} className="word-form">
-              <div className="form-column form-column-left">
-                <textarea rows={1} className="single-line-textarea runic-input" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
-                <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
-                <textarea rows={1} className="single-line-textarea" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
-                <div className="category-checkboxes">
-                  {categories.map(c => (
-                    <label key={c.id} className="cat-item">
-                      <input type="checkbox" value={c.id} checked={(Array.isArray(formData.category) && (formData.category.includes(c.id) || formData.category.includes(c.name))) || (!Array.isArray(formData.category) && String(formData.category) === String(c.id))} onChange={e => {
-                        const checked = e.target.checked
-                        const val = e.target.value
-                        const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
-                        if (checked) {
-                          if (!current.includes(val)) current.push(val)
-                        } else {
-                          const idx = current.indexOf(val)
-                          if (idx !== -1) current.splice(idx, 1)
-                        }
-                        setFormData({ ...formData, category: current })
-                      }} />
-                      <span className="checkbox-box" />
-                      <span className="cat-name">{c.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="form-column form-column-right">
-                <textarea rows={1} className="single-line-textarea" placeholder="Пример (на русском языке)" value={formData.example} onChange={e => setFormData({ ...formData, example: e.target.value })} />
-                <textarea rows={1} className="single-line-textarea runic-input" placeholder="Пример (на рунном языке)" value={formData.example2} onChange={e => setFormData({ ...formData, example2: e.target.value })} />
-                <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция примера" value={formData.transcription2} onChange={e => setFormData({ ...formData, transcription2: e.target.value })} />
-                <div className="audio-upload-row">
-                  <input type="text" placeholder="Аудио файл (..._runy.mp3)" value={formData.audio} onChange={e => setFormData({ ...formData, audio: e.target.value })} />
-                  <label className="audio-upload-btn" title="Загрузить MP3">
-                    📎
-                    <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
-                  </label>
-                  {formData.audio && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio')} disabled={audioUploading === 'audio'}>🗑️</button>}
-                  {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
-                </div>
-                <div className="audio-upload-row">
-                  <input type="text" placeholder="Аудио2 файл (..._r_prim.mp3)" value={formData.audio2} onChange={e => setFormData({ ...formData, audio2: e.target.value })} />
-                  <label className="audio-upload-btn" title="Загрузить MP3">
-                    📎
-                    <input type="file" accept=".mp3" hidden onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
-                  </label>
-                  {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
-                  {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
-                </div>
-                <div className="form-row align-control">
-                  <span className="align-label">Выравнивание текста в карточке:</span>
-                  <div className="align-buttons">
-                    <button
-                      type="button"
-                      className={`align-btn ${formData.textAlign === 'left' ? 'active' : ''}`}
-                      onClick={() => setFormData({ ...formData, textAlign: 'left' })}
-                      title="По левому краю"
-                    >←</button>
-                    <button
-                      type="button"
-                      className={`align-btn ${formData.textAlign === 'center' ? 'active' : ''}`}
-                      onClick={() => setFormData({ ...formData, textAlign: 'center' })}
-                      title="По центру"
-                    >↔</button>
-                    <button
-                      type="button"
-                      className={`align-btn ${formData.textAlign === 'right' ? 'active' : ''}`}
-                      onClick={() => setFormData({ ...formData, textAlign: 'right' })}
-                      title="По правому краю"
-                    >→</button>
-                  </div>
-                </div>
-              </div>
-              <div className="form-buttons">
-                <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-                {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' }) }}>Отмена</button>}
-                <button
-                  type="button"
-                  className="refresh-logs-btn dictionary-refresh-btn"
-                  onClick={loadWords}
-                  disabled={loading}
-                  style={{ fontSize: '13px', padding: '4px 10px' }}
-                >
-                  {loading ? '⏳' : '🔄 Обновить'}
-                </button>
-              </div>
-              {error && <div className="error">{error}</div>}
-            </form>
-          </div>
+          <DictionaryTab
+            words={words}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            formData={formData}
+            setFormData={setFormData}
+            categories={categories}
+            editingId={editingId}
+            setEditingId={setEditingId}
+            loading={loading}
+            error={error}
+            audioUploading={audioUploading}
+            handleSubmit={handleSubmit}
+            handleAudioUpload={handleAudioUpload}
+            handleAudioDelete={handleAudioDelete}
+            loadWords={loadWords}
+          />
         )}
 
         {activeTab === 'categories' && (
-          <div className="categories-section">
-            <h3>🗂️ Категории ({categories.length})</h3>
-            <div className="category-form">
-              <input type="text" placeholder="Название категории" value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} />
-              <input type="text" placeholder="Описание (необязательно)" value={categoryForm.description} onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })} />
-              <div className="form-buttons">
-                <button className="save-btn" onClick={handleCategorySubmit}>{catEditingId ? 'Обновить' : 'Добавить'}</button>
-                {catEditingId && <button className="cancel-btn" onClick={() => { setCatEditingId(null); setCategoryForm({ name: '', description: '' }) }}>Отмена</button>}
-              </div>
-            </div>
-
-            <div className="categories-list">
-              {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map((cat, idx) => (
-                <div key={cat.id} className="category-item">
-                  <div className="category-order">
-                    <button onClick={() => handleMoveCategoryToTop(cat.id)} className="move-btn" disabled={idx === 0} title="В начало">⏫</button>
-                    <button onClick={() => handleMoveCategoryUp(cat.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
-                    <button onClick={() => handleMoveCategoryDown(cat.id)} className="move-btn" disabled={idx === categories.length - 1} title="Переместить вниз">⬇️</button>
-                  </div>
-                  <div className="category-info">
-                    <strong>{cat.name}</strong>
-                    {cat.description && <div className="category-desc">{cat.description}</div>}
-                  </div>
-                  <div className="category-actions">
-                    <button onClick={() => handleEditCategory(cat)} className="edit-btn">✏️</button>
-                    <button onClick={() => handleDeleteCategory(cat.id)} className="delete-btn">🗑️</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CategoriesTab
+            categories={categories}
+            categoryForm={categoryForm}
+            setCategoryForm={setCategoryForm}
+            catEditingId={catEditingId}
+            setCatEditingId={setCatEditingId}
+            handleCategorySubmit={handleCategorySubmit}
+            handleEditCategory={handleEditCategory}
+            handleDeleteCategory={handleDeleteCategory}
+            handleMoveCategoryUp={handleMoveCategoryUp}
+            handleMoveCategoryDown={handleMoveCategoryDown}
+            handleMoveCategoryToTop={handleMoveCategoryToTop}
+          />
         )}
 
         {activeTab === 'users' && (
-          <div className="users-section">
-            <h3>👥 Пользователи ({filteredUsers.length})</h3>
-            <div className="users-toolbar">
-              <div className="search-container">
-                <div className="search-wrapper">
-                  <input
-                    type="text"
-                    placeholder="🔍 Поиск пользователя..."
-                    value={userSearchTerm}
-                    onChange={(e) => setUserSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                  {userSearchTerm && (
-                    <button className="search-clear-btn" onClick={() => setUserSearchTerm('')} title="Очистить поиск">❌</button>
-                  )}
-                </div>
-              </div>
-              <div className="user-payment-filters">
-                <button type="button" className={`filter-chip ${userPaymentFilter === 'all' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('all')}>Все</button>
-                <button type="button" className={`filter-chip ${userPaymentFilter === 'paid' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('paid')}>Оплачено</button>
-                <button type="button" className={`filter-chip ${userPaymentFilter === 'unpaid' ? 'active' : ''}`} onClick={() => setUserPaymentFilter('unpaid')}>Не оплачено</button>
-              </div>
-              <div className="user-role-filters">
-                <button type="button" className={`filter-chip ${userRoleFilter === 'all' ? 'active' : ''}`} onClick={() => setUserRoleFilter('all')}>Все</button>
-                <button type="button" className={`filter-chip ${userRoleFilter === 'admin' ? 'active' : ''}`} onClick={() => setUserRoleFilter('admin')}>Админ</button>
-                <button type="button" className={`filter-chip ${userRoleFilter === 'user' ? 'active' : ''}`} onClick={() => setUserRoleFilter('user')}>Пользователь</button>
-              </div>
-            </div>
-            <div className="users-grid">
-              {filteredUsers.length > 0 ? filteredUsers.map(u => (
-                <div key={u.id} className={`user-card ${u.isBlocked ? 'blocked' : ''}`}>
-                  <div className="user-info">
-                    <p className="user-email">{u.email}</p>
-                    <p className="user-meta">Роль: {u.role === 'admin' ? 'Админ' : 'Пользователь'}</p>
-                    <p className="user-meta">Оплата: {u.paid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.paid ? u.paidAt : u.unpaidAt)}</p>
-                    <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
-                    {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
-                  </div>
-                  {userEditingId === u.id ? (
-                    <form className="user-edit-form" onSubmit={handleSaveUser}>
-                      <input
-                        type="email"
-                        value={userFormData.email}
-                        onChange={e => setUserFormData({ ...userFormData, email: e.target.value })}
-                        required
-                      />
-                      <select
-                        value={userFormData.role}
-                        onChange={e => setUserFormData({ ...userFormData, role: e.target.value })}
-                      >
-                        <option value="admin">Админ</option>
-                        <option value="user">Пользователь</option>
-                      </select>
-                      <select
-                        value={userFormData.paid ? 'paid' : 'unpaid'}
-                        onChange={e => setUserFormData({ ...userFormData, paid: e.target.value === 'paid' })}
-                      >
-                        <option value="paid">Оплачено</option>
-                        <option value="unpaid">Не оплачено</option>
-                      </select>
-                      <div className="user-edit-actions">
-                        <button type="submit" className="save-user-btn" disabled={userSaving}>{userSaving ? 'Сохранение...' : 'Сохранить'}</button>
-                        <button type="button" className="cancel-user-btn" onClick={handleCancelEditUser} disabled={userSaving}>Отмена</button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="user-actions">
-                      <button onClick={() => handleEditUser(u)} className="edit-user-btn">Редактировать</button>
-                      {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
-                      <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
-                    </div>
-                  )}
-                </div>
-              )) : <div className="no-results">{userSearchTerm ? 'Пользователь не найден' : 'Пользователи не найдены'}</div>}
-            </div>
-          </div>
+          <UsersTab
+            filteredUsers={filteredUsers}
+            userSearchTerm={userSearchTerm}
+            setUserSearchTerm={setUserSearchTerm}
+            userPaymentFilter={userPaymentFilter}
+            setUserPaymentFilter={setUserPaymentFilter}
+            userRoleFilter={userRoleFilter}
+            setUserRoleFilter={setUserRoleFilter}
+            userEditingId={userEditingId}
+            userFormData={userFormData}
+            setUserFormData={setUserFormData}
+            userSaving={userSaving}
+            handleSaveUser={handleSaveUser}
+            handleEditUser={handleEditUser}
+            handleCancelEditUser={handleCancelEditUser}
+            handleBlockUser={handleBlockUser}
+            handleUnblockUser={handleUnblockUser}
+            handleDeleteUser={handleDeleteUser}
+            formatDate={formatDate}
+          />
         )}
 
         {activeTab === 'logs' && (
-          <div className="logs-section">
-            <div className="logs-header">
-              <h3>📊 Логи действий ({logs.length})</h3>
-              <div className="logs-actions">
-                <button onClick={loadLogs} className="refresh-logs-btn">Обновить логи</button>
-                <button onClick={handleClearLogs} className="clear-logs-btn">🗑️ Очистить логи</button>
-              </div>
-            </div>
-            <div className="logs-list">
-              {logs.map(log => (
-                <div key={log.id} className="log-item">
-                  <span className="log-time">{formatDate(log.timestamp)}</span>
-                  <span className="log-action">{log.action}</span>
-                  <span className="log-user">{log.userEmail || 'system'}</span>
-                  <span className="log-details">{log.details}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <LogsTab
+            logs={logs}
+            loadLogs={loadLogs}
+            handleClearLogs={handleClearLogs}
+            formatDate={formatDate}
+          />
         )}
 
         {activeTab === 'security' && (
-          <div className="logs-section">
-            <div className="logs-header">
-              <h3>🔐 Шифрование данных</h3>
-            </div>
-            <div style={{ padding: '10px 12px' }}>
-              {/* Инструменты */}
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
-                <button
-                  onClick={handleMigrateEncryption}
-                  disabled={migrationLoading}
-                  className="clear-logs-btn"
-                  style={{ fontSize: '13px', padding: '4px 12px' }}
-                >
-                  {migrationLoading ? '⏳ Шифрование...' : '🔐 Зашифровать все файлы'}
-                </button>
-                <button
-                  onClick={loadFilesStatus}
-                  disabled={filesStatusLoading}
-                  className="refresh-logs-btn"
-                  style={{ fontSize: '13px', padding: '4px 12px' }}
-                >
-                  {filesStatusLoading ? '⏳ Проверка...' : '🔄 Проверить статус файлов'}
-                </button>
-              </div>
-
-              {/* Выбор файлов */}
-              {filesStatus.length > 0 && (
-                <div>
-                  <div style={{ marginBottom: '6px', display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={selectAllEncrypted}
-                      className="refresh-logs-btn"
-                      style={{ fontSize: '12px', padding: '2px 8px' }}
-                    >
-                      Зашифр.+сломан.
-                    </button>
-                    <button
-                      onClick={selectAllPlain}
-                      className="refresh-logs-btn"
-                      style={{ fontSize: '12px', padding: '2px 8px' }}
-                    >
-                      Открытые
-                    </button>
-                    {selectedFiles.size > 0 && (
-                      <>
-                        <button
-                          onClick={handleDecryptSelected}
-                          disabled={decryptLoading}
-                          className="clear-logs-btn"
-                          style={{ fontSize: '12px', padding: '2px 8px' }}
-                        >
-                          {decryptLoading ? '⏳ Расшифровка...' : `🔓 Расшифровать (${selectedFiles.size})`}
-                        </button>
-                        <button
-                          onClick={handleEncryptSelected}
-                          disabled={encryptLoading}
-                          className="clear-logs-btn"
-                          style={{ fontSize: '12px', padding: '2px 8px', background: '#2d6a4f', borderColor: '#2d6a4f' }}
-                        >
-                          {encryptLoading ? '⏳ Шифрование...' : `🔐 Зашифровать (${selectedFiles.size})`}
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #555' }}>
-                        <th style={{ padding: '2px 6px', width: '30px' }}>
-                          <input
-                            type="checkbox"
-                            checked={selectedFiles.size === filesStatus.filter(f => f.encrypted || f.broken).length && filesStatus.filter(f => f.encrypted || f.broken).length > 0}
-                            onChange={() => {
-                              const needAction = filesStatus.filter(f => f.encrypted || f.broken)
-                              if (selectedFiles.size === needAction.length) setSelectedFiles(new Set())
-                              else setSelectedFiles(new Set(needAction.map(f => f.file)))
-                            }}
-                          />
-                        </th>
-                        <th style={{ padding: '2px 6px', textAlign: 'left' }}>Файл</th>
-                        <th style={{ padding: '2px 6px', textAlign: 'left' }}>Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filesStatus.map((f, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #333', opacity: f.status === 'not_found' ? 0.4 : 1 }}>
-                          <td style={{ padding: '2px 6px' }}>
-                            {f.encrypted !== null && (
-                              <input
-                                type="checkbox"
-                                checked={selectedFiles.has(f.file)}
-                                onChange={() => toggleFileSelection(f.file)}
-                              />
-                            )}
-                          </td>
-                          <td style={{ padding: '2px 6px' }}>{f.file}</td>
-                          <td style={{ padding: '2px 6px' }}>
-                            {f.encrypted === true && '🔒 Зашифрован'}
-                            {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан'}
-                            {f.encrypted === false && f.status === 'plain' && '📄 Открытый'}
-                            {f.status === 'not_found' && '⏭️ Не найден'}
-                            {f.status === 'error' && '❌ Ошибка'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Результаты операций */}
-              {[
-                { label: 'Результат «Зашифровать все»:', data: migrationResult },
-                { label: 'Результат расшифровки:', data: decryptResult },
-                { label: 'Результат шифрования:', data: encryptResult },
-              ].filter(g => g.data && g.data.length > 0).map(group => (
-                <div key={group.label} style={{ marginTop: '8px' }}>
-                  <h4 style={{ color: '#fff', margin: '0 0 4px', fontSize: '13px' }}>{group.label}</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
-                    <tbody>
-                      {group.data.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                          <td style={{ padding: '2px 6px' }}>{r.file}</td>
-                          <td style={{ padding: '2px 6px' }}>
-                            {r.status === 'encrypted' && '🔐 Зашифрован'}
-                            {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
-                            {r.status === 'decrypted' && '🔓 Расшифрован'}
-                            {r.status === 'repaired' && '🔧 Восстановлен'}
-                            {r.status === 'not_encrypted' && '📄 Уже открытый'}
-                            {r.status === 'not_found' && '⏭️ Не найден'}
-                            {r.status === 'error' && `❌ ${r.error}`}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SecurityTab
+            filesStatus={filesStatus}
+            filesStatusLoading={filesStatusLoading}
+            migrationLoading={migrationLoading}
+            decryptLoading={decryptLoading}
+            encryptLoading={encryptLoading}
+            selectedFiles={selectedFiles}
+            migrationResult={migrationResult}
+            decryptResult={decryptResult}
+            encryptResult={encryptResult}
+            handleMigrateEncryption={handleMigrateEncryption}
+            loadFilesStatus={loadFilesStatus}
+            selectAllEncrypted={selectAllEncrypted}
+            selectAllPlain={selectAllPlain}
+            handleDecryptSelected={handleDecryptSelected}
+            handleEncryptSelected={handleEncryptSelected}
+            toggleFileSelection={toggleFileSelection}
+            setSelectedFiles={setSelectedFiles}
+          />
         )}
       </div>
 
