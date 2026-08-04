@@ -1408,32 +1408,46 @@ color: #5a0000;
 .state-retry-btn:hover,
 .state-reset-btn:hover { background: var(--rune-hover); transform: translateY(-2px); }
 
-/* 🏷️ Статистика по категориям */
+/* 🏷️ Статистика по категориям — компактная строка с горизонтальным скроллом */
 .category-stats {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 8px;
-  justify-content: center;
+  gap: 6px;
+  justify-content: flex-start;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 8px 14px;
+  padding: 0 8px 10px;
   box-sizing: border-box;
+  /* Не даём flex-колонке .container сжать строку (scroll-контейнер имеет
+     авто-минимум 0 → иначе схлопывается до 10px). */
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  -webkit-overflow-scrolling: touch;
 }
+.category-stats::-webkit-scrollbar { height: 6px; }
+.category-stats::-webkit-scrollbar-track { background: transparent; }
+.category-stats::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
 .category-stats-title {
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   opacity: 0.9;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .category-stat-chip {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.35);
   color: #fff;
-  font-size: 12px;
-  padding: 4px 10px;
+  font-size: 11px;
+  padding: 3px 9px;
   border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .category-stat-chip b { color: var(--rune); margin-left: 2px; }
 
