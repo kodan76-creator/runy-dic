@@ -1,1 +1,44 @@
-ENC:v1:/hrls3dl6CUx34TA+wOP577+kMe3KJUhK43Icuu7m8/Q//mOi7WXNmYTP/XsTiDH5d+B2fXG5e/g7gLVTkFkML9bJgGVdZPaClvVkvtPcHNxlKNLNJEer8y2ApcnWh0QaCphUR4LEn8ntLvK1QH1FF/CKgF5ETyv7tYuAu9mUOcSC9fCkaQrR+ury/eL/ZWU5IjCof/xFVGzprH66ypo8bzfCFL56RXBlXF4DFdY9G7dXd4erZ6SwnKkKj8yxizFgJSjR95KThuI1L+avGy/h16czVLdBeJEjez//C7PtF1drhr5TAExPHD2+9vYYf6uwh2ZaaFXMQ34oW3bfzjig8kAwx6LWq4dHK24xg70q4lli9xGTYVXOSB/62TnYAFmU8drkii9xjW2aC2La3lBMDjV6oeVpSBqEob9gdyZp86tZkYlCkHYBpuseSEh3XZ4SY+5Iju0T3ZSUd+scZGSQNx9XDakGMEtz36fJ4Fhti8AIHi/Bu2AdhMCpZA32nS4p+nU4tZ9Q8PG96kG5KWH8+H4VhFYSeVa/d4nae8/md5LX3IbGXVjy8A4Ydewb2VmxfGs14ZxH+zGixv4FjdPxYVU9CGmccKVvDdMrcmHi00ls7RU2EOI3mthYyzs0FkQ7R9Y+X0H/DB7SsN0aGBY4CsUCXXcLAuezAFQB1ZZWGi1oBMjjzoJOI4rtbAclaMLi5+x8nnCuaXsI+ywfIFe4RX5Y3RBOALyBy7faCHL//RuAjXVczXo/rm7V5oOTHbdFBQ4aLPbJo7Ouu7mrkavZ8eF1hoNhEDOLJgoDM8gxLbo5hTTOQ2XQNENZdornBzcu9hfDQ5bGzloEdb+j6lgzZ3FuK+FCpzgZjxhsbyEfmn/9cgryUK2NNUUPWJBqaNBUXSDzi9GWAYOmZ7l891V3o1NZW695Eq1KTjT+qirmqBdIhGzUYc/Yn5E6B3pT6rHttSMxENWO6EKYW9O+awUIw5+F049VO9TjBLa+xx7qI7var05Is8BgLOskdZgVCYCuw4ilc3V6yh374Qqf+e1UweqKDq9ZxAlcmQ3vG6HjBRlJM+qFdisHgHTax7N5UrHObEQcEDGQMQqLJncBN1zUYWHHU6BQXq2T8GzelM54n8rkE+Ux/T5BCCgH+xIGTkHgsE8ryarCLA05/2yq6is+v3qZvuIQyMo8K48N63n6rZxApx5bdrhWSl+juywbbO6VpkTqFYpqsr28B0PAsXNJKPSqYk=
+[
+  {
+    "word": "1",
+    "transcription": "1",
+    "translation": "1",
+    "category": [],
+    "example": "1",
+    "example2": "1",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820586586",
+    "createdAt": "2026-07-23T15:29:46.586Z",
+    "createdBy": "test@ya.ru"
+  },
+  {
+    "word": "2",
+    "transcription": "2",
+    "translation": "2",
+    "category": [],
+    "example": "2",
+    "example2": "2",
+    "transcription2": "2",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820736122",
+    "createdAt": "2026-07-23T15:32:16.122Z",
+    "createdBy": "test@ya.ru"
+  },
+  {
+    "word": "3",
+    "transcription": "3",
+    "translation": "3",
+    "category": [],
+    "example": "3",
+    "example2": "3",
+    "transcription2": "3",
+    "audio": "",
+    "audio2": "",
+    "id": "1784820777633",
+    "createdAt": "2026-07-23T15:32:57.633Z",
+    "createdBy": "test@ya.ru"
+  }
+]
