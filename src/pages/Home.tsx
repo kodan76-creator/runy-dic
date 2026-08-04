@@ -508,9 +508,16 @@ export default function Home({ user, onLogout }) {
         <div className="category-stats" aria-label="Статистика по категориям">
           <span className="category-stats-title">Категории:</span>
           {categoryCounts.map(({ id, name, count }) => (
-            <span key={id} className="category-stat-chip">
+            <button
+              key={id}
+              type="button"
+              className={`category-stat-chip ${selectedFilters.includes(id) ? 'active' : ''}`}
+              aria-pressed={selectedFilters.includes(id)}
+              title={selectedFilters.includes(id) ? 'Снять фильтр по категории' : 'Показать только эту категорию'}
+              onClick={() => toggleFilter(id)}
+            >
               {name} <b>{count}</b>
-            </span>
+            </button>
           ))}
         </div>
       )}

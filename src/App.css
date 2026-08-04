@@ -1453,8 +1453,20 @@ color: #5a0000;
   border-radius: 999px;
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
+.category-stat-chip:hover { background: rgba(0, 0, 0, 0.4); border-color: rgba(255, 255, 255, 0.55); }
+.category-stat-chip:active { transform: scale(0.96); }
+.category-stat-chip.active {
+  background: var(--rune);
+  border-color: var(--rune);
+  color: #3a1060;
+}
+.category-stat-chip.active:hover { background: var(--rune-hover); border-color: var(--rune-hover); }
 .category-stat-chip b { color: var(--rune); margin-left: 2px; }
+.category-stat-chip.active b { color: #3a1060; }
 
 /* 🔆 Подсветка совпадений поиска */
 .search-hit {
