@@ -99,15 +99,24 @@ export const humanizeImportError = (error: unknown): string => {
   return `❌ ${msg || 'Неизвестная ошибка при импорте'}`
 }
 
-// Нормализует id импортируемых слов: если id пустой или не равен (baseId+1),
-// назначает baseId+1. Это НЕ ошибка — просто исправляем и продолжаем.
-// baseId = максимальный существующий id (0 для replace — чистый старт).
+// Нормализует id импортируемых слов:
+//  - пустой/отсутствующий id → автоподстановка: текущая дата+время в unix (мс),
+//    как делает addWord (Date.now()). Уникален в партии.
+//  - есть id, но он не равен (baseId+1) → назначаем baseId+1 (last+1).
+// Это НЕ ошибка — просто исправляем и продолжаем.
 export const normalizeImportIds = (words: any[], baseId: number = 0): any[] => {
   let next = baseId
+  const now = Date.now()
+  let tsOffset = 0
   return (Array.isArray(words) ? words : []).map(w => {
-    next += 1
     const cur = w && w.id != null && String(w.id) !== '' ? String(w.id) : ''
-    if (cur === '' || cur !== String(next)) {
+    if (cur === '') {
+      const ts = String(now + tsOffset)
+      tsOffset += 1
+      return { ...w, id: ts }
+    }
+    next += 1
+    if (cur !== String(next)) {
       return { ...w, id: String(next) }
     }
     return { ...w, id: cur }

@@ -26,6 +26,20 @@ export default function DictionaryTab({
   const [importError, setImportError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Мягкий парсинг: некоторые файлы имеют пустые значения ("id": ,),
+  // которые JSON.parse не разбирает. Исправляем и пробуем снова.
+  const lenientJsonParse = (text) => {
+    try {
+      return JSON.parse(text)
+    } catch {
+      const fixed = text
+        .replace(/,\s*([\]}])/g, '$1')   // убираем trailing commas
+        .replace(/:\s*,/g, ': null,')   // "key": , → "key": null,
+        .replace(/:\s*([\]}])/g, ': null$1') // "key": ] → "key": null]
+      return JSON.parse(fixed)
+    }
+  }
+
   // Прочитать выбранный JSON-файл и показать предпросмотр перед импортом
   const handleImportFile = (e) => {
     const file = e.target.files?.[0]
@@ -33,7 +47,7 @@ export default function DictionaryTab({
     const reader = new FileReader()
     reader.onload = () => {
       try {
-        const parsed = JSON.parse(String(reader.result))
+        const parsed = lenientJsonParse(String(reader.result))
         if (!Array.isArray(parsed)) {
           setImportError('Файл должен содержать массив слов (JSON-массив). Убедитесь, что экспортировали словарь через кнопку «⬇️ Экспорт».')
           setImportPreview(null)
