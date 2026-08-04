@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
@@ -364,6 +364,30 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     setLoading(false)
   }
+
+  // Импорт словаря: replace — заменить всё, merge — добавить к существующим
+  const handleImport = useCallback(async (imported, mode) => {
+    setLoading(true)
+    try {
+      let finalArr
+      if (mode === 'replace') {
+        finalArr = imported
+      } else {
+        const map = new Map()
+        const keyOf = (w) => w?.id ? `id:${w.id}` : `w:${String(w?.word || '')}_t:${String(w?.translation || '')}`
+        ;(Array.isArray(words) ? words : []).forEach(w => map.set(keyOf(w), w))
+        ;(Array.isArray(imported) ? imported : []).forEach(w => map.set(keyOf(w), w))
+        finalArr = Array.from(map.values())
+      }
+      await importDictionary(finalArr, activeUser)
+      showMessage(`✅ Импортировано слов: ${finalArr.length}`)
+      await loadWords()
+    } catch (err) {
+      setError('Ошибка импорта: ' + err.message)
+      showMessage('❌ ' + err.message, 'error')
+    }
+    setLoading(false)
+  }, [words, activeUser, loadWords, showMessage, setError])
 
   const handleAudioUpload = async (e, field) => {
     const file = e.target.files?.[0]
@@ -777,6 +801,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleAudioUpload={handleAudioUpload}
             handleAudioDelete={handleAudioDelete}
             loadWords={loadWords}
+            onImport={handleImport}
           />
         )}
 

@@ -45,6 +45,37 @@ export const updateDictionary = async (newData, currentSha, user) => {
   return updateGitHubFile(fileName, newData, currentSha)
 }
 
+// Импорт словаря из файла: заменяет содержимое целевого файла (общий словарь
+// для админа, личный файл — для обычного пользователя). С повторами при
+// временных сбоях, как у addWord.
+export const importDictionary = async (newData, user = null) => {
+  const fileName = getWriteFileName(user)
+  const arr = Array.isArray(newData) ? newData : []
+  const maxRetries = 4
+  let lastError = null
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const { sha, exists, ok } = await fetchGitHubFile(fileName)
+      if (exists === true && !ok) {
+        throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
+      }
+      await updateGitHubFile(fileName, arr, sha)
+      return arr
+    } catch (error) {
+      lastError = error
+      const retryable = isRetryableGitHubError(error) ||
+        /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
+      if (retryable && attempt < maxRetries - 1) {
+        console.warn(`importDictionary: ${error.message || error}, повторная попытка ${attempt + 1}/${maxRetries}`)
+        await new Promise(res => setTimeout(res, 400 + attempt * 300))
+        continue
+      }
+      throw error
+    }
+  }
+  throw lastError
+}
+
 const getWriteFileName = (userOrEmail) => {
   // Determine file to write to. Users always write to their personal file; admins write to shared DATA_FILE.
   if (!userOrEmail) return 'user.json'

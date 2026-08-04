@@ -1,5 +1,7 @@
 // src/components/admin/DictionaryTab.jsx
 // Вкладка «Словарь»: панель поиска и форма добавления/редактирования карточки.
+import { useRef, useState } from 'react'
+
 export default function DictionaryTab({
   words,
   searchTerm,
@@ -16,7 +18,54 @@ export default function DictionaryTab({
   handleAudioUpload,
   handleAudioDelete,
   loadWords,
+  onImport,
 }) {
+  const [importPreview, setImportPreview] = useState<{ name: string; count: number; data: any[] } | null>(null)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Прочитать выбранный JSON-файл и показать предпросмотр перед импортом
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result))
+        if (!Array.isArray(parsed)) {
+          setImportError('Файл должен содержать массив слов (JSON).')
+          setImportPreview(null)
+        } else if (parsed.length === 0) {
+          setImportError('В файле нет ни одного слова.')
+          setImportPreview(null)
+        } else {
+          setImportError('')
+          setImportPreview({ name: file.name, count: parsed.length, data: parsed })
+        }
+      } catch {
+        setImportError('Не удалось прочитать JSON — файл повреждён.')
+        setImportPreview(null)
+      }
+    }
+    reader.readAsText(file, 'utf-8')
+    e.target.value = ''
+  }
+
+  const runImport = async (mode) => {
+    if (!importPreview) return
+    if (mode === 'replace' && !window.confirm(`Заменить текущий словарь (${words.length} слов) на ${importPreview.count} слов из файла «${importPreview.name}»? Это действие нельзя отменить.`)) return
+    setImporting(true)
+    setImportError('')
+    try {
+      await onImport(importPreview.data, mode)
+      setImportPreview(null)
+    } catch (err) {
+      setImportError(err.message || 'Ошибка импорта')
+    }
+    setImporting(false)
+  }
+
   // Скачать весь словарь в JSON
   const handleExport = () => {
     if (!words || words.length === 0) return
@@ -44,6 +93,23 @@ export default function DictionaryTab({
         >
           ⬇️ Экспорт
         </button>
+        <button
+          type="button"
+          className="export-btn"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={importing}
+          title="Импортировать словарь из JSON-файла"
+        >
+          📥 Импорт
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          hidden
+          aria-label="Выбрать JSON-файл словаря"
+          onChange={handleImportFile}
+        />
         <div className="search-container">
           <div className="search-wrapper">
             <input
@@ -60,6 +126,18 @@ export default function DictionaryTab({
           </div>
         </div>
       </div>
+      {importPreview && (
+        <div className="import-box">
+          <div className="import-info">📄 Файл «{importPreview.name}» — {importPreview.count} слов.</div>
+          <div className="import-actions">
+            <button type="button" className="save-btn" onClick={() => runImport('replace')} disabled={importing}>Заменить словарь</button>
+            <button type="button" className="cancel-btn" onClick={() => runImport('merge')} disabled={importing}>Добавить к существующим</button>
+            <button type="button" className="cancel-btn" onClick={() => setImportPreview(null)} disabled={importing}>Отмена</button>
+          </div>
+          {importing && <div className="import-status">⏳ Импорт...</div>}
+        </div>
+      )}
+      {importError && <div className="error">{importError}</div>}
       <form onSubmit={handleSubmit} className="word-form">
         <div className="form-column form-column-left">
           <textarea rows={1} className="single-line-textarea runic-input" placeholder="Слово на рунном языке" value={formData.word} onChange={e => setFormData({ ...formData, word: e.target.value })} required />
