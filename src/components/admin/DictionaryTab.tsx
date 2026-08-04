@@ -1,6 +1,7 @@
 // src/components/admin/DictionaryTab.jsx
 // Вкладка «Словарь»: панель поиска и форма добавления/редактирования карточки.
 import { useRef, useState } from 'react'
+import { humanizeImportError } from '../../api/dictionary'
 
 export default function DictionaryTab({
   words,
@@ -34,17 +35,17 @@ export default function DictionaryTab({
       try {
         const parsed = JSON.parse(String(reader.result))
         if (!Array.isArray(parsed)) {
-          setImportError('Файл должен содержать массив слов (JSON).')
+          setImportError('Файл должен содержать массив слов (JSON-массив). Убедитесь, что экспортировали словарь через кнопку «⬇️ Экспорт».')
           setImportPreview(null)
         } else if (parsed.length === 0) {
-          setImportError('В файле нет ни одного слова.')
+          setImportError('В файле нет слов. Проверьте содержимое — он должен содержать хотя бы одну запись.')
           setImportPreview(null)
         } else {
           setImportError('')
           setImportPreview({ name: file.name, count: parsed.length, data: parsed })
         }
       } catch {
-        setImportError('Не удалось прочитать JSON — файл повреждён.')
+        setImportError('Файл не является корректным JSON. Проверьте кодировку (UTF-8) и структуру, либо экспортируйте словарь заново через «⬇️ Экспорт».')
         setImportPreview(null)
       }
     }
@@ -61,7 +62,7 @@ export default function DictionaryTab({
       await onImport(importPreview.data, mode)
       setImportPreview(null)
     } catch (err) {
-      setImportError(err.message || 'Ошибка импорта')
+      setImportError(humanizeImportError(err))
     }
     setImporting(false)
   }

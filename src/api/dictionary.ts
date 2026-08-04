@@ -76,6 +76,29 @@ export const importDictionary = async (newData, user = null) => {
   throw lastError
 }
 
+// Переводит техническую ошибку импорта в понятное пользователю сообщение
+// с рекомендацией по исправлению.
+export const humanizeImportError = (error: unknown): string => {
+  const msg = error instanceof Error ? error.message : String(error)
+  const m = msg.toLowerCase()
+  if (m.includes('409') || m.includes('conflict') || m.includes('sha was supposed') || m.includes('sha wasn')) {
+    return '⚠️ Конфликт записи: кто-то другой одновременно изменил словарь. Обновите страницу (🔄) и повторите импорт.'
+  }
+  if (m.includes('401') || m.includes('403') || m.includes('bad credentials') || m.includes('token') || m.includes('forbidden')) {
+    return '❌ Нет доступа к GitHub. Проверьте токен доступа (VITE_GITHUB_TOKEN) и права на редактирование репозитория.'
+  }
+  if (m.includes('422')) {
+    return '❌ Ошибка записи на GitHub (422). Обновите страницу (🔄) и повторите импорт.'
+  }
+  if (m.includes('network') || m.includes('failed to fetch') || m.includes('networkerror') || m.includes('timeout')) {
+    return '❌ Нет соединения с GitHub. Проверьте интернет-соединение и повторите импорт.'
+  }
+  if (m.includes('не удалось прочитать') || m.includes('read')) {
+    return '⚠️ Не удалось прочитать текущий словарь на сервере. Обновите страницу (🔄) и повторите импорт.'
+  }
+  return `❌ ${msg || 'Неизвестная ошибка при импорте'}`
+}
+
 const getWriteFileName = (userOrEmail) => {
   // Determine file to write to. Users always write to their personal file; admins write to shared DATA_FILE.
   if (!userOrEmail) return 'user.json'
