@@ -18,9 +18,10 @@ html, body { height: 100%; background-color: var(--app-accent); }
 
 .admin-panel { height: var(--admin-viewport-height); background-color: var(--app-bg); padding: 20px; padding-top: var(--admin-top-offset); overflow: hidden; box-sizing: border-box; }
 .admin-fixed-container { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 0; z-index: 1000; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-.admin-header { display: flex; justify-content: space-between; align-items: center; background: var(--app-accent); padding: 15px 20px; border-radius: 12px 12px 0 0; box-shadow: 0 4px 20px var(--shadow-md); border-bottom: 3px solid var(--app-bg); }
+.admin-header { display: flex; justify-content: space-between; align-items: center; background: var(--app-accent); padding: 15px 20px; border-radius: 12px 12px 0 0; box-shadow: 0 4px 20px var(--shadow-md); border-bottom: 3px solid var(--app-bg); position: relative; }
 .admin-header h2 { margin: 0; color: white; }
 .admin-info { display: flex; align-items: center; gap: 15px; color: white; }
+.admin-actions { display: flex; align-items: center; gap: 15px; }
 .logout-btn { padding: 8px 16px; background: var(--app-bg); color: white; border: none; border-radius: 6px; cursor: pointer; }
 .logout-btn:hover { background: var(--app-hover); }
 
@@ -412,21 +413,27 @@ html, body { height: 100%; background-color: var(--app-accent); }
   
   .admin-info {
     flex-direction: column;
+    align-items: center;
     gap: 10px;
-  }
-  
-  .logout-btn {
-    padding: 8px 16px;
     font-size: 14px;
   }
-  
+
+  /* Тёмная тема: кнопка темы и «Выйти» в правом верхнем углу */
+  .admin-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
   .admin-tabs {
     flex-wrap: wrap;
     justify-content: center;
     padding: 8px 10px;
     gap: 6px;
   }
-  
+
   .tab-btn {
     flex: 1 1 calc(50% - 6px);
     min-width: 90px;

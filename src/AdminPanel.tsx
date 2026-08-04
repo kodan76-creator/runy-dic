@@ -771,9 +771,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
-            <span>{activeUser?.email || adminUser?.email}</span>
-            <ThemeToggle className="admin" />
-            <button onClick={handleLogout} className="logout-btn">Выйти</button>
+            <span className="admin-email">{activeUser?.email || adminUser?.email}</span>
+            <div className="admin-actions">
+              <ThemeToggle className="admin" />
+              <button onClick={handleLogout} className="logout-btn">Выйти</button>
+            </div>
           </div>
 
           {/* UI hint moved to top: explain visibility based on role/paid */}
