@@ -827,6 +827,8 @@ box-shadow: 0 6px 18px rgba(0,0,0,0.25);
     border-left-color: var(--card-border);
   }
   .word-category { color: #b7a7ff; }
+  .word-transcription,
+  .word-transcription2 { color: #c96fff; }
 
   .log-item { background: var(--field-bg); }
   .log-time { color: var(--surface-muted); }
