@@ -405,6 +405,7 @@ html, body { height: 100%; background-color: var(--app-accent); }
     gap: 8px;
     text-align: center;
     padding: 10px 12px;
+    padding-right: 130px;
   }
   
   .admin-header h2 {
