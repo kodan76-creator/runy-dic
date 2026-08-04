@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
@@ -365,18 +365,27 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setLoading(false)
   }
 
-  // Импорт словаря: replace — заменить всё, merge — добавить к существующим
+  // Импорт словаря: replace — заменить всё, merge — добавить к существующим.
+  // id импортируемых слов нормализуется: пустой или не последний+1 → назначаем
+  // последний+1 (это не ошибка, а авто-исправление).
   const handleImport = useCallback(async (imported, mode) => {
     setLoading(true)
     try {
       let finalArr
       if (mode === 'replace') {
-        finalArr = imported
+        // Чистый старт: id идут 1,2,3... (уже правильные сохраняются)
+        finalArr = normalizeImportIds(imported, 0)
       } else {
+        const existing = Array.isArray(words) ? words : []
+        const baseId = existing.reduce((m, w) => {
+          const n = Number(w.id)
+          return Number.isFinite(n) && n > m ? n : m
+        }, 0)
+        const normalized = normalizeImportIds(imported, baseId)
         const map = new Map()
         const keyOf = (w) => w?.id ? `id:${w.id}` : `w:${String(w?.word || '')}_t:${String(w?.translation || '')}`
-        ;(Array.isArray(words) ? words : []).forEach(w => map.set(keyOf(w), w))
-        ;(Array.isArray(imported) ? imported : []).forEach(w => map.set(keyOf(w), w))
+        existing.forEach(w => map.set(keyOf(w), w))
+        normalized.forEach(w => map.set(keyOf(w), w))
         finalArr = Array.from(map.values())
       }
       await importDictionary(finalArr, activeUser)

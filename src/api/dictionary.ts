@@ -99,6 +99,21 @@ export const humanizeImportError = (error: unknown): string => {
   return `❌ ${msg || 'Неизвестная ошибка при импорте'}`
 }
 
+// Нормализует id импортируемых слов: если id пустой или не равен (baseId+1),
+// назначает baseId+1. Это НЕ ошибка — просто исправляем и продолжаем.
+// baseId = максимальный существующий id (0 для replace — чистый старт).
+export const normalizeImportIds = (words: any[], baseId: number = 0): any[] => {
+  let next = baseId
+  return (Array.isArray(words) ? words : []).map(w => {
+    next += 1
+    const cur = w && w.id != null && String(w.id) !== '' ? String(w.id) : ''
+    if (cur === '' || cur !== String(next)) {
+      return { ...w, id: String(next) }
+    }
+    return { ...w, id: cur }
+  })
+}
+
 const getWriteFileName = (userOrEmail) => {
   // Determine file to write to. Users always write to their personal file; admins write to shared DATA_FILE.
   if (!userOrEmail) return 'user.json'
