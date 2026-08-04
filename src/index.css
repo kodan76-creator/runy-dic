@@ -67,12 +67,12 @@
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
-    --app-bg: #2a1045;
+    --app-bg: #2c1f30;
     --app-accent: #b06bff;
     --app-accent-soft: #3a2450;
     --app-hover: #6d3bb3;
     --app-danger: #ef5350;
-    --surface: #1f2130;
+    --surface: #2c1f30;
     --surface-text: #eceaf3;
     --surface-muted: #9ca3af;
     --surface-border: #6b46a1;
