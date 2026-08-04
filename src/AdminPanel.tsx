@@ -6,6 +6,7 @@ import UsersTab from './components/admin/UsersTab'
 import LogsTab from './components/admin/LogsTab'
 import SecurityTab from './components/admin/SecurityTab'
 import WordItem from './components/admin/WordItem'
+import ThemeToggle from './components/ThemeToggle'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -726,6 +727,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           <h2>⚙️ Управление словарём</h2>
           <div className="admin-info">
             <span>{activeUser?.email || adminUser?.email}</span>
+            <ThemeToggle className="admin" />
             <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
 

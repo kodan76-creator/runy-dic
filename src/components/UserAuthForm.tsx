@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
+import ThemeToggle from './ThemeToggle'
 
 function UserAuthForm({ onLogin }) {
   const navigate = useNavigate()
@@ -46,6 +47,7 @@ function UserAuthForm({ onLogin }) {
 
   return (
     <div className="auth-container">
+      <ThemeToggle className="auth-screen" />
       <div className="auth-box">
         <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="auth-logo" />
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>

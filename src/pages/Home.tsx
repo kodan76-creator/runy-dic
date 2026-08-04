@@ -5,6 +5,7 @@ import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUse
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import WordCard from '../components/WordCard'
 import FilterModal from '../components/FilterModal'
+import ThemeToggle from '../components/ThemeToggle'
 import '../App.css'
 
 export default function Home({ user, onLogout }) {
@@ -486,6 +487,7 @@ export default function Home({ user, onLogout }) {
           <button className="header-admin-btn" type="button" onClick={() => { window.open(`${window.location.origin}${window.location.pathname}#/admin`, '_blank', 'noopener,noreferrer') }}>
             Админка
           </button>
+          <ThemeToggle />
           <button className="logout-btn-user" onClick={handleLogout}>
             👤 {user?.email?.split('@')[0]} <br/> <small>Выйти</small>
           </button>

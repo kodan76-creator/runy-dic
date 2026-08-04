@@ -52,8 +52,9 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+/* 🌙 Тёмная тема: срабатывает при data-theme="dark" на <html>
+   (выбор в настройках/шапке; по умолчанию — системная тема). */
+:root[data-theme="dark"] {
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
@@ -88,9 +89,8 @@
     --shadow-md: rgba(0, 0, 0, 0.5);
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+:root[data-theme="dark"] #social .button-icon {
+  filter: invert(1) brightness(2);
 }
 
 body {
@@ -179,8 +179,29 @@ html, body, #root {
   outline-offset: 2px;
   border-radius: 4px;
 }
-@media (prefers-color-scheme: dark) {
-  :focus-visible {
-    outline-color: #ffd700;
-  }
+:root[data-theme="dark"] :focus-visible {
+  outline-color: #ffd700;
+}
+
+/* 🌗 Кнопка переключения темы (в шапке пользователя и админки) */
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+.theme-toggle:active { transform: scale(0.95); }
+
+/* Переключатель на экране входа — фиксируется в углу */
+.theme-toggle.auth-screen {
+  position: absolute;
+  top: 14px;
+  right: 14px;
 }

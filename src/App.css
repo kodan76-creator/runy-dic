@@ -14,6 +14,7 @@ body {
   justify-content: center;
   background-color: var(--app-bg);
   padding: 20px;
+  position: relative;
 }
 
 .auth-box {
@@ -1273,10 +1274,9 @@ color: #5a0000;
   cursor: pointer;
 }
 
-/* 🌙 Полная тёмная тема (prefers-color-scheme: dark)
-   Перекрываем светлые поверхности переменными палитры, чтобы
-   приложение соответствовало тёмной теме ОС. */
-@media (prefers-color-scheme: dark) {
+/* 🌙 Тёмная тема: data-theme="dark" на <html> (переключатель в шапке;
+   по умолчанию — системная тема). Вложенность CSS. */
+:root[data-theme="dark"] {
   /* вход */
   .auth-box,
   .auth-box input,
