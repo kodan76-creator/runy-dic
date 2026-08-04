@@ -427,6 +427,10 @@ color: #5a0000;
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
+  /* Ряды всегда по контенту: без этого при фикс. высоте контейнера
+     и overflow-y:auto сетка схлопывает ряды до min-height карточки
+     и обрезает содержимое (особенно на мобильных). */
+  grid-auto-rows: max-content;
   align-content: start;
   gap: 20px;
   overflow-y: auto;
