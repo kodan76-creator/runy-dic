@@ -9,8 +9,8 @@ import '../App.css'
 
 export default function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [words, setWords] = useState([])
-  const [categories, setCategories] = useState([])
+  const [words, setWords] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   // Настройки пользователя, сохраняемые в localStorage (по email, как и избранное)
@@ -41,10 +41,10 @@ export default function Home({ user, onLogout }) {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(savedSettings.showOnlyFavorites)
   const [dictionarySourceFilter, setDictionarySourceFilter] = useState(savedSettings.dictionarySourceFilter)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
-  const resultsRef = useRef(null)
+  const resultsRef = useRef<HTMLDivElement | null>(null)
 
   const scrollResultsToTop = () => {
-    const el = resultsRef.current || document.querySelector('.results')
+    const el = resultsRef.current || (document.querySelector('.results') as HTMLElement | null)
     if (el && typeof el.scrollTo === 'function') {
       el.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
@@ -213,7 +213,7 @@ export default function Home({ user, onLogout }) {
       // category filtering
       if (selectedFilters && selectedFilters.length > 0) {
         // normalize word categories to array of ids
-        let wordCats = []
+        let wordCats: any[] = []
         if (Array.isArray(w.category)) wordCats = w.category
         else if (typeof w.category === 'string' && w.category.trim().length > 0) {
           // try to map legacy string to category id
@@ -250,81 +250,13 @@ export default function Home({ user, onLogout }) {
     onLogout()
   }
 
-  const headerRef = useRef(null)
-
+  // Запрещаем прокрутку страницы — скроллится только список результатов.
+  // Высота шапки больше не замеряется JS (никакого ResizeObserver/polling):
+  // раскладка сделана флекс-колонкой на весь экран в App.css.
   useEffect(() => {
-    // prevent body scroll so only center results area scrolls
-    const updateViewportHeight = () => {
-      const viewportHeight = window.visualViewport?.height || window.innerHeight
-      document.documentElement.style.setProperty('--app-viewport-height', `${viewportHeight}px`)
-    }
-
-    const updateHeaderHeight = () => {
-      try {
-        const h = headerRef.current?.offsetHeight || 110
-        document.documentElement.style.setProperty('--app-header-height', `${h}px`)
-      } catch {
-        document.documentElement.style.setProperty('--app-header-height', `110px`)
-      }
-    }
-
-    updateViewportHeight()
-    updateHeaderHeight()
     document.body.classList.add('app-no-scroll')
-    window.addEventListener('resize', updateViewportHeight)
-    window.addEventListener('resize', updateHeaderHeight)
-    window.visualViewport?.addEventListener('resize', updateViewportHeight)
-    window.visualViewport?.addEventListener('scroll', updateViewportHeight)
-
-    // observe size changes to header to update height when content or layout changes
-    let observer = null
-    try {
-      if (headerRef.current) {
-        if (window.ResizeObserver) {
-          observer = new ResizeObserver(() => updateHeaderHeight())
-          observer.observe(headerRef.current)
-        } else if (window.MutationObserver) {
-          observer = new MutationObserver(() => updateHeaderHeight())
-          observer.observe(headerRef.current, { childList: true, subtree: true, attributes: true })
-        }
-      }
-    } catch { /* ignore */ }
-
-    // also respond to orientation changes and force a couple updates to catch late layout shifts
-    const onOrientation = () => { updateHeaderHeight(); setTimeout(updateHeaderHeight, 200); setTimeout(updateHeaderHeight, 600) }
-    window.addEventListener('orientationchange', onOrientation)
-
-    // small deferred updates to handle font loading / dynamic wrapping
-    const deferred1 = setTimeout(updateHeaderHeight, 100)
-    const deferred2 = setTimeout(updateHeaderHeight, 500)
-
-    // short polling for cases where browser switches rendering mode (e.g., 'request desktop site')
-    const poll = setInterval(updateHeaderHeight, 200)
-    const stopPoll = setTimeout(() => clearInterval(poll), 2000)
-
-    // when page becomes visible again, recalc (covers tab switching or browser UI changes)
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        updateHeaderHeight()
-        setTimeout(updateHeaderHeight, 120)
-      }
-    }
-    document.addEventListener('visibilitychange', onVisibility)
-
     return () => {
       document.body.classList.remove('app-no-scroll')
-      document.documentElement.style.removeProperty('--app-viewport-height')
-      window.removeEventListener('resize', updateViewportHeight)
-      window.removeEventListener('resize', updateHeaderHeight)
-      window.removeEventListener('orientationchange', onOrientation)
-      window.visualViewport?.removeEventListener('resize', updateViewportHeight)
-      window.visualViewport?.removeEventListener('scroll', updateViewportHeight)
-      clearTimeout(deferred1)
-      clearTimeout(deferred2)
-      clearTimeout(stopPoll)
-      clearInterval(poll)
-      document.removeEventListener('visibilitychange', onVisibility)
-      if (observer) observer.disconnect()
       audio.stopAudio()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -334,7 +266,7 @@ export default function Home({ user, onLogout }) {
 
   return (
     <div className="container">
-      <div className="header" ref={headerRef}>
+      <div className="header">
         <button
           className={`listen-btn ${audio.isPlaying ? 'playing' : ''}`}
           onClick={audio.handleListenAll}

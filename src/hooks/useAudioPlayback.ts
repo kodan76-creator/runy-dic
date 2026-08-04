@@ -5,7 +5,7 @@ import { logAudioPlay, emailToFolderName } from '../githubApi'
 
 export function useAudioPlayback({ user, words, playMode }) {
   const [isPlaying, setIsPlaying] = useState(false)
-  const currentAudioRef = useRef(null)
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
   const stopPlaylistRef = useRef(false)
 
   const getAudioSrc = (fileName, userFolder) => {
@@ -30,7 +30,7 @@ export function useAudioPlayback({ user, words, playMode }) {
   }
 
   const playAudioFile = (fileName, userFolder) => {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       if (!fileName) {
         resolve()
         return

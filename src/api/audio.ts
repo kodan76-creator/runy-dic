@@ -56,7 +56,7 @@ export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
 
   // Загружаем через GitHub API (напрямую, минуя updateGitHubFile, т.к. content уже base64)
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
-  const body = {
+  const body: Record<string, string> = {
     message: `Upload audio: ${safeName}${rootUpload ? '' : ' for ' + folder}`,
     content: base64,
     branch: GITHUB_BRANCH
@@ -64,7 +64,7 @@ export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
   if (existingSha) body.sha = existingSha  // если файл есть — перезаписываем
   const response = await fetch(url, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) })
   if (!response.ok) {
-    const err = await response.json().catch(() => ({}))
+    const err: any = await response.json().catch(() => ({}))
     throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
   }
 

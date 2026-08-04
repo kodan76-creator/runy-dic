@@ -16,7 +16,7 @@ export const getFavoritesForUser = async (userEmail) => {
   }
 }
 
-export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUpdatedAt = null) => {
+export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUpdatedAt: string | null = null) => {
   if (!userEmail) throw new Error('userEmail required')
 
   const toTs = (s) => { const t = Date.parse(s); return isNaN(t) ? 0 : t }
@@ -97,8 +97,8 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUp
 
       // Refresh server state (in case queue write changed it)
       const latest = await fetchGitHubFile(FAVORITES_FILE)
-      let latestArr = Array.isArray(latest.data) ? latest.data : []
-      let latestSha = latest.sha
+      const latestArr = Array.isArray(latest.data) ? latest.data : []
+      const latestSha = latest.sha
 
       // Now apply current client request with timestamp-aware merge
       const normalized = (favoritesArray || []).map(String)

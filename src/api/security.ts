@@ -35,7 +35,7 @@ export const migrateAllFiles = async () => {
     'dictionary.json2'
   ]
 
-  const results = []
+  const results: any[] = []
   for (const fileName of filesToMigrate) {
     try {
       console.log(`🔄 Проверяю ${fileName}...`)
@@ -62,7 +62,7 @@ export const migrateAllFiles = async () => {
         { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
       )
       if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
+        const err: any = await response.json().catch(() => ({}))
         throw new Error(err.message || response.statusText)
       }
       console.log(`🔐 ${fileName}: зашифрован`)
@@ -85,7 +85,7 @@ export const decryptFile = async (fileName) => {
     if (!sha) return { file: fileName, status: 'not_found' }
     if (!isEncrypted(data)) {
       // Проверяем, не имеет ли файл двойное кодирование без шифрования
-      if (data.startsWith('"')) {
+      if (data && data.startsWith('"')) {
         try {
           const inner = JSON.parse(data)
           if (typeof inner === 'string') {
@@ -195,7 +195,7 @@ export const checkFilesEncryptionStatus = async () => {
     } catch { /* ignore */ }
   }
 
-  const results = []
+  const results: any[] = []
 
   for (const fileName of allFiles) {
     try {
@@ -224,7 +224,7 @@ export const checkFilesEncryptionStatus = async () => {
 
 // 🔐 Расшифровать несколько файлов
 export const decryptFiles = async (fileNames) => {
-  const results = []
+  const results: any[] = []
   for (const fileName of fileNames) {
     const result = await decryptFile(fileName)
     results.push(result)
@@ -241,7 +241,7 @@ export const encryptFile = async (fileName) => {
 
     // Если файл сломан (двойное кодирование) — сначала восстанавливаем
     let contentToEncrypt = data
-    if (data.startsWith('"')) {
+    if (data && data.startsWith('"')) {
       try {
         const inner = JSON.parse(data)
         if (typeof inner === 'string') {
@@ -258,7 +258,7 @@ export const encryptFile = async (fileName) => {
       { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
     )
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}))
+      const err: any = await response.json().catch(() => ({}))
       throw new Error(err.message || response.statusText)
     }
     return { file: fileName, status: 'encrypted' }
@@ -270,7 +270,7 @@ export const encryptFile = async (fileName) => {
 
 // 🔐 Зашифровать несколько файлов
 export const encryptFiles = async (fileNames) => {
-  const results = []
+  const results: any[] = []
   for (const fileName of fileNames) {
     const result = await encryptFile(fileName)
     results.push(result)

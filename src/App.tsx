@@ -1,17 +1,17 @@
 // src/App.jsx
 // Роутинг приложения: вход/регистрация, главный экран и админ-панель.
 import { useState } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import AdminPanel from './AdminPanel'
 import UserAuthForm from './components/UserAuthForm'
 import Home from './pages/Home'
 import './App.css'
 
-// Определяем сохранённого пользователя при загрузке
-const getSavedUser = () => {
+// Определяем сохранённого пользователя при загрузке.
+// isAdminRoute приходит из роутера (useLocation) — без чтения window.location.hash.
+const getSavedUser = (isAdminRoute) => {
   const adminUser = localStorage.getItem('adminUser')
   const currentUser = localStorage.getItem('currentUser')
-  const isAdminRoute = window.location.hash.startsWith('#/admin')
 
   // If opening admin route, prefer adminUser; regular users get restricted dictionary-only admin mode.
   if (isAdminRoute) {
@@ -46,8 +46,10 @@ const getSavedUser = () => {
   return null
 }
 
-function App() {
-  const [user, setUser] = useState(getSavedUser)
+function AppContent() {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+  const [user, setUser] = useState(() => getSavedUser(isAdminRoute))
 
   const handleUserLogin = (userData) => {
     const nextUser = { ...userData, role: userData.role || 'user', paid: userData.paid ?? false }
@@ -73,10 +75,9 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/admin"
+    <Routes>
+      <Route
+        path="/admin"
           element={<AdminPanel currentUser={user} onAdminLogin={(u) => {
             const nextUser = { ...u, role: u.role || 'admin', paid: u.paid ?? false }
             if (nextUser.role === 'admin') {
@@ -114,7 +115,14 @@ function App() {
         />
 
         <Route path="*" element={<Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'user' ? '/' : '/auth'} replace />} />
-      </Routes>
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

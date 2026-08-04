@@ -30,18 +30,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [adminUser, setAdminUser] = useState(getSavedAdmin)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [words, setWords] = useState([])
-  const [users, setUsers] = useState([])
-  const [logs, setLogs] = useState([])
+  const [words, setWords] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
+  const [logs, setLogs] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [userEditingId, setUserEditingId] = useState(null)
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
   const [userSaving, setUserSaving] = useState(false)
   const [audioUploading, setAudioUploading] = useState('')
-  const currentAudioRef = useRef(null)
-  const msgTimeoutRef = useRef(null)
-  const [message, setMessage] = useState('')
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  const msgTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [message, setMessage] = useState<{ text: string; type?: string } | ''>('')
 
   const showMessage = useCallback((text, type = 'success') => {
     setMessage({ text, type })
@@ -134,7 +134,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
 
       // If still on mobile and admin-panel blocks scrolling via CSS overflow hidden, temporarily allow it
-      const adminPanel = document.querySelector('.admin-panel')
+      const adminPanel = document.querySelector('.admin-panel') as HTMLElement | null
       if (isMobile && adminPanel && getComputedStyle(adminPanel).overflow === 'hidden') {
         const prev = adminPanel.style.overflow
         adminPanel.style.overflow = 'auto'
@@ -153,17 +153,17 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   // Миграция шифрования
   const [migrationLoading, setMigrationLoading] = useState(false)
-  const [migrationResult, setMigrationResult] = useState(null)
-  const [filesStatus, setFilesStatus] = useState([])
+  const [migrationResult, setMigrationResult] = useState<any[] | null>(null)
+  const [filesStatus, setFilesStatus] = useState<any[]>([])
   const [filesStatusLoading, setFilesStatusLoading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState(new Set())
   const [decryptLoading, setDecryptLoading] = useState(false)
-  const [decryptResult, setDecryptResult] = useState(null)
+  const [decryptResult, setDecryptResult] = useState<any[] | null>(null)
   const [encryptLoading, setEncryptLoading] = useState(false)
-  const [encryptResult, setEncryptResult] = useState(null)
+  const [encryptResult, setEncryptResult] = useState<any[] | null>(null)
 
   // Categories
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState<any[]>([])
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
@@ -575,7 +575,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const handleDeleteCategory = async (id) => {
     if (window.confirm('Удалить эту категорию?')) {
-      try { await deleteCategory(id, adminUser?.email); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
+      try { await deleteCategory(id); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
     }
   }
   const handleMoveCategoryUp = async (id) => {

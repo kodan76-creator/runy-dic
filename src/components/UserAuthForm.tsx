@@ -1,9 +1,11 @@
 // src/components/UserAuthForm.jsx
 // Форма входа/регистрации для ПОЛЬЗОВАТЕЛЕЙ
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
 
 function UserAuthForm({ onLogin }) {
+  const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +25,7 @@ function UserAuthForm({ onLogin }) {
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
           onLogin(userWithRole)
           // navigate to app: admin -> /admin, user -> /
-          try { window.location.hash = userWithRole.role === 'admin' ? '/admin' : '/' } catch { /* ignore */ }
+          navigate(userWithRole.role === 'admin' ? '/admin' : '/')
         } else {
           setError('Неверный email или пароль')
         }
@@ -57,7 +59,7 @@ function UserAuthForm({ onLogin }) {
         <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
-        <button className="admin-launch-btn" type="button" onClick={() => { window.location.hash = '/admin' }} disabled={loading}>
+        <button className="admin-launch-btn" type="button" onClick={() => navigate('/admin')} disabled={loading}>
           Запустить админку
         </button>
       </div>

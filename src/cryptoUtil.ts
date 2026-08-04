@@ -7,8 +7,8 @@ const KEY_LENGTH = 256
 const PBKDF2_ITERATIONS = 100_000
 const SALT = 'runy-dic-salt-v1' // Фиксированный соль для единообразия
 
-let cachedKey = null
-let cachedPassphrase = null
+let cachedKey: CryptoKey | null = null
+let cachedPassphrase: string | null = null
 
 /**
  * Известные предыдущие ключи (для плавной миграции при смене ключа).
