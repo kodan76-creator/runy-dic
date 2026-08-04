@@ -482,6 +482,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
         audio: word.audio || '', audio2: word.audio2 || '', textAlign: word.textAlign || 'center'
       })
+
+      // Мобильная версия: после нажатия «Редактировать» прокручиваем страницу
+      // в самый вверх, чтобы форма редактирования (вверху) была видна.
+      if (typeof window !== 'undefined' && (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent))) {
+        const adminPanel = document.querySelector('.admin-panel')
+        if (adminPanel && typeof adminPanel.scrollTo === 'function') {
+          adminPanel.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     }, [activeUser, isRestrictedUser, categories, setEditingId, setFormData, setError])
 
     const handleDelete = useCallback(async (id, wordOwnerEmail) => {
