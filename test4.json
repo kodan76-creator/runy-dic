@@ -1,1 +1,70 @@
-ENC:v1:HqfD072zSbfXhBGtdt/t6ysD5R7S3oQ0502LyUETtLUydcBpcfjtSQBWLX+gyU/bhXeuDoxQKy064sE4tl9F7RGPh7lft7T2UBLrQ6NJgQ5r1yKQkUcO+IGFH+S2w9e6AS2nud4k4CEZei6CP1uYCdfuHiYAt/osedgxzjvvGd7sHteLZVXy8B4qilyH+aHTrU0qQe+bvGf18jvUXsmBvptgCtPKi5jbj5Guwcq4gSoF39eL9cVNJXq0ZrdmyAhzq1+RCVlGcMlsvbo01pBDD1d7nKV+Rtp/5wJ2VZUdpAnLancH5miYFH/K6I70Bi/1xxxegZ5N64NoXc9/azAvd260obU7d6HhV20Z+MeFz9fqQORKkoItmjtXlGK6vbFKsTampmFV7oNONmz/uTb+P91Y/fLNL9VN78E4pFA8uiytW6PttgcJmaQNZHMe2nzE3Bp34WhtjeC/tIENfubL8DAcM2g1/ITqGLdZoMLud+fP5W95nslQAC9e+Znz/XRYlsKlbby2nb3LGTnAl6TXv0C2ooJFOeSnKlA1m32kTsSOJSx/krK//553qBKVE8KkPju/BZDFn11mfkk8LRkn5PNbjVwW9m6UNZteVYBRZO1PfZfKX343hJhlaMwBSxOFsXcpJhHgkbWzAmUcg7E4DnD5zq1vuOVFlwEbMEsJPQE2Bb42650Um8oGDCmioW0e58l+a3HD1F4nJOHt45DSj9J5KwlDorULPL9I/sonfUkiBr6RFLEjL8RpGHFZ/l3+epxCZm3kOqCSRpFr+wxfWTFgpm2u+xjdmOw9qywf2BpObka1cRHH0RSLGsjzOK+rOB8GevBPignZtiIL5sMpDdC08EeyoqZFCTtpFBHZYMdxKyp5kUXyDMlO2fDBX536pQQr1kyds2GSSUQWtunX7ejWJSczt6rRNJU3+ylGgsbjvSYDW3veumPUb47NZfZ9uB3T6rHulrkD40GXxO3UhsNVbq1Ax6ZPZQh2cFTyTCVBSCjNZ3L7sI02EDMohmumqeg+cm2EMb+2KxN6iI6eI2Bagz+LC72Ye2bG+L4M3PqJ9ZbQjRzJQGSaUlRNgaiyEQFfMRm1eLjPpksER9KItHdh6YCfqwlR5OdpoLGlUEt84+bRnkoGI9Zox4OMW2wEdwS/DDUbTu+wJ+GbvtJ8ivznI1LGyEZIQeU8T1/i9+NCTR6k50GJXVCXM12iEJlzDYivVa3LC1rTC2STyix8+4HclwBI2RbigzWHpJ1xIZkq+umy+ou26llbsmvzA5wiqX6meupLP3TcU+GYvG172IjIpjCCKYT7E8fvSdqeNZjfds1DNnyXzjzKU6nLfFqZomEI8qjMz3rGdwgasWtPJ33NCRi6rKrCq5S7cM9Ps2B0h23h+FD0IZmYdGEW20WWcmUCcMC9rK3u5cpVDfFj3J7NchJCrTiylQ7UiaICfqV4dD/xqWUmTtW9MXKNl0vz4pUq8tUhoarXPll6x1C+IDJ/pDo4Lo1d2d2prPHRTOqAQ8ygVRaR+Jfzgl7c
+[
+  {
+    "word": "ранко",
+    "transcription": "рАнко",
+    "translation": "утро",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1785605167622",
+    "createdAt": "2026-08-01T17:26:07.622Z",
+    "createdBy": "test4@ya.ru"
+  },
+  {
+    "word": "жъ",
+    "transcription": "жэль",
+    "translation": "день",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1785604382948",
+    "createdAt": "2026-08-01T17:13:02.948Z",
+    "createdBy": "test4@ya.ru"
+  },
+  {
+    "word": "щчжъ",
+    "transcription": "щайжЭль",
+    "translation": "вечер",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1785605101132",
+    "createdAt": "2026-08-01T17:25:01.132Z",
+    "createdBy": "test4@ya.ru"
+  },
+  {
+    "word": "нчццъ",
+    "transcription": "найчЕль",
+    "translation": "ночь",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1785604463482",
+    "createdAt": "2026-08-01T17:14:23.482Z",
+    "createdBy": "test4@ya.ru"
+  }
+]
