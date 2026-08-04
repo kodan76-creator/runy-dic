@@ -1,1 +1,46 @@
-ENC:v1:zLOHxerAxMOT93rybPDAHt6hTy51K2w8ayNbfui66c0v6nyhyG7LXhUo0k1RxJC14CXDkUSba64Ndew8f4jncYyqQdtVQiGitRFTzkHz++hbQvNdWLjEgMjcjbph0JqfjFgFwYsCCBvMHtBUU2gT3gXrQwOS0o+EpgkTRQiMD1U31iJ9YtgJ++pzhK5nx3algXBggAts8SVs5SbBIHnBmu22IlbBvKNzZzl25OnMOQ8dssLkN7fs8UAt+kevnUqO3BEkyrB4n42pasGwOUR5hHRaew1LFXbfumtUjpE5aK/ilQWNn7+NCCVyOYuvCTyneaKs5LP7uAzLnuumVV06VMkjuJqWN691r/UXxYQte/O5cHJi+OMtiObcsKYVFrjc+0TngHTEj6nLF7T9by8yJxQRLzg2ZwkW5xuS7bNzxl2vaMDaZSdfvSufFoYmsWqGyTl+OpudekJqgu75GdciqqiEZEriAV36yiP4+s5sPesQAwH5pVMcy/lOiP5r4aDfCWHSyTpRnIgK14MCkYltimVE7bak2MWks0BsdKyjDarMcIYloLmgtjAPe4Vginc+/80t6CwY0zImXV6q/2doX3VPqQYb8PEeaNxzh15eCjmvPylCA7B9UwW4SNh+r6DuBz41LAdlE9dDhFdrAgv4kEgVFYap6yX3dB2CEmV0kHDSSuCZowzsL56DkEQY9Oc/0keEwomLG7phaCWA7fusDHrMMugt23ho3Mxb+Qo9VrHEsXPDKsL219Ub5vD5Ero7Y4E2r3tH9hsXjgmVxoi0e/pMQlUmJi/NajRAz2D0cm9/zr96alI+ZHt68CcQa3KIOwXgukEI9PneMURNmFn+4lvt8JsOS65MseCjWpej5GHTK0sWrP6XKFku30FcG2JvNtSVQtoI7WwiPHUjVCNe+t6/bQHFdDU9IlqyRrwJT9OVNXOqIwK14vMQFcv6a8tJ3kLXE2gQAgVR9284OkEPNZJBDjjgT8yJu+2FZ7NuDj4SkB7/b4qTVKqsJAiH7qykff0HB3RElE8t3ZQqMmzXBGBF4tzfLr8EtGCXoljX4EqO258R3IEOqVd7mMi+9T7Y7M7+Qa+rmLta/e2UzI6AGQ7rDxT5JTfbzpqsia8vovIG1VMng8YwBOYM1PZlJ/e/wJY3MJw+wEEJzI7aG5rrQcfk6BWbBLlm25jUfBevy2zaTZlMaxRzRKjZVZrjxuzbGAJTVs6WQ1FjpJZZkPxCMoMvOgfeu4+QpHs5x+ARyzjYclsMlvoNcecV1IJktXafEX6kp8UIvtfHMpbWjxqlLJnspyQ1Q1qiRd/YOA==
+[
+  {
+    "word": "1111",
+    "transcription": "2222",
+    "translation": "33333",
+    "category": [
+      "1778594679967"
+    ],
+    "example": "444",
+    "example2": "555",
+    "transcription2": "666",
+    "audio": "",
+    "audio2": "",
+    "id": "1785153812554",
+    "createdAt": "2026-07-27T12:03:32.554Z",
+    "createdBy": "test3@ya.ru"
+  },
+  {
+    "word": "222",
+    "transcription": "333",
+    "translation": "444",
+    "category": [],
+    "example": "555",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785153856854",
+    "createdAt": "2026-07-27T12:04:16.854Z",
+    "createdBy": "test3@ya.ru"
+  },
+  {
+    "word": "444",
+    "transcription": "555",
+    "translation": "555",
+    "category": [],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "1785195521697",
+    "createdAt": "2026-07-27T23:38:41.697Z",
+    "createdBy": "test3@ya.ru"
+  }
+]
