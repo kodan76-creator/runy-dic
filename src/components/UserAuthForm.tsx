@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
 import ThemeToggle from './ThemeToggle'
 
+// Только латинские буквы, цифры и символы, допустимые в email
+const LATIN_LOGIN_REGEX = /^[a-zA-Z0-9@._-]*$/
+
 function UserAuthForm({ onLogin }) {
   const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
@@ -31,6 +34,9 @@ function UserAuthForm({ onLogin }) {
           setError('Неверный email или пароль')
         }
       } else {
+        if (!LATIN_LOGIN_REGEX.test(email)) {
+          throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
+        }
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         await registerUser(email, password)
@@ -53,7 +59,10 @@ function UserAuthForm({ onLogin }) {
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <label className="visually-hidden" htmlFor="auth-email">Email</label>
-          <input id="auth-email" type="text" name="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" />
+          <input id="auth-email" type="text" name="username" placeholder="Email" value={email} onChange={(e) => {
+            const value = e.target.value
+            if (LATIN_LOGIN_REGEX.test(value)) setEmail(value)
+          }} required disabled={loading} autoComplete="username" />
           <label className="visually-hidden" htmlFor="auth-password">Пароль</label>
           <input id="auth-password" type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
           {!isLogin && (
