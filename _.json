@@ -1,1 +1,36 @@
-ENC:v1:bOp4gwC273oIkbHfwBVKs4CDqwW10XK4FOmQlCzfOYzZkIzsxEOvyogY3sEwdRROH1LfFrUrrvQTqv3qwVUT4QDZgcz6tyj/uy1Jw0PtCzKkEVAdPRS0oYnB6CbTeZ5jJqZBltfNA29hIU4cS6TImJMFYyLMKjH0NASb/ZPAxE7tjIoePTr+koMc3FW/RDRhYIilJRyJhBY20aYGQbd1ecftz+M/TrbIKmMIXVEItiKKewy6S6EVhbuf0U87kSrbSgwPTxyygscHtMweA2+E2VbqTVS7pSTBb+RfsWe0+EXl60XdnAXvAJOul6gmjEYoL+PtvvkaZRNJzHZyHccmorPHFS6Uea4ILaF+8r10/5bmRU5h4UxmJu9JHCxYJbt79Y6WstPaqS8Qcho4x7Gb95llleVBy1Q6U15wvqgWp9ZvaYzbjMMTqOxWsu4ReGBGwrZ1foitz8LwQ9KbjNnG4XWKHOpcGChoZMyFwp/1HKhcjr0XhGCJmxabI3/ix9ZjEXFY6MCgc1eyYx85Q1I0Vgo8NoC7e98pNBtCzvuwD63MxSsTyUEhwyg8/dtBxGCbMhU0IkCsY9AK2sxMgQDfihd9lGMHWzDQ1Mbqk2ZLyFxswl3Z6iD5DyJe95mByh+U+ZCZf1eC3H5hZkeCtxLWiU0bhRuPYuFKjWBvJ5WnqRBaykl7XgnvGsWPZZEiAtkYldb+vW22bKXQrXt/Y6ZtmsDGVzDJIqdc1CAhw1wzNnq8Hx5swKJoepG3GuGst5JeqkHbI4m8pYCDHvpUuaw/GMLcDyLddXtaRRyTfEGr35n7/pur
+[
+  {
+    "word": "щгжъ",
+    "transcription": "щайжЭль",
+    "translation": "вечер ",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1786038494984",
+    "createdAt": "2026-08-06T17:48:14.984Z",
+    "createdBy": "тест@ya.ru"
+  },
+  {
+    "word": "хкжъфо",
+    "transcription": "гжЭльфо",
+    "translation": "голубой",
+    "category": [
+      "1778594679984"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1786038606334",
+    "createdAt": "2026-08-06T17:50:06.334Z",
+    "createdBy": "тест@ya.ru"
+  }
+]
