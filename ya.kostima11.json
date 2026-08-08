@@ -1,1 +1,36 @@
-ENC:v1:2P7VBOxePsqIKnjd/mREKGO7PkuFa3L5vx64Wzi030oVfykx6/vHEx0r4+qcAxr4iqRb/ggni8BzIWnATUFIL5UKkH/PhlcN5omljpRoWhCfvt0fmLHSRQWLLYekvp/RcL3+5jfdoVZDdF7cEHnp8MTenZcYMDWc0+Fp0uR99cQt5PrvgcrQE9Elr8b0QnVFch+uCkCXLEgA4V/LAS+tf1YXX3iRkWC3YugEq2I/hAcSPhhW3XqPltWS7GJJHGul21E31CUuT4Rdn2aCmgHfWboS7bKl47xJBekHSqQih/uUjSDpsJ+lge+BoUlEo64/hpioPcIEMvjVRiMUgm1k5RsvhFkGW3Qj4/TlRFt7eHK7Qo8XyYXB5gI1cX+AzH2+BVuEkM9qPSrZJbcs0FllKB2XKM3Vm1kgTVRIgK4Yw6fO7rTz/Rd8HpXplEW686kV4h18ke6txzLmhoEjLWS0g3kxZCEP2fcIKa9lG8Wlv59mf2TRoLPZIxaTwBnv29L5rUjcL0wD8W4UdD+1/cIOslYk2cDZrCXoWQk1BafD03enFyXXPSYRiOGU1dZGZy/45ETxKNZu8zG2hkrYsYiyMMWUlC/zSA2GZk6DKgECpF2GSRjVctQT6GRM0bK2bDxdek/sggAzwj/OB1OTFjvkZW+AA6xcQN9LM27V7AqLNxbIpOsNJ1+Jh2nGPhtWWQsMjFFPdKNi/eoI+dkkUTS3sKV+F9pR4nCF82mLtDTvDNMv29zfvZ7H/52iIlJAPL80PylM00+sZdxvS+k=
+[
+  {
+    "word": "лалъ",
+    "transcription": "лалЭль",
+    "translation": "семья",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1",
+    "createdAt": "2026-08-04T18:30:59.212Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  },
+  {
+    "word": "ъфъ",
+    "transcription": "эльфэль",
+    "translation": "дом",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "2",
+    "createdAt": "2026-08-04T18:35:22.699Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  }
+]
