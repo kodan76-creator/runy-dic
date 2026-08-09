@@ -15,6 +15,7 @@ function UserAuthForm({ onLogin }) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [loginHint, setLoginHint] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -61,8 +62,14 @@ function UserAuthForm({ onLogin }) {
           <label className="visually-hidden" htmlFor="auth-email">Email</label>
           <input id="auth-email" type="text" name="username" placeholder="Email" value={email} onChange={(e) => {
             const value = e.target.value
-            if (LATIN_LOGIN_REGEX.test(value)) setEmail(value)
+            if (LATIN_LOGIN_REGEX.test(value)) {
+              setEmail(value)
+              setLoginHint('')
+            } else if (/[\u0400-\u04FF]/.test(value)) {
+              setLoginHint('⚠️ Логин не может содержать кириллицу — используйте латинские буквы, цифры и символы @ . _ -')
+            }
           }} required disabled={loading} autoComplete="username" />
+          {loginHint && <div className="auth-hint" role="alert">{loginHint}</div>}
           <label className="visually-hidden" htmlFor="auth-password">Пароль</label>
           <input id="auth-password" type="password" name="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} autoComplete="current-password" />
           {!isLogin && (
@@ -74,7 +81,7 @@ function UserAuthForm({ onLogin }) {
           {error && <div className="error" role="alert">{error}</div>}
           <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
         </form>
-        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
+        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setLoginHint(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
         <button className="admin-launch-btn" type="button" onClick={() => navigate('/admin')} disabled={loading}>

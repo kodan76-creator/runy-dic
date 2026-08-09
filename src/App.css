@@ -65,6 +65,16 @@ body {
   cursor: not-allowed;
 }
 
+.auth-hint {
+  background: #fff3cd;
+  color: #856404;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
 .auth-btn {
   width: 100%;
   padding: 12px;
@@ -1303,6 +1313,10 @@ color: #5a0000;
   }
   .auth-box input:disabled {
     background: var(--field-bg);
+  }
+  .auth-hint {
+    background: #3d3420;
+    color: #ffd970;
   }
 
   /* карточки слов */
