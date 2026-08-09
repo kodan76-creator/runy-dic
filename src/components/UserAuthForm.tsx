@@ -25,6 +25,10 @@ function UserAuthForm({ onLogin }) {
     setError('')
     setLoading(true)
     try {
+      // Если нет интернета — сразу сообщаем, не пытаясь обратиться к серверу
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('❌ Нет интернета. Для входа или регистрации необходимо подключение к интернету.')
+      }
       if (isLogin) {
         const user = await verifyUser(email, password)
         if (user) {

@@ -300,6 +300,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const handleLogin = async (e) => {
     e.preventDefault(); setError(''); setAuthLoading(true)
     try {
+      // Если нет интернета — сразу сообщаем, не пытаясь обратиться к серверу
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Нет интернета. Для входа необходимо подключение к интернету.')
+      }
       const admin = await verifyAdmin(email, password)
       if (admin) {
         const userData = { ...admin, role: 'admin', loginAt: new Date().toISOString() }
@@ -332,7 +336,12 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       }
 
       setError('Неверный email или пароль')
-    } catch (err) { console.error(err); setError('Ошибка авторизации: ' + err.message) }
+    } catch (err) {
+      console.error(err)
+      // Для понятных сообщений (например, «Нет интернета») показываем их напрямую
+      const msg = err?.message || ''
+      setError(msg.includes('Нет интернета') ? msg : 'Ошибка авторизации: ' + msg)
+    }
     setAuthLoading(false)
   }
 
