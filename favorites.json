@@ -40,5 +40,10 @@
     "userEmail": "тест@ya.ru",
     "favorites": [],
     "updatedAt": "2026-08-08T20:47:36.583Z"
+  },
+  {
+    "userEmail": "123",
+    "favorites": [],
+    "updatedAt": "2026-08-09T02:16:49.432Z"
   }
 ]
