@@ -1,1 +1,24 @@
-ENC:v1:aHkd8Q0QkKxNz+RlxTcAFoRYXNWdNWyNzLEIG72OijKr5u8vdp/9JsHRiuJIl27wSTi0pQGS9gqGuuGKXFmYV4KVSc/BJXuEnFKdOsNXC3ZEP56gMFBW/ZxPUJqElRFTREO4Hg63y1dTwXb1tWIba0FZTJv72YZEzoEHgS68xjZwjtd9gvxQnVg2PQRO0dbRvamWqjmZB3rEpCWkKEFeupG59y+7wB+LhBmiTWDoQyxRXDoB1DOPC36P3tR7BDpCzL3b/Vx4U6wYX7rl3jVcdThjeKxAcjWuIpeQ+MElLdL9KvqoK6vOzz5SvZOPb+DxsoCA47okQMwvLljmvL3hgzVWiUS0UvyZLgUhZxEGCR+KTyTy9Nte3LFH8J8gDYen35mLtJkp/cdgHd8HHuwVGSkWSLF+iT5HnxuDAT/KM7/0fJZXhf1ChwLN5kqueTDdmM/d4h7JmcjSl36wejb8Iyu0DK9spY3nrT5oQ0TJ18GyB5OxiWbogY0frf8wVtctO14t2gtklHhKWpE96GZJETrnf9vCu1SSrbVyKOelroaiJLVAALrnSvr+GjlkOvRGoypOBdLQUdJauB/AC4l7DGxkPz8NWRFmZjEvFRsSHdpYNlb0OL+bMmmdjh95Qdi9vcCgAzxaysUCTDgfyyBz55R/3WEWQfFW7rVTLSbNhnDkufSnx6diYZWIOXxqrl6lkeNldOYlIrvBq9DMz6s0rNCJBI3e2u26w9cJLDcoIHNM3C7/ktiovjYQRL8eHh+z/PG53u8gtpL72t3kSdel6++ynUQgAgDfK0hS67XP//9J7wYICSHqa8zMDoPtTlqhhCZrc7zo32bEDEf4I5crbdWiBspqURmoP8qwF/xypDEk0GQdb8iw1EiLn1eMt3ax5/wMtO6BERNvJn8g3wBHISoDw5eviN70nPADf9sRjDbsVZ1Zc9QqvccJtvA5n0NM5w4lTty48tKeB3NAEB3u8bnD1cEUcMejua7OyvOLflr5Jd9hSXfH5LsmjbBktWu/uFTuVEKVJjnz2gDV5QmBchTbHzjm+dNHwU5x2x8qwKKRbQPAm39x1Z5dHpT2wuNf5bVVHZhYIVvNOjS/pID8UH1j+bQ2AGshh66dM+kwdqKyVO+KODg2FKXgbk8aWXxgjXqGKClCL91BxsawjfPFO6dBODEj8hNRrMFUgfUXPIJ70NcuerCvM+rC6IURO3RouvCrbxjhSGa2CDlqDxCtIZ1c/WA3jGfnGAtKLZRK0Htmew==
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    // Параметры, отключённые для плавного перехода к TypeScript:
+    // 1) Все функции возвращают any из-за парсинга JSON на GitHub;
+    // 2) catch(err) возвращает any (как в JS), поэтому нужно явно указать тип.
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src"]
+}
