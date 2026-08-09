@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
@@ -72,7 +72,17 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const getAudioSrc = useCallback((fileName, userFolder) => {
     if (!fileName) return ''
-    // Прямая ссылка на raw.githubusercontent.com — не требует пересборки сайта
+    // Локальный URL (same-origin public/audio/) — кэшируется SW и играет оффлайн
+    const base = `${import.meta.env.BASE_URL}audio/`
+    if (fileName.includes('/')) return `${base}${fileName}`
+    if (userFolder) return `${base}${userFolder}/${fileName}`
+    return `${base}${fileName}`
+  }, [])
+
+  // Резервный URL на raw.githubusercontent — для свежезагруженных файлов,
+  // которые ещё не попали в собранный сайт
+  const getRawAudioSrc = useCallback((fileName, userFolder) => {
+    if (!fileName) return ''
     const base = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/audio/'
     if (fileName.includes('/')) return `${base}${fileName}`
     if (userFolder) return `${base}${userFolder}/${fileName}`
@@ -91,20 +101,29 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     stopAudio()
     // Админ — общий словарь (audio в корне public/audio/), пользователь — личный (audio/{emailFolder}/)
     const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-    const src = getAudioSrc(fileName, userFolder)
-    const audio = new Audio(src)
-    currentAudioRef.current = audio
-    const finish = () => { if (currentAudioRef.current === audio) currentAudioRef.current = null }
-    audio.addEventListener('ended', finish, { once: true })
-    audio.addEventListener('error', () => {
-      finish()
-      showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
-    }, { once: true })
-    audio.play().catch(() => {
-      finish()
-      showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
-    })
-  }, [stopAudio, getAudioSrc, isRestrictedUser, activeUser, showMessage])
+    const localSrc = getAudioSrc(fileName, userFolder)
+    const rawSrc = getRawAudioSrc(fileName, userFolder)
+    const fail = () => showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
+    // Пробуем локальный URL (кэшируется SW и играет оффлайн); если файл ещё
+    // не в сборке сайта — откатываемся на raw.githubusercontent.
+    const attempt = (src) => {
+      const audio = new Audio(src)
+      currentAudioRef.current = audio
+      const finish = () => { if (currentAudioRef.current === audio) currentAudioRef.current = null }
+      audio.addEventListener('ended', finish, { once: true })
+      audio.addEventListener('error', () => {
+        finish()
+        if (src === localSrc && rawSrc && src !== rawSrc) attempt(rawSrc)
+        else fail()
+      }, { once: true })
+      audio.play().catch(() => {
+        finish()
+        if (src === localSrc && rawSrc && src !== rawSrc) attempt(rawSrc)
+        else fail()
+      })
+    }
+    attempt(localSrc)
+  }, [stopAudio, getAudioSrc, getRawAudioSrc, isRestrictedUser, activeUser, showMessage])
 
   const scrollWordsToTop = useCallback(() => {
     const el = wordsListRef.current || document.querySelector('.words-list')
@@ -204,6 +223,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             : arr
           cacheDictionaryForOffline(activeUser.email, cacheArr)
         }
+        // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
+        const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
+        precacheUrls(collectAudioUrls(arr, audioFolder))
       }
     } catch (err) {
       setError('Ошибка: ' + err.message)
@@ -243,6 +265,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             : arr
           cacheDictionaryForOffline(activeUser.email, cacheArr)
         }
+        // 🎵 Прогреваем аудио (после загрузки/правок словаря)
+        const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
+        precacheUrls(collectAudioUrls(arr, audioFolder))
         if (JSON.stringify(arr) !== beforeJson) return
       } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))

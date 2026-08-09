@@ -5,7 +5,7 @@
  * - Статика: stale-while-revalidate (сначала кэш, фоном обновляется).
  * - API-запросы (api.github.com и другие домены) не перехватываются.
  */
-const CACHE_NAME = 'runy-dic-v1'
+const CACHE_NAME = 'runy-dic-v2'
 const APP_SHELL = ['./', './index.html']
 
 self.addEventListener('install', (event) => {
@@ -35,7 +35,9 @@ self.addEventListener('message', (event) => {
     })
     if (urls.length) {
       event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(urls)).catch((err) => console.error('PRECACHE failed:', err))
+        caches.open(CACHE_NAME)
+          .then((cache) => Promise.all(urls.map((u) => cache.add(u).catch((err) => console.error('PRECACHE one failed:', u, err)))))
+          .catch((err) => console.error('PRECACHE failed:', err))
       )
     }
   }
@@ -44,7 +46,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
 
-  // Не перехватываем запросы на другие домены (GitHub API, raw, аудио и т.п.)
+  // Не перехватываем запросы на другие домены (GitHub API, raw и т.п.)
   if (url.origin !== self.location.origin) return
 
   // Навигация по странице — сеть сначала, при ошибке — из кэша
@@ -57,6 +59,29 @@ self.addEventListener('fetch', (event) => {
           return response
         })
         .catch(() => caches.match('./index.html'))
+    )
+    return
+  }
+
+  // 🎵 Аудио (public/audio/): кэш-первый.
+  // Медиа-запросы идут с Range-заголовком, и GitHub отвечает 206 Partial Content,
+  // который нельзя корректно сохранить в Cache API. Поэтому запрашиваем ПОЛНЫЙ
+  // файл (без Range), кэшируем его и отдаём целиком — оффлайн работает.
+  if (/\/audio\/.+\.(mp3|ogg|wav|m4a|aac|webm|flac|opus)$/i.test(url.pathname)) {
+    event.respondWith(
+      caches.match(url.href).then((cached) => {
+        if (cached) return cached
+        const fullRequest = new Request(url.href, { method: 'GET' })
+        return fetch(fullRequest)
+          .then((response) => {
+            if (response && response.ok) {
+              const copy = response.clone()
+              caches.open(CACHE_NAME).then((cache) => cache.put(url.href, copy))
+            }
+            return response
+          })
+          .catch(() => cached)
+      })
     )
     return
   }

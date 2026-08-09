@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser } from '../githubApi'
+import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, precacheUrls, emailToFolderName } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import WordCard from '../components/WordCard'
 import FilterModal from '../components/FilterModal'
@@ -256,6 +256,9 @@ export default function Home({ user, onLogout }) {
         // Кэшируем только личные слова — их и показываем оффлайн
         const personalWords = wordData.filter(w => w.__dictionarySource === 'personal')
         saveOfflineCache(user, personalWords, catData)
+        // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
+        const userFolder = user?.email ? emailToFolderName(user.email) : null
+        precacheUrls(collectAudioUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)

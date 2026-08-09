@@ -71,6 +71,45 @@ export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
   return { path: safeName, folder: rootUpload ? '' : folder, name: safeName }
 }
 
+// 🎵 Оффлайн-аудио: построение URL и прогрев кэша Service Worker.
+
+// Строит URL аудиофайла (same-origin, public/audio/).
+export const buildAudioUrl = (fileName, userFolder) => {
+  if (!fileName) return ''
+  if (/^https?:\/\//i.test(fileName)) return fileName
+  if (fileName.includes('/')) return `${import.meta.env.BASE_URL}audio/${fileName}`
+  if (userFolder) return `${import.meta.env.BASE_URL}audio/${userFolder}/${fileName}`
+  return `${import.meta.env.BASE_URL}audio/${fileName}`
+}
+
+// Собирает URL всех аудиофайлов словаря (audio + audio2) для прекэша.
+// resolveFolder: функция (word) => папка пользователя или ''/null, либо сама папка.
+export const collectAudioUrls = (words, resolveFolder) => {
+  const urls: string[] = []
+  for (const w of (Array.isArray(words) ? words : [])) {
+    const folder = typeof resolveFolder === 'function' ? resolveFolder(w) : resolveFolder
+    for (const f of [w?.audio, w?.audio2]) {
+      if (!f) continue
+      const u = buildAudioUrl(f, folder)
+      if (u && u.startsWith(import.meta.env.BASE_URL)) urls.push(u)
+    }
+  }
+  return urls
+}
+
+// Отправляет список URL в Service Worker для прогрева кэша (оффлайн-воспроизведение).
+export const precacheUrls = (urls) => {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
+  const controller = navigator.serviceWorker?.controller
+  if (!controller) return
+  const sameOrigin = (Array.isArray(urls) ? urls : []).filter((u) => {
+    try { return new URL(u).origin === location.origin } catch { return false }
+  })
+  if (sameOrigin.length) {
+    controller.postMessage({ type: 'PRECACHE_URLS', urls: sameOrigin })
+  }
+}
+
 // 🗑️ Удаление аудиофайла из папки пользователя
 export const deleteAudioFile = async (fileName, userEmail, rootUpload = false) => {
   if (!fileName || !userEmail) throw new Error('Имя файла или пользователь не указаны')
