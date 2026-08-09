@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
+import { verifyUserOffline } from '../api/offline'
 import ThemeToggle from './ThemeToggle'
 
 // Допустимые символы при вводе (латиница, цифры и символы email)
@@ -25,11 +26,22 @@ function UserAuthForm({ onLogin }) {
     setError('')
     setLoading(true)
     try {
-      // Если нет интернета — сразу сообщаем, не пытаясь обратиться к серверу
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        throw new Error('❌ Нет интернета. Для входа или регистрации необходимо подключение к интернету.')
-      }
+      // Если нет интернета — пробуем оффлайн-вход по сохранённым данным,
+      // иначе сообщаем об отсутствии сети
+      const offline = typeof navigator !== 'undefined' && !navigator.onLine
       if (isLogin) {
+        if (offline) {
+          const cachedUser = await verifyUserOffline(email, password)
+          if (cachedUser) {
+            const userWithRole = { ...cachedUser, role: cachedUser.role || 'user', paid: cachedUser.paid ?? false }
+            localStorage.setItem('currentUser', JSON.stringify(userWithRole))
+            onLogin(userWithRole)
+            navigate(userWithRole.role === 'admin' ? '/admin' : '/')
+          } else {
+            setError('❌ Нет интернета. Для входа в интернете нужен доступ к серверу, либо введите сохранённый ранее email и пароль.')
+          }
+          return
+        }
         const user = await verifyUser(email, password)
         if (user) {
           const userWithRole = { ...user, role: user.role || 'user', paid: user.paid ?? false }
@@ -41,6 +53,9 @@ function UserAuthForm({ onLogin }) {
           setError('Неверный email или пароль')
         }
       } else {
+        if (offline) {
+          throw new Error('❌ Нет интернета. Для регистрации необходимо подключение к интернету.')
+        }
         if (!EMAIL_REGEX.test(email)) {
           throw new Error('Введите корректный email, например: user@mail.ru')
         }

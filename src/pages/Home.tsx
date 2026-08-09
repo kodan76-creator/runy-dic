@@ -45,9 +45,31 @@ export default function Home({ user, onLogout }) {
 
   // Отслеживаем статус интернет-соединения
   useEffect(() => {
+    // При возврате сети синхронизируем избранное, изменённое оффлайн
+    const resyncFavorites = async () => {
+      if (!user?.email) return
+      try {
+        const raw = localStorage.getItem(`favorites:${user.email}`)
+        if (!raw) return
+        const localFavs = JSON.parse(raw)
+        if (!Array.isArray(localFavs)) return
+        const now = new Date().toISOString()
+        const ok = await updateFavoritesForUser(user.email, localFavs, now)
+        if (ok) {
+          setFavorites(new Set(localFavs.map(String)))
+          setFavoritesSyncStatus('idle')
+          // после успешной синхронизации локальная копия больше не нужна
+          localStorage.removeItem(`favorites:${user.email}`)
+        }
+      } catch (e) {
+        console.error('Failed to resync favorites after reconnect:', e)
+        setFavoritesSyncStatus('error')
+      }
+    }
     const handleOnline = () => {
       setIsOffline(false)
       setReloadToken(t => t + 1) // перезагружаем словарь при появлении сети
+      resyncFavorites() // синхронизируем избранное, изменённое оффлайн
     }
     const handleOffline = () => setIsOffline(true)
     window.addEventListener('online', handleOnline)
@@ -56,7 +78,7 @@ export default function Home({ user, onLogout }) {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
-  }, [])
+  }, [user])
 
   // Настройки пользователя, сохраняемые в localStorage (по email, как и избранное)
   const DEFAULT_SETTINGS = {
@@ -204,9 +226,30 @@ export default function Home({ user, onLogout }) {
       return Array.isArray(data) ? data : []
     }
 
+    // 🌐 Оффлайн: показать личный словарь из кэша
+    const applyOfflineCache = () => {
+      const cache = loadOfflineCache(user.email)
+      if (cache && Array.isArray(cache.words)) {
+        setWords(cache.words)
+        setCategories(Array.isArray(cache.categories) ? cache.categories : [])
+        setIsOffline(true)
+        setLoadError(false)
+      } else {
+        setLoadError(true)
+      }
+    }
+
     Promise.all([loadWords(), loadCategories()])
       .then(([wordData, catData]) => {
         if (cancelled) return
+        const offlineNow = typeof navigator !== 'undefined' && !navigator.onLine
+        // getDictionary/getCategories не выбрасывают ошибку при отсутствии сети —
+        // они возвращают пустые данные. Поэтому явно проверяем статус сети:
+        // если сети нет и данных не получено — показываем оффлайн-кэш.
+        if (offlineNow && (!Array.isArray(wordData) || wordData.length === 0)) {
+          applyOfflineCache()
+          return
+        }
         setWords(wordData)
         setCategories(catData)
         setIsOffline(false)
@@ -218,15 +261,7 @@ export default function Home({ user, onLogout }) {
         console.error('Ошибка загрузки:', err)
         if (cancelled) return
         // Оффлайн: пробуем кэш личного словаря
-        const cache = loadOfflineCache(user.email)
-        if (cache && Array.isArray(cache.words)) {
-          setWords(cache.words)
-          setCategories(Array.isArray(cache.categories) ? cache.categories : [])
-          setIsOffline(true)
-          setLoadError(false)
-        } else {
-          setLoadError(true)
-        }
+        applyOfflineCache()
       })
       .finally(() => { if (!cancelled) setLoading(false) })
 

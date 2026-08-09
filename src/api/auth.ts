@@ -5,6 +5,7 @@ import { fetchGitHubFile, updateGitHubFile } from './client'
 import { addLog } from './logs'
 import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
+import { cacheUserForOffline } from './offline'
 
 export const hashPassword = async (password) => {
   try {
@@ -88,6 +89,8 @@ export const registerUser = async (email, password) => {
   ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on register:', e))
   ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on register:', e))
   const { passwordHash: _, ...safeUser } = newUser
+  // 🌐 Кэшируем для оффлайн-входа
+  cacheUserForOffline(safeUser, passwordHash)
   // ✅ Возвращаем с role: 'user'
   return { ...safeUser, role: 'user' }
 }
@@ -107,6 +110,8 @@ export const verifyUser = async (email, password) => {
     ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on login:', e))
 
     const { passwordHash: _, ...safeUser } = user
+    // 🌐 Кэшируем для оффлайн-входа
+    cacheUserForOffline(safeUser, user.passwordHash)
     return { ...safeUser, role: user.role || 'user' }
   } catch (e) {
     console.error('verifyUser error:', e)
