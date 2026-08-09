@@ -115,6 +115,55 @@ export const getCachedCategories = (email) => {
   }
 }
 
+/** Применить одно отложенное изменение к массиву слов (чистая функция).
+ *  Используется и для локального кэша, и для воспроизведения очереди при
+ *  возврате соединения. Типы: add / update / delete / move. */
+export const applyOfflineChange = (arr, change) => {
+  const list = Array.isArray(arr) ? [...arr] : []
+  if (!change) return list
+  switch (change.type) {
+    case 'add':
+      if (change.word && !list.some(w => w.id === change.word.id)) list.push(change.word)
+      break
+    case 'update':
+      if (change.id != null) {
+        const i = list.findIndex(w => w.id === change.id)
+        if (i !== -1) list[i] = { ...list[i], ...change.data }
+      }
+      break
+    case 'delete':
+      return list.filter(w => w.id !== change.id)
+    case 'move': {
+      if (change.id == null) break
+      const from = list.findIndex(w => w.id === change.id)
+      if (from === -1) break
+      const [item] = list.splice(from, 1)
+      const target = Math.min(Math.max(Number(change.toIndex) || 0, 0), list.length)
+      list.splice(target, 0, item)
+      break
+    }
+    case 'reorder': {
+      // Полный желаемый порядок id — применяем к массиву, незнакомые
+      // слова (добавленные кем-то ещё) дописываем в конец в исходном порядке
+      const order = Array.isArray(change.order) ? change.order.map(String) : []
+      const byId = new Map(list.map(w => [String(w.id), w]))
+      const reordered: any[] = []
+      const used = new Set<string>()
+      order.forEach(idStr => {
+        if (byId.has(idStr) && !used.has(idStr)) {
+          reordered.push(byId.get(idStr))
+          used.add(idStr)
+        }
+      })
+      list.forEach(w => {
+        if (!used.has(String(w.id))) reordered.push(w)
+      })
+      return reordered
+    }
+  }
+  return list
+}
+
 // ── Очередь изменений для синхронизации при возврате сети ────────────
 const OFFLINE_QUEUE_KEY = 'offline_queue'
 
@@ -122,7 +171,11 @@ const OFFLINE_QUEUE_KEY = 'offline_queue'
 export const enqueueOfflineChange = (change) => {
   try {
     const queue = getOfflineChanges()
-    queue.push({ ...change, queuedAt: Date.now() })
+    // Уникальный queuedAt (при быстрых изменениях Date.now() может совпасть —
+    // иначе removeOfflineChanges по одному времени удалит оба изменения)
+    let ts = change?.queuedAt != null ? change.queuedAt : Date.now()
+    while (queue.some(c => c.queuedAt === ts)) ts += 1
+    queue.push({ ...change, queuedAt: ts })
     localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue))
   } catch (e) {
     console.error('enqueueOfflineChange error:', e)

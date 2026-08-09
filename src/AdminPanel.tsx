@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
@@ -221,6 +221,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
   // пока GitHub не отдаст актуальный порядок карточек
   const refreshWordsAfterWrite = useCallback(async () => {
+    // 🌐 Оффлайн: читаем актуальный список из кэша (изменения уже применены к нему)
+    if (!isOnline()) {
+      if (activeUser?.email) {
+        const cached = getCachedDictionary(activeUser.email)
+        if (Array.isArray(cached)) setWords(cached)
+      }
+      return
+    }
     const beforeJson = JSON.stringify(words)
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
@@ -239,7 +247,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
     }
-  }, [words, isRestrictedUser, activeUser, setWords])
+  }, [words, isRestrictedUser, activeUser, setWords, isOnline])
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
   const loadCategories = async () => {
@@ -285,7 +293,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     const handleOnline = () => {
       setIsOffline(false)
-      if (activeUser) loadWords()
+      if (activeUser) {
+        loadWords()
+        // 🌐 Синхронизируем изменения, сделанные оффлайн, на GitHub
+        flushOfflineChanges(activeUser)
+          .then(n => {
+            if (n > 0) showMessage(`✅ Синхронизировано изменений: ${n}`)
+            loadWords()
+          })
+          .catch(err => console.error('Ошибка синхронизации оффлайн-изменений:', err))
+      }
     }
     window.addEventListener('offline', handleOffline)
     window.addEventListener('online', handleOnline)
