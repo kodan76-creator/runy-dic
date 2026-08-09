@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
+import { isOnline, cacheDictionaryForOffline, getCachedDictionary } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
 import LogsTab from './components/admin/LogsTab'
@@ -56,6 +57,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [searchTerm, setSearchTerm] = useState('')
   const [positionInputs, setPositionInputs] = useState({})
   const [userSearchTerm, setUserSearchTerm] = useState('')
@@ -173,10 +175,46 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try {
       const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
       const { data } = await getDictionary(dictionaryOwner)
-      setWords(data || [])
-    } catch (err) { setError('Ошибка: ' + err.message) }
+      const arr = Array.isArray(data) ? data : []
+      const offlineNow = !isOnline()
+      // getDictionary не выбрасывает ошибку при отсутствии сети — возвращает
+      // пустые данные. Поэтому явно проверяем статус сети и берём кэш.
+      if (offlineNow && arr.length === 0 && activeUser?.email) {
+        // 🌐 Оффлайн: показать словарь из кэша
+        const cached = getCachedDictionary(activeUser.email)
+        if (Array.isArray(cached)) {
+          setWords(cached)
+          setIsOffline(true)
+        } else {
+          setError('Нет интернета. Словарь не загружен — оффлайн-копия ещё не сохранена.')
+        }
+      } else {
+        setWords(arr)
+        setIsOffline(false)
+        setError('')
+        // Кэшируем словарь для оффлайн-режима (для обычного пользователя
+        // помечаем слова как личные, чтобы на странице пользователя
+        // счётчик «Личных» считался корректно)
+        if (activeUser?.email) {
+          const cacheArr = isRestrictedUser
+            ? arr.map(w => ({ ...w, __dictionarySource: 'personal' }))
+            : arr
+          cacheDictionaryForOffline(activeUser.email, cacheArr)
+        }
+      }
+    } catch (err) {
+      setError('Ошибка: ' + err.message)
+      // 🌐 Оффлайн: пробуем кэш
+      if (activeUser?.email) {
+        const cached = getCachedDictionary(activeUser.email)
+        if (Array.isArray(cached)) {
+          setWords(cached)
+          setIsOffline(true)
+        }
+      }
+    }
     setLoading(false)
-  }, [isRestrictedUser, activeUser, setLoading, setWords, setError])
+  }, [isRestrictedUser, activeUser, setLoading, setWords, setError, setIsOffline])
   // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
   // пока GitHub не отдаст актуальный порядок карточек
   const refreshWordsAfterWrite = useCallback(async () => {
@@ -187,6 +225,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         const { data } = await getDictionary(dictionaryOwner)
         const arr = Array.isArray(data) ? data : []
         setWords(arr)
+        // Обновляем и оффлайн-кэш, чтобы копия была свежей
+        if (activeUser?.email) {
+          const cacheArr = isRestrictedUser
+            ? arr.map(w => ({ ...w, __dictionarySource: 'personal' }))
+            : arr
+          cacheDictionaryForOffline(activeUser.email, cacheArr)
+        }
         if (JSON.stringify(arr) !== beforeJson) return
       } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
@@ -216,6 +261,27 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUser, isRestrictedUser])
+
+  // 🌐 Реагируем на изменение соединения: оффлайн — берём словарь из кэша,
+  // при возврате сети — перезагружаем с сервера
+  useEffect(() => {
+    const handleOffline = () => {
+      setIsOffline(true)
+      // перезагружаем словарь: при оффлайне loadWords возьмёт кэш
+      if (activeUser) loadWords()
+    }
+    const handleOnline = () => {
+      setIsOffline(false)
+      if (activeUser) loadWords()
+    }
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+    return () => {
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeUser])
 
   // When AdminPanel is mounted, prevent page/body scrolling so only central words list scrolls
   useEffect(() => {
@@ -779,6 +845,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   return (
     <div className="admin-panel">
       {message && <div className={`admin-message ${message.type || 'success'}`}>{message.text}</div>}
+      {isOffline && (
+        <div className="offline-banner" role="status">
+          ⚠️ Нет интернета — показана сохранённая копия словаря. Изменения сохранятся, когда появится соединение.
+        </div>
+      )}
       <div className="admin-fixed-container">
         <div className="admin-header">
           <h2>⚙️ Управление словарём</h2>

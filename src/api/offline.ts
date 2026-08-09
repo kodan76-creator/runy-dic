@@ -68,6 +68,41 @@ export const verifyUserOffline = async (email, password) => {
   }
 }
 
+// ── Оффлайн-кэш словаря ──────────────────────────────────────────────
+// Единый кэш личного словаря: ключ `offline_dict:<email>`, значение —
+// { words, categories, savedAt }. Используется на странице пользователя
+// (Home) и в админ-панели для просмотра/редактирования личного словаря
+// без интернета.
+
+/** Сохранить словарь пользователя в оффлайн-кэш. */
+export const cacheDictionaryForOffline = (email, words) => {
+  if (!email) return
+  try {
+    const key = `offline_dict:${String(email).toLowerCase()}`
+    const prev = JSON.parse(localStorage.getItem(key) || '{}')
+    localStorage.setItem(key, JSON.stringify({
+      ...prev,
+      words: Array.isArray(words) ? words : [],
+      savedAt: Date.now(),
+    }))
+  } catch (e) {
+    console.error('cacheDictionaryForOffline error:', e)
+  }
+}
+
+/** Получить кэшированный словарь пользователя (массив слов или null). */
+export const getCachedDictionary = (email) => {
+  try {
+    const key = `offline_dict:${String(email || '').toLowerCase()}`
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed.words) ? parsed.words : null
+  } catch {
+    return null
+  }
+}
+
 // ── Очередь изменений для синхронизации при возврате сети ────────────
 const OFFLINE_QUEUE_KEY = 'offline_queue'
 
