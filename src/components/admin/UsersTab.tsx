@@ -64,7 +64,12 @@ export default function UsersTab({
                 <input
                   type="email"
                   value={userFormData.email}
-                  onChange={e => setUserFormData({ ...userFormData, email: e.target.value })}
+                  onChange={e => {
+                    const value = e.target.value
+                    if (/^[a-zA-Z0-9@._-]*$/.test(value)) {
+                      setUserFormData({ ...userFormData, email: value })
+                    }
+                  }}
                   required
                 />
                 <select

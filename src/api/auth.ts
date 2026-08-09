@@ -60,6 +60,9 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
+  if (!/^[a-zA-Z0-9@._-]+$/.test(email)) {
+    throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
+  }
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')

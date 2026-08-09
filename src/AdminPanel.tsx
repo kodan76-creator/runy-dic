@@ -667,6 +667,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setError('')
     setUserSaving(true)
     try {
+      if (userFormData.email && !/^[a-zA-Z0-9@._-]+$/.test(userFormData.email)) {
+        throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
+      }
       await updateUser(userEditingId, userFormData, adminUser?.email || activeUser?.email)
       handleCancelEditUser()
       await loadUsers()
