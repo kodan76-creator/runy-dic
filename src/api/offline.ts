@@ -74,17 +74,16 @@ export const verifyUserOffline = async (email, password) => {
 // (Home) и в админ-панели для просмотра/редактирования личного словаря
 // без интернета.
 
-/** Сохранить словарь пользователя в оффлайн-кэш. */
-export const cacheDictionaryForOffline = (email, words) => {
+/** Сохранить словарь пользователя в оффлайн-кэш (слова и/или категории). */
+export const cacheDictionaryForOffline = (email, words?, categories?) => {
   if (!email) return
   try {
     const key = `offline_dict:${String(email).toLowerCase()}`
     const prev = JSON.parse(localStorage.getItem(key) || '{}')
-    localStorage.setItem(key, JSON.stringify({
-      ...prev,
-      words: Array.isArray(words) ? words : [],
-      savedAt: Date.now(),
-    }))
+    const next = { ...prev, savedAt: Date.now() }
+    if (words !== undefined) next.words = Array.isArray(words) ? words : []
+    if (categories !== undefined) next.categories = Array.isArray(categories) ? categories : []
+    localStorage.setItem(key, JSON.stringify(next))
   } catch (e) {
     console.error('cacheDictionaryForOffline error:', e)
   }
@@ -98,6 +97,19 @@ export const getCachedDictionary = (email) => {
     if (!raw) return null
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed.words) ? parsed.words : null
+  } catch {
+    return null
+  }
+}
+
+/** Получить кэшированные категории пользователя (массив или null). */
+export const getCachedCategories = (email) => {
+  try {
+    const key = `offline_dict:${String(email || '').toLowerCase()}`
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed.categories) ? parsed.categories : null
   } catch {
     return null
   }

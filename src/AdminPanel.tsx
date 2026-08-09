@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
-import { isOnline, cacheDictionaryForOffline, getCachedDictionary } from './api/offline'
+import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
 import LogsTab from './components/admin/LogsTab'
@@ -185,6 +185,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         if (Array.isArray(cached)) {
           setWords(cached)
           setIsOffline(true)
+          // Категории тоже берём из кэша, иначе вместо названий будут ID
+          const cachedCats = getCachedCategories(activeUser.email)
+          if (Array.isArray(cachedCats)) setCategories(cachedCats)
         } else {
           setError('Нет интернета. Словарь не загружен — оффлайн-копия ещё не сохранена.')
         }
@@ -242,7 +245,17 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const loadCategories = async () => {
     try {
       const { data } = await getCategories()
-      setCategories(data || [])
+      const arr = Array.isArray(data) ? data : []
+      const offlineNow = !isOnline()
+      if (offlineNow && arr.length === 0 && activeUser?.email) {
+        // 🌐 Оффлайн: категории берём из кэша
+        const cached = getCachedCategories(activeUser.email)
+        if (Array.isArray(cached)) setCategories(cached)
+      } else {
+        setCategories(arr)
+        // Кэшируем категории для оффлайн-режима (слова сохраняются через prev)
+        if (activeUser?.email) cacheDictionaryForOffline(activeUser.email, undefined, arr)
+      }
     } catch (err) { console.error('loadCategories error', err) }
   }
 
