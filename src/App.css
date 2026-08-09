@@ -280,6 +280,19 @@ color: #5a0000;
   flex-wrap: wrap;
 }
 
+/* 🌐 Баннер оффлайн-режима */
+.offline-banner {
+  max-width: 1200px;
+  margin: 10px auto 0;
+  padding: 10px 16px;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #f0c36d;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+}
+
 /* Кнопка "Слушать" */
 .listen-btn {
   padding: 10px 20px;
@@ -1317,6 +1330,11 @@ color: #5a0000;
   .auth-hint {
     background: #3d3420;
     color: #ffd970;
+  }
+  .offline-banner {
+    background: #3d3420;
+    color: #ffd970;
+    border-color: #6b5b22;
   }
 
   /* карточки слов */

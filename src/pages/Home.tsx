@@ -14,7 +14,49 @@ export default function Home({ user, onLogout }) {
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
+  const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [reloadToken, setReloadToken] = useState(0)
+
+  // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
+  // чтобы при отсутствии интернета можно было пользоваться своим словарём.
+  const offlineCacheKey = (email) => `offline_dict:${email}`
+  const saveOfflineCache = (user, personalWords, cats) => {
+    if (!user?.email) return
+    try {
+      localStorage.setItem(offlineCacheKey(user.email), JSON.stringify({
+        words: personalWords,
+        categories: Array.isArray(cats) ? cats : [],
+        savedAt: Date.now(),
+      }))
+    } catch (e) {
+      console.error('Не удалось сохранить оффлайн-кэш', e)
+    }
+  }
+  const loadOfflineCache = (email) => {
+    try {
+      const raw = localStorage.getItem(offlineCacheKey(email))
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch (e) {
+      console.error('Не удалось прочитать оффлайн-кэш', e)
+      return null
+    }
+  }
+
+  // Отслеживаем статус интернет-соединения
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false)
+      setReloadToken(t => t + 1) // перезагружаем словарь при появлении сети
+    }
+    const handleOffline = () => setIsOffline(true)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   // Настройки пользователя, сохраняемые в localStorage (по email, как и избранное)
   const DEFAULT_SETTINGS = {
@@ -153,18 +195,39 @@ export default function Home({ user, onLogout }) {
       const { data } = await getDictionary(user)
       const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
       // Сохраняем порядок карточек как в файле словаря (последовательность, заданная в админке)
-      const orderedData = [...(data || [])]
+      return [...(data || [])]
         .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
-      if (!cancelled) setWords(orderedData)
     }
 
     const loadCategories = async () => {
       const { data } = await getCategories()
-      if (!cancelled) setCategories(Array.isArray(data) ? data : [])
+      return Array.isArray(data) ? data : []
     }
 
     Promise.all([loadWords(), loadCategories()])
-      .catch((err) => { console.error('Ошибка загрузки:', err); if (!cancelled) setLoadError(true) })
+      .then(([wordData, catData]) => {
+        if (cancelled) return
+        setWords(wordData)
+        setCategories(catData)
+        setIsOffline(false)
+        // Кэшируем только личные слова — их и показываем оффлайн
+        const personalWords = wordData.filter(w => w.__dictionarySource === 'personal')
+        saveOfflineCache(user, personalWords, catData)
+      })
+      .catch((err) => {
+        console.error('Ошибка загрузки:', err)
+        if (cancelled) return
+        // Оффлайн: пробуем кэш личного словаря
+        const cache = loadOfflineCache(user.email)
+        if (cache && Array.isArray(cache.words)) {
+          setWords(cache.words)
+          setCategories(Array.isArray(cache.categories) ? cache.categories : [])
+          setIsOffline(true)
+          setLoadError(false)
+        } else {
+          setLoadError(true)
+        }
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
@@ -322,6 +385,12 @@ export default function Home({ user, onLogout }) {
 
   return (
     <div className="container">
+      {isOffline && (
+        <div className="offline-banner" role="status">
+          ⚠️ Нет интернета — показан только ваш личный словарь (офлайн-копия).
+          Изменения сохранятся, когда появится соединение.
+        </div>
+      )}
       <div className="header">
         <button
           className={`listen-btn ${audio.isPlaying ? 'playing' : ''}`}
