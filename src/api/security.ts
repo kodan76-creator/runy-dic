@@ -149,7 +149,7 @@ const KNOWN_FILES = [
 
 // Получить полный список JSON-файлов из репозитория (Git Trees API).
 // Возвращает JSON-файлы в корне репозитория (там лежат все данные), исключая
-// служебные package.json / package-lock.json, чтобы их случайно не зашифровать.
+// служебные package.json / package-lock.json / tsconfig.json, чтобы их случайно не зашифровать.
 const listRepoJsonFiles = async () => {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`
   const resp = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
@@ -160,9 +160,10 @@ const listRepoJsonFiles = async () => {
     .filter(item => item.type === 'blob')
     .map(item => item.path)
     .filter(path =>
-      /\.json$/i.test(path) &&                    // только JSON
-      !/[/]/.test(path) &&                        // только в корне репозитория
-      !/^package(-lock)?\.json$/i.test(path)      // без package.json / package-lock.json
+      /\.json$/i.test(path) &&                            // только JSON
+      !/[/]/.test(path) &&                                // только в корне репозитория
+      !/^package(-lock)?\.json$/i.test(path) &&           // без package.json / package-lock.json
+      !/^tsconfig(\.node)?\.json$/i.test(path)            // без tsconfig.json / tsconfig.node.json
     )
 }
 
