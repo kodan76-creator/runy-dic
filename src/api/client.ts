@@ -125,7 +125,9 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
     // Если файл существует — берём его формат; если новый — шифруем (безопасно по умолчанию).
     const shouldEncrypt = sha ? isEncrypted(data) : true
 
-    const payload = JSON.stringify(newData)
+    // 📄 Пишем красиво (отступ 2 пробела), чтобы JSON был читаемым,
+    // а не в одну строку.
+    const payload = JSON.stringify(newData, null, 2)
     const content = shouldEncrypt ? utf8ToBase64(await encrypt(payload)) : utf8ToBase64(payload)
     const body: Record<string, string> = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
     if (currentSha) body.sha = currentSha
