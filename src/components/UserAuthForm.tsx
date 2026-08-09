@@ -5,8 +5,10 @@ import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
 import ThemeToggle from './ThemeToggle'
 
-// Только латинские буквы, цифры и символы, допустимые в email
-const LATIN_LOGIN_REGEX = /^[a-zA-Z0-9@._-]*$/
+// Допустимые символы при вводе (латиница, цифры и символы email)
+const LATIN_LOGIN_REGEX = /^[a-zA-Z0-9@._%+-]*$/
+// Проверка формата email (как почтовый ящик: имя@домен.зона)
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 function UserAuthForm({ onLogin }) {
   const navigate = useNavigate()
@@ -35,8 +37,8 @@ function UserAuthForm({ onLogin }) {
           setError('Неверный email или пароль')
         }
       } else {
-        if (!LATIN_LOGIN_REGEX.test(email)) {
-          throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
+        if (!EMAIL_REGEX.test(email)) {
+          throw new Error('Введите корректный email, например: user@mail.ru')
         }
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
@@ -60,7 +62,7 @@ function UserAuthForm({ onLogin }) {
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <label className="visually-hidden" htmlFor="auth-email">Email</label>
-          <input id="auth-email" type="text" name="username" placeholder="Email" value={email} onChange={(e) => {
+          <input id="auth-email" type="email" name="username" placeholder="Email" value={email} onChange={(e) => {
             const value = e.target.value
             if (LATIN_LOGIN_REGEX.test(value)) {
               setEmail(value)

@@ -60,8 +60,8 @@ export const getUsers = async () => {
 }
 
 export const registerUser = async (email, password) => {
-  if (!/^[a-zA-Z0-9@._-]+$/.test(email)) {
-    throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
+  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    throw new Error('Введите корректный email, например: user@mail.ru')
   }
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
