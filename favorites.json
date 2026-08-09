@@ -45,5 +45,10 @@
     "userEmail": "123",
     "favorites": [],
     "updatedAt": "2026-08-09T02:16:51.928Z"
+  },
+  {
+    "userEmail": "offline@test.com",
+    "favorites": [],
+    "updatedAt": "2026-08-09T02:50:12.886Z"
   }
 ]
