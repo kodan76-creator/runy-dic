@@ -172,8 +172,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-left: auto;
-  order: 6;
+  order: 8;
 }
 
 .dictionary-stats {
@@ -267,10 +266,10 @@ color: #5a0000;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 12px;
   background: var(--app-accent);
-  padding: 10px 16px;
+  padding: 10px 12px;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 20px var(--shadow-md);
   border-bottom: 3px solid var(--app-bg);
@@ -340,7 +339,7 @@ color: #5a0000;
   flex-direction: row;
   gap: 12px;
   align-items: center;
-  order: 2;
+  order: 5;
 }
 
 .mode-label {
@@ -361,18 +360,18 @@ color: #5a0000;
 .logo {
   width: 84px;
   height: auto;
-  order: 3;
+  order: 4;
 }
 
 /* Переключатель режима: Словарь / Новые Руны */
 .view-toggle {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   align-items: center;
   background: rgba(255, 255, 255, 0.14);
   border: 2px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  padding: 4px;
+  padding: 3px;
   order: 3;
 }
 .view-toggle-btn {
@@ -380,9 +379,9 @@ color: #5a0000;
   background: transparent;
   color: #fff;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 5px 11px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -401,7 +400,7 @@ color: #5a0000;
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  order: 4;
+  order: 6;
   color: white;
 }
 
@@ -410,7 +409,7 @@ color: #5a0000;
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  order: 5;
+  order: 7;
   color: white;
 }
 
@@ -532,14 +531,20 @@ color: #5a0000;
   .search-row {
     position: static;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: row;
     align-items: center;
     gap: 8px;
+    order: 2;
 
-    flex: 1;
+    flex: 0 1 auto;
     width: auto;
-    margin-left: auto;
     z-index: auto;
+  }
+
+  .search-wrapper {
+    width: 340px;
+    max-width: 340px;
+    flex: 0 0 auto;
   }
 
 }
@@ -1167,7 +1172,7 @@ color: #5a0000;
 
   .header-actions {
     order: 6;
-    align-self: flex-end;
+    align-self: center;
     margin-left: 0;
     gap: 8px;
   }
@@ -1337,7 +1342,7 @@ color: #5a0000;
   }
 
   .header-actions {
-    align-self: flex-end;
+    align-self: center;
     margin-left: 0;
     gap: 8px;
   }
