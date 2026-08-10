@@ -1121,7 +1121,7 @@ color: #5a0000;
   }
 
   .logo {
-    order: 3;
+    order: 0;
     width: 84px;
   }
 
@@ -1314,6 +1314,7 @@ color: #5a0000;
   }
 
   .logo {
+    order: 0;
     width: 68px;
   }
 
