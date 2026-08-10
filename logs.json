@@ -1,5 +1,13 @@
 [
   {
+    "id": "1786387681082",
+    "timestamp": "2026-08-10T18:48:01.082Z",
+    "action": "user_updated",
+    "userEmail": "kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, runesPaid=false, paidAt=2026-07-24T01:44:45.099Z, unpaidAt=-"
+  },
+  {
     "id": "1786387617327",
     "timestamp": "2026-08-10T18:46:57.327Z",
     "action": "user_updated",
@@ -7024,13 +7032,6 @@
   {
     "id": "1778174718479",
     "timestamp": "2026-05-07T17:25:18.479Z",
-    "action": "login",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Вход"
-  },
-  {
-    "id": "1778174461339",
-    "timestamp": "2026-05-07T17:21:01.339Z",
     "action": "login",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Вход"
