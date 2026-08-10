@@ -10,6 +10,7 @@ export interface Word {
   transcription?: string
   audio?: string
   audio2?: string
+  image?: string
   runes?: string
   categories?: string[]
   createdAt?: string

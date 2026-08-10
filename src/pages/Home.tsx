@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, precacheUrls, emailToFolderName } from '../githubApi'
+import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, precacheUrls, emailToFolderName, buildImageUrl } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import WordCard from '../components/WordCard'
 import FilterModal from '../components/FilterModal'
@@ -117,6 +117,14 @@ export default function Home({ user, onLogout }) {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
+  }
+
+  // URL картинки карточки: общий словарь — images/корень, личный — images/{папка пользователя}/
+  const getImageSrc = (fileName, isPersonal) => {
+    if (!fileName) return ''
+    if (/^https?:\/\//i.test(fileName)) return fileName
+    const userFolder = isPersonal && user?.email ? emailToFolderName(user.email) : null
+    return buildImageUrl(fileName, userFolder)
   }
 
   // load favorites for current user from localStorage
@@ -259,6 +267,8 @@ export default function Home({ user, onLogout }) {
         // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
         const userFolder = user?.email ? emailToFolderName(user.email) : null
         precacheUrls(collectAudioUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
+        // 🖼️ Прогреваем картинки в кэше SW для оффлайна
+        precacheUrls(collectImageUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)
@@ -639,6 +649,7 @@ export default function Home({ user, onLogout }) {
             isFavorite={favorites.has(String(item.id))}
             onToggleFavorite={() => toggleFavorite(item.id)}
             onPlayAudio={audio.handleSingleAudio}
+            getImageSrc={getImageSrc}
             onScrollTop={scrollResultsToTop}
           />
         )) : (

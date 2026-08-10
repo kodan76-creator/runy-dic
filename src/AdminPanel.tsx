@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
@@ -53,7 +53,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
-    audio: '', audio2: '', textAlign: 'center'
+    audio: '', audio2: '', image: '', textAlign: 'center'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -88,6 +88,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (userFolder) return `${base}${userFolder}/${fileName}`
     return `${base}${fileName}`
   }, [])
+
+  // URL картинки (same-origin public/images/) для превью в админке:
+  // админ — общий словарь (корень), обычный пользователь — личный (images/{emailFolder}/)
+  const getImageSrc = useCallback((fileName) => {
+    if (!fileName) return ''
+    if (/^https?:\/\//i.test(fileName)) return fileName
+    const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
+    return buildImageUrl(fileName, userFolder)
+  }, [isRestrictedUser, activeUser])
 
   const stopAudio = useCallback(() => {
     if (currentAudioRef.current) {
@@ -486,7 +495,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         await addWord(formData, activeUser?.email, activeUser)
         showMessage('✅ Карточка добавлена')
       }
-      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
+      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', image: '', textAlign: 'center' })
       setEditingId(null); await loadWords()
     } catch (err) {
       setError(err.message)
@@ -591,6 +600,66 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('')
   }
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
+    if (!['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext)) {
+      setError('Допускаются только изображения (PNG, JPG, JPEG, WEBP, GIF, SVG)')
+      e.target.value = ''
+      return
+    }
+    if (!activeUser?.email) {
+      setError('Не удалось определить пользователя')
+      return
+    }
+    setAudioUploading('image')
+    setError('')
+    const oldName = formData.image
+    try {
+      const result = await uploadImageFile(file, activeUser.email, !isRestrictedUser)
+      setFormData(prev => ({ ...prev, image: result.path }))
+      showMessage(`✅ Картинка «${result.path}» загружена`)
+      // Если был старый файл и он не совпадает с новым — удаляем старый
+      if (oldName && oldName !== result.path) {
+        try {
+          await deleteImageFile(oldName, activeUser.email, !isRestrictedUser)
+        } catch { /* файл мог быть уже удалён — не критично */ }
+      }
+    } catch (err) {
+      const errMsg = err.message || 'Неизвестная ошибка'
+      setError('❌ Ошибка загрузки картинки: ' + errMsg)
+      showMessage('❌ Ошибка загрузки картинки: ' + errMsg, 'error')
+    }
+    setAudioUploading('')
+    e.target.value = ''
+  }
+
+  const handleImageDelete = async () => {
+    const fileName = formData.image
+    if (!fileName) return
+    if (!activeUser?.email) { setError('Не удалось определить пользователя'); return }
+    if (!window.confirm(`Удалить картинку «${fileName}»?`)) return
+    setAudioUploading('image')
+    setError('')
+    try {
+      await deleteImageFile(fileName, activeUser.email, !isRestrictedUser)
+      setFormData(prev => ({ ...prev, image: '' }))
+      showMessage(`✅ Картинка «${fileName}» удалена`)
+    } catch (err) {
+      const errMsg = err.message || 'Неизвестная ошибка'
+      // Если файл не найден — всё равно очищаем поле, т.к. файла уже нет
+      if (errMsg.includes('не найден')) {
+        setFormData(prev => ({ ...prev, image: '' }))
+        showMessage(`⚠️ Файл «${fileName}» не найден на сервере — поле очищено`)
+      } else {
+        setError('❌ Ошибка удаления картинки: ' + errMsg)
+        showMessage('❌ Ошибка удаления картинки: ' + errMsg, 'error')
+      }
+    }
+    setAudioUploading('')
+  }
+
   const handleEdit = useCallback((word) => {
       // Only allow editing if admin or owner
       const isAdmin = activeUser?.role === 'admin'
@@ -610,7 +679,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setFormData({
         word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
         example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
-        audio: word.audio || '', audio2: word.audio2 || '', textAlign: word.textAlign || 'center'
+        audio: word.audio || '', audio2: word.audio2 || '', image: word.image || '', textAlign: word.textAlign || 'center'
       })
 
       // Мобильная версия: после нажатия «Редактировать» прокручиваем страницу
@@ -722,11 +791,12 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onPlayAudio={playAudioFile}
+          getImageSrc={getImageSrc}
           onScrollTop={scrollWordsToTop}
         />
       )
     })
-  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
+  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, getImageSrc, scrollWordsToTop])
 
   // Categories handlers
   const handleCategorySubmit = async (e) => {
@@ -961,6 +1031,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleSubmit={handleSubmit}
             handleAudioUpload={handleAudioUpload}
             handleAudioDelete={handleAudioDelete}
+            handleImageUpload={handleImageUpload}
+            handleImageDelete={handleImageDelete}
+            getImageSrc={getImageSrc}
             loadWords={loadWords}
             onImport={handleImport}
           />

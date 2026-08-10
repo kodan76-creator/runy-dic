@@ -18,6 +18,7 @@ export default function WordItem({
   onEdit,
   onDelete,
   onPlayAudio,
+  getImageSrc,
   onScrollTop,
 }) {
   const catName = (id) => (categories.find(c => c.id === id) || { name: id }).name
@@ -30,6 +31,9 @@ export default function WordItem({
           <h4 className="word-title">{word.word}</h4>
           {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
         </div>
+        {word.image && getImageSrc && (
+          <img src={getImageSrc(word.image)} alt={word.word || 'Картинка'} className="word-image" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+        )}
         <p className="word-translation">{word.translation}</p>
         {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
           <div className="word-category">({Array.isArray(word.category) ? word.category.map(catName).join('; ') : catName(word.category)})</div>
