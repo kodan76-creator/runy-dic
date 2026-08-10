@@ -18,6 +18,7 @@ export default function Home({ user, onLogout }) {
   const [loadError, setLoadError] = useState(false)
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [reloadToken, setReloadToken] = useState(0)
+  const [viewMode, setViewMode] = useState<'dictionary' | 'runes'>('dictionary')
 
   // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
   // чтобы при отсутствии интернета можно было пользоваться своим словарём.
@@ -443,167 +444,198 @@ export default function Home({ user, onLogout }) {
         </div>
       )}
       <div className="header">
-        <button
-          className={`listen-btn ${audio.isPlaying ? 'playing' : ''}`}
-          onClick={audio.handleListenAll}
-          disabled={!filtered.some(item => item.audio || item.audio2)}
-        >
-          {audio.isPlaying ? 'Стоп' : 'Слушать'}
-        </button>
-        <div className="play-mode">
-          <label className="mode-label">
-            <input
-              type="radio"
-              name="playMode"
-              value="sequential"
-              checked={playMode === 'sequential'}
-              onChange={() => setPlayMode('sequential')}
-            />
-            Подряд
-          </label>
-          <label className="mode-label">
-            <input
-              type="radio"
-              name="playMode"
-              value="random"
-              checked={playMode === 'random'}
-              onChange={() => setPlayMode('random')}
-            />
-            Случайно
-          </label>
-        </div>
+        {viewMode === 'dictionary' && (
+          <>
+            <button
+              className={`listen-btn ${audio.isPlaying ? 'playing' : ''}`}
+              onClick={audio.handleListenAll}
+              disabled={!filtered.some(item => item.audio || item.audio2)}
+            >
+              {audio.isPlaying ? 'Стоп' : 'Слушать'}
+            </button>
+            <div className="play-mode">
+              <label className="mode-label">
+                <input
+                  type="radio"
+                  name="playMode"
+                  value="sequential"
+                  checked={playMode === 'sequential'}
+                  onChange={() => setPlayMode('sequential')}
+                />
+                Подряд
+              </label>
+              <label className="mode-label">
+                <input
+                  type="radio"
+                  name="playMode"
+                  value="random"
+                  checked={playMode === 'random'}
+                  onChange={() => setPlayMode('random')}
+                />
+                Случайно
+              </label>
+            </div>
+          </>
+        )}
         <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="logo" />
-        <div className="filter-mode">
-          <span className="filter-title">Сортировать:</span>
-          <label className="mode-label">
-            <input
-              type="radio"
-              name="sortMode"
-              value="order"
-              checked={sortMode === 'order'}
-              onChange={() => setSortMode('order')}
-            />
-            порядок
-          </label>
-          <label className="mode-label">
-            <input
-              type="radio"
-              name="sortMode"
-              value="translation"
-              checked={sortMode === 'translation'}
-              onChange={() => setSortMode('translation')}
-            />
-            перевод
-          </label>
-          <label className="mode-label">
-            <input
-              type="radio"
-              name="sortMode"
-              value="runes"
-              checked={sortMode === 'runes'}
-              onChange={() => setSortMode('runes')}
-            />
-            руны
-          </label>
-        </div>
-        {hasSharedDictionaryAccess && (
-          <div className="dictionary-source-mode">
-            <span className="filter-title">Словари:</span>
-            <label className="mode-label">
-              <input
-                type="radio"
-                name="dictionarySourceFilter"
-                value="all"
-                checked={dictionarySourceFilter === 'all'}
-                onChange={() => setDictionarySourceFilter('all')}
-              />
-              все
-            </label>
-            <label className="mode-label">
-              <input
-                type="radio"
-                name="dictionarySourceFilter"
-                value="personal"
-                checked={dictionarySourceFilter === 'personal'}
-                onChange={() => setDictionarySourceFilter('personal')}
-              />
-              свой
-            </label>
-            <label className="mode-label">
-              <input
-                type="radio"
-                name="dictionarySourceFilter"
-                value="shared"
-                checked={dictionarySourceFilter === 'shared'}
-                onChange={() => setDictionarySourceFilter('shared')}
-              />
-              основной
-            </label>
+        {/* Переключатель режима: Словарь / Новые Руны */}
+        {user?.runesPaid && (
+          <div className="view-toggle" role="group" aria-label="Режим отображения">
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === 'dictionary' ? 'active' : ''}`}
+              onClick={() => setViewMode('dictionary')}
+            >
+              📚 Словарь
+            </button>
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === 'runes' ? 'active' : ''}`}
+              onClick={() => setViewMode('runes')}
+            >
+              🧿 Новые Руны
+            </button>
           </div>
         )}
-          <div className="search-row">
-          <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
-            <span className="filter-label">Фильтр</span>
-            {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
-          </button>
-          <div className="search-wrapper" style={{flex: 1}}>
-            <input
-              type="text"
-              placeholder="Поиск по словарю..."
-              aria-label="Поиск по словарю"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button
-                className="search-clear-btn"
-                onClick={() => setSearchTerm('')}
-                aria-label="Очистить поиск"
-                title="Очистить поиск"
-              >
-                ❌
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="header-actions">
-          <div className="dictionary-stats" title="Количество карточек в словарях">
-            <span>Личных: {dictionaryStats.personal}</span>
-            <span>Всего: {dictionaryStats.total}</span>
-          </div>
-          <div className="favorites-block">
-            <button
-              className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`}
-              aria-label={showOnlyFavorites ? 'Показывать все карточки' : 'Показывать только избранное'}
-              aria-pressed={showOnlyFavorites}
-              title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'}
-              onClick={() => setShowOnlyFavorites(s => !s)}
-            >
-              {showOnlyFavorites ? '❤️' : '🤍'}
-              <span className="fav-count">{favorites.size}</span>
-            </button>
-            <div
-              className="fav-status"
-              role="status"
-              aria-label={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации избранного' : favoritesSyncStatus === 'saving' ? 'Сохранение избранного' : 'Избранное синхронизировано'}
-              title={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации. Нажмите, чтобы попытаться снова.' : favoritesSyncStatus === 'saving' ? 'Сохраняется...' : 'Синхронизировано'}
-              onClick={async () => {
-                if (!user || !user.email) return
-                setFavoritesSyncStatus('saving')
-                try {
-                  const now = new Date().toISOString()
-                  const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
-                  setFavoritesSyncStatus(ok ? 'idle' : 'error')
-                } catch (e) {
-                  console.error('Manual sync failed', e)
-                  setFavoritesSyncStatus('error')
-                }
-              }}
-            >
-              {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
+        {viewMode === 'dictionary' && (
+          <>
+            <div className="filter-mode">
+              <span className="filter-title">Сортировать:</span>
+              <label className="mode-label">
+                <input
+                  type="radio"
+                  name="sortMode"
+                  value="order"
+                  checked={sortMode === 'order'}
+                  onChange={() => setSortMode('order')}
+                />
+                порядок
+              </label>
+              <label className="mode-label">
+                <input
+                  type="radio"
+                  name="sortMode"
+                  value="translation"
+                  checked={sortMode === 'translation'}
+                  onChange={() => setSortMode('translation')}
+                />
+                перевод
+              </label>
+              <label className="mode-label">
+                <input
+                  type="radio"
+                  name="sortMode"
+                  value="runes"
+                  checked={sortMode === 'runes'}
+                  onChange={() => setSortMode('runes')}
+                />
+                руны
+              </label>
             </div>
-          </div>
+            {hasSharedDictionaryAccess && (
+              <div className="dictionary-source-mode">
+                <span className="filter-title">Словари:</span>
+                <label className="mode-label">
+                  <input
+                    type="radio"
+                    name="dictionarySourceFilter"
+                    value="all"
+                    checked={dictionarySourceFilter === 'all'}
+                    onChange={() => setDictionarySourceFilter('all')}
+                  />
+                  все
+                </label>
+                <label className="mode-label">
+                  <input
+                    type="radio"
+                    name="dictionarySourceFilter"
+                    value="personal"
+                    checked={dictionarySourceFilter === 'personal'}
+                    onChange={() => setDictionarySourceFilter('personal')}
+                  />
+                  свой
+                </label>
+                <label className="mode-label">
+                  <input
+                    type="radio"
+                    name="dictionarySourceFilter"
+                    value="shared"
+                    checked={dictionarySourceFilter === 'shared'}
+                    onChange={() => setDictionarySourceFilter('shared')}
+                  />
+                  основной
+                </label>
+              </div>
+            )}
+            <div className="search-row">
+              <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
+                <span className="filter-label">Фильтр</span>
+                {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
+              </button>
+              <div className="search-wrapper" style={{flex: 1}}>
+                <input
+                  type="text"
+                  placeholder="Поиск по словарю..."
+                  aria-label="Поиск по словарю"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                {searchTerm && (
+                  <button
+                    className="search-clear-btn"
+                    onClick={() => setSearchTerm('')}
+                    aria-label="Очистить поиск"
+                    title="Очистить поиск"
+                  >
+                    ❌
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+        <div className="header-actions">
+          {viewMode === 'dictionary' && (
+            <>
+              <div className="dictionary-stats" title="Количество карточек в словарях">
+                <span>Личных: {dictionaryStats.personal}</span>
+                <span>Всего: {dictionaryStats.total}</span>
+              </div>
+              <div className="favorites-block">
+                <button
+                  className={`favorites-toggle ${showOnlyFavorites ? 'active' : ''}`}
+                  aria-label={showOnlyFavorites ? 'Показывать все карточки' : 'Показывать только избранное'}
+                  aria-pressed={showOnlyFavorites}
+                  title={showOnlyFavorites ? 'Показывать все' : 'Показывать только избранное'}
+                  onClick={() => setShowOnlyFavorites(s => !s)}
+                >
+                  {showOnlyFavorites ? '❤️' : '🤍'}
+                  <span className="fav-count">{favorites.size}</span>
+                </button>
+                <div
+                  className="fav-status"
+                  role="status"
+                  aria-label={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации избранного' : favoritesSyncStatus === 'saving' ? 'Сохранение избранного' : 'Избранное синхронизировано'}
+                  title={favoritesSyncStatus === 'error' ? 'Ошибка синхронизации. Нажмите, чтобы попытаться снова.' : favoritesSyncStatus === 'saving' ? 'Сохраняется...' : 'Синхронизировано'}
+                  onClick={async () => {
+                    if (!user || !user.email) return
+                    setFavoritesSyncStatus('saving')
+                    try {
+                      const now = new Date().toISOString()
+                      const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
+                      setFavoritesSyncStatus(ok ? 'idle' : 'error')
+                    } catch (e) {
+                      console.error('Manual sync failed', e)
+                      setFavoritesSyncStatus('error')
+                    }
+                  }}
+                >
+                  {favoritesSyncStatus === 'saving' ? '…' : favoritesSyncStatus === 'error' ? '⚠' : '✓'}
+                </div>
+              </div>
+            </>
+          )}
           <button className="header-admin-btn" type="button" onClick={() => { window.open(`${window.location.origin}${window.location.pathname}#/admin`, '_blank', 'noopener,noreferrer') }}>
             Админка
           </button>
@@ -614,76 +646,87 @@ export default function Home({ user, onLogout }) {
         </div>
       </div>
 
-      <FilterModal
-        open={showFilterModal}
-        categories={categories}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        onApply={applyFilters}
-        onClose={() => setShowFilterModal(false)}
-        onReset={() => { clearFilters(); applyFilters() }}
-      />
-
-      {categoryCounts.length > 0 && (
-        <div className="category-stats" aria-label="Статистика по категориям">
-          <span className="category-stats-title">Категории:</span>
-          {categoryCounts.map(({ id, name, count }) => (
-            <button
-              key={id}
-              type="button"
-              className={`category-stat-chip ${selectedFilters.includes(id) ? 'active' : ''}`}
-              aria-pressed={selectedFilters.includes(id)}
-              title={selectedFilters.includes(id) ? 'Снять фильтр по категории' : 'Показать только эту категорию'}
-              onClick={() => toggleFilter(id)}
-            >
-              {name} <b>{count}</b>
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="results" ref={resultsRef}>
-        {filtered.length > 0 ? filtered.map(item => (
-          <WordCard
-            key={item.id}
-            item={item}
+      {viewMode === 'dictionary' ? (
+        <>
+          <FilterModal
+            open={showFilterModal}
             categories={categories}
-            searchTerm={searchTerm}
-            isFavorite={favorites.has(String(item.id))}
-            onToggleFavorite={() => toggleFavorite(item.id)}
-            onPlayAudio={audio.handleSingleAudio}
-            onScrollTop={scrollResultsToTop}
+            selectedFilters={selectedFilters}
+            onToggleFilter={toggleFilter}
+            onApply={applyFilters}
+            onClose={() => setShowFilterModal(false)}
+            onReset={() => { clearFilters(); applyFilters() }}
           />
-        )) : (
-          <div className="state-block empty-state">
-            <div className="state-icon" aria-hidden="true">🔍</div>
-            <h2>{words.length === 0 ? 'Словарь пуст' : 'Ничего не найдено'}</h2>
-            <p>
-              {words.length === 0
-                ? 'В словаре пока нет карточек.'
-                : 'По вашему запросу ничего не найдено. Попробуйте изменить запрос или фильтры.'}
-            </p>
-            {(searchTerm || selectedFilters.length > 0 || showOnlyFavorites) && (
-              <button
-                className="state-reset-btn"
-                onClick={() => { setSearchTerm(''); clearFilters(); setShowOnlyFavorites(false) }}
-              >
-                Сбросить поиск и фильтры
-              </button>
+
+          {categoryCounts.length > 0 && (
+            <div className="category-stats" aria-label="Статистика по категориям">
+              <span className="category-stats-title">Категории:</span>
+              {categoryCounts.map(({ id, name, count }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`category-stat-chip ${selectedFilters.includes(id) ? 'active' : ''}`}
+                  aria-pressed={selectedFilters.includes(id)}
+                  title={selectedFilters.includes(id) ? 'Снять фильтр по категории' : 'Показать только эту категорию'}
+                  onClick={() => toggleFilter(id)}
+                >
+                  {name} <b>{count}</b>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="results" ref={resultsRef}>
+            {filtered.length > 0 ? filtered.map(item => (
+              <WordCard
+                key={item.id}
+                item={item}
+                categories={categories}
+                searchTerm={searchTerm}
+                isFavorite={favorites.has(String(item.id))}
+                onToggleFavorite={() => toggleFavorite(item.id)}
+                onPlayAudio={audio.handleSingleAudio}
+                onScrollTop={scrollResultsToTop}
+              />
+            )) : (
+              <div className="state-block empty-state">
+                <div className="state-icon" aria-hidden="true">🔍</div>
+                <h2>{words.length === 0 ? 'Словарь пуст' : 'Ничего не найдено'}</h2>
+                <p>
+                  {words.length === 0
+                    ? 'В словаре пока нет карточек.'
+                    : 'По вашему запросу ничего не найдено. Попробуйте изменить запрос или фильтры.'}
+                </p>
+                {(searchTerm || selectedFilters.length > 0 || showOnlyFavorites) && (
+                  <button
+                    className="state-reset-btn"
+                    onClick={() => { setSearchTerm(''); clearFilters(); setShowOnlyFavorites(false) }}
+                  >
+                    Сбросить поиск и фильтры
+                  </button>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
-
-      {/* 🧿 Новые Руны — отдельный словарь для оплативших */}
-      {user?.runesPaid && Array.isArray(runes) && runes.length > 0 && (
+        </>
+      ) : (
         <div className="runes-dictionary-section">
-          <h2 className="runes-section-title">🧿 Новые Руны</h2>
-          <div className="runes-list-cards">
-            {runes.map(r => (
-              <RuneCard key={r.id || r.name} rune={r} />
-            ))}
-          </div>
+          {Array.isArray(runes) && runes.length > 0 ? (
+            <>
+              <h2 className="runes-section-title">🧿 Новые Руны</h2>
+              <div className="runes-list-cards">
+                {runes.map(r => (
+                  <RuneCard key={r.id || r.name} rune={r} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="state-block empty-state">
+              <div className="state-icon" aria-hidden="true">🧿</div>
+              <h2>Рун пока нет</h2>
+              <p>Новые руны скоро появятся.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
