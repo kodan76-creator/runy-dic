@@ -1,5 +1,55 @@
 [
   {
+    "id": "1786374391693",
+    "timestamp": "2026-08-10T15:06:31.693Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1786373975385",
+    "timestamp": "2026-08-10T14:59:35.385Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1786373968711",
+    "timestamp": "2026-08-10T14:59:28.711Z",
+    "action": "logout",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
+    "id": "1786373777997",
+    "timestamp": "2026-08-10T14:56:17.997Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1786373754041",
+    "timestamp": "2026-08-10T14:55:54.041Z",
+    "action": "user_updated",
+    "userEmail": "kodan76@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, runesPaid=true, paidAt=2026-07-24T01:44:45.099Z, unpaidAt=-"
+  },
+  {
+    "id": "1786373148383",
+    "timestamp": "2026-08-10T14:45:48.383Z",
+    "action": "login",
+    "userEmail": "ya.kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1786373134523",
+    "timestamp": "2026-08-10T14:45:34.523Z",
+    "action": "logout",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Выход"
+  },
+  {
     "id": "1786369651917",
     "timestamp": "2026-08-10T13:47:31.917Z",
     "action": "search",
