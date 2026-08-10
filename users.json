@@ -88,10 +88,11 @@
     "isBlocked": false,
     "blockedAt": null,
     "blockedBy": null,
-    "runesPaid": true,
+    "runesPaid": false,
     "runesPaidAt": "2026-08-10T18:46:56.045Z",
     "runesPaidBy": "ya.kodan76@ya.ru",
-    "runesUnpaidAt": "2026-08-10T18:29:51.292Z",
-    "runesUnpaidBy": "ya.kodan76@ya.ru"
+    "runesUnpaidAt": "2026-08-10T18:47:59.974Z",
+    "runesUnpaidBy": "ya.kodan76@ya.ru",
+    "sessionVersion": 1
   }
 ]
