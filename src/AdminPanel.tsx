@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
+import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
@@ -38,7 +39,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [activeTab, setActiveTab] = useState('dictionary')
   const [editingId, setEditingId] = useState(null)
   const [userEditingId, setUserEditingId] = useState(null)
-  const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false })
+  const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false, runesPaid: false })
   const [userSaving, setUserSaving] = useState(false)
   const [audioUploading, setAudioUploading] = useState('')
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
@@ -53,7 +54,12 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
-    audio: '', audio2: '', image: '', textAlign: 'center'
+    audio: '', audio2: '', textAlign: 'center'
+  })
+  const [runes, setRunes] = useState<any[]>([])
+  const [runeEditingId, setRuneEditingId] = useState(null)
+  const [runeFormData, setRuneFormData] = useState({
+    name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -301,6 +307,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     } catch (err) { console.error('loadCategories error', err) }
   }
 
+  const loadRunes = async () => {
+    try {
+      const { data } = await getRunes()
+      setRunes(Array.isArray(data) ? data : [])
+    } catch (err) { console.error('loadRunes error', err) }
+  }
+
   useEffect(() => {
     if (activeUser) {
       Promise.resolve().then(() => {
@@ -309,6 +322,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           loadUsers()
           loadLogs()
           loadCategories()
+          loadRunes()
         } else {
           loadCategories()
         }
@@ -495,7 +509,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         await addWord(formData, activeUser?.email, activeUser)
         showMessage('✅ Карточка добавлена')
       }
-      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', image: '', textAlign: 'center' })
+      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
       setEditingId(null); await loadWords()
     } catch (err) {
       setError(err.message)
@@ -600,7 +614,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('')
   }
 
-  const handleImageUpload = async (e) => {
+  const handleRuneImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
@@ -613,17 +627,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setError('Не удалось определить пользователя')
       return
     }
-    setAudioUploading('image')
+    setAudioUploading('runeImage')
     setError('')
-    const oldName = formData.image
+    const oldName = runeFormData.image
     try {
-      const result = await uploadImageFile(file, activeUser.email, !isRestrictedUser)
-      setFormData(prev => ({ ...prev, image: result.path }))
+      // Руны — общий словарь, поэтому картинка всегда в корень public/images/
+      const result = await uploadImageFile(file, activeUser.email, true)
+      setRuneFormData(prev => ({ ...prev, image: result.path }))
       showMessage(`✅ Картинка «${result.path}» загружена`)
       // Если был старый файл и он не совпадает с новым — удаляем старый
       if (oldName && oldName !== result.path) {
         try {
-          await deleteImageFile(oldName, activeUser.email, !isRestrictedUser)
+          await deleteImageFile(oldName, activeUser.email, true)
         } catch { /* файл мог быть уже удалён — не критично */ }
       }
     } catch (err) {
@@ -635,22 +650,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     e.target.value = ''
   }
 
-  const handleImageDelete = async () => {
-    const fileName = formData.image
+  const handleRuneImageDelete = async () => {
+    const fileName = runeFormData.image
     if (!fileName) return
     if (!activeUser?.email) { setError('Не удалось определить пользователя'); return }
     if (!window.confirm(`Удалить картинку «${fileName}»?`)) return
-    setAudioUploading('image')
+    setAudioUploading('runeImage')
     setError('')
     try {
-      await deleteImageFile(fileName, activeUser.email, !isRestrictedUser)
-      setFormData(prev => ({ ...prev, image: '' }))
+      await deleteImageFile(fileName, activeUser.email, true)
+      setRuneFormData(prev => ({ ...prev, image: '' }))
       showMessage(`✅ Картинка «${fileName}» удалена`)
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
       // Если файл не найден — всё равно очищаем поле, т.к. файла уже нет
       if (errMsg.includes('не найден')) {
-        setFormData(prev => ({ ...prev, image: '' }))
+        setRuneFormData(prev => ({ ...prev, image: '' }))
         showMessage(`⚠️ Файл «${fileName}» не найден на сервере — поле очищено`)
       } else {
         setError('❌ Ошибка удаления картинки: ' + errMsg)
@@ -679,7 +694,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setFormData({
         word: word.word || '', transcription: word.transcription || '', translation: word.translation || '', category: normalized,
         example: word.example || '', example2: word.example2 || '', transcription2: word.transcription2 || '',
-        audio: word.audio || '', audio2: word.audio2 || '', image: word.image || '', textAlign: word.textAlign || 'center'
+        audio: word.audio || '', audio2: word.audio2 || '', textAlign: word.textAlign || 'center'
       })
 
       // Мобильная версия: после нажатия «Редактировать» прокручиваем страницу
@@ -791,12 +806,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onPlayAudio={playAudioFile}
-          getImageSrc={getImageSrc}
           onScrollTop={scrollWordsToTop}
         />
       )
     })
-  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, getImageSrc, scrollWordsToTop])
+  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
 
   // Categories handlers
   const handleCategorySubmit = async (e) => {
@@ -834,6 +848,55 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try { await moveCategoryToTop(id); await loadCategories() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
 
+  // 🧿 Новые Руны — обработчики
+  const handleRuneSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (!runeFormData.name?.trim()) { setError('Название руны не может быть пустым'); return }
+    try {
+      if (runeEditingId) {
+        await updateRune(runeEditingId, runeFormData)
+        showMessage('✅ Руна обновлена')
+      } else {
+        await addRune(runeFormData, adminUser?.email || activeUser?.email)
+        showMessage('✅ Руна добавлена')
+      }
+      setRuneEditingId(null)
+      setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '' })
+      await loadRunes()
+    } catch (err) { setError('Ошибка рун: ' + err.message) }
+  }
+
+  const handleEditRune = (r) => {
+    setError('')
+    setRuneEditingId(r.id)
+    setRuneFormData({
+      name: r.name || '',
+      graphic: r.graphic || '',
+      letter: r.letter || '',
+      image: r.image || '',
+      power: r.power || '',
+      keywords: r.keywords || '',
+      description: r.description || '',
+    })
+  }
+
+  const handleDeleteRune = async (id) => {
+    if (window.confirm('Удалить эту руну?')) {
+      try { await deleteRune(id); await loadRunes() } catch (err) { setError('Ошибка удаления руны: ' + err.message) }
+    }
+  }
+
+  const handleMoveRuneUp = async (id) => {
+    try { await moveRuneUp(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveRuneDown = async (id) => {
+    try { await moveRuneDown(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+  const handleMoveRuneToTop = async (id) => {
+    try { await moveRuneToTop(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
+
   const handleBlockUser = async (userId, userEmail) => {
     if (window.confirm(`Заблокировать ${userEmail}?`)) {
       try { await blockUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
@@ -855,12 +918,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setUserFormData({
       email: user.email || '',
       role: user.role === 'admin' ? 'admin' : 'user',
-      paid: Boolean(user.paid)
+      paid: Boolean(user.paid),
+      runesPaid: Boolean(user.runesPaid)
     })
   }
   const handleCancelEditUser = () => {
     setUserEditingId(null)
-    setUserFormData({ email: '', role: 'user', paid: false })
+    setUserFormData({ email: '', role: 'user', paid: false, runesPaid: false })
   }
   const handleSaveUser = async (e) => {
     e.preventDefault()
@@ -1007,6 +1071,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           </button>
           {!isRestrictedUser && (
             <>
+              <button className={`tab-btn ${activeTab === 'runes' ? 'active' : ''}`} onClick={() => setActiveTab('runes')}>🧿 Новые Руны</button>
               <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
               <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
               <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
@@ -1031,9 +1096,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleSubmit={handleSubmit}
             handleAudioUpload={handleAudioUpload}
             handleAudioDelete={handleAudioDelete}
-            handleImageUpload={handleImageUpload}
-            handleImageDelete={handleImageDelete}
-            getImageSrc={getImageSrc}
             loadWords={loadWords}
             onImport={handleImport}
           />
@@ -1052,6 +1114,26 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleMoveCategoryUp={handleMoveCategoryUp}
             handleMoveCategoryDown={handleMoveCategoryDown}
             handleMoveCategoryToTop={handleMoveCategoryToTop}
+          />
+        )}
+
+        {activeTab === 'runes' && (
+          <RunesTab
+            runes={runes}
+            runeFormData={runeFormData}
+            setRuneFormData={setRuneFormData}
+            runeEditingId={runeEditingId}
+            setRuneEditingId={setRuneEditingId}
+            audioUploading={audioUploading}
+            getImageSrc={getImageSrc}
+            handleRuneSubmit={handleRuneSubmit}
+            handleEditRune={handleEditRune}
+            handleDeleteRune={handleDeleteRune}
+            handleMoveRuneUp={handleMoveRuneUp}
+            handleMoveRuneDown={handleMoveRuneDown}
+            handleMoveRuneToTop={handleMoveRuneToTop}
+            handleRuneImageUpload={handleRuneImageUpload}
+            handleRuneImageDelete={handleRuneImageDelete}
           />
         )}
 

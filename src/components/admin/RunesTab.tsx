@@ -1,0 +1,152 @@
+// src/components/admin/RunesTab.jsx
+// Вкладка «Новые Руны»: форма добавления/редактирования руны и список рун.
+export default function RunesTab({
+  runes,
+  runeFormData,
+  setRuneFormData,
+  runeEditingId,
+  setRuneEditingId,
+  audioUploading,
+  getImageSrc,
+  handleRuneSubmit,
+  handleEditRune,
+  handleDeleteRune,
+  handleMoveRuneUp,
+  handleMoveRuneDown,
+  handleMoveRuneToTop,
+  handleRuneImageUpload,
+  handleRuneImageDelete,
+}) {
+  const resetForm = () => {
+    setRuneEditingId(null)
+    setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '' })
+  }
+
+  return (
+    <div className="runes-section">
+      <h3>🧿 Новые Руны ({runes.length})</h3>
+      <form onSubmit={handleRuneSubmit} className="word-form rune-form">
+        <div className="form-column form-column-left">
+          <input
+            type="text"
+            placeholder="1. Название"
+            aria-label="Название руны"
+            value={runeFormData.name}
+            onChange={e => setRuneFormData({ ...runeFormData, name: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            className="runic-input"
+            placeholder="2. Графическое изображение"
+            aria-label="Графическое изображение руны"
+            value={runeFormData.graphic}
+            onChange={e => setRuneFormData({ ...runeFormData, graphic: e.target.value })}
+          />
+          {runeFormData.graphic && (
+            <div className="rune-graphic-preview">
+              <span className="rune-graphic-glyph">{runeFormData.graphic}</span>
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="3. Буква"
+            aria-label="Буква руны"
+            value={runeFormData.letter}
+            onChange={e => setRuneFormData({ ...runeFormData, letter: e.target.value })}
+          />
+        </div>
+        <div className="form-column form-column-right">
+          <div className="audio-upload-row">
+            <input
+              type="text"
+              placeholder="4. Отображение Силы Руны (картинка с прозрачным фоном)"
+              aria-label="Имя файла картинки руны"
+              value={runeFormData.image}
+              onChange={e => setRuneFormData({ ...runeFormData, image: e.target.value })}
+            />
+            <label className="audio-upload-btn" title="Загрузить картинку">
+              🖼️
+              <input
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp,.gif,.svg,image/*"
+                hidden
+                aria-label="Загрузить картинку"
+                onChange={e => handleRuneImageUpload(e)}
+                disabled={audioUploading === 'runeImage'}
+              />
+            </label>
+            {runeFormData.image && (
+              <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить картинку" onClick={() => handleRuneImageDelete()} disabled={audioUploading === 'runeImage'}>🗑️</button>
+            )}
+            {audioUploading === 'runeImage' && <span className="upload-spinner">⏳</span>}
+          </div>
+          {runeFormData.image && getImageSrc && (
+            <div className="image-preview-row">
+              <img src={getImageSrc(runeFormData.image)} alt="Превью картинки руны" className="image-preview" onError={e => { e.currentTarget.style.display = 'none' }} />
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="5. Описание Силы Руны"
+            aria-label="Описание Силы Руны"
+            value={runeFormData.power}
+            onChange={e => setRuneFormData({ ...runeFormData, power: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="6. Ключевые слова"
+            aria-label="Ключевые слова"
+            value={runeFormData.keywords}
+            onChange={e => setRuneFormData({ ...runeFormData, keywords: e.target.value })}
+          />
+        </div>
+        <div className="rune-description-field">
+          <textarea
+            className="rune-description-textarea"
+            placeholder="7. Описание"
+            aria-label="Описание руны"
+            value={runeFormData.description}
+            onChange={e => setRuneFormData({ ...runeFormData, description: e.target.value })}
+            rows={4}
+          />
+        </div>
+        <div className="form-buttons">
+          <button type="submit" className="save-btn">{runeEditingId ? 'Обновить' : 'Добавить'}</button>
+          {runeEditingId && <button type="button" className="cancel-btn" onClick={resetForm}>Отмена</button>}
+        </div>
+      </form>
+
+      <div className="categories-list runes-list">
+        {runes.length === 0 ? (
+          <div className="no-results">Руны отсутствуют</div>
+        ) : runes.map((r, idx) => (
+          <div key={r.id} className="category-item rune-item">
+            <div className="category-order">
+              <button onClick={() => handleMoveRuneToTop(r.id)} className="move-btn" disabled={idx === 0} title="В начало">⏫</button>
+              <button onClick={() => handleMoveRuneUp(r.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
+              <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
+            </div>
+            <div className="category-info rune-info">
+              <div className="rune-info-head">
+                <span className="rune-info-glyph">{r.graphic}</span>
+                <strong>{r.name}</strong>
+                {r.letter && <span className="rune-info-letter">[{r.letter}]</span>}
+              </div>
+              {r.image && getImageSrc && (
+                <img src={getImageSrc(r.image)} alt={r.name || 'Руна'} className="rune-list-image" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+              )}
+              {r.power && <div className="category-desc"><b>Сила:</b> {r.power}</div>}
+              {r.keywords && <div className="category-desc"><b>Ключевые слова:</b> {r.keywords}</div>}
+              {r.description && <div className="category-desc rune-long-desc">{r.description}</div>}
+            </div>
+            <div className="category-actions">
+              <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>
+              <button onClick={() => handleDeleteRune(r.id)} className="delete-btn">🗑️</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

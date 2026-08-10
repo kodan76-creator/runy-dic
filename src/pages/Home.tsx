@@ -1,9 +1,10 @@
 // src/pages/Home.jsx
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, precacheUrls, emailToFolderName, buildImageUrl } from '../githubApi'
+import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import WordCard from '../components/WordCard'
+import RuneCard from '../components/RuneCard'
 import FilterModal from '../components/FilterModal'
 import ThemeToggle from '../components/ThemeToggle'
 import '../App.css'
@@ -11,6 +12,7 @@ import '../App.css'
 export default function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [words, setWords] = useState<any[]>([])
+  const [runes, setRunes] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
@@ -117,14 +119,6 @@ export default function Home({ user, onLogout }) {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  }
-
-  // URL картинки карточки: общий словарь — images/корень, личный — images/{папка пользователя}/
-  const getImageSrc = (fileName, isPersonal) => {
-    if (!fileName) return ''
-    if (/^https?:\/\//i.test(fileName)) return fileName
-    const userFolder = isPersonal && user?.email ? emailToFolderName(user.email) : null
-    return buildImageUrl(fileName, userFolder)
   }
 
   // load favorites for current user from localStorage
@@ -234,6 +228,13 @@ export default function Home({ user, onLogout }) {
       return Array.isArray(data) ? data : []
     }
 
+    // 🧿 Новые Руны — отдельный словарь, виден только оплатившим (runesPaid)
+    const loadRunes = async () => {
+      if (!user?.runesPaid) return []
+      const { data } = await getRunes()
+      return Array.isArray(data) ? data : []
+    }
+
     // 🌐 Оффлайн: показать личный словарь из кэша
     const applyOfflineCache = () => {
       const cache = loadOfflineCache(user.email)
@@ -247,8 +248,8 @@ export default function Home({ user, onLogout }) {
       }
     }
 
-    Promise.all([loadWords(), loadCategories()])
-      .then(([wordData, catData]) => {
+    Promise.all([loadWords(), loadCategories(), loadRunes()])
+      .then(([wordData, catData, runeData]) => {
         if (cancelled) return
         const offlineNow = typeof navigator !== 'undefined' && !navigator.onLine
         // getDictionary/getCategories не выбрасывают ошибку при отсутствии сети —
@@ -260,6 +261,7 @@ export default function Home({ user, onLogout }) {
         }
         setWords(wordData)
         setCategories(catData)
+        setRunes(Array.isArray(runeData) ? runeData : [])
         setIsOffline(false)
         // Кэшируем только личные слова — их и показываем оффлайн
         const personalWords = wordData.filter(w => w.__dictionarySource === 'personal')
@@ -267,8 +269,9 @@ export default function Home({ user, onLogout }) {
         // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
         const userFolder = user?.email ? emailToFolderName(user.email) : null
         precacheUrls(collectAudioUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
-        // 🖼️ Прогреваем картинки в кэше SW для оффлайна
-        precacheUrls(collectImageUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
+        // 🧿 Прогреваем картинки рун для оффлайн-режима
+        const runeArr = Array.isArray(runeData) ? runeData : []
+        if (runeArr.length > 0) precacheUrls(collectImageUrls(runeArr, ''))
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)
@@ -649,7 +652,6 @@ export default function Home({ user, onLogout }) {
             isFavorite={favorites.has(String(item.id))}
             onToggleFavorite={() => toggleFavorite(item.id)}
             onPlayAudio={audio.handleSingleAudio}
-            getImageSrc={getImageSrc}
             onScrollTop={scrollResultsToTop}
           />
         )) : (
@@ -672,6 +674,18 @@ export default function Home({ user, onLogout }) {
           </div>
         )}
       </div>
+
+      {/* 🧿 Новые Руны — отдельный словарь для оплативших */}
+      {user?.runesPaid && Array.isArray(runes) && runes.length > 0 && (
+        <div className="runes-dictionary-section">
+          <h2 className="runes-section-title">🧿 Новые Руны</h2>
+          <div className="runes-list-cards">
+            {runes.map(r => (
+              <RuneCard key={r.id || r.name} rune={r} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -19,7 +19,7 @@ const highlight = (text, searchTerm) => {
   )
 }
 
-export default function WordCard({ item, categories, isFavorite, onToggleFavorite, onPlayAudio, onScrollTop, searchTerm = '', getImageSrc }) {
+export default function WordCard({ item, categories, isFavorite, onToggleFavorite, onPlayAudio, onScrollTop, searchTerm = '' }) {
   const renderCategory = (category) => {
     const values = Array.isArray(category) ? category : [category]
     const label = values
@@ -55,16 +55,6 @@ export default function WordCard({ item, categories, isFavorite, onToggleFavorit
         <h3 className="word">{highlight(item.word, searchTerm)}</h3>
         {item.transcription && <span className="transcription">[{highlight(item.transcription, searchTerm)}]</span>}
       </div>
-      {/* Картинка с прозрачным фоном — ниже слова и транскрипции */}
-      {item.image && (
-        <img
-          src={getImageSrc ? getImageSrc(item.image, item.__dictionarySource === 'personal') : undefined}
-          alt={item.word || 'Картинка'}
-          className="card-image"
-          loading="lazy"
-          onError={e => { e.currentTarget.style.display = 'none' }}
-        />
-      )}
       <p className="translation">{highlight(item.translation, searchTerm)}</p>
       {renderCategory(item.category)}
       {(item.example || item.example2 || item.transcription2) && (

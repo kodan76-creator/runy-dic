@@ -10,7 +10,6 @@ export interface Word {
   transcription?: string
   audio?: string
   audio2?: string
-  image?: string
   runes?: string
   categories?: string[]
   createdAt?: string
@@ -27,6 +26,28 @@ export interface Category {
   id?: string
   name?: string
   color?: string
+  [key: string]: unknown
+}
+
+/** Карточка «Новых Рун» — отдельный словарь с рунами. */
+export interface Rune {
+  id?: string
+  /** Название руны */
+  name?: string
+  /** Графическое изображение (отображается шрифтом Dao Rus) */
+  graphic?: string
+  /** Буква */
+  letter?: string
+  /** Отображение Силы Руны — картинка с прозрачным фоном */
+  image?: string
+  /** Описание Силы Руны */
+  power?: string
+  /** Ключевые слова */
+  keywords?: string
+  /** Описание (многострочное) */
+  description?: string
+  createdAt?: string
+  createdBy?: string
   [key: string]: unknown
 }
 
@@ -47,6 +68,11 @@ export interface User {
   paidBy?: string | null
   unpaidAt?: string | null
   unpaidBy?: string | null
+  runesPaid?: boolean
+  runesPaidAt?: string | null
+  runesPaidBy?: string | null
+  runesUnpaidAt?: string | null
+  runesUnpaidBy?: string | null
   loginAt?: string
   [key: string]: unknown
 }

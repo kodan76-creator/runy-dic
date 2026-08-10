@@ -80,6 +80,11 @@ export const registerUser = async (email, password) => {
     paidBy: null,
     unpaidAt: null,
     unpaidBy: null,
+    runesPaid: false,
+    runesPaidAt: null,
+    runesPaidBy: null,
+    runesUnpaidAt: null,
+    runesUnpaidBy: null,
     isBlocked: false,
     blockedAt: null,
     blockedBy: null
@@ -156,16 +161,19 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
   if (duplicate) throw new Error('Пользователь с таким email уже существует')
 
   const paid = Boolean(updatedData.paid)
+  const runesPaid = Boolean(updatedData.runesPaid)
   const now = new Date().toISOString()
   const updated = users.map(u => {
     if (u.id !== userId) return u
 
     const previousPaid = Boolean(u.paid)
+    const previousRunesPaid = Boolean(u.runesPaid)
     const next = {
       ...u,
       email,
       role: updatedData.role,
       paid,
+      runesPaid,
     }
 
     if (previousPaid !== paid) {
@@ -182,14 +190,29 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
       }
     }
 
+    if (previousRunesPaid !== runesPaid) {
+      if (runesPaid) {
+        next.runesPaidAt = now
+        next.runesPaidBy = adminEmail
+        next.runesUnpaidAt = u.runesUnpaidAt || null
+        next.runesUnpaidBy = u.runesUnpaidBy || null
+      } else {
+        next.runesUnpaidAt = now
+        next.runesUnpaidBy = adminEmail
+        next.runesPaidAt = u.runesPaidAt || null
+        next.runesPaidBy = u.runesPaidBy || null
+      }
+    }
+
     return next
   })
   await updateGitHubFile(USERS_FILE, updated, sha)
+  const changedUser = updated.find(u => u.id === userId)
   addLog({
     action: 'user_updated',
     userEmail: email,
     adminEmail,
-    details: `role=${updatedData.role}, paid=${paid}, paidAt=${updated.find(u => u.id === userId)?.paidAt || '-'}, unpaidAt=${updated.find(u => u.id === userId)?.unpaidAt || '-'}`
+    details: `role=${updatedData.role}, paid=${paid}, runesPaid=${runesPaid}, paidAt=${changedUser?.paidAt || '-'}, unpaidAt=${changedUser?.unpaidAt || '-'}`
   }).catch(() => {})
 
   const changed = updated.find(u => u.id === userId)

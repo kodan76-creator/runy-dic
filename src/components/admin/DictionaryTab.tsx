@@ -18,9 +18,6 @@ export default function DictionaryTab({
   handleSubmit,
   handleAudioUpload,
   handleAudioDelete,
-  handleImageUpload,
-  handleImageDelete,
-  getImageSrc,
   loadWords,
   onImport,
 }) {
@@ -204,20 +201,6 @@ export default function DictionaryTab({
             {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить второй аудиофайл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
             {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
           </div>
-          <div className="audio-upload-row">
-            <input type="text" placeholder="Картинка (..._run.png, прозрачный фон)" aria-label="Имя файла картинки" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} />
-            <label className="audio-upload-btn" title="Загрузить картинку">
-              🖼️
-              <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.svg,image/*" hidden aria-label="Загрузить картинку" onChange={e => handleImageUpload(e)} disabled={audioUploading === 'image'} />
-            </label>
-            {formData.image && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить картинку" onClick={() => handleImageDelete()} disabled={audioUploading === 'image'}>🗑️</button>}
-            {audioUploading === 'image' && <span className="upload-spinner">⏳</span>}
-          </div>
-          {formData.image && getImageSrc && (
-            <div className="image-preview-row">
-              <img src={getImageSrc(formData.image)} alt="Превью картинки" className="image-preview" onError={e => { e.currentTarget.style.display = 'none' }} />
-            </div>
-          )}
           <div className="form-row align-control">
             <span className="align-label">Выравнивание текста в карточке:</span>
             <div className="align-buttons">
@@ -250,7 +233,7 @@ export default function DictionaryTab({
         </div>
         <div className="form-buttons">
           <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-          {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', image: '', textAlign: 'center' }) }}>Отмена</button>}
+          {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' }) }}>Отмена</button>}
           <button
             type="button"
             className="refresh-logs-btn dictionary-refresh-btn"

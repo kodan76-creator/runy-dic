@@ -10,6 +10,7 @@ export const ADMINS_FILE = 'admins.json'
 export const USERS_FILE = 'users.json'
 export const LOGS_FILE = 'logs.json'
 export const CATEGORIES_FILE = 'categories.json'
+export const RUNES_FILE = 'runes.json'
 export const FAVORITES_FILE = 'favorites.json'
 export const QUEUE_FILE = 'favorites_queue.json'
 
