@@ -1,10 +1,12 @@
 // src/App.jsx
 // Роутинг приложения: вход/регистрация, главный экран и админ-панель.
-import { useState } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AdminPanel from './AdminPanel'
 import UserAuthForm from './components/UserAuthForm'
 import Home from './pages/Home'
+import { getUsers } from './githubApi'
+import { removeCachedUser } from './api/offline'
 import './App.css'
 
 // Определяем сохранённого пользователя при загрузке.
@@ -73,6 +75,61 @@ function AppContent() {
     localStorage.removeItem('currentUser')
     setUser(null)
   }
+
+  const navigate = useNavigate()
+
+  // 🔄 Контроль сессий: если администратор сменил любой статус оплаты
+  // пользователя на «не оплачено», на сервере увеличивается sessionVersion.
+  // Пока пользователь вошёл, периодически сверяем его локальную версию сессии
+  // с серверной; при расхождении разлогиниваем — на всех устройствах сразу.
+  useEffect(() => {
+    const email = user?.email
+    const role = user?.role
+    const sessionVersion = user?.sessionVersion
+    if (!email || role === 'admin') return
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
+    let cancelled = false
+    let timer: ReturnType<typeof setInterval> | null = null
+
+    const forceLogout = () => {
+      localStorage.removeItem('currentUser')
+      if (email) removeCachedUser(email)
+      setUser(null)
+      navigate('/auth', { replace: true })
+      window.alert('Ваш доступ был отключён администратором. Войдите снова.')
+    }
+
+    const checkSession = async () => {
+      try {
+        const users = await getUsers()
+        if (cancelled) return
+        const serverUser = users.find(u =>
+          String(u?.email || '').toLowerCase() === String(email || '').toLowerCase()
+        )
+        if (!serverUser) return
+        if (Number(serverUser.sessionVersion ?? 0) !== Number(sessionVersion ?? 0)) {
+          forceLogout()
+        }
+      } catch (e) {
+        console.error('Session check failed:', e)
+      }
+    }
+
+    const onActivity = () => {
+      if (typeof navigator !== 'undefined' && navigator.onLine) checkSession()
+    }
+    window.addEventListener('focus', onActivity)
+    window.addEventListener('online', onActivity)
+    checkSession()
+    timer = setInterval(checkSession, 60000)
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('focus', onActivity)
+      window.removeEventListener('online', onActivity)
+      if (timer) clearInterval(timer)
+    }
+  }, [user, navigate])
 
   return (
     <Routes>

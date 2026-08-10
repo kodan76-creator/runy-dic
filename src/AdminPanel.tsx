@@ -934,7 +934,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       if (userFormData.email && !/^[a-zA-Z0-9@._-]+$/.test(userFormData.email)) {
         throw new Error('Логин может содержать только латинские буквы, цифры и символы @ . _ -')
       }
+      const prevUser = users.find(u => u.id === userEditingId)
+      const becameUnpaid = Boolean(
+        prevUser && ((Boolean(prevUser.paid) && !userFormData.paid) || (Boolean(prevUser.runesPaid) && !userFormData.runesPaid))
+      )
       await updateUser(userEditingId, userFormData, adminUser?.email || activeUser?.email)
+      if (becameUnpaid) {
+        showMessage(`⚠️ ${prevUser?.email}: статус «не оплачено» — пользователь будет разлогинен на всех устройствах`, 'error')
+      }
       handleCancelEditUser()
       await loadUsers()
       await loadLogs()

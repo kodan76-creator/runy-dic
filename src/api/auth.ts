@@ -75,6 +75,7 @@ export const registerUser = async (email, password) => {
     passwordHash,
     createdAt: new Date().toISOString(),
     role: 'user',
+    sessionVersion: 0,
     paid: false,
     paidAt: null,
     paidBy: null,
@@ -168,12 +169,16 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
 
     const previousPaid = Boolean(u.paid)
     const previousRunesPaid = Boolean(u.runesPaid)
+    // 🔄 Если любой статус оплаты сменился на «не оплачено» — инвалидируем
+    // все активные сессии пользователя: на каждом устройстве его разлогинит.
+    const becameUnpaid = (previousPaid && !paid) || (previousRunesPaid && !runesPaid)
     const next = {
       ...u,
       email,
       role: updatedData.role,
       paid,
       runesPaid,
+      ...(becameUnpaid ? { sessionVersion: (u.sessionVersion || 0) + 1 } : {}),
     }
 
     if (previousPaid !== paid) {
