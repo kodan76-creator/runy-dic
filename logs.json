@@ -1,5 +1,61 @@
 [
   {
+    "id": "1786369651917",
+    "timestamp": "2026-08-10T13:47:31.917Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"буква\""
+  },
+  {
+    "id": "1786369626670",
+    "timestamp": "2026-08-10T13:47:06.670Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"буква\""
+  },
+  {
+    "id": "1786369613354",
+    "timestamp": "2026-08-10T13:46:53.354Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
+    "id": "1786369565230",
+    "timestamp": "2026-08-10T13:46:05.230Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"буква\""
+  },
+  {
+    "id": "1786369562327",
+    "timestamp": "2026-08-10T13:46:02.327Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"бук\""
+  },
+  {
+    "id": "1786369561390",
+    "timestamp": "2026-08-10T13:46:01.390Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"бу\""
+  },
+  {
+    "id": "1786369560626",
+    "timestamp": "2026-08-10T13:46:00.626Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"б\""
+  },
+  {
+    "id": "1786369542940",
+    "timestamp": "2026-08-10T13:45:42.940Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1786365792707",
     "timestamp": "2026-08-10T12:43:12.707Z",
     "action": "login",
