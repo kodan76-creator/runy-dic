@@ -1,5 +1,12 @@
 [
   {
+    "id": "1786380309744",
+    "timestamp": "2026-08-10T16:45:09.744Z",
+    "action": "search",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Поиск: \"росто\""
+  },
+  {
     "id": "1786380308100",
     "timestamp": "2026-08-10T16:45:08.100Z",
     "action": "search",
