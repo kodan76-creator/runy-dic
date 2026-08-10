@@ -303,7 +303,7 @@ color: #5a0000;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
-  order: 1;
+  order: 2;
 }
 
 .listen-btn:hover:not(:disabled) {
@@ -339,7 +339,7 @@ color: #5a0000;
   flex-direction: row;
   gap: 12px;
   align-items: center;
-  order: 5;
+  order: 3;
 }
 
 .mode-label {
@@ -372,7 +372,7 @@ color: #5a0000;
   border: 2px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
   padding: 3px;
-  order: 3;
+  order: 5;
 }
 .view-toggle-btn {
   border: none;
@@ -534,7 +534,7 @@ color: #5a0000;
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    order: 2;
+    order: 1;
 
     flex: 0 1 auto;
     width: auto;
