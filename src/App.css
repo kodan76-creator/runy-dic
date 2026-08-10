@@ -193,6 +193,16 @@ align-items: center;
 gap: 6px;
 }
 
+/* Вертикальный разделитель после блока избранного (после числа избранных) */
+.favorites-block::after {
+content: "";
+align-self: stretch;
+width: 2px;
+margin-left: 6px;
+background: rgba(255,255,255,0.35);
+border-radius: 2px;
+}
+
 .fav-status {
 width: 26px;
 height: 26px;
@@ -267,7 +277,7 @@ color: #5a0000;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   background: var(--app-accent);
   padding: 10px 12px;
   border-radius: 0 0 12px 12px;
@@ -409,7 +419,7 @@ color: #5a0000;
   content: "";
   align-self: stretch;
   width: 2px;
-  margin-left: 4px;
+  margin-left: 3px;
   background: rgba(255, 255, 255, 0.35);
   border-radius: 2px;
 }
@@ -418,9 +428,19 @@ color: #5a0000;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   order: 7;
   color: white;
+}
+
+/* Вертикальный разделитель после «Словари» (после «основной») */
+.dictionary-source-mode::after {
+  content: "";
+  align-self: stretch;
+  width: 2px;
+  margin-left: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
 }
 
 .filter-title {
@@ -1151,7 +1171,9 @@ color: #5a0000;
   }
 
   /* На мобильных группы в разных рядах — вертикальная черта не нужна */
-  .filter-mode::after {
+  .filter-mode::after,
+  .dictionary-source-mode::after,
+  .favorites-block::after {
     display: none;
   }
 
