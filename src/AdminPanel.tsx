@@ -9,6 +9,7 @@ import LogsTab from './components/admin/LogsTab'
 import SecurityTab from './components/admin/SecurityTab'
 import WordItem from './components/admin/WordItem'
 import ThemeToggle from './components/ThemeToggle'
+import { useScrollRestoration } from './hooks/useScrollRestoration'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -83,6 +84,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
   const [userRoleFilter, setUserRoleFilter] = useState('all')
   const wordsListRef = useRef(null)
+
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки списка слов при обновлении страницы
+  useScrollRestoration(wordsListRef, 'scroll_admin_words', [words.length])
 
   // Active user: admins get full panel, regular users get restricted dictionary-only panel.
   const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)

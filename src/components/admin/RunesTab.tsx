@@ -1,5 +1,8 @@
 // src/components/admin/RunesTab.jsx
 // Вкладка «Новые Руны»: форма добавления/редактирования руны и список рун.
+import { useRef } from 'react'
+import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+
 export default function RunesTab({
   runes,
   runeFormData,
@@ -17,6 +20,10 @@ export default function RunesTab({
   handleRuneImageUpload,
   handleRuneImageDelete,
 }) {
+  const runesListRef = useRef(null)
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки списка рун при обновлении страницы
+  useScrollRestoration(runesListRef, 'scroll_admin_runes', [runes.length])
+
   const resetForm = () => {
     setRuneEditingId(null)
     setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
@@ -146,7 +153,7 @@ export default function RunesTab({
         </div>
       </form>
 
-      <div className="categories-list runes-list">
+      <div className="categories-list runes-list" ref={runesListRef}>
         {runes.length === 0 ? (
           <div className="no-results">Руны отсутствуют</div>
         ) : runes.map((r, idx) => (

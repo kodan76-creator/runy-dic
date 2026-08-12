@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
+import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
 import RuneCard from '../components/RuneCard'
 import FilterModal from '../components/FilterModal'
@@ -112,6 +113,11 @@ export default function Home({ user, onLogout }) {
   const [dictionarySourceFilter, setDictionarySourceFilter] = useState(savedSettings.dictionarySourceFilter)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
   const resultsRef = useRef<HTMLDivElement | null>(null)
+  const runesSectionRef = useRef<HTMLDivElement | null>(null)
+
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки списков при обновлении страницы
+  useScrollRestoration(resultsRef, 'scroll_home_results', [viewMode, words.length])
+  useScrollRestoration(runesSectionRef, 'scroll_home_runes', [viewMode, runes.length])
 
   const scrollResultsToTop = () => {
     const el = resultsRef.current || (document.querySelector('.results') as HTMLElement | null)
@@ -733,7 +739,7 @@ export default function Home({ user, onLogout }) {
           </div>
         </>
       ) : (
-        <div className="runes-dictionary-section">
+        <div className="runes-dictionary-section" ref={runesSectionRef}>
           {Array.isArray(runes) && runes.length > 0 ? (
             <>
               <h2 className="runes-section-title">🧿 Новые Руны</h2>

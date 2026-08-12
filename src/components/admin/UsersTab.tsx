@@ -1,5 +1,8 @@
 // src/components/admin/UsersTab.jsx
 // Вкладка «Пользователи»: фильтры, поиск и карточки пользователей.
+import { useRef } from 'react'
+import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+
 export default function UsersTab({
   filteredUsers,
   userSearchTerm,
@@ -20,8 +23,12 @@ export default function UsersTab({
   handleDeleteUser,
   formatDate,
 }) {
+  const usersSectionRef = useRef(null)
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки списка пользователей при обновлении страницы
+  useScrollRestoration(usersSectionRef, 'scroll_admin_users', [filteredUsers.length])
+
   return (
-    <div className="users-section">
+    <div className="users-section" ref={usersSectionRef}>
       <h3>👥 Пользователи ({filteredUsers.length})</h3>
       <div className="users-toolbar">
         <div className="search-container">

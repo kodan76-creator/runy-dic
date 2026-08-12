@@ -1,5 +1,8 @@
 // src/components/admin/CategoriesTab.jsx
 // Вкладка «Категории»: форма и список категорий.
+import { useRef } from 'react'
+import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+
 export default function CategoriesTab({
   categories,
   categoryForm,
@@ -13,6 +16,10 @@ export default function CategoriesTab({
   handleMoveCategoryDown,
   handleMoveCategoryToTop,
 }) {
+  const catListRef = useRef(null)
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки списка категорий при обновлении страницы
+  useScrollRestoration(catListRef, 'scroll_admin_categories', [categories.length])
+
   return (
     <div className="categories-section">
       <h3>🗂️ Категории ({categories.length})</h3>
@@ -25,7 +32,7 @@ export default function CategoriesTab({
         </div>
       </div>
 
-      <div className="categories-list">
+      <div className="categories-list" ref={catListRef}>
         {categories.length === 0 ? <div className="no-results">Категории отсутствуют</div> : categories.map((cat, idx) => (
           <div key={cat.id} className="category-item">
             <div className="category-order">

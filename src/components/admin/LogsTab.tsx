@@ -1,13 +1,20 @@
 // src/components/admin/LogsTab.jsx
 // Вкладка «Логи»: список действий пользователей.
+import { useRef } from 'react'
+import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+
 export default function LogsTab({
   logs,
   loadLogs,
   handleClearLogs,
   formatDate,
 }) {
+  const logsSectionRef = useRef(null)
+  // 💾 Сохраняем/восстанавливаем позицию прокрутки логов при обновлении страницы
+  useScrollRestoration(logsSectionRef, 'scroll_admin_logs', [logs.length])
+
   return (
-    <div className="logs-section">
+    <div className="logs-section" ref={logsSectionRef}>
       <div className="logs-header">
         <h3>📊 Логи действий ({logs.length})</h3>
         <div className="logs-actions">
