@@ -1,5 +1,13 @@
 [
   {
+    "id": "1786564552172",
+    "timestamp": "2026-08-12T19:55:52.172Z",
+    "action": "user_updated",
+    "userEmail": "test@1.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, runesPaid=false, paidAt=2026-08-12T19:55:50.934Z, unpaidAt=2026-08-10T19:58:41.286Z"
+  },
+  {
     "id": "1786554363879",
     "timestamp": "2026-08-12T17:06:03.879Z",
     "action": "login",
@@ -7031,12 +7039,5 @@
     "action": "audio_played",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Аудио: 1_r_prim.mp3"
-  },
-  {
-    "id": "1778435066734",
-    "timestamp": "2026-05-10T17:44:26.734Z",
-    "action": "audio_played",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Аудио: 1_runy.mp3"
   }
 ]
