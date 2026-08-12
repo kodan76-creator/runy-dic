@@ -884,7 +884,8 @@ color: #5a0000;
   font-size: 17px;
 }
 .rune-card-power,
-.rune-card-keywords {
+.rune-card-keywords,
+.rune-card-power-image {
   color: white;
   font-size: 15px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -1553,6 +1554,8 @@ color: #5a0000;
   .transcription2 {
     color: #c96fff;
   }
+  /* буква руны — светло-фиолетый для читаемости на тёмной карточке */
+  .rune-card-letter { color: #c96fff; }
   .dictionary-source { background: rgba(0, 0, 0, 0.35); }
   .dictionary-source.shared { background: rgba(255, 215, 0, 0.2); }
   .dictionary-source.personal { background: rgba(0, 0, 0, 0.35); }

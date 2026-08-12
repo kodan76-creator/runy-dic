@@ -24,7 +24,7 @@ export default function RunesTab({
 
   return (
     <div className="runes-section">
-      <h3>🧿 Новые Руны ({runes.length})</h3>
+      <h3 className="runes-section-title">🧿 Новые Руны ({runes.length})</h3>
       <form onSubmit={handleRuneSubmit} className="word-form rune-form">
         <div className="form-column form-column-left">
           <input
@@ -129,16 +129,19 @@ export default function RunesTab({
             </div>
             <div className="category-info rune-info">
               <div className="rune-info-head">
-                <span className="rune-info-glyph">{r.graphic}</span>
                 <strong>{r.name}</strong>
+                <span className="rune-info-glyph">{r.graphic}</span>
                 {r.letter && <span className="rune-info-letter">[{r.letter}]</span>}
               </div>
               {r.image && getImageSrc && (
-                <img src={getImageSrc(r.image)} alt={r.name || 'Руна'} className="rune-list-image" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+                <div className="rune-list-power-image">
+                  <span className="rune-card-label">Отображение Силы Руны:</span>
+                  <img src={getImageSrc(r.image)} alt={r.name || 'Руна'} className="rune-list-image" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+                </div>
               )}
-              {r.power && <div className="category-desc"><b>Сила:</b> {r.power}</div>}
+              {r.power && <div className="category-desc"><b>Описание Силы Руны:</b> {r.power}</div>}
               {r.keywords && <div className="category-desc"><b>Ключевые слова:</b> {r.keywords}</div>}
-              {r.description && <div className="category-desc rune-long-desc">{r.description}</div>}
+              {r.description && <div className="category-desc rune-long-desc"><b>Описание:</b> {r.description}</div>}
             </div>
             <div className="category-actions">
               <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>

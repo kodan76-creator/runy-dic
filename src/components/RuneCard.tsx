@@ -9,11 +9,6 @@ export default function RuneCard({ rune }) {
 
   return (
     <div className="rune-card">
-      {imgUrl && (
-        <div className="rune-card-image-wrap">
-          <img className="rune-image" src={imgUrl} alt={rune.name || 'Руна'} loading="lazy" />
-        </div>
-      )}
       <div className="rune-card-body">
         {rune.name && <h3 className="rune-card-name">{rune.name}</h3>}
         {rune.graphic && (
@@ -22,9 +17,15 @@ export default function RuneCard({ rune }) {
           </div>
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {rune.letter}</div>}
+        {imgUrl && (
+          <div className="rune-card-power-image">
+            <span className="rune-card-label">Отображение Силы Руны:</span>
+            <img className="rune-image" src={imgUrl} alt={rune.name || 'Руна'} loading="lazy" />
+          </div>
+        )}
         {rune.power && (
           <div className="rune-card-power">
-            <span className="rune-card-label">Отображение Силы Руны:</span>
+            <span className="rune-card-label">Описание Силы Руны:</span>
             <span>{rune.power}</span>
           </div>
         )}
@@ -34,7 +35,12 @@ export default function RuneCard({ rune }) {
             <span>{rune.keywords}</span>
           </div>
         )}
-        {rune.description && <p className="rune-card-desc">{rune.description}</p>}
+        {rune.description && (
+          <div className="rune-card-desc">
+            <span className="rune-card-label">Описание:</span>
+            <span>{rune.description}</span>
+          </div>
+        )}
       </div>
     </div>
   )
