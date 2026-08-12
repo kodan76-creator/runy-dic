@@ -94,26 +94,5 @@
     "runesUnpaidAt": "2026-08-10T18:47:59.974Z",
     "runesUnpaidBy": "ya.kodan76@ya.ru",
     "sessionVersion": 1
-  },
-  {
-    "id": "1786391310146",
-    "email": "test@1.ru",
-    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-08-10T19:48:30.146Z",
-    "role": "user",
-    "sessionVersion": 3,
-    "paid": false,
-    "paidAt": "2026-08-12T19:56:31.601Z",
-    "paidBy": "ya.kodan76@ya.ru",
-    "unpaidAt": "2026-08-12T19:56:42.249Z",
-    "unpaidBy": "ya.kodan76@ya.ru",
-    "runesPaid": false,
-    "runesPaidAt": null,
-    "runesPaidBy": null,
-    "runesUnpaidAt": null,
-    "runesUnpaidBy": null,
-    "isBlocked": false,
-    "blockedAt": null,
-    "blockedBy": null
   }
 ]
