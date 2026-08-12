@@ -849,18 +849,12 @@ color: #5a0000;
   text-align: center;
   gap: 8px;
 }
-.rune-card.align-left { align-items: flex-start; text-align: left; }
-.rune-card.align-left .rune-card-body { align-items: flex-start; }
 .rune-card.align-left .rune-card-power,
 .rune-card.align-left .rune-card-keywords,
-.rune-card.align-left .rune-card-desc { text-align: left; }
-.rune-card.align-left .rune-card-power-image { justify-content: flex-start; }
-.rune-card.align-right { align-items: flex-end; text-align: right; }
-.rune-card.align-right .rune-card-body { align-items: flex-end; }
+.rune-card.align-left .rune-card-desc { text-align: left; width: 100%; }
 .rune-card.align-right .rune-card-power,
 .rune-card.align-right .rune-card-keywords,
-.rune-card.align-right .rune-card-desc { text-align: right; }
-.rune-card.align-right .rune-card-power-image { justify-content: flex-end; }
+.rune-card.align-right .rune-card-desc { text-align: right; width: 100%; }
 .rune-card-image-wrap {
   width: 100%;
   display: flex;

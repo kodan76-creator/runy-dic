@@ -36,7 +36,20 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [words, setWords] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [logs, setLogs] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState('dictionary')
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      return localStorage.getItem('admin_active_tab') || 'dictionary'
+    } catch {
+      return 'dictionary'
+    }
+  })
+
+  // 💾 Сохраняем активную вкладку, чтобы при обновлении страницы оставаться на ней же.
+  useEffect(() => {
+    try {
+      localStorage.setItem('admin_active_tab', activeTab)
+    } catch { /* ignore */ }
+  }, [activeTab])
   const [editingId, setEditingId] = useState(null)
   const [userEditingId, setUserEditingId] = useState(null)
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false, runesPaid: false })

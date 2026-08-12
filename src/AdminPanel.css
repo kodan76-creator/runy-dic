@@ -167,16 +167,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .rune-info-letter { font-size: 13px; color: var(--surface-muted); background: rgba(123, 31, 162, 0.12); padding: 1px 8px; border-radius: 6px; }
 .rune-info-meta { font-size: 13px; color: var(--surface-muted); }
 .rune-long-desc { font-size: 13px; color: var(--surface-muted); margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
-.rune-item.align-left .rune-info-body { align-items: flex-start; text-align: left; }
-.rune-item.align-left .rune-info-head { justify-content: flex-start; }
-.rune-item.align-left .rune-long-desc,
 .rune-item.align-left .category-desc { text-align: left; }
-.rune-item.align-left .rune-list-power-image { justify-content: flex-start; }
-.rune-item.align-right .rune-info-body { align-items: flex-end; text-align: right; }
-.rune-item.align-right .rune-info-head { justify-content: flex-end; }
-.rune-item.align-right .rune-long-desc,
 .rune-item.align-right .category-desc { text-align: right; }
-.rune-item.align-right .rune-list-power-image { justify-content: flex-end; }
 .rune-list-image { width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--surface-border); padding: 2px; flex-shrink: 0; }
 .rune-list-power-image { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .rune-actions { display: flex; gap: 8px; align-items: center; }
