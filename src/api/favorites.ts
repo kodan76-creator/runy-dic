@@ -4,15 +4,18 @@ import { FAVORITES_FILE, QUEUE_FILE } from './constants'
 import { fetchGitHubFile, updateGitHubFile } from './client'
 
 export const getFavoritesForUser = async (userEmail) => {
-  if (!userEmail) return []
+  if (!userEmail) return null
   try {
-    const { data } = await fetchGitHubFile(FAVORITES_FILE)
+    const { data, ok } = await fetchGitHubFile(FAVORITES_FILE)
+    // Слабый интернет / сетевая ошибка — возвращаем null, чтобы вызывающий
+    // (Home) упал на локальном кэше favorites:<email>.
+    if (ok === false) return null
     if (!Array.isArray(data)) return []
     const rec = data.find(r => String(r.userEmail).toLowerCase() === String(userEmail).toLowerCase())
     return rec && Array.isArray(rec.favorites) ? rec.favorites : []
   } catch (e) {
     console.error('getFavoritesForUser error:', e)
-    return []
+    return null
   }
 }
 

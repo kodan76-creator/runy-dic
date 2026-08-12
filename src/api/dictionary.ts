@@ -38,14 +38,18 @@ export const getDictionary = async (user) => {
       }
       sharedArr.forEach(add)
       personalArr.forEach(add)
-      return { data: Array.from(map.values()), sha: shared.sha || personal.sha || null }
+      // ok = оба источника доступны. При слабом интернете один из запросов
+      // может вернуть ok:false (пустые данные) — тогда вызывающий упадёт
+      // на офлайн-кэш, а полученные частично данные всё равно покажет.
+      const ok = shared.ok !== false && personal.ok !== false
+      return { data: Array.from(map.values()), sha: shared.sha || personal.sha || null, ok, exists: shared.exists ?? personal.exists ?? null }
     }
 
     const fileName = getDictionaryFileName(user)
     return fetchGitHubFile(fileName)
   } catch (e) {
     console.error('getDictionary error:', e)
-    return { data: [], sha: null }
+    return { data: [], sha: null, ok: false, exists: null }
   }
 }
 

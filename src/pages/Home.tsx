@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName } from '../githubApi'
+import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import WordCard from '../components/WordCard'
 import RuneCard from '../components/RuneCard'
@@ -217,67 +217,90 @@ export default function Home({ user, onLogout }) {
     setLoadError(false)
 
     const loadWords = async () => {
-      const { data } = await getDictionary(user)
+      const result = await getDictionary(user)
+      const { data, ok } = result
       const sourceFallback = user.role === 'user' ? 'personal' : 'shared'
       // Сохраняем порядок карточек как в файле словаря (последовательность, заданная в админке)
-      return [...(data || [])]
+      const words = [...(Array.isArray(data) ? data : [])]
         .map(item => ({ ...item, __dictionarySource: item.__dictionarySource || sourceFallback }))
+      return { words, ok: ok !== false }
     }
 
     const loadCategories = async () => {
-      const { data } = await getCategories()
-      return Array.isArray(data) ? data : []
+      const { data, ok } = await getCategories()
+      return { categories: Array.isArray(data) ? data : [], ok: ok !== false }
     }
 
-    // 🧿 Новые Руны — отдельный словарь, виден только оплатившим (runesPaid)
+    // Руны — отдельный словарь, виден только оплатившим (runesPaid)
     const loadRunes = async () => {
-      if (!user?.runesPaid) return []
-      const { data } = await getRunes()
-      return Array.isArray(data) ? data : []
+      if (!user?.runesPaid) return { runes: [], ok: true }
+      const { data, ok } = await getRunes()
+      return { runes: Array.isArray(data) ? data : [], ok: ok !== false }
     }
 
-    // 🌐 Оффлайн: показать личный словарь из кэша
+    // Оффлайн: показать личный словарь из кэша (слова + категории + руны)
     const applyOfflineCache = () => {
       const cache = loadOfflineCache(user.email)
-      if (cache && Array.isArray(cache.words)) {
+      if (cache && Array.isArray(cache.words) && cache.words.length > 0) {
         setWords(cache.words)
         setCategories(Array.isArray(cache.categories) ? cache.categories : [])
         setIsOffline(true)
         setLoadError(false)
+        // Прогреваем аудио из кэша, чтобы оно играло оффлайн
+        const userFolder = user?.email ? emailToFolderName(user.email) : null
+        precacheUrls(collectAudioUrls(cache.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
+        // Руны из кэша
+        const cachedRunes = getCachedRunes()
+        if (Array.isArray(cachedRunes)) setRunes(cachedRunes)
       } else {
         setLoadError(true)
       }
     }
 
     Promise.all([loadWords(), loadCategories(), loadRunes()])
-      .then(([wordData, catData, runeData]) => {
+      .then(([wordRes, catRes, runeRes]) => {
         if (cancelled) return
         const offlineNow = typeof navigator !== 'undefined' && !navigator.onLine
-        // getDictionary/getCategories не выбрасывают ошибку при отсутствии сети —
-        // они возвращают пустые данные. Поэтому явно проверяем статус сети:
-        // если сети нет и данных не получено — показываем оффлайн-кэш.
-        if (offlineNow && (!Array.isArray(wordData) || wordData.length === 0)) {
+        const wordsOk = wordRes.ok
+        const hasWords = wordRes.words.length > 0
+        // getDictionary/getCategories не выбрасывают ошибку при слабом интернете —
+        // возвращают пустые данные с ok:false. Если сеть отключена ИЛИ запрос не
+        // удался (ok:false) и данных нет — показываем офлайн-кэш.
+        if ((offlineNow || !wordsOk) && !hasWords) {
           applyOfflineCache()
           return
         }
-        setWords(wordData)
-        setCategories(catData)
-        setRunes(Array.isArray(runeData) ? runeData : [])
+        setWords(wordRes.words)
+        // Категории: если сервер вернул пусто (слабый интернет) — берём из кэша
+        if (catRes.ok || catRes.categories.length > 0) {
+          setCategories(catRes.categories)
+        } else {
+          const cachedCats = getCachedCategories(user.email)
+          setCategories(Array.isArray(cachedCats) ? cachedCats : [])
+        }
+        // Руны: если сервер вернул пусто — берём из кэша
+        if (runeRes.ok || runeRes.runes.length > 0) {
+          setRunes(runeRes.runes)
+        } else {
+          const cachedRunes = getCachedRunes()
+          setRunes(Array.isArray(cachedRunes) ? cachedRunes : [])
+        }
         setIsOffline(false)
         // Кэшируем только личные слова — их и показываем оффлайн
-        const personalWords = wordData.filter(w => w.__dictionarySource === 'personal')
-        saveOfflineCache(user, personalWords, catData)
+        const personalWords = wordRes.words.filter(w => w.__dictionarySource === 'personal')
+        saveOfflineCache(user, personalWords, catRes.categories)
+        // Кэшируем руны для офлайн-режима
+        cacheRunesForOffline(runeRes.runes)
         // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
         const userFolder = user?.email ? emailToFolderName(user.email) : null
-        precacheUrls(collectAudioUrls(wordData, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
+        precacheUrls(collectAudioUrls(wordRes.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
         // 🧿 Прогреваем картинки рун для оффлайн-режима
-        const runeArr = Array.isArray(runeData) ? runeData : []
-        if (runeArr.length > 0) precacheUrls(collectImageUrls(runeArr, ''))
+        if (runeRes.runes.length > 0) precacheUrls(collectImageUrls(runeRes.runes, ''))
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)
         if (cancelled) return
-        // Оффлайн: пробуем кэш личного словаря
+        // Оффлайн/слабый интернет: пробуем кэш личного словаря
         applyOfflineCache()
       })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -439,7 +462,7 @@ export default function Home({ user, onLogout }) {
     <div className="container">
       {isOffline && (
         <div className="offline-banner" role="status">
-          ⚠️ Нет интернета — показан только ваш личный словарь (офлайн-копия).
+          ⚠️ Нет интернета или слабое соединение — показан ваш личный словарь (офлайн-копия).
           Изменения сохранятся, когда появится соединение.
         </div>
       )}

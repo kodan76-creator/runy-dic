@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
-import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories } from './api/offline'
+import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
 import CategoriesTab from './components/admin/CategoriesTab'
 import UsersTab from './components/admin/UsersTab'
 import LogsTab from './components/admin/LogsTab'
@@ -208,13 +208,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setLoading(true)
     try {
       const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
-      const { data } = await getDictionary(dictionaryOwner)
+      const { data, ok } = await getDictionary(dictionaryOwner)
       const arr = Array.isArray(data) ? data : []
       const offlineNow = !isOnline()
+      const fetchFailed = ok === false
       // getDictionary не выбрасывает ошибку при отсутствии сети — возвращает
       // пустые данные. Поэтому явно проверяем статус сети и берём кэш.
-      if (offlineNow && arr.length === 0 && activeUser?.email) {
-        // 🌐 Оффлайн: показать словарь из кэша
+      if ((offlineNow || fetchFailed) && arr.length === 0 && activeUser?.email) {
+        // Оффлайн: показать словарь из кэша
         const cached = getCachedDictionary(activeUser.email)
         if (Array.isArray(cached)) {
           setWords(cached)
@@ -222,6 +223,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           // Категории тоже берём из кэша, иначе вместо названий будут ID
           const cachedCats = getCachedCategories(activeUser.email)
           if (Array.isArray(cachedCats)) setCategories(cachedCats)
+          // Прогреваем аудио из кэша, чтобы оно играло офлайн
+          const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
+          precacheUrls(collectAudioUrls(cached, audioFolder))
         } else {
           setError('Нет интернета. Словарь не загружен — оффлайн-копия ещё не сохранена.')
         }
@@ -292,10 +296,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
   const loadCategories = async () => {
     try {
-      const { data } = await getCategories()
+      const { data, ok } = await getCategories()
       const arr = Array.isArray(data) ? data : []
       const offlineNow = !isOnline()
-      if (offlineNow && arr.length === 0 && activeUser?.email) {
+      if ((offlineNow || ok === false) && arr.length === 0 && activeUser?.email) {
         // 🌐 Оффлайн: категории берём из кэша
         const cached = getCachedCategories(activeUser.email)
         if (Array.isArray(cached)) setCategories(cached)
@@ -309,8 +313,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const loadRunes = async () => {
     try {
-      const { data } = await getRunes()
-      setRunes(Array.isArray(data) ? data : [])
+      const { data, ok } = await getRunes()
+      const arr = Array.isArray(data) ? data : []
+      if (ok === false && arr.length === 0) {
+        // Слабый интернет: руны берём из кэша
+        const cached = getCachedRunes()
+        if (Array.isArray(cached)) setRunes(cached)
+      } else {
+        setRunes(arr)
+        cacheRunesForOffline(arr)
+      }
     } catch (err) { console.error('loadRunes error', err) }
   }
 
@@ -1043,7 +1055,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       {message && <div className={`admin-message ${message.type || 'success'}`}>{message.text}</div>}
       {isOffline && (
         <div className="offline-banner" role="status">
-          ⚠️ Нет интернета — показана сохранённая копия словаря. Изменения сохранятся, когда появится соединение.
+          ⚠️ Нет интернета или слабое соединение — показана сохранённая копия словаря. Изменения сохранятся, когда появится соединение.
         </div>
       )}
       <div className="admin-fixed-container">

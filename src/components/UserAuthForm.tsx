@@ -42,7 +42,11 @@ function UserAuthForm({ onLogin }) {
           }
           return
         }
-        const user = await verifyUser(email, password)
+        // Онлайн: пробуем сервер. При слабом интернете verifyUser может
+        // зависнуть или вернуть null из-за сетевой ошибки — тогда fallback
+        // на сохранённую офлайн-копию.
+        const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000))
+        const user = await Promise.race([verifyUser(email, password), timeout])
         if (user) {
           const userWithRole = { ...user, role: user.role || 'user', paid: user.paid ?? false }
           localStorage.setItem('currentUser', JSON.stringify(userWithRole))
@@ -50,7 +54,17 @@ function UserAuthForm({ onLogin }) {
           // navigate to app: admin -> /admin, user -> /
           navigate(userWithRole.role === 'admin' ? '/admin' : '/')
         } else {
-          setError('Неверный email или пароль')
+          // Слабый интернет: verifyUser вернул null (не нашёл пользователя из-за
+          // сетевой ошибки). Пробуем войти по сохранённой офлайн-копии.
+          const cachedUser = await verifyUserOffline(email, password)
+          if (cachedUser) {
+            const userWithRole = { ...cachedUser, role: cachedUser.role || 'user', paid: cachedUser.paid ?? false }
+            localStorage.setItem('currentUser', JSON.stringify(userWithRole))
+            onLogin(userWithRole)
+            navigate(userWithRole.role === 'admin' ? '/admin' : '/')
+          } else {
+            setError('Неверный email или пароль')
+          }
         }
       } else {
         if (offline) {

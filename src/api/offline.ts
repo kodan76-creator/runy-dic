@@ -115,6 +115,35 @@ export const getCachedCategories = (email) => {
   }
 }
 
+// ── Оффлайн-кэш рун (общий для всех пользователей) ────────────────────
+// Руны одинаковы для всех, поэтому кэшируем в одном ключе, чтобы они
+// были доступны без интернета даже при слабом соединении.
+const OFFLINE_RUNES_KEY = 'offline_runes'
+
+/** Сохранить руны в офлайн-кэш. */
+export const cacheRunesForOffline = (runes) => {
+  try {
+    localStorage.setItem(OFFLINE_RUNES_KEY, JSON.stringify({
+      runes: Array.isArray(runes) ? runes : [],
+      savedAt: Date.now(),
+    }))
+  } catch (e) {
+    console.error('cacheRunesForOffline error:', e)
+  }
+}
+
+/** Получить кэшированные руны (массив или null). */
+export const getCachedRunes = () => {
+  try {
+    const raw = localStorage.getItem(OFFLINE_RUNES_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed.runes) ? parsed.runes : null
+  } catch {
+    return null
+  }
+}
+
 /** Применить одно отложенное изменение к массиву слов (чистая функция).
  *  Используется и для локального кэша, и для воспроизведения очереди при
  *  возврате соединения. Типы: add / update / delete / move. */
