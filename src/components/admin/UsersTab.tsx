@@ -23,12 +23,12 @@ export default function UsersTab({
   handleDeleteUser,
   formatDate,
 }) {
-  const usersSectionRef = useRef(null)
+  const usersGridRef = useRef(null)
   // 💾 Сохраняем/восстанавливаем позицию прокрутки списка пользователей при обновлении страницы
-  useScrollRestoration(usersSectionRef, 'scroll_admin_users', [filteredUsers.length])
+  useScrollRestoration(usersGridRef, 'scroll_admin_users', [filteredUsers.length])
 
   return (
-    <div className="users-section" ref={usersSectionRef}>
+    <div className="users-section">
       <h3>👥 Пользователи ({filteredUsers.length})</h3>
       <div className="users-toolbar">
         <div className="search-container">
@@ -56,7 +56,7 @@ export default function UsersTab({
           <button type="button" className={`filter-chip ${userRoleFilter === 'user' ? 'active' : ''}`} onClick={() => setUserRoleFilter('user')}>Пользователь</button>
         </div>
       </div>
-      <div className="users-grid">
+      <div className="users-grid" ref={usersGridRef}>
         {filteredUsers.length > 0 ? filteredUsers.map(u => (
           <div key={u.id} className={`user-card ${u.isBlocked ? 'blocked' : ''}`}>
             <div className="user-info">

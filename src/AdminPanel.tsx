@@ -969,12 +969,24 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         prevUser && ((Boolean(prevUser.paid) && !userFormData.paid) || (Boolean(prevUser.runesPaid) && !userFormData.runesPaid))
       )
       await updateUser(userEditingId, userFormData, adminUser?.email || activeUser?.email)
+      // 🔄 Оптимистично обновляем локальное состояние сразу, чтобы карточка
+      // отразила изменения без ожидания синхронизации с GitHub. Чтение сразу после
+      // записи может вернуть устаревшие данные из-за задержки распространения на CDN.
+      setUsers(prev => prev.map(u => u.id === userEditingId ? {
+        ...u,
+        email: userFormData.email,
+        role: userFormData.role,
+        paid: Boolean(userFormData.paid),
+        runesPaid: Boolean(userFormData.runesPaid),
+      } : u))
       if (becameUnpaid) {
         showMessage(`⚠️ ${prevUser?.email}: статус «не оплачено» — пользователь будет разлогинен на всех устройствах`, 'error')
       }
       handleCancelEditUser()
-      await loadUsers()
       await loadLogs()
+      // Синхронизируем список пользователей с сервером с задержкой, чтобы GitHub
+      // успел применить изменения (иначе чтение вернёт устаревшие данные и откатит оптимистичное обновление).
+      setTimeout(() => { loadUsers() }, 1500)
     } catch (err) {
       setError('Ошибка редактирования пользователя: ' + err.message)
     }
