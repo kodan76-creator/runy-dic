@@ -1,5 +1,12 @@
 [
   {
+    "id": "1786554363879",
+    "timestamp": "2026-08-12T17:06:03.879Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход"
+  },
+  {
     "id": "1786445704896",
     "timestamp": "2026-08-11T10:55:04.896Z",
     "action": "login",
@@ -7031,12 +7038,5 @@
     "action": "audio_played",
     "userEmail": "ya.kodan76@ya.ru",
     "details": "Аудио: 1_runy.mp3"
-  },
-  {
-    "id": "1778435058966",
-    "timestamp": "2026-05-10T17:44:18.966Z",
-    "action": "login",
-    "userEmail": "ya.kodan76@ya.ru",
-    "details": "Вход"
   }
 ]
