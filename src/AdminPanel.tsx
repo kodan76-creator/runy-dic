@@ -59,7 +59,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [runes, setRunes] = useState<any[]>([])
   const [runeEditingId, setRuneEditingId] = useState(null)
   const [runeFormData, setRuneFormData] = useState({
-    name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: ''
+    name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -874,7 +874,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         showMessage('✅ Руна добавлена')
       }
       setRuneEditingId(null)
-      setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '' })
+      setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
       await loadRunes()
     } catch (err) { setError('Ошибка рун: ' + err.message) }
   }
@@ -890,6 +890,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       power: r.power || '',
       keywords: r.keywords || '',
       description: r.description || '',
+      textAlign: r.textAlign || 'center',
     })
   }
 

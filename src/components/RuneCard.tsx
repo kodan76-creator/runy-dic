@@ -8,7 +8,7 @@ export default function RuneCard({ rune }) {
   const imgUrl = buildImageUrl(rune.image || '', '')
 
   return (
-    <div className="rune-card">
+    <div className={`rune-card align-${rune.textAlign || 'center'}`}>
       <div className="rune-card-body">
         {rune.name && <h3 className="rune-card-name">{rune.name}</h3>}
         {rune.graphic && (

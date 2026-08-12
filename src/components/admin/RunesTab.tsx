@@ -19,7 +19,7 @@ export default function RunesTab({
 }) {
   const resetForm = () => {
     setRuneEditingId(null)
-    setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '' })
+    setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
   }
 
   return (
@@ -111,6 +111,35 @@ export default function RunesTab({
             rows={4}
           />
         </div>
+        <div className="form-row align-control">
+          <span className="align-label">Выравнивание текста в карточке:</span>
+          <div className="align-buttons">
+            <button
+              type="button"
+              className={`align-btn ${runeFormData.textAlign === 'left' ? 'active' : ''}`}
+              onClick={() => setRuneFormData({ ...runeFormData, textAlign: 'left' })}
+              aria-label="Выровнять текст по левому краю"
+              aria-pressed={runeFormData.textAlign === 'left'}
+              title="По левому краю"
+            >←</button>
+            <button
+              type="button"
+              className={`align-btn ${runeFormData.textAlign === 'center' ? 'active' : ''}`}
+              onClick={() => setRuneFormData({ ...runeFormData, textAlign: 'center' })}
+              aria-label="Выровнять текст по центру"
+              aria-pressed={runeFormData.textAlign === 'center'}
+              title="По центру"
+            >↔</button>
+            <button
+              type="button"
+              className={`align-btn ${runeFormData.textAlign === 'right' ? 'active' : ''}`}
+              onClick={() => setRuneFormData({ ...runeFormData, textAlign: 'right' })}
+              aria-label="Выровнять текст по правому краю"
+              aria-pressed={runeFormData.textAlign === 'right'}
+              title="По правому краю"
+            >→</button>
+          </div>
+        </div>
         <div className="form-buttons">
           <button type="submit" className="save-btn">{runeEditingId ? 'Обновить' : 'Добавить'}</button>
           {runeEditingId && <button type="button" className="cancel-btn" onClick={resetForm}>Отмена</button>}
@@ -121,7 +150,7 @@ export default function RunesTab({
         {runes.length === 0 ? (
           <div className="no-results">Руны отсутствуют</div>
         ) : runes.map((r, idx) => (
-          <div key={r.id} className="category-item rune-item">
+          <div key={r.id} className={`category-item rune-item align-${r.textAlign || 'center'}`}>
             <div className="category-order">
               <button onClick={() => handleMoveRuneToTop(r.id)} className="move-btn" disabled={idx === 0} title="В начало">⏫</button>
               <button onClick={() => handleMoveRuneUp(r.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
