@@ -6,6 +6,7 @@ import { addLog } from './logs'
 import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
 import { cacheUserForOffline } from './offline'
+import { getDeviceId, checkRegistrationLimit, recordRegistration } from './deviceLimit'
 
 export const hashPassword = async (password) => {
   try {
@@ -64,11 +65,16 @@ export const registerUser = async (email, password) => {
   if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
     throw new Error('Введите корректный email, например: user@mail.ru')
   }
+
+  // 🚦 Лимит регистраций с одного устройства (макс. 5 в сутки)
+  checkRegistrationLimit()
+
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   if (users.some(u => u?.email?.toLowerCase() === email?.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует')
   }
   const passwordHash = await hashPassword(password)
+  const deviceId = getDeviceId()
   const newUser = {
     id: Date.now().toString(),
     email,
@@ -88,10 +94,13 @@ export const registerUser = async (email, password) => {
     runesUnpaidBy: null,
     isBlocked: false,
     blockedAt: null,
-    blockedBy: null
+    blockedBy: null,
+    deviceId, // 🚦 с какого устройства зарегистрирован (для аудита в админке)
+    registeredAt: new Date().toISOString()
   }
   await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
-  addLog({ action: 'register', userEmail: email, details: 'Регистрация' }).catch(() => {})
+  addLog({ action: 'register', userEmail: email, details: 'Регистрация', deviceId }).catch(() => {})
+  recordRegistration() // 🚦 фиксируем регистрацию на этом устройстве
   ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on register:', e))
   ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on register:', e))
   const { passwordHash: _, ...safeUser } = newUser
