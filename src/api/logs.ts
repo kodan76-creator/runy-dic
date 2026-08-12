@@ -25,7 +25,10 @@ export const addLog = async (logData) => {
         // 1. Получаем актуальные данные и sha
         const { data: logs, sha } = await fetchGitHubFile(LOGS_FILE)
         const arr = Array.isArray(logs) ? logs : []
-        const updated = [newLog, ...arr].slice(0, 1000) // Ограничиваем до 1000 записей
+        // 🧹 Автоочистка: если накопилось 999+ записей — удаляем 100 самых старых.
+        // Самые старые логи находятся в конце массива (новые дописываются в начало).
+        const trimmed = arr.length >= 999 ? arr.slice(0, arr.length - 100) : arr
+        const updated = [newLog, ...trimmed].slice(0, 1000) // Ограничиваем до 1000 записей
 
         // 2. Пытаемся обновить
         await updateGitHubFile(LOGS_FILE, updated, sha)
