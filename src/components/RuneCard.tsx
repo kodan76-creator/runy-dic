@@ -3,9 +3,9 @@
 import { buildImageUrl } from '../api/images'
 import '../App.css'
 
-export default function RuneCard({ rune }) {
+export default function RuneCard({ rune, imageSrc = undefined }) {
   if (!rune) return null
-  const imgUrl = buildImageUrl(rune.image || '', '')
+  const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', '')
 
   return (
     <div className={`rune-card align-${rune.textAlign || 'center'}`}>

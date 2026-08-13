@@ -2,6 +2,7 @@
 // Вкладка «Новые Руны»: форма добавления/редактирования руны и список рун.
 import { useRef } from 'react'
 import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+import RuneCard from '../RuneCard'
 
 export default function RunesTab({
   runes,
@@ -163,22 +164,7 @@ export default function RunesTab({
               <button onClick={() => handleMoveRuneUp(r.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
               <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
             </div>
-            <div className="category-info rune-info">
-              <div className="rune-info-head">
-                <strong>{r.name}</strong>
-                <span className="rune-info-glyph">{r.graphic}</span>
-                {r.letter && <span className="rune-info-letter">[{r.letter}]</span>}
-              </div>
-              {r.image && getImageSrc && (
-                <div className="rune-list-power-image">
-                  <span className="rune-card-label">Отображение Силы Руны:</span>
-                  <img src={getImageSrc(r.image)} alt={r.name || 'Руна'} className="rune-list-image" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
-                </div>
-              )}
-              {r.power && <div className="category-desc"><b>Описание Силы Руны:</b> {r.power}</div>}
-              {r.keywords && <div className="category-desc"><b>Ключевые слова:</b> {r.keywords}</div>}
-              {r.description && <div className="category-desc rune-long-desc"><b>Описание:</b> {r.description}</div>}
-            </div>
+            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image) : undefined} />
             <div className="category-actions">
               <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>
               <button onClick={() => handleDeleteRune(r.id)} className="delete-btn">🗑️</button>

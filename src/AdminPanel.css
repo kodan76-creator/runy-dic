@@ -162,19 +162,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .runes-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
 .runes-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
 .runes-list { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
-.rune-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; background: var(--app-accent-soft); padding: 12px; border-radius: 8px; border: 2px solid var(--surface-border); }
-.rune-info { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; flex: 1; }
-.rune-info-glyph { font-family: 'Dao Rus', serif; font-size: 40px; color: #FFD700; line-height: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); min-width: 52px; text-align: center; }
-.rune-info-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.rune-info-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.rune-info-head strong { color: var(--app-accent); font-size: 16px; }
-.rune-info-letter { font-size: 13px; color: var(--surface-muted); background: rgba(123, 31, 162, 0.12); padding: 1px 8px; border-radius: 6px; }
-.rune-info-meta { font-size: 13px; color: var(--surface-muted); }
-.rune-long-desc { font-size: 13px; color: var(--surface-muted); margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
-.rune-item.align-left .category-desc { text-align: left; }
-.rune-item.align-right .category-desc { text-align: right; }
-.rune-list-image { width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--surface-border); padding: 2px; flex-shrink: 0; }
-.rune-list-power-image { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.rune-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; background: transparent; padding: 0; border: none; border-radius: 0; }
+.rune-item .rune-card { flex: 1; min-width: 0; }
 .rune-actions { display: flex; gap: 8px; align-items: center; }
 
 /* Пользователи */
