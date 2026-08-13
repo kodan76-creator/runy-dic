@@ -20,7 +20,13 @@ export default function Home({ user, onLogout }) {
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [reloadToken, setReloadToken] = useState(0)
   const [viewMode, setViewMode] = useState<'dictionary' | 'runes'>('dictionary')
-  const [headerCollapsed, setHeaderCollapsed] = useState(false)
+  const [headerCollapsed, setHeaderCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('home_header_collapsed') === '1'
+    } catch {
+      return false
+    }
+  })
 
   // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
   // чтобы при отсутствии интернета можно было пользоваться своим словарём.
@@ -477,7 +483,13 @@ export default function Home({ user, onLogout }) {
         <button
           type="button"
           className="header-collapse-btn"
-          onClick={() => setHeaderCollapsed(c => !c)}
+          onClick={() => setHeaderCollapsed(c => {
+            const next = !c
+            try {
+              localStorage.setItem('home_header_collapsed', next ? '1' : '0')
+            } catch { /* ignore */ }
+            return next
+          })}
           aria-expanded={!headerCollapsed}
           aria-label={headerCollapsed ? 'Развернуть шапку' : 'Свернуть шапку'}
           title={headerCollapsed ? 'Развернуть шапку' : 'Свернуть шапку'}
