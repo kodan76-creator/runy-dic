@@ -1321,18 +1321,24 @@ color: #5a0000;
   .header-collapsed .logo {
     order: 1;
     width: 64px;
+    flex-shrink: 0;
+  }
+  .header-collapsed .search-row {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
   }
   .header-collapsed .header-collapse-btn {
     position: static;
-    order: 2;
-    margin-left: auto;
+    order: 3;
+    flex-shrink: 0;
   }
   .header-collapsed .listen-btn,
   .header-collapsed .play-mode,
   .header-collapsed .view-toggle,
   .header-collapsed .filter-mode,
   .header-collapsed .dictionary-source-mode,
-  .header-collapsed .search-row,
   .header-collapsed .header-actions {
     display: none;
   }
@@ -1367,18 +1373,24 @@ color: #5a0000;
   .header-collapsed .logo {
     order: 1;
     width: 56px;
+    flex-shrink: 0;
+  }
+  .header-collapsed .search-row {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
   }
   .header-collapsed .header-collapse-btn {
     position: static;
-    order: 2;
-    margin-left: auto;
+    order: 3;
+    flex-shrink: 0;
   }
   .header-collapsed .listen-btn,
   .header-collapsed .play-mode,
   .header-collapsed .view-toggle,
   .header-collapsed .filter-mode,
   .header-collapsed .dictionary-source-mode,
-  .header-collapsed .search-row,
   .header-collapsed .header-actions {
     display: none;
   }
