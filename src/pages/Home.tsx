@@ -20,6 +20,7 @@ export default function Home({ user, onLogout }) {
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [reloadToken, setReloadToken] = useState(0)
   const [viewMode, setViewMode] = useState<'dictionary' | 'runes'>('dictionary')
+  const [headerCollapsed, setHeaderCollapsed] = useState(false)
 
   // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
   // чтобы при отсутствии интернета можно было пользоваться своим словарём.
@@ -472,7 +473,17 @@ export default function Home({ user, onLogout }) {
           Изменения сохранятся, когда появится соединение.
         </div>
       )}
-      <div className="header">
+      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}`}>
+        <button
+          type="button"
+          className="header-collapse-btn"
+          onClick={() => setHeaderCollapsed(c => !c)}
+          aria-expanded={!headerCollapsed}
+          aria-label={headerCollapsed ? 'Развернуть шапку' : 'Свернуть шапку'}
+          title={headerCollapsed ? 'Развернуть шапку' : 'Свернуть шапку'}
+        >
+          {headerCollapsed ? '▼' : '▲'}
+        </button>
         {viewMode === 'dictionary' && (
           <>
             <button

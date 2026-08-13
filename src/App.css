@@ -289,6 +289,11 @@ color: #5a0000;
   flex-wrap: wrap;
 }
 
+/* Кнопка сворачивания шапки — скрыта на десктопе, видна только на мобильных */
+.header-collapse-btn {
+  display: none;
+}
+
 /* 🌐 Баннер оффлайн-режима */
 .offline-banner {
   max-width: 1200px;
@@ -1278,6 +1283,51 @@ color: #5a0000;
     max-width: 100%;
     width: 100%;
   }
+
+  /* Кнопка сворачивания шапки (мобильные) */
+  .header-collapse-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .header-collapse-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Свёрнутое состояние шапки */
+  .header-collapsed {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .header-collapsed .logo {
+    width: 64px;
+  }
+  .header-collapsed .listen-btn,
+  .header-collapsed .play-mode,
+  .header-collapsed .view-toggle,
+  .header-collapsed .filter-mode,
+  .header-collapsed .dictionary-source-mode,
+  .header-collapsed .search-row,
+  .header-collapsed .header-actions {
+    display: none;
+  }
 }
 
 /* Для очень маленьких экранов */
@@ -1295,6 +1345,27 @@ color: #5a0000;
     box-sizing: border-box;
     background: #aa3bff;
     z-index: 1000;
+  }
+
+  /* Свёрнутое состояние шапки (очень маленькие экраны) */
+  .header-collapsed {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .header-collapsed .logo {
+    width: 56px;
+  }
+  .header-collapsed .listen-btn,
+  .header-collapsed .play-mode,
+  .header-collapsed .view-toggle,
+  .header-collapsed .filter-mode,
+  .header-collapsed .dictionary-source-mode,
+  .header-collapsed .search-row,
+  .header-collapsed .header-actions {
+    display: none;
   }
 
   /* Container: only side padding */
