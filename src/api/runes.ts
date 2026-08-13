@@ -54,3 +54,13 @@ export const moveRuneToTop = async (id) => {
   arr.unshift(item)
   await updateGitHubFile(RUNES_FILE, arr, sha)
 }
+
+export const moveRuneToEnd = async (id) => {
+  const { data: runes, sha } = await getRunes()
+  const arr = Array.isArray(runes) ? [...runes] : []
+  const idx = arr.findIndex(r => r.id === id)
+  if (idx === -1 || idx >= arr.length - 1) return // already last
+  const [item] = arr.splice(idx, 1)
+  arr.push(item)
+  await updateGitHubFile(RUNES_FILE, arr, sha)
+}

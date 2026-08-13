@@ -18,6 +18,7 @@ export default function RunesTab({
   handleMoveRuneUp,
   handleMoveRuneDown,
   handleMoveRuneToTop,
+  handleMoveRuneToEnd,
   handleRuneImageUpload,
   handleRuneImageDelete,
 }) {
@@ -163,6 +164,7 @@ export default function RunesTab({
               <button onClick={() => handleMoveRuneToTop(r.id)} className="move-btn" disabled={idx === 0} title="В начало">⏫</button>
               <button onClick={() => handleMoveRuneUp(r.id)} className="move-btn" disabled={idx === 0} title="Переместить вверх">⬆️</button>
               <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
+              <button onClick={() => handleMoveRuneToEnd(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="В конец">⏬</button>
             </div>
             <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image) : undefined} />
             <div className="category-actions">

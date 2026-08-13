@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
@@ -926,6 +926,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const handleMoveRuneToTop = async (id) => {
     try { await moveRuneToTop(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
+  const handleMoveRuneToEnd = async (id) => {
+    try { await moveRuneToEnd(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+  }
 
   const handleBlockUser = async (userId, userEmail) => {
     if (window.confirm(`Заблокировать ${userEmail}?`)) {
@@ -1181,6 +1184,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleMoveRuneUp={handleMoveRuneUp}
             handleMoveRuneDown={handleMoveRuneDown}
             handleMoveRuneToTop={handleMoveRuneToTop}
+            handleMoveRuneToEnd={handleMoveRuneToEnd}
             handleRuneImageUpload={handleRuneImageUpload}
             handleRuneImageDelete={handleRuneImageDelete}
           />
