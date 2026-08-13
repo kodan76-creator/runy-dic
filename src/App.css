@@ -917,6 +917,15 @@ color: #5a0000;
   white-space: pre-wrap;
 }
 
+/* Подсветка найденного фрагмента при поиске по рунам */
+.rune-hl {
+  background: #FFD700;
+  color: #1a0033;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 700;
+}
+
 .dictionary-source {
   display: inline-block;
   margin: 0 0 10px 0;

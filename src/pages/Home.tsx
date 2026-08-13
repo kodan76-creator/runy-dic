@@ -816,7 +816,7 @@ export default function Home({ user, onLogout }) {
                 <h2 className="runes-section-title">🧿 Новые Руны</h2>
                 <div className="runes-list-cards">
                   {filteredRunes.map(r => (
-                    <RuneCard key={r.id || r.name} rune={r} />
+                    <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} />
                   ))}
                 </div>
               </>
