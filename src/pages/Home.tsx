@@ -12,6 +12,7 @@ import '../App.css'
 
 export default function Home({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('')
+  const [runesSearchTerm, setRunesSearchTerm] = useState('')
   const [words, setWords] = useState<any[]>([])
   const [runes, setRunes] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
@@ -424,6 +425,16 @@ export default function Home({ user, onLogout }) {
       return favorites.has(String(item.id))
     })
 
+  // 🔎 Фильтрация рун по поисковому запросу (Новые Руны)
+  const filteredRunes = useMemo(() => {
+    const term = (runesSearchTerm || '').toLowerCase().trim()
+    if (!term) return runes
+    return runes.filter(r =>
+      [r.name, r.power, r.keywords, r.description, r.letter, r.graphic]
+        .some(v => v && String(v).toLowerCase().includes(term))
+    )
+  }, [runes, runesSearchTerm])
+
   const audio = useAudioPlayback({ user, words: filtered, playMode })
 
   const handleLogout = async () => {
@@ -559,6 +570,30 @@ export default function Home({ user, onLogout }) {
             >
               🧿 Новые Руны
             </button>
+          </div>
+        )}
+        {viewMode === 'runes' && (
+          <div className="search-row">
+            <div className="search-wrapper" style={{flex: 1}}>
+              <input
+                type="text"
+                placeholder="Поиск по рунам..."
+                aria-label="Поиск по рунам"
+                value={runesSearchTerm}
+                onChange={(e) => setRunesSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              {runesSearchTerm && (
+                <button
+                  className="search-clear-btn"
+                  onClick={() => setRunesSearchTerm('')}
+                  aria-label="Очистить поиск"
+                  title="Очистить поиск"
+                >
+                  ❌
+                </button>
+              )}
+            </div>
           </div>
         )}
         {viewMode === 'dictionary' && (
@@ -776,14 +811,25 @@ export default function Home({ user, onLogout }) {
       ) : (
         <div className="runes-dictionary-section" ref={runesSectionRef}>
           {Array.isArray(runes) && runes.length > 0 ? (
-            <>
-              <h2 className="runes-section-title">🧿 Новые Руны</h2>
-              <div className="runes-list-cards">
-                {runes.map(r => (
-                  <RuneCard key={r.id || r.name} rune={r} />
-                ))}
+            filteredRunes.length > 0 ? (
+              <>
+                <h2 className="runes-section-title">🧿 Новые Руны</h2>
+                <div className="runes-list-cards">
+                  {filteredRunes.map(r => (
+                    <RuneCard key={r.id || r.name} rune={r} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="state-block empty-state">
+                <div className="state-icon" aria-hidden="true">🔍</div>
+                <h2>Ничего не найдено</h2>
+                <p>По запросу «{runesSearchTerm}» руны не найдены.</p>
+                <button className="state-reset-btn" onClick={() => setRunesSearchTerm('')}>
+                  Сбросить поиск
+                </button>
               </div>
-            </>
+            )
           ) : (
             <div className="state-block empty-state">
               <div className="state-icon" aria-hidden="true">🧿</div>
