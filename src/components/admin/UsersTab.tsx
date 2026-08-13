@@ -62,7 +62,7 @@ export default function UsersTab({
             <div className="user-info">
               <p className="user-email">{u.email}</p>
               <p className="user-meta">Роль: {u.role === 'admin' ? 'Админ' : 'Пользователь'}</p>
-              <p className="user-meta">Оплата: {u.paid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.paid ? u.paidAt : u.unpaidAt)}</p>
+              <p className="user-meta">Общий словарь: {u.paid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.paid ? u.paidAt : u.unpaidAt)}</p>
               <p className="user-meta">Новые Руны: {u.runesPaid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.runesPaid ? u.runesPaidAt : u.runesUnpaidAt)}</p>
               <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
               {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
