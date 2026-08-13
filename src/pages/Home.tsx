@@ -19,7 +19,13 @@ export default function Home({ user, onLogout }) {
   const [loadError, setLoadError] = useState(false)
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [reloadToken, setReloadToken] = useState(0)
-  const [viewMode, setViewMode] = useState<'dictionary' | 'runes'>('dictionary')
+  const [viewMode, setViewMode] = useState<'dictionary' | 'runes'>(() => {
+    try {
+      const saved = localStorage.getItem('home_view_mode')
+      if (saved === 'runes' && user?.runesPaid) return 'runes'
+    } catch { /* ignore */ }
+    return 'dictionary'
+  })
   const [headerCollapsed, setHeaderCollapsed] = useState(() => {
     try {
       return localStorage.getItem('home_header_collapsed') === '1'
@@ -536,14 +542,20 @@ export default function Home({ user, onLogout }) {
             <button
               type="button"
               className={`view-toggle-btn ${viewMode === 'dictionary' ? 'active' : ''}`}
-              onClick={() => setViewMode('dictionary')}
+              onClick={() => {
+                setViewMode('dictionary')
+                try { localStorage.setItem('home_view_mode', 'dictionary') } catch { /* ignore */ }
+              }}
             >
               📚 Словарь
             </button>
             <button
               type="button"
               className={`view-toggle-btn ${viewMode === 'runes' ? 'active' : ''}`}
-              onClick={() => setViewMode('runes')}
+              onClick={() => {
+                setViewMode('runes')
+                try { localStorage.setItem('home_view_mode', 'runes') } catch { /* ignore */ }
+              }}
             >
               🧿 Новые Руны
             </button>
