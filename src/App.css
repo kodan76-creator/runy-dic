@@ -1223,6 +1223,7 @@ color: #5a0000;
     order: 6;
     align-self: center;
     margin-left: 0;
+    justify-content: center;
     gap: 8px;
   }
 
@@ -1315,6 +1316,7 @@ color: #5a0000;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
+    width: 100%;
   }
   .header-collapsed .logo {
     order: 1;
@@ -1360,6 +1362,7 @@ color: #5a0000;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
+    width: 100%;
   }
   .header-collapsed .logo {
     order: 1;
@@ -1472,6 +1475,7 @@ color: #5a0000;
   .header-actions {
     align-self: center;
     margin-left: 0;
+    justify-content: center;
     gap: 8px;
   }
 
