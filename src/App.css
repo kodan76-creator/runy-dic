@@ -1311,13 +1311,19 @@ color: #5a0000;
   /* Свёрнутое состояние шапки */
   .header-collapsed {
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
   }
   .header-collapsed .logo {
+    order: 1;
     width: 64px;
+  }
+  .header-collapsed .header-collapse-btn {
+    position: static;
+    order: 2;
+    margin-left: auto;
   }
   .header-collapsed .listen-btn,
   .header-collapsed .play-mode,
@@ -1350,13 +1356,19 @@ color: #5a0000;
   /* Свёрнутое состояние шапки (очень маленькие экраны) */
   .header-collapsed {
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
   }
   .header-collapsed .logo {
+    order: 1;
     width: 56px;
+  }
+  .header-collapsed .header-collapse-btn {
+    position: static;
+    order: 2;
+    margin-left: auto;
   }
   .header-collapsed .listen-btn,
   .header-collapsed .play-mode,
