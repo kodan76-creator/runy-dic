@@ -25,19 +25,16 @@ export default function RuneCard({ rune }) {
         )}
         {rune.power && (
           <div className="rune-card-power">
-            <span className="rune-card-label">Описание Силы Руны:</span>
             <span>{rune.power}</span>
           </div>
         )}
         {rune.keywords && (
           <div className="rune-card-keywords">
-            <span className="rune-card-label">Ключевые слова:</span>
             <span>{rune.keywords}</span>
           </div>
         )}
         {rune.description && (
           <div className="rune-card-desc">
-            <span className="rune-card-label">Описание:</span>
             <span>{rune.description}</span>
           </div>
         )}

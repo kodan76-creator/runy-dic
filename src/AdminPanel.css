@@ -137,7 +137,11 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .edit-btn:hover, .delete-btn:hover { transform: scale(1.03); }
 
 /* 🧿 Новые Руны */
-.runes-section { background: var(--surface); padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px var(--shadow-md); border: 2px solid var(--surface-border); border-top: none; }
+.runes-section { background: var(--surface); padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px var(--shadow-md); border: 2px solid var(--surface-border); border-top: none; max-height: calc(var(--admin-viewport-height) - 170px); overflow-y: auto; }
+.runes-section::-webkit-scrollbar { width: 12px; }
+.runes-section::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
+.runes-section::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
+.runes-section { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
 .rune-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
 .rune-form .form-column { display: flex; flex-direction: column; gap: 12px; }
 .rune-form .form-field { display: flex; flex-direction: column; gap: 5px; }
@@ -156,10 +160,10 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .runes-list { display: grid; gap: 10px; max-height: 460px; overflow-y: auto; padding-right: 8px; }
 .runes-list::-webkit-scrollbar { width: 12px; }
 .runes-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
-.runes-list::-webkit-scrollbar-thumb { background: #b8860b; border-radius: 6px; border: 3px solid #f1f1f1; }
-.runes-list { scrollbar-width: thin; scrollbar-color: #b8860b #f1f1f1; }
-.rune-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--app-accent-soft); padding: 12px; border-radius: 8px; border: 2px solid var(--surface-border); }
-.rune-info { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.runes-list::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 6px; border: 3px solid #f1f1f1; }
+.runes-list { scrollbar-width: thin; scrollbar-color: #7b1fa2 #f1f1f1; }
+.rune-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; background: var(--app-accent-soft); padding: 12px; border-radius: 8px; border: 2px solid var(--surface-border); }
+.rune-info { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; flex: 1; }
 .rune-info-glyph { font-family: 'Dao Rus', serif; font-size: 40px; color: #FFD700; line-height: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); min-width: 52px; text-align: center; }
 .rune-info-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .rune-info-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -915,17 +919,23 @@ box-shadow: 0 6px 18px rgba(0,0,0,0.25);
   .logs-section::-webkit-scrollbar-thumb,
   .users-grid::-webkit-scrollbar-thumb,
   .categories-list::-webkit-scrollbar-thumb,
-  .category-checkboxes::-webkit-scrollbar-thumb { background: var(--app-accent); border-color: var(--surface); }
+  .category-checkboxes::-webkit-scrollbar-thumb,
+  .runes-list::-webkit-scrollbar-thumb,
+  .runes-section::-webkit-scrollbar-thumb { background: var(--app-accent); border-color: var(--surface); }
   .words-list::-webkit-scrollbar-track,
   .logs-section::-webkit-scrollbar-track,
   .users-grid::-webkit-scrollbar-track,
   .categories-list::-webkit-scrollbar-track,
-  .category-checkboxes::-webkit-scrollbar-track { background: var(--field-bg); }
+  .category-checkboxes::-webkit-scrollbar-track,
+  .runes-list::-webkit-scrollbar-track,
+  .runes-section::-webkit-scrollbar-track { background: var(--field-bg); }
   .words-list,
   .logs-section,
   .users-grid,
   .categories-list,
-  .category-checkboxes { scrollbar-color: var(--app-accent) var(--field-bg); }
+  .category-checkboxes,
+  .runes-list,
+  .runes-section { scrollbar-color: var(--app-accent) var(--field-bg); }
 
   .card-scroll-top-btn.admin { background: rgba(255, 255, 255, 0.16); }
   .card-scroll-top-btn.admin:hover { background: rgba(255, 255, 255, 0.26); }
