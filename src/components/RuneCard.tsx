@@ -1,5 +1,6 @@
 // src/components/RuneCard.tsx
 // Карточка руны на главном экране (раздел «Новые Руны»)
+import { type ReactNode } from 'react'
 import { buildImageUrl } from '../api/images'
 import '../App.css'
 
@@ -8,7 +9,7 @@ function highlightText(text, term) {
   if (!term || !str) return str
   const lower = str.toLowerCase()
   const t = term.toLowerCase()
-  const nodes: (string | JSX.Element)[] = []
+  const nodes: ReactNode[] = []
   let i = 0
   let idx = lower.indexOf(t)
   if (idx === -1) return str

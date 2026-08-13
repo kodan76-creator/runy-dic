@@ -125,7 +125,7 @@ body {
   padding: 10px;
   margin-top: 10px;
   background: #FFD700;
-  color: #000000;
+  color: #aa3bff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -228,7 +228,7 @@ color: #5a0000;
 
 .header-admin-btn {
   background: #FFD700;
-  color: #000000;
+  color: #aa3bff;
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
@@ -311,7 +311,7 @@ color: #5a0000;
 .listen-btn {
   padding: 8px 16px;
   background: #FFD700;
-  color: #000000;
+  color: #aa3bff;
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -920,7 +920,7 @@ color: #5a0000;
 /* Подсветка найденного фрагмента при поиске по рунам */
 .rune-hl {
   background: #FFD700;
-  color: #1a0033;
+  color: #aa3bff;
   border-radius: 3px;
   padding: 0 2px;
   font-weight: 700;
@@ -1755,7 +1755,7 @@ color: #5a0000;
   border: none;
   border-radius: 10px;
   background: var(--rune);
-  color: #000;
+  color: #aa3bff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
