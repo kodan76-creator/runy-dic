@@ -890,7 +890,7 @@ color: #5a0000;
   white-space: pre-wrap;
 }
 .rune-card-letter {
-  color: #7d19b9;
+  color: #5ad1e6;
   font-style: italic;
   font-size: 17px;
 }
@@ -1668,8 +1668,8 @@ color: #5a0000;
   .transcription2 {
     color: #c96fff;
   }
-  /* буква руны — светло-фиолетый для читаемости на тёмной карточке */
-  .rune-card-letter { color: #c96fff; }
+  /* буква руны — голубой для читаемости на тёмной карточке */
+  .rune-card-letter { color: #5ad1e6; }
   .dictionary-source { background: rgba(0, 0, 0, 0.35); }
   .dictionary-source.shared { background: rgba(255, 215, 0, 0.2); }
   .dictionary-source.personal { background: rgba(0, 0, 0, 0.35); }
