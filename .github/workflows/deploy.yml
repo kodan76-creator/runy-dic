@@ -9,8 +9,56 @@ permissions:
   pages: write
   id-token: write
 
+# 🔒 Сериализуем деплои: GitHub Pages разрешает только один деплой за раз.
+# Если новый запуск приходит во время уже идущего — он отменяет старый
+# и сам доходит до конца (без ложных failure "due to in progress deployment").
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
 jobs:
+  # 🧿 Проверяем, изменились ли только data-файлы, которые приложение читает
+  # в рантайме через GitHub API (runes.json, словари и т.п.). Для них
+  # пересборка статического сайта не нужна — деплой пропускаем.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: check
+        name: Detect relevant changes
+        run: |
+          # Файлы данных, читаемые в рантайме через API (не влияют на сборку сайта)
+          DATA_FILES="runes.json categories.json users.json admins.json logs.json favorites.json favorites_queue.json dictionary.json test.json citer2380.json kodan76.json winx0212.json ya.kodan76.json ya.kostima11.json"
+
+          changed=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" || true)
+          echo "Changed files in this push:"
+          echo "$changed"
+
+          need_deploy=0
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            is_data=0
+            for d in $DATA_FILES; do
+              if [ "$f" = "$d" ]; then is_data=1; break; fi
+            done
+            # Загруженные пользователями медиа-файлы тоже data (не влияют на сборку)
+            case "$f" in
+              public/audio/*) is_data=1 ;;
+            esac
+            if [ "$is_data" -eq 0 ]; then need_deploy=1; fi
+          done <<< "$changed"
+
+          echo "Need deploy: $need_deploy"
+          echo "deploy=$need_deploy" >> "$GITHUB_OUTPUT"
+
   deploy:
+    needs: changes
+    if: needs.changes.outputs.deploy == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +66,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
       
       - name: Install dependencies
         run: npm ci
