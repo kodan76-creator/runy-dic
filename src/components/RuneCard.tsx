@@ -2,6 +2,7 @@
 // Карточка руны на главном экране (раздел «Новые Руны»)
 import { type ReactNode } from 'react'
 import { buildImageUrl } from '../api/images'
+import { renderRichText } from '../utils/richText'
 import '../App.css'
 
 function highlightText(text, term) {
@@ -59,7 +60,7 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '' })
         {rune.description && (
           <div className="rune-card-desc">
             <span className="rune-card-label">Описание:</span>
-            <span>{highlightText(rune.description, highlight)}</span>
+            <span dangerouslySetInnerHTML={{ __html: renderRichText(rune.description, highlight) }} />
           </div>
         )}
       </div>
