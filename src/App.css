@@ -931,8 +931,8 @@ color: #5a0000;
   display: inline-block;
 }
 .rune-card-desc li {
-  line-height: 1.25;
-  margin: 2px 0;
+  line-height: 1.05;
+  margin: 0;
 }
 
 /* Подсветка найденного фрагмента при поиске по рунам */
