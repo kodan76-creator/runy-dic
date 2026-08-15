@@ -309,6 +309,34 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       await new Promise(res => setTimeout(res, 400))
     }
   }, [words, isRestrictedUser, activeUser, setWords, isOnline])
+
+  // 🧿 Обновление списка рун после записи на GitHub — как refreshWordsAfterWrite,
+  // но для рун: повторяем запросы, пока GitHub не отдаст актуальные данные
+  // (при слабом интернете первая же попытка часто возвращает устаревший кэш).
+  const refreshRunesAfterWrite = useCallback(async () => {
+    // 🌐 Оффлайн: читаем актуальный список из кэша (изменения уже применены к нему)
+    if (!isOnline()) {
+      const cached = getCachedRunes()
+      if (Array.isArray(cached)) setRunes(cached)
+      return
+    }
+    const beforeJson = JSON.stringify(runes)
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const { data, ok } = await getRunes()
+        const arr = Array.isArray(data) ? data : []
+        // Не перезаписываем список пустыми данными при сбое сети (слабый интернет)
+        if (ok !== false || arr.length > 0) {
+          setRunes(arr)
+          // Обновляем и оффлайн-кэш, чтобы копия была свежей
+          cacheRunesForOffline(arr)
+          if (JSON.stringify(arr) !== beforeJson) return
+        }
+      } catch { /* пробуем ещё раз */ }
+      await new Promise(res => setTimeout(res, 400))
+    }
+  }, [runes, isOnline])
+
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
   const loadCategories = async () => {
@@ -892,7 +920,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       }
       setRuneEditingId(null)
       setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
-      await loadRunes()
+      await refreshRunesAfterWrite()
     } catch (err) { setError('Ошибка рун: ' + err.message) }
   }
 
@@ -913,21 +941,21 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const handleDeleteRune = async (id) => {
     if (window.confirm('Удалить эту руну?')) {
-      try { await deleteRune(id); await loadRunes() } catch (err) { setError('Ошибка удаления руны: ' + err.message) }
+      try { await deleteRune(id); await refreshRunesAfterWrite() } catch (err) { setError('Ошибка удаления руны: ' + err.message) }
     }
   }
 
   const handleMoveRuneUp = async (id) => {
-    try { await moveRuneUp(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveRuneUp(id); await refreshRunesAfterWrite() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
   const handleMoveRuneDown = async (id) => {
-    try { await moveRuneDown(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveRuneDown(id); await refreshRunesAfterWrite() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
   const handleMoveRuneToTop = async (id) => {
-    try { await moveRuneToTop(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveRuneToTop(id); await refreshRunesAfterWrite() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
   const handleMoveRuneToEnd = async (id) => {
-    try { await moveRuneToEnd(id); await loadRunes() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
+    try { await moveRuneToEnd(id); await refreshRunesAfterWrite() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
 
   const handleBlockUser = async (userId, userEmail) => {
