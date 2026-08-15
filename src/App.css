@@ -6,6 +6,12 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
+/* 🖱️ Контур кнопки при наведении курсора */
+button:hover:not(:disabled) {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
 /* 🔐 Стили авторизации */
 .auth-container {
   min-height: 100vh;
