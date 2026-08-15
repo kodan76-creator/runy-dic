@@ -84,6 +84,25 @@ jobs:
         with:
           path: './dist'
       
+      # 🔓 Снимаем «зависшие» деплои Pages (статус in_progress/queued/pending),
+      # иначе actions/deploy-pages падает с "due to in progress deployment"
+      # (GitHub Pages пропускает только один деплой за раз на уровне сервиса).
+      - name: Cancel stuck Pages deployments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Проверяем зависшие деплои GitHub Pages..."
+          ids=$(gh api "/repos/$REPO/pages/deployments?per_page=100" \
+            --jq '.[] | select(.status=="in_progress" or .status=="queued" or .status=="pending") | .id' 2>/dev/null || true)
+          for id in $ids; do
+            echo "Отменяем зависший деплой Pages #$id ..."
+            gh api -X POST "/repos/$REPO/pages/deployments/$id/cancel" 2>/dev/null || true
+          done
+          # Даём сервису немного времени применить отмену
+          sleep 10
+          echo "Готово."
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
