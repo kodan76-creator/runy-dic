@@ -922,6 +922,18 @@ color: #5a0000;
   text-align: center;
   white-space: pre-wrap;
 }
+/* Уменьшаем межстрочный интервал в списках внутри описания руны */
+.rune-card-desc ul,
+.rune-card-desc ol {
+  margin: 4px auto;
+  padding-left: 22px;
+  text-align: left;
+  display: inline-block;
+}
+.rune-card-desc li {
+  line-height: 1.25;
+  margin: 2px 0;
+}
 
 /* Подсветка найденного фрагмента при поиске по рунам */
 .rune-hl {
