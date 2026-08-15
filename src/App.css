@@ -925,14 +925,15 @@ color: #5a0000;
 /* Уменьшаем межстрочный интервал в списках внутри описания руны */
 .rune-card-desc ul,
 .rune-card-desc ol {
-  margin: 4px auto;
-  padding-left: 22px;
+  margin: 2px auto;
+  padding-left: 20px;
   text-align: left;
   display: inline-block;
 }
 .rune-card-desc li {
-  line-height: 1.05;
+  line-height: 1;
   margin: 0;
+  padding: 0;
 }
 
 /* Подсветка найденного фрагмента при поиске по рунам */
