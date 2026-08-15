@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   pages: write
+  actions: read
   id-token: write
 
 # 🔒 Сериализуем деплои: GitHub Pages разрешает только один деплой за раз.
@@ -84,25 +85,50 @@ jobs:
         with:
           path: './dist'
       
-      # 🔓 Снимаем «зависшие» деплои Pages (статус in_progress/queued/pending),
-      # иначе actions/deploy-pages падает с "due to in progress deployment"
-      # (GitHub Pages пропускает только один деплой за раз на уровне сервиса).
-      - name: Cancel stuck Pages deployments
+      # 🔓 Надёжный деплой: снимаем зависшие деплои Pages, создаём новый,
+      # ждём завершения и повторяем при неудаче. Используем curl + GITHUB_TOKEN
+      # (имеет pages:write), чтобы не зависеть от actions/deploy-pages, который
+      # падает с "due to in progress deployment" при гонках на уровне сервиса.
+      - name: Deploy to GitHub Pages (with retry)
+        id: deployment
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          echo "Проверяем зависшие деплои GitHub Pages..."
-          ids=$(gh api "/repos/$REPO/pages/deployments?per_page=100" \
-            --jq '.[] | select(.status=="in_progress" or .status=="queued" or .status=="pending") | .id' 2>/dev/null || true)
-          for id in $ids; do
-            echo "Отменяем зависший деплой Pages #$id ..."
-            gh api -X POST "/repos/$REPO/pages/deployments/$id/cancel" 2>/dev/null || true
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "User-Agent: curl" "$@"; }
+
+          cancel_stuck() {
+            echo "Проверяем зависшие деплои Pages..."
+            ids=$(api "https://api.github.com/repos/$REPO/pages/deployments?per_page=100" | jq -r '.[] | select(.status=="in_progress" or .status=="queued" or .status=="pending") | .id')
+            for id in $ids; do
+              echo "Отменяем зависший деплой Pages #$id ..."
+              api -X POST "https://api.github.com/repos/$REPO/pages/deployments/$id/cancel" >/dev/null || true
+            done
+            [ -n "$ids" ] && sleep 15 || true
+          }
+
+          for attempt in 1 2 3 4 5; do
+            cancel_stuck
+            echo "Получаем artifact github-pages..."
+            art_id=$(api "https://api.github.com/repos/$REPO/actions/artifacts?per_page=100" | jq -r '.artifacts[] | select(.name=="github-pages") | .id' | head -n1)
+            echo "Artifact id: $art_id"
+            echo "Создаём деплой (попытка $attempt)..."
+            dep_id=$(api -X POST "https://api.github.com/repos/$REPO/pages/deployments" \
+              -H "Content-Type: application/json" \
+              -d "{\"artifact_id\":$art_id,\"environment\":\"github-pages\",\"preview\":false}" \
+              | jq -r '.id')
+            echo "Deployment id: $dep_id"
+            ok=0
+            for i in $(seq 1 60); do
+              st=$(api "https://api.github.com/repos/$REPO/pages/deployments/$dep_id" | jq -r '.status')
+              echo "  статус: $st ($i/60)"
+              if [ "$st" = "succeeded" ]; then ok=1; break; fi
+              if [ "$st" = "failed" ]; then break; fi
+              sleep 10
+            done
+            if [ "$ok" -eq 1 ]; then echo "✅ Деплой успешен."; exit 0; fi
+            echo "⚠️ Попытка $attempt не удалась, повторяем..."
+            sleep 10
           done
-          # Даём сервису немного времени применить отмену
-          sleep 10
-          echo "Готово."
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          echo "❌ Все попытки деплоя не удались."; exit 1
