@@ -881,9 +881,11 @@ color: #5a0000;
 .rune-card-name {
   margin: 0;
   font-size: 28px;
-  color: #c77dff;
+  /* светлая тема: фон карточки #c084fc, поэтому имя делаем тёмно-фиолетовым
+     для контраста (ярко-фиолетовое сливалось бы с фоном) */
+  color: #3d1a5b;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  text-shadow: 0 0 10px rgba(199, 125, 255, 0.45), 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   line-height: 1.3;
   white-space: pre-wrap;
 }
@@ -1691,6 +1693,11 @@ color: #5a0000;
   }
   /* буква руны — голубой для читаемости на тёмной карточке */
   .rune-card-letter { color: #5ad1e6; }
+  /* название руны — ярко-фиолетовое с свечением на тёмной карточке */
+  .rune-card-name {
+    color: #c77dff;
+    text-shadow: 0 0 10px rgba(199, 125, 255, 0.45), 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
   .dictionary-source { background: rgba(0, 0, 0, 0.35); }
   .dictionary-source.shared { background: rgba(255, 215, 0, 0.2); }
   .dictionary-source.personal { background: rgba(0, 0, 0, 0.35); }
