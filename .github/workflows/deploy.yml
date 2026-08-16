@@ -35,8 +35,21 @@ jobs:
           # Файлы данных, читаемые в рантайме через API (не влияют на сборку сайта)
           DATA_FILES="runes.json categories.json users.json admins.json logs.json favorites.json favorites_queue.json dictionary.json test.json citer2380.json kodan76.json winx0212.json ya.kodan76.json ya.kostima11.json"
 
-          changed=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" || true)
-          echo "Changed files in this push:"
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+
+          # Первый пуш в ветку (before = 0000…) — всегда деплоим
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Первый пуш — деплоим."
+            echo "deploy=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # merge-base корректно работает и при rebase-пушах (before/after расходятся,
+          # старый before переписывается и недоступен), и при обычных fast-forward пушах.
+          BASE=$(git merge-base "$BEFORE" "$AFTER" 2>/dev/null || echo "$BEFORE")
+          changed=$(git diff --name-only "$BASE" "$AFTER" || true)
+          echo "Changed files in this push (base=$BASE):"
           echo "$changed"
 
           need_deploy=0
