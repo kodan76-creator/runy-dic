@@ -74,7 +74,7 @@ async function main() {
       console.log(plaintext);
       process.exit(0);
     } catch (e) {
-      console.log(`Failed with candidate ${i}:`, passphrase.substring(0, 30) + '...');
+      console.log(`Failed with candidate ${i}`);
     }
   }
 
