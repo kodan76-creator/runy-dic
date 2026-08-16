@@ -851,6 +851,8 @@ color: #5a0000;
   /* фон раздела «Новые Руны» — тёмно-фиолетовый, чтобы выделить секцию */
   background: #4a2a6b;
   border-radius: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.05);
 }
 .runes-dictionary-section::-webkit-scrollbar {
   width: 12px;
@@ -1757,6 +1759,11 @@ color: #5a0000;
   .results::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
   .results::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
   .results { scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.2); }
+
+  /* скроллбар раздела «Новые Руны» — как в Словарь */
+  .runes-dictionary-section::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+  .runes-dictionary-section::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+  .runes-dictionary-section { scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.2); }
 
   /* кнопка «вверх» в карточке */
   .card-scroll-top-btn { background: rgba(255, 255, 255, 0.16); }
