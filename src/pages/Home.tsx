@@ -573,7 +573,7 @@ export default function Home({ user, onLogout }) {
           </div>
         )}
         {viewMode === 'runes' && (
-          <div className="search-row">
+          <div className="search-row runes-search">
             <div className="search-wrapper" style={{flex: 1}}>
               <input
                 type="text"

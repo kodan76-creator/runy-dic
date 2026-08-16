@@ -496,6 +496,28 @@ color: #5a0000;
   color: var(--surface-muted);
 }
 
+/* Новые Руны: фон поиска (container) и поля ввода — тот же тёмно-фиолетовый (#4a2a6b), что у секции */
+.runes-search .search-wrapper {
+  background: #4a2a6b;
+  border-radius: 8px;
+}
+.runes-search .search-input {
+  background-color: #4a2a6b;
+  color: #f3e9ff;
+  border-color: #6a3d99;
+}
+.runes-search .search-input::placeholder {
+  color: #c9b3e6;
+}
+:root[data-theme="dark"] .runes-search .search-input {
+  background-color: #4a2a6b;
+  color: #f3e9ff;
+  border-color: #6a3d99;
+}
+:root[data-theme="dark"] .runes-search .search-input::placeholder {
+  color: #c9b3e6;
+}
+
 /* Кнопка очистки поиска */
 .search-clear-btn {
   position: absolute;
