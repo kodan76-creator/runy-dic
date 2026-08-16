@@ -496,25 +496,30 @@ color: #5a0000;
   color: var(--surface-muted);
 }
 
-/* Новые Руны: фон поиска (container) и поля ввода — тот же тёмно-фиолетовый (#4a2a6b), что у секции */
-.runes-search .search-wrapper {
+/* Новые Руны и Словарь: фон поиска (container) и поля ввода — тёмно-фиолетовый (#4a2a6b) */
+.runes-search .search-wrapper,
+.dictionary-search .search-wrapper {
   background: #4a2a6b;
   border-radius: 8px;
 }
-.runes-search .search-input {
+.runes-search .search-input,
+.dictionary-search .search-input {
   background-color: #4a2a6b;
   color: #f3e9ff;
   border-color: #6a3d99;
 }
-.runes-search .search-input::placeholder {
+.runes-search .search-input::placeholder,
+.dictionary-search .search-input::placeholder {
   color: #c9b3e6;
 }
-:root[data-theme="dark"] .runes-search .search-input {
+:root[data-theme="dark"] .runes-search .search-input,
+:root[data-theme="dark"] .dictionary-search .search-input {
   background-color: #4a2a6b;
   color: #f3e9ff;
   border-color: #6a3d99;
 }
-:root[data-theme="dark"] .runes-search .search-input::placeholder {
+:root[data-theme="dark"] .runes-search .search-input::placeholder,
+:root[data-theme="dark"] .dictionary-search .search-input::placeholder {
   color: #c9b3e6;
 }
 

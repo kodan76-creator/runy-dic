@@ -666,7 +666,7 @@ export default function Home({ user, onLogout }) {
                 </label>
               </div>
             )}
-            <div className="search-row">
+            <div className="search-row dictionary-search">
               <button className="filter-btn" onClick={() => setShowFilterModal(true)}>
                 <span className="filter-label">Фильтр</span>
                 {selectedFilters.length > 0 && <span className="filter-badge" aria-hidden>{selectedFilters.length}</span>}
