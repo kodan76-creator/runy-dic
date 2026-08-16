@@ -928,7 +928,9 @@ color: #5a0000;
   margin: 2px auto;
   padding-left: 20px;
   text-align: left;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
 }
 .rune-card-desc li {
   line-height: 1;
