@@ -18,6 +18,20 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Create backups of JSON files
+        run: |
+          set -e
+          for f in *.json; do
+            if [ -f "$f" ]; then cp "$f" "$f.bak"; fi
+          done
+
+      - name: Upload backup artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-migration-backups-${{ github.run_id }}
+          path: |
+            *.bak
+
       - name: Run migration
         env:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
