@@ -18,27 +18,16 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Run migration script
+      - name: Run migration
         env:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
           LEGACY_PASSPHRASES: ${{ secrets.LEGACY_PASSPHRASES }}
         run: |
           set -e
-          node scripts/migrate-encryption.cjs --apply
-
-      - name: Upload backup artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: encryption-backups-${{ github.run_id }}
-          path: |
-            **/*.bak
-
-      - name: Create migration branch and push
-        run: |
-          set -e
           BRANCH=migration/encryption-$(date -u +%Y%m%dT%H%M%SZ)
           git checkout -b "$BRANCH"
-          git add --all '*.json' '*.bak' || true
+          node scripts/migrate-encryption.cjs --apply
+          git add --all '*.json'
           if git diff --cached --quiet; then
             echo "No changes detected"
             exit 0
