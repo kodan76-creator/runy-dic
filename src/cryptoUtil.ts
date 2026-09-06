@@ -5,27 +5,26 @@ const ENCRYPTION_PREFIX = 'ENC:v1:'
 const ALGO = 'AES-GCM'
 const KEY_LENGTH = 256
 const PBKDF2_ITERATIONS = 100_000
-const SALT = 'runy-dic-salt-v1' // Фиксированный соль для единообразия
+// Legacy fixed salt (kept for backward compatibility). New encryptions use a random salt.
+export const LEGACY_SALT = 'runy-dic-salt-v1'
 
 let cachedKey: CryptoKey | null = null
 let cachedPassphrase: string | null = null
-
 /**
- * Известные предыдущие ключи (для плавной миграции при смене ключа).
- * Если расшифровка основным ключом не удалась, пробуем эти.
- * Можно удалить после того, как все файлы будут перешифрованы новым ключом.
+ * Legacy passphrases removed from source for security. If you need to support
+ * additional legacy passphrases, supply them via a secure server-side migration
+ * process rather than embedding secrets in client code.
  */
-const LEGACY_PASSPHRASES = [
-  // Ключ, который был в .env (VITE_ENCRYPTION_KEY) до переноса в GitHub Variables
-  'RunyDic2024SecretKey!@#$%^&*()_+-=[]{}|;\':\\",./<>?',
-  // Исходный статический ключ (был в STATIC_ENCRYPTION_KEY в коде)
-  'RunyDic2024SecretKey!@#$%^&*()_+-=[]{}|;:\'",./<>?'
-]
+const LEGACY_PASSPHRASES: string[] = []
 
 /**
  * Создать AES-ключ из парольной фразы через PBKDF2 (без кэша, для перебора ключей)
  */
-const deriveKey = async (passphrase) => {
+/**
+ * Derive AES key from passphrase and salt (if provided). If salt is omitted,
+ * the legacy fixed salt is used for backward compatibility.
+ */
+const deriveKey = async (passphrase: string, salt?: Uint8Array) => {
   const encoder = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -34,10 +33,11 @@ const deriveKey = async (passphrase) => {
     false,
     ['deriveKey']
   )
+  const saltBytes = salt ?? encoder.encode(LEGACY_SALT)
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: encoder.encode(SALT),
+      salt: saltBytes,
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256'
     },
@@ -57,35 +57,15 @@ const deriveKey = async (passphrase) => {
 const getPassphrase = async () => {
   if (cachedPassphrase) return cachedPassphrase
 
-  // 1. Пробуем из .env (локальная разработка)
+  // Only read the passphrase from build-time environment variable.
+  // Do NOT attempt to fetch repository secrets from the client.
   const envKey = import.meta.env.VITE_ENCRYPTION_KEY
   if (envKey) {
     cachedPassphrase = envKey
     return cachedPassphrase
   }
 
-  // 2. Читаем из GitHub Repository Variables (только через API)
-  const token = import.meta.env.VITE_GITHUB_TOKEN
-  if (!token) throw new Error('VITE_GITHUB_TOKEN не задан — не удалось получить ключ шифрования')
-
-  const url = 'https://api.github.com/repos/kodan76-creator/runy-dic/actions/variables/ENCRYPTION_KEY'
-  const resp = await fetch(url, {
-    headers: {
-      'Authorization': `token ${token}`,
-      'Accept': 'application/vnd.github.v3+json'
-    }
-  })
-
-  if (!resp.ok) {
-    throw new Error(
-      'ENCRYPTION_KEY не найден. Переменная репозитория ENCRYPTION_KEY должна быть задана ' +
-      'в Settings → Secrets and variables → Actions в GitHub.'
-    )
-  }
-
-  const data = await resp.json()
-  cachedPassphrase = data.value
-  return cachedPassphrase
+  throw new Error('VITE_ENCRYPTION_KEY не найден. Не пытайтесь получать ENCRYPTION_KEY из клиента.')
 }
 
 /**
@@ -103,7 +83,7 @@ const getKey = async () => {
  * @param {string} data - зашифрованные данные
  * @returns {{ plaintext: string, keyUsed: string }}
  */
-const decryptWithFallback = async (data) => {
+const decryptWithFallback = async (data: string) => {
   if (typeof data !== 'string' || !data.startsWith(ENCRYPTION_PREFIX)) {
     return { plaintext: data, keyUsed: 'none' }
   }
@@ -114,20 +94,39 @@ const decryptWithFallback = async (data) => {
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i)
   }
-  const iv = bytes.slice(0, 12)
-  const ciphertext = bytes.slice(12)
 
-  // Собираем все кандидаты: основной ключ первым, затем устаревшие
-  const candidates = [await getPassphrase(), ...LEGACY_PASSPHRASES]
+  // Try new format: salt(16) | iv(12) | ciphertext
+  if (bytes.length > 28) {
+    const salt = bytes.slice(0, 16)
+    const iv = bytes.slice(16, 28)
+    const ciphertext = bytes.slice(28)
+    const candidates = [await getPassphrase(), ...LEGACY_PASSPHRASES]
+    for (const passphrase of candidates) {
+      try {
+        const key = await deriveKey(passphrase, salt)
+        const decrypted = await crypto.subtle.decrypt({ name: ALGO, iv }, key, ciphertext)
+        const plaintext = new TextDecoder().decode(decrypted)
+        return { plaintext, keyUsed: passphrase }
+      } catch {
+        // try next
+      }
+    }
+  }
 
-  for (const passphrase of candidates) {
-    try {
-      const key = await deriveKey(passphrase)
-      const decrypted = await crypto.subtle.decrypt({ name: ALGO, iv }, key, ciphertext)
-      const plaintext = new TextDecoder().decode(decrypted)
-      return { plaintext, keyUsed: passphrase }
-    } catch {
-      // Ошибка расшифровки — пробуем следующий ключ
+  // Fallback to legacy format: iv(12) | ciphertext (uses LEGACY_SALT)
+  if (bytes.length > 12) {
+    const iv = bytes.slice(0, 12)
+    const ciphertext = bytes.slice(12)
+    const candidates = [await getPassphrase(), ...LEGACY_PASSPHRASES]
+    for (const passphrase of candidates) {
+      try {
+        const key = await deriveKey(passphrase) // uses LEGACY_SALT
+        const decrypted = await crypto.subtle.decrypt({ name: ALGO, iv }, key, ciphertext)
+        const plaintext = new TextDecoder().decode(decrypted)
+        return { plaintext, keyUsed: passphrase }
+      } catch {
+        // try next
+      }
     }
   }
 
@@ -140,8 +139,10 @@ const decryptWithFallback = async (data) => {
  * @returns {string} зашифрованная строка с префиксом ENC:v1:
  */
 export const encrypt = async (plaintext) => {
-  const key = await getKey()
+  const passphrase = await getPassphrase()
   const encoder = new TextEncoder()
+  const salt = crypto.getRandomValues(new Uint8Array(16)) // 128-bit salt
+  const key = await deriveKey(passphrase, salt)
   const iv = crypto.getRandomValues(new Uint8Array(12)) // 96-bit IV для AES-GCM
 
   const encrypted = await crypto.subtle.encrypt(
@@ -150,11 +151,12 @@ export const encrypt = async (plaintext) => {
     encoder.encode(plaintext)
   )
 
-  // Объединяем IV + ciphertext в один буфер
+  // Объединяем salt + IV + ciphertext
   const encryptedBytes = new Uint8Array(encrypted)
-  const combined = new Uint8Array(iv.length + encryptedBytes.length)
-  combined.set(iv, 0)
-  combined.set(encryptedBytes, iv.length)
+  const combined = new Uint8Array(salt.length + iv.length + encryptedBytes.length)
+  combined.set(salt, 0)
+  combined.set(iv, salt.length)
+  combined.set(encryptedBytes, salt.length + iv.length)
 
   // Конвертируем в base64
   let binary = ''
