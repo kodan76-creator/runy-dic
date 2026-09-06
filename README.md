@@ -49,7 +49,11 @@ npm run lint
 
 ## 🌐 Деплой
 
-Проект автоматически деплоится на GitHub Pages при пуше в ветку `main`:
+Проект развёрнут на домене:
+
+https://kos-fam.ru/
+
+Для публикации изменений используйте обычный деплой в ветку `main`:
 
 ```bash
 git add .
@@ -58,8 +62,8 @@ git push origin main
 ```
 
 После деплоя проверьте:
-1. Статус сборки: https://github.com/kodan76-creator/runy-dic/actions
-2. Развёрнутый сайт: https://kodan76-creator.github.io/runy-dic/
+1. Сайт: https://kos-fam.ru/
+2. Репозиторий: https://github.com/kodan76-creator/runy-dic
 
 ## 👥 Добавление администратора
 

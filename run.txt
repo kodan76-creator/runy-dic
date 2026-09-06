@@ -13,7 +13,7 @@ git push origin main
 # https://github.com/kodan76-creator/runy-dic/actions
 
 # 6. Проверьте сайт
-# https://kodan76-creator.github.io/runy-dic/
+# https://kos-fam.ru/
 
 #####################################################################################
 
