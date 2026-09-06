@@ -18,10 +18,11 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Create backups of JSON files
+      - name: Create backups of JSON files (exclude tsconfig.json)
         run: |
           set -e
           for f in *.json; do
+            if [ "$f" = "tsconfig.json" ]; then continue; fi
             if [ -f "$f" ]; then cp "$f" "$f.bak"; fi
           done
 
