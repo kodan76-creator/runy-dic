@@ -1,0 +1,36 @@
+[
+  {
+    "word": "лалъ",
+    "transcription": "лалЭль",
+    "translation": "семья",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1",
+    "createdAt": "2026-08-04T18:30:59.212Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  },
+  {
+    "word": "ъфъ",
+    "transcription": "эльфэль",
+    "translation": "дом",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "2",
+    "createdAt": "2026-08-04T18:35:22.699Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  }
+]

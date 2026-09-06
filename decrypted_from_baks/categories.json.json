@@ -1,0 +1,415 @@
+[
+  {
+    "name": "молитва",
+    "description": "",
+    "id": "1781437361727",
+    "createdAt": "2026-06-14T11:42:41.727Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "рунические заклинания",
+    "description": "",
+    "id": "1785027725930",
+    "createdAt": "2026-07-26T01:02:05.930Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "2 ФПО",
+    "description": "",
+    "id": "1778594679967",
+    "createdAt": "2026-05-12T14:04:39.967Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "3 ФПО",
+    "description": "",
+    "id": "1778594679968",
+    "createdAt": "2026-05-12T14:04:39.968Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "4 ФПО",
+    "description": "",
+    "id": "1778594679969",
+    "createdAt": "2026-05-12T14:04:39.969Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "5 ФПО",
+    "description": "",
+    "id": "1778594679970",
+    "createdAt": "2026-05-12T14:04:39.970Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "6 ФПО",
+    "description": "",
+    "id": "1778594679971",
+    "createdAt": "2026-05-12T14:04:39.971Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "без изменений",
+    "description": "",
+    "id": "1778594679972",
+    "createdAt": "2026-05-12T14:04:39.972Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "безличная форма",
+    "description": "",
+    "id": "1778594679973",
+    "createdAt": "2026-05-12T14:04:39.973Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "Божественное местоимение",
+    "description": "",
+    "id": "1778594679974",
+    "createdAt": "2026-05-12T14:04:39.974Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "вводное слово",
+    "description": "",
+    "id": "1778594679975",
+    "createdAt": "2026-05-12T14:04:39.975Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "географическое название",
+    "description": "",
+    "id": "1778594679976",
+    "createdAt": "2026-05-12T14:04:39.976Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "глагол",
+    "description": "",
+    "id": "1778594679977",
+    "createdAt": "2026-05-12T14:04:39.977Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "ДРО",
+    "description": "",
+    "id": "1778594679978",
+    "createdAt": "2026-05-12T14:04:39.978Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "ДЭЛЬЖ",
+    "description": "",
+    "id": "1778594679979",
+    "createdAt": "2026-05-12T14:04:39.979Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "ЖРО",
+    "description": "",
+    "id": "1778594679980",
+    "createdAt": "2026-05-12T14:04:39.980Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "Имена Начал",
+    "description": "",
+    "id": "1778594679981",
+    "createdAt": "2026-05-12T14:04:39.981Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "имя исчисления количественное",
+    "description": "",
+    "id": "1778594679982",
+    "createdAt": "2026-05-12T14:04:39.982Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "имя исчисления порядковое",
+    "description": "",
+    "id": "1778594679983",
+    "createdAt": "2026-05-12T14:04:39.983Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "имя проявления",
+    "description": "",
+    "id": "1778594679984",
+    "createdAt": "2026-05-12T14:04:39.984Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "имя проявления состояния",
+    "description": "",
+    "id": "1778594679985",
+    "createdAt": "2026-05-12T14:04:39.985Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "имя существования",
+    "description": "",
+    "id": "1778594679986",
+    "createdAt": "2026-05-12T14:04:39.986Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "исключение: Духовный РО",
+    "description": "",
+    "id": "1778594679987",
+    "createdAt": "2026-05-12T14:04:39.987Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "исключение: Женский РО",
+    "description": "",
+    "id": "1778594679988",
+    "createdAt": "2026-05-12T14:04:39.988Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "исключение: мнок. число",
+    "description": "",
+    "id": "1778594679989",
+    "createdAt": "2026-05-12T14:04:39.989Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "исключение: Мужской РО",
+    "description": "",
+    "id": "1778594679990",
+    "createdAt": "2026-05-12T14:04:39.990Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "исключение: РОО",
+    "description": "",
+    "id": "1778594679991",
+    "createdAt": "2026-05-12T14:04:39.991Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "междометие",
+    "description": "",
+    "id": "1778594679992",
+    "createdAt": "2026-05-12T14:04:39.992Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "местоимение",
+    "description": "",
+    "id": "1778594679993",
+    "createdAt": "2026-05-12T14:04:39.993Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "местоимение отношения",
+    "description": "",
+    "id": "1778594679994",
+    "createdAt": "2026-05-12T14:04:39.994Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "местоимение притязательное",
+    "description": "",
+    "id": "1778594679995",
+    "createdAt": "2026-05-12T14:04:39.995Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "множественное число",
+    "description": "",
+    "id": "1778594679996",
+    "createdAt": "2026-05-12T14:04:39.996Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "МРО",
+    "description": "",
+    "id": "1778594679997",
+    "createdAt": "2026-05-12T14:04:39.997Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "наречие",
+    "description": "",
+    "id": "1778594679998",
+    "createdAt": "2026-05-12T14:04:39.998Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "наречие меры и степени",
+    "description": "",
+    "id": "1778594679999",
+    "createdAt": "2026-05-12T14:04:39.999Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "наречие образа действия",
+    "description": "",
+    "id": "1778594680000",
+    "createdAt": "2026-05-12T14:04:40.000Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "несовершённый вид",
+    "description": "",
+    "id": "1778594680001",
+    "createdAt": "2026-05-12T14:04:40.001Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "основной словарь",
+    "description": "",
+    "id": "1778594680002",
+    "createdAt": "2026-05-12T14:04:40.002Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "особые формы глаголов",
+    "description": "",
+    "id": "1778594680003",
+    "createdAt": "2026-05-12T14:04:40.003Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "превосходная степень",
+    "description": "",
+    "id": "1778594680004",
+    "createdAt": "2026-05-12T14:04:40.004Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "предлог",
+    "description": "",
+    "id": "1778594680005",
+    "createdAt": "2026-05-12T14:04:40.005Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "предлог Рунного Языка",
+    "description": "",
+    "id": "1778594680006",
+    "createdAt": "2026-05-12T14:04:40.006Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "приставка",
+    "description": "",
+    "id": "1778594680007",
+    "createdAt": "2026-05-12T14:04:40.007Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "руно-рунные слова",
+    "description": "",
+    "id": "1778594680008",
+    "createdAt": "2026-05-12T14:04:40.008Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "рун-рус",
+    "description": "",
+    "id": "1778594680009",
+    "createdAt": "2026-05-12T14:04:40.009Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "рус-рун",
+    "description": "",
+    "id": "1778594680010",
+    "createdAt": "2026-05-12T14:04:40.010Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "русские слова в Рунном Языке",
+    "description": "",
+    "id": "1778594680011",
+    "createdAt": "2026-05-12T14:04:40.011Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "Словарь Рунного Языка",
+    "description": "",
+    "id": "1778594680012",
+    "createdAt": "2026-05-12T14:04:40.012Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "совершенный вид",
+    "description": "",
+    "id": "1778594680013",
+    "createdAt": "2026-05-12T14:04:40.013Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "союз",
+    "description": "",
+    "id": "1778594680014",
+    "createdAt": "2026-05-12T14:04:40.014Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "союз Рунного Языка",
+    "description": "",
+    "id": "1778594680015",
+    "createdAt": "2026-05-12T14:04:40.015Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "спец.",
+    "description": "",
+    "id": "1778594680016",
+    "createdAt": "2026-05-12T14:04:40.016Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "сравнительная степень",
+    "description": "",
+    "id": "1778594680017",
+    "createdAt": "2026-05-12T14:04:40.017Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "только несовершенный вид",
+    "description": "",
+    "id": "1778594680018",
+    "createdAt": "2026-05-12T14:04:40.018Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "только совершенный вид",
+    "description": "",
+    "id": "1778594680019",
+    "createdAt": "2026-05-12T14:04:40.019Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "устаревшая форма",
+    "description": "",
+    "id": "1778594680020",
+    "createdAt": "2026-05-12T14:04:40.020Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "уходящие остатки",
+    "description": "",
+    "id": "1778594680021",
+    "createdAt": "2026-05-12T14:04:40.021Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "частица",
+    "description": "",
+    "id": "1778594680022",
+    "createdAt": "2026-05-12T14:04:40.022Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
+    "name": "частица Рунного Языка",
+    "description": "",
+    "id": "1778594680023",
+    "createdAt": "2026-05-12T14:04:40.023Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  }
+]
