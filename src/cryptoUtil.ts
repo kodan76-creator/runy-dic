@@ -51,7 +51,9 @@ const deriveKey = async (passphrase: string, salt?: Uint8Array<ArrayBuffer>) => 
 /**
  * Получить ключ шифрования:
  * 1. Из VITE_ENCRYPTION_KEY в .env (для разработки)
- * 2. Из GitHub Repository Variables (ENCRYPTION_KEY)
+ * 2. Из VITE_ENCRYPTION_KEY_B64 (base64-кодированный ключ — надёжно для .env,
+ *    т.к. исходный ключ содержит спецсимволы # " \ ', ломающие парсинг .env)
+ * 3. Из GitHub Repository Variables (ENCRYPTION_KEY)
  *    Только владелец репозитория может задать/изменить эту переменную в настройках GitHub.
  */
 const getPassphrase = async () => {
@@ -63,6 +65,16 @@ const getPassphrase = async () => {
   if (envKey) {
     cachedPassphrase = envKey
     return cachedPassphrase
+  }
+
+  const envKeyB64 = import.meta.env.VITE_ENCRYPTION_KEY_B64
+  if (envKeyB64) {
+    try {
+      cachedPassphrase = atob(envKeyB64)
+      return cachedPassphrase
+    } catch {
+      // невалидный base64 — пробуем дальше
+    }
   }
 
   throw new Error('VITE_ENCRYPTION_KEY не найден. Не пытайтесь получать ENCRYPTION_KEY из клиента.')
