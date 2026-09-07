@@ -10,8 +10,8 @@ import {
 } from './constants'
 import type { GitHubFileResult, GitHubRawResult } from '../types'
 
-export const getHeaders = (): Record<string, string> => ({
-  'Authorization': `token ${TOKEN}`,
+export const getHeaders = (includeAuth = true): Record<string, string> => ({
+  ...(includeAuth && TOKEN ? { 'Authorization': `token ${TOKEN}` } : {}),
   'Accept': 'application/vnd.github.v3+json',
   'Content-Type': 'application/json',
 })
@@ -23,7 +23,7 @@ export const base64ToUtf8 = (str: string): string => decodeURIComponent(escape(a
 export const getGitHubFileSha = async (filePath: string): Promise<string | null> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`
-    const resp = await fetch(url, { headers: getHeaders() })
+    const resp = await fetch(url, { headers: getHeaders(false) })
     if (!resp.ok) return null
     const data = await resp.json()
     return data.sha || null
@@ -36,7 +36,7 @@ export const getGitHubFileSha = async (filePath: string): Promise<string | null>
 export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResult<any[]>> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    const response = await fetch(url, { headers: getHeaders(false), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: [], sha: null, ok: true, exists: false }
       const errText = await response.text().catch(() => '')
@@ -92,7 +92,7 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
 export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawResult> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    const response = await fetch(url, { headers: getHeaders(false), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: null, sha: null }
       throw new Error(`HTTP ${response.status}`)
@@ -109,6 +109,10 @@ export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawRes
 
 export const updateGitHubFile = async (fileName: string, newData: unknown, currentSha?: string | null): Promise<any> => {
   try {
+    if (!TOKEN) {
+      throw new Error('Не задан VITE_GITHUB_TOKEN. Добавьте токен GitHub в .env и перезапустите приложение.')
+    }
+
     // Узнаём текущее состояние файла: существует ли он и в каком формате (зашифрован/открытый).
     // Это нужно, чтобы НЕ «самошифровать» файлы при обычных записях:
     // открытый файл → пишем открытым, зашифрованный → шифруем.
