@@ -1,4 +1,4 @@
-// src/App.jsx
+// src/App.tsx
 // Роутинг приложения: вход/регистрация, главный экран и админ-панель.
 import { useState, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'

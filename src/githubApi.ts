@@ -1,6 +1,6 @@
-// src/githubApi.js
+// src/githubApi.ts
 // Точка входа для GitHub API — переэкспортирует все функции из src/api/.
-// Существующие импорты из './githubApi' (App.jsx, AdminPanel.jsx) продолжают работать.
+// Существующие импорты из './githubApi' (App.tsx, AdminPanel.tsx) продолжают работать.
 export * from './api/constants'
 export * from './api/client'
 export * from './api/auth'

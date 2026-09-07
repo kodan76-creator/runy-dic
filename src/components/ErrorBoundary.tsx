@@ -1,4 +1,4 @@
-// src/components/ErrorBoundary.jsx
+// src/components/ErrorBoundary.tsx
 // Граница ошибок: перехватывает ошибки рендера и жизненного цикла дочерних
 // компонентов и показывает понятное сообщение вместо пустого/сломанного экрана.
 import { Component, type ReactNode } from 'react'

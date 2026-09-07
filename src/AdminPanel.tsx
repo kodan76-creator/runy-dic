@@ -553,7 +553,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setWords([])
     setUsers([])
     setLogs([])
-    if (onAdminLogout) onAdminLogout()  // В App.jsx теперь корректно обрабатывает
+    if (onAdminLogout) onAdminLogout()  // В App.tsx теперь корректно обрабатывает выход
   }
 
   const handleSubmit = async (e) => {
