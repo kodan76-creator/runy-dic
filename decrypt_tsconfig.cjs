@@ -8,7 +8,16 @@ const KEY_LENGTH = 256;
 const PBKDF2_ITERATIONS = 100000;
 const SALT = 'runy-dic-salt-v1';
 
-const TOKEN = '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';
+// Токен читается из .env (VITE_GITHUB_TOKEN) или переменной окружения GITHUB_TOKEN.
+// НЕ хардкодьте токены в исходниках — GitHub автоматически отзывает закоммиченные.
+const TOKEN = process.env.GITHUB_TOKEN
+  || (() => {
+    try {
+      const env = fs.readFileSync('.env', 'utf8');
+      const m = env.match(/^VITE_GITHUB_TOKEN=(.+)$/m);
+      return m ? m[1].trim() : '';
+    } catch { return ''; }
+  })();
 
 function fetchEncryptionKey() {
   return new Promise((resolve, reject) => {

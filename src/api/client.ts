@@ -23,7 +23,7 @@ export const base64ToUtf8 = (str: string): string => decodeURIComponent(escape(a
 export const getGitHubFileSha = async (filePath: string): Promise<string | null> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`
-    const resp = await fetch(url, { headers: getHeaders(false) })
+    const resp = await fetch(url, { headers: getHeaders() })
     if (!resp.ok) return null
     const data = await resp.json()
     return data.sha || null
@@ -36,7 +36,7 @@ export const getGitHubFileSha = async (filePath: string): Promise<string | null>
 export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResult<any[]>> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(false), cache: 'no-cache' })
+    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: [], sha: null, ok: true, exists: false }
       const errText = await response.text().catch(() => '')
@@ -92,7 +92,7 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
 export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawResult> => {
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(false), cache: 'no-cache' })
+    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: null, sha: null }
       throw new Error(`HTTP ${response.status}`)

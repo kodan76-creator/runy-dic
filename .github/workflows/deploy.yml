@@ -88,6 +88,7 @@ jobs:
         run: npm run build
         env:
           VITE_GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # ← Изменено!
+          VITE_ENCRYPTION_KEY: ${{ vars.ENCRYPTION_KEY }}
       
       - name: Setup Pages
         uses: actions/configure-pages@v4

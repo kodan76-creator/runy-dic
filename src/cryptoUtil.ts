@@ -24,7 +24,7 @@ const LEGACY_PASSPHRASES: string[] = []
  * Derive AES key from passphrase and salt (if provided). If salt is omitted,
  * the legacy fixed salt is used for backward compatibility.
  */
-const deriveKey = async (passphrase: string, salt?: Uint8Array) => {
+const deriveKey = async (passphrase: string, salt?: Uint8Array<ArrayBuffer>) => {
   const encoder = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -33,7 +33,7 @@ const deriveKey = async (passphrase: string, salt?: Uint8Array) => {
     false,
     ['deriveKey']
   )
-  const saltBytes = salt ?? encoder.encode(LEGACY_SALT)
+  const saltBytes: BufferSource = salt ?? encoder.encode(LEGACY_SALT)
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
