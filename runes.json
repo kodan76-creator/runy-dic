@@ -1,5 +1,18 @@
 [
   {
+    "name": "ЦЭРЭ",
+    "graphic": "Ц",
+    "letter": "Ц",
+    "image": "",
+    "power": "",
+    "keywords": "Сын Света, Владыка.",
+    "description": "Самая сильная из Рун, Высшая Руна, Владыка Рун.",
+    "textAlign": "left",
+    "id": "1788807098855",
+    "createdAt": "2026-09-07T18:51:38.855Z",
+    "createdBy": "ya.kodan76@ya.ru"
+  },
+  {
     "name": "ФАИС-СУ",
     "graphic": "Ф",
     "letter": "Ф",
