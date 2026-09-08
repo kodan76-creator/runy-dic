@@ -1,5 +1,13 @@
 [
   {
+    "id": "1788886611561",
+    "timestamp": "2026-09-08T16:56:51.561Z",
+    "action": "user_updated",
+    "userEmail": "winx0212@ya.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "role=user, paid=true, runesPaid=true, paidAt=2026-07-24T01:22:51.384Z, unpaidAt=2026-07-24T00:45:24.294Z"
+  },
+  {
     "id": "1788886592526",
     "timestamp": "2026-09-08T16:56:32.526Z",
     "action": "user_updated",
