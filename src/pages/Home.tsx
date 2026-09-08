@@ -546,7 +546,7 @@ export default function Home({ user, onLogout }) {
             </div>
           </>
         )}
-        <img src={`${import.meta.env.BASE_URL}golub.png`} alt="Логотип" className="logo" />
+        <img src={`${import.meta.env.BASE_URL}images/run_r.png`} alt="Логотип" className="logo" />
         {/* Переключатель режима: Словарь / Новые Руны */}
         {user?.runesPaid && (
           <div className="view-toggle" role="group" aria-label="Режим отображения">
