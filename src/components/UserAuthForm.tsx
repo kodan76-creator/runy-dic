@@ -91,7 +91,7 @@ function UserAuthForm({ onLogin }) {
     <div className="auth-container">
       <ThemeToggle className="auth-screen" />
       <div className="auth-box">
-        <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="auth-logo" />
+        <img src={`${import.meta.env.BASE_URL}golub.png`} alt="Логотип" className="auth-logo" />
         <h2>{isLogin ? '🔐 Вход' : '📝 Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
           <label className="visually-hidden" htmlFor="auth-email">Email</label>

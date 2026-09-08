@@ -546,7 +546,7 @@ export default function Home({ user, onLogout }) {
             </div>
           </>
         )}
-        <img src={`${import.meta.env.BASE_URL}run_r.png`} alt="Логотип" className="logo" />
+        <img src={`${import.meta.env.BASE_URL}golub.png`} alt="Логотип" className="logo" />
         {/* Переключатель режима: Словарь / Новые Руны */}
         {user?.runesPaid && (
           <div className="view-toggle" role="group" aria-label="Режим отображения">
@@ -568,7 +568,7 @@ export default function Home({ user, onLogout }) {
                 try { localStorage.setItem('home_view_mode', 'runes') } catch { /* ignore */ }
               }}
             >
-              🧿 Новые Руны
+              <img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-tab-icon" /> Новые Руны
             </button>
           </div>
         )}
@@ -813,7 +813,7 @@ export default function Home({ user, onLogout }) {
           {Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
               <>
-                <h2 className="runes-section-title">🧿 Новые Руны</h2>
+                <h2 className="runes-section-title"><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" /> Новые Руны</h2>
                 <div className="runes-list-cards">
                   {filteredRunes.map(r => (
                     <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} />

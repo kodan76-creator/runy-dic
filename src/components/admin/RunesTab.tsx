@@ -33,7 +33,7 @@ export default function RunesTab({
 
   return (
     <div className="runes-section">
-      <h3 className="runes-section-title">🧿 Новые Руны ({runes.length})</h3>
+      <h3 className="runes-section-title"><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" /> Новые Руны ({runes.length})</h3>
       <form onSubmit={handleRuneSubmit} className="word-form rune-form">
         <div className="form-column form-column-left">
           <input

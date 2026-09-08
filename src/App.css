@@ -876,6 +876,20 @@ color: #5a0000;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   text-align: center;
 }
+/* Иконка голубя в заголовке раздела «Новые Руны» */
+.rune-title-icon {
+  width: 26px;
+  height: 26px;
+  vertical-align: -6px;
+  margin-right: 6px;
+}
+/* Иконка голубя в кнопке-переключателе / вкладке «Новые Руны» */
+.rune-tab-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  margin-right: 4px;
+}
 .runes-list-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

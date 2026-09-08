@@ -1151,7 +1151,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           </button>
           {!isRestrictedUser && (
             <>
-              <button className={`tab-btn ${activeTab === 'runes' ? 'active' : ''}`} onClick={() => setActiveTab('runes')}>🧿 Новые Руны</button>
+              <button className={`tab-btn ${activeTab === 'runes' ? 'active' : ''}`} onClick={() => setActiveTab('runes')}><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-tab-icon" /> Новые Руны</button>
               <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>🗂️ Категории</button>
               <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>👥 Пользователи</button>
               <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>📊 Логи</button>
