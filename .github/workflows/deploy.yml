@@ -9,13 +9,6 @@ permissions:
   pages: write
   id-token: write
 
-# 🔒 Сериализуем деплои: GitHub Pages разрешает только один деплой за раз.
-# Если новый запуск приходит во время уже идущего — он отменяет старый
-# и сам доходит до конца (без ложных failure "due to in progress deployment").
-concurrency:
-  group: pages-deploy
-  cancel-in-progress: true
-
 jobs:
   # 🧿 Проверяем, изменились ли только data-файлы, которые приложение читает
   # в рантайме через GitHub API (runes.json, словари и т.п.). Для них
@@ -72,6 +65,13 @@ jobs:
   deploy:
     needs: changes
     if: needs.changes.outputs.deploy == '1'
+    # 🔒 Сериализуем только сами деплои: GitHub Pages разрешает один деплой за раз.
+    # Concurrency на уровне job (а не workflow) — data-only пуши (favorites.json и т.п.)
+    # имеют deploy=0, их job deploy пропускается и НЕ отменяет идущий деплой.
+    # Если же приходит новый код-пуш — он отменяет старый деплой и деплоит сам.
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
