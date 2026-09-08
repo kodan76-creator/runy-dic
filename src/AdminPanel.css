@@ -34,6 +34,7 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .admin-header h2 { margin: 0; color: white; }
 .admin-info { display: flex; align-items: center; gap: 15px; color: white; }
 .admin-actions { display: flex; align-items: center; gap: 15px; }
+.top-hint { color: white; margin: 6px 0 0; font-size: 13px; }
 .logout-btn { padding: 8px 16px; background: var(--app-bg); color: white; border: none; border-radius: 6px; cursor: pointer; }
 .logout-btn:hover { background: var(--app-hover); }
 
