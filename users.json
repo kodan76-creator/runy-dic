@@ -67,7 +67,12 @@
     "unpaidAt": "2026-07-24T00:45:24.294Z",
     "unpaidBy": "admin@ya.ru",
     "paidAt": "2026-07-24T01:22:51.384Z",
-    "paidBy": "admin@ya.ru"
+    "paidBy": "admin@ya.ru",
+    "runesPaid": true,
+    "runesPaidAt": "2026-09-08T16:56:50.209Z",
+    "runesPaidBy": "ya.kodan76@ya.ru",
+    "runesUnpaidAt": null,
+    "runesUnpaidBy": null
   },
   {
     "id": "1784820018822",
