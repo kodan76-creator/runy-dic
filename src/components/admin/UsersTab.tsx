@@ -21,6 +21,7 @@ export default function UsersTab({
   handleBlockUser,
   handleUnblockUser,
   handleLogoutAllDevices,
+  handleUnbindDevice,
   handleDeleteUser,
   formatDate,
 }) {
@@ -74,6 +75,7 @@ export default function UsersTab({
                       {d.type === 'mobile' ? '📱 Телефон' : '💻 Компьютер'}
                       <span className="user-device-id"> {d.id.slice(0, 8)}…</span>
                       {d.lastLoginAt ? <span className="user-device-login"> · вход {formatDate(d.lastLoginAt)}</span> : ''}
+                      <button onClick={() => handleUnbindDevice(u.id, u.email, d.id)} className="unbind-device-btn" title="Отвязать устройство">✖</button>
                     </p>
                   ))}
                 </div>

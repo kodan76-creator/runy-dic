@@ -284,6 +284,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .unblock-btn:hover { background: #388e3c; }
 .logout-devices-btn { background: #ff9800; color: white; }
 .logout-devices-btn:hover { background: #f57c00; }
+.unbind-device-btn { margin-left: 6px; padding: 1px 6px; border: none; border-radius: 4px; background: #f44336; color: white; font-size: 11px; cursor: pointer; line-height: 1.4; }
+.unbind-device-btn:hover { background: #d32f2f; }
 .delete-user-btn { background: var(--app-bg); color: white; }
 .delete-user-btn:hover { background: var(--app-hover); }
 .user-edit-form {

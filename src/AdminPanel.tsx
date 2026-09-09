@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
@@ -973,6 +973,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       try { await logoutAllDevices(userId, adminUser?.email || activeUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
     }
   }
+  const handleUnbindDevice = async (userId, userEmail, deviceId) => {
+    if (window.confirm(`Отвязать устройство ${String(deviceId || '').slice(0, 8)}… у ${userEmail}?`)) {
+      try { await unbindDevice(userId, deviceId, adminUser?.email || activeUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
+    }
+  }
   const handleDeleteUser = async (userId, userEmail) => {
     if (window.confirm(`Удалить пользователя ${userEmail}? Это действие нельзя отменить.`)) {
       try { await deleteUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
@@ -1242,6 +1247,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleBlockUser={handleBlockUser}
             handleUnblockUser={handleUnblockUser}
             handleLogoutAllDevices={handleLogoutAllDevices}
+            handleUnbindDevice={handleUnbindDevice}
             handleDeleteUser={handleDeleteUser}
             formatDate={formatDate}
           />

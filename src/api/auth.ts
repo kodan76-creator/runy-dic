@@ -279,6 +279,28 @@ export const logoutAllDevices = async (userId, adminEmail) => {
   return true
 }
 
+// 🔓 Отвязка конкретного устройства пользователя (удаляет его из списка devices).
+export const unbindDevice = async (userId, deviceId, adminEmail) => {
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const user = users.find(u => u.id === userId)
+  if (!user) throw new Error('Пользователь не найден')
+
+  const updated = users.map(u => {
+    if (u.id !== userId) return u
+    const devices = Array.isArray(u.devices) ? u.devices.filter(d => d.id !== deviceId) : []
+    return { ...u, devices }
+  })
+  await updateGitHubFile(USERS_FILE, updated, sha)
+  const changedUser = updated.find(u => u.id === userId)
+  addLog({
+    action: 'device_unbound',
+    userEmail: changedUser?.email || user.email,
+    adminEmail,
+    details: `Отвязано устройство ${String(deviceId || '').slice(0, 8)}…`
+  }).catch(() => {})
+  return true
+}
+
 export const deleteUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => u.id === userId)
