@@ -3,13 +3,35 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { verifyUser, registerUser } from '../githubApi'
-import { verifyUserOffline } from '../api/offline'
+import { verifyUserOffline, enqueueOfflineChange } from '../api/offline'
+import { getDeviceId, getDeviceType } from '../api/deviceLimit'
 import ThemeToggle from './ThemeToggle'
 
 // Допустимые символы при вводе (латиница, цифры и символы email)
 const LATIN_LOGIN_REGEX = /^[a-zA-Z0-9@._%+-]*$/
 // Проверка формата email (как почтовый ящик: имя@домен.зона)
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+// 📱💻 Привязка устройства при оффлайн-входе: если устройство новое — добавляем
+// его в список устройств пользователя локально и ставим в очередь синхронизацию
+// на сервер (при возврате сети flushOfflineChanges обновит users.json).
+const bindDeviceOnOfflineLogin = (cachedUser) => {
+  try {
+    if (!cachedUser || cachedUser.role === 'admin') return cachedUser
+    if (!Array.isArray(cachedUser.devices)) return cachedUser
+    const deviceId = getDeviceId()
+    const deviceType = getDeviceType()
+    if (cachedUser.devices.some(d => d.id === deviceId)) return cachedUser
+    const now = new Date().toISOString()
+    const device = { id: deviceId, type: deviceType, addedAt: now, lastLoginAt: now }
+    const updated = { ...cachedUser, devices: [...cachedUser.devices, device] }
+    enqueueOfflineChange({ type: 'bind_device', email: cachedUser.email, device })
+    return updated
+  } catch (e) {
+    console.error('bindDeviceOnOfflineLogin error:', e)
+    return cachedUser
+  }
+}
 
 function UserAuthForm({ onLogin }) {
   const navigate = useNavigate()
@@ -35,7 +57,8 @@ function UserAuthForm({ onLogin }) {
         if (offline) {
           const cachedUser = await verifyUserOffline(email, password)
           if (cachedUser) {
-            const userWithRole = { ...cachedUser, role: cachedUser.role || 'user', paid: cachedUser.paid ?? false }
+            const boundUser = bindDeviceOnOfflineLogin(cachedUser)
+            const userWithRole = { ...boundUser, role: boundUser.role || 'user', paid: boundUser.paid ?? false }
             localStorage.setItem('currentUser', JSON.stringify(userWithRole))
             onLogin(userWithRole)
             navigate(userWithRole.role === 'admin' ? '/admin' : '/')
@@ -60,7 +83,8 @@ function UserAuthForm({ onLogin }) {
           // сетевой ошибки). Пробуем войти по сохранённой офлайн-копии.
           const cachedUser = await verifyUserOffline(email, password)
           if (cachedUser) {
-            const userWithRole = { ...cachedUser, role: cachedUser.role || 'user', paid: cachedUser.paid ?? false }
+            const boundUser = bindDeviceOnOfflineLogin(cachedUser)
+            const userWithRole = { ...boundUser, role: boundUser.role || 'user', paid: boundUser.paid ?? false }
             localStorage.setItem('currentUser', JSON.stringify(userWithRole))
             onLogin(userWithRole)
             navigate(userWithRole.role === 'admin' ? '/admin' : '/')

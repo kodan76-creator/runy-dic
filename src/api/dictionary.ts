@@ -1,6 +1,6 @@
 // src/api/dictionary.js
 // Работа со словарём: общий (dictionary.json) и личные словари пользователей
-import { DATA_FILE, FAVORITES_FILE } from './constants'
+import { DATA_FILE, FAVORITES_FILE, USERS_FILE } from './constants'
 import {
   fetchGitHubFile,
   updateGitHubFile,
@@ -425,6 +425,31 @@ export const moveWordToPosition = async (id, position, user = null) => {
 export const flushOfflineChanges = async (user: any = null) => {
   const fileName = getWriteFileName(user)
   const all = getOfflineChanges()
+
+  // 📱💻 Привязка устройств при оффлайн-входе: обновляем users.json
+  const bindChanges = all.filter(c => c.type === 'bind_device')
+  if (bindChanges.length > 0) {
+    try {
+      const { data: users, sha, ok } = await fetchGitHubFile(USERS_FILE)
+      if (ok && Array.isArray(users)) {
+        let changed = false
+        for (const c of bindChanges) {
+          const u = users.find(x => x?.email?.toLowerCase() === String(c.email || '').toLowerCase())
+          if (u && Array.isArray(u.devices) && c.device?.id && !u.devices.some(d => d.id === c.device.id)) {
+            u.devices = [...u.devices, c.device]
+            changed = true
+          }
+        }
+        if (changed) {
+          await updateGitHubFile(USERS_FILE, users, sha)
+          removeOfflineChanges(bindChanges.map(c => c.queuedAt))
+        }
+      }
+    } catch (e) {
+      console.error('flushOfflineChanges bind_device error:', e)
+    }
+  }
+
   const mine = all.filter(c => c.fileName === fileName)
   if (mine.length === 0) return 0
 
