@@ -34,8 +34,8 @@ export default function Home({ user, onLogout }) {
       return false
     }
   })
-  // 🪶 Режим рунического ввода: клик по логотипу run_r включает шрифт Dao Rus
-  // в поле поиска словаря (только в режиме «Словарь»).
+  // 🪶 Режим рунного ввода: клик по логотипу run_r включает шрифт Dao Rus
+  // в поле поиска (Словарь и Новые Руны).
   const [runicSearchMode, setRunicSearchMode] = useState(false)
 
   // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
@@ -553,12 +553,8 @@ export default function Home({ user, onLogout }) {
           src={`${import.meta.env.BASE_URL}images/run_r.png`}
           alt="Логотип"
           className={`logo ${runicSearchMode ? 'logo-runic-active' : ''}`}
-          title={runicSearchMode ? 'Рунический ввод включён — нажмите, чтобы выключить' : 'Нажмите для рунического ввода в поиске'}
-          onClick={() => {
-            if (viewMode === 'dictionary') {
-              setRunicSearchMode(m => !m)
-            }
-          }}
+          title={runicSearchMode ? 'Рунный ввод включён — нажмите, чтобы выключить' : 'Нажмите для рунного ввода в поиске'}
+          onClick={() => setRunicSearchMode(m => !m)}
         />
         {/* Переключатель режима: Словарь / Новые Руны */}
         {user?.runesPaid && (
@@ -578,7 +574,6 @@ export default function Home({ user, onLogout }) {
               className={`view-toggle-btn ${viewMode === 'runes' ? 'active' : ''}`}
               onClick={() => {
                 setViewMode('runes')
-                setRunicSearchMode(false)
                 try { localStorage.setItem('home_view_mode', 'runes') } catch { /* ignore */ }
               }}
             >
@@ -595,7 +590,7 @@ export default function Home({ user, onLogout }) {
                 aria-label="Поиск по рунам"
                 value={runesSearchTerm}
                 onChange={(e) => setRunesSearchTerm(e.target.value)}
-                className="search-input"
+                className={`search-input ${runicSearchMode ? 'runic-input' : ''}`}
               />
               {runesSearchTerm && (
                 <button

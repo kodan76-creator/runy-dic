@@ -384,7 +384,7 @@ color: #5a0000;
   order: 4;
 }
 
-/* 🪶 Логотип run_r в режиме рунического ввода — подсветка */
+/* 🪶 Логотип run_r в режиме рунного ввода — подсветка */
 .logo-runic-active {
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9)) brightness(1.15);
   border-radius: 12px;
@@ -397,7 +397,7 @@ color: #5a0000;
   cursor: pointer;
 }
 
-/* Поле поиска словаря в режиме рунического ввода (шрифт Dao Rus) */
+/* Поле поиска в режиме рунного ввода (шрифт Dao Rus) */
 .search-input.runic-input {
   font-family: 'Dao Rus', sans-serif;
   font-size: 22px;
