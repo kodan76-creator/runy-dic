@@ -1,5 +1,12 @@
 [
   {
+    "id": "1788962100220",
+    "timestamp": "2026-09-09T13:55:00.220Z",
+    "action": "user_deleted",
+    "userEmail": "devtest@test.ru",
+    "adminEmail": "admin@test.ru"
+  },
+  {
     "id": "1788962032920",
     "timestamp": "2026-09-09T13:53:52.920Z",
     "action": "register",
