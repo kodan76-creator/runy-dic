@@ -6,7 +6,7 @@ import { addLog } from './logs'
 import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
 import { cacheUserForOffline } from './offline'
-import { getDeviceId, checkRegistrationLimit, recordRegistration } from './deviceLimit'
+import { getDeviceId, getDeviceType, checkRegistrationLimit, recordRegistration, checkLoginDeviceLimit } from './deviceLimit'
 
 export const hashPassword = async (password) => {
   try {
@@ -75,11 +75,13 @@ export const registerUser = async (email, password) => {
   }
   const passwordHash = await hashPassword(password)
   const deviceId = getDeviceId()
+  const deviceType = getDeviceType()
+  const now = new Date().toISOString()
   const newUser = {
     id: Date.now().toString(),
     email,
     passwordHash,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
     role: 'user',
     sessionVersion: 0,
     paid: false,
@@ -96,7 +98,8 @@ export const registerUser = async (email, password) => {
     blockedAt: null,
     blockedBy: null,
     deviceId, // 🚦 с какого устройства зарегистрирован (для аудита в админке)
-    registeredAt: new Date().toISOString()
+    devices: [{ id: deviceId, type: deviceType, addedAt: now, lastLoginAt: now }], // 🚦 привязанные устройства: 1 телефон + 1 компьютер
+    registeredAt: now
   }
   await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
   addLog({ action: 'register', userEmail: email, details: 'Регистрация', deviceId }).catch(() => {})
@@ -119,6 +122,25 @@ export const verifyUser = async (email, password) => {
     if (user.isBlocked) throw new Error('Аккаунт заблокирован. Для разблокировки обратитесь к администратору.')
     const inputHash = await hashPassword(password)
     if (inputHash !== user.passwordHash) return null
+
+    // 🚦 Лимит устройств: 1 телефон + 1 компьютер (для новых пользователей)
+    const deviceId = getDeviceId()
+    const deviceType = getDeviceType()
+    const limit = checkLoginDeviceLimit(user, deviceId, deviceType)
+    if (!limit.allowed) {
+      throw new Error(limit.message || 'Превышен лимит устройств для входа.')
+    }
+    if (limit.isNewDevice) {
+      try {
+        // Привязываем новое устройство к аккаунту
+        const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+        const updated = users.map(u => u.id === user.id ? { ...u, devices: limit.devices } : u)
+        await updateGitHubFile(USERS_FILE, updated, sha)
+        addLog({ action: 'device_added', userEmail: email, details: `Новое устройство (${deviceType})` }).catch(() => {})
+      } catch (e) {
+        console.error('Failed to save login device:', e)
+      }
+    }
 
     addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
     ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on login:', e))

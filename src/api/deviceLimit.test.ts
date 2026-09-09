@@ -3,8 +3,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   MAX_REGISTRATIONS_PER_DAY,
   getDeviceId,
+  getDeviceType,
   checkRegistrationLimit,
   recordRegistration,
+  checkLoginDeviceLimit,
 } from './deviceLimit'
 
 const REG_LOG_KEY = 'runy-dic-registrations'
@@ -51,5 +53,46 @@ describe('deviceLimit', () => {
     const recent = Date.now() - 23 * 60 * 60 * 1000
     localStorage.setItem(REG_LOG_KEY, JSON.stringify([recent]))
     expect(checkRegistrationLimit()).toBe(MAX_REGISTRATIONS_PER_DAY - 1)
+  })
+
+  it('getDeviceType возвращает mobile или desktop', () => {
+    const type = getDeviceType()
+    expect(['mobile', 'desktop']).toContain(type)
+  })
+
+  it('админ не ограничен лимитом устройств', () => {
+    const admin = { role: 'admin', devices: [{ id: 'a', type: 'mobile' }] }
+    const res = checkLoginDeviceLimit(admin, 'new-device', 'mobile')
+    expect(res.allowed).toBe(true)
+  })
+
+  it('пользователь без поля devices (до фичи) не ограничен', () => {
+    const oldUser = { role: 'user', deviceId: 'reg-device' }
+    const res = checkLoginDeviceLimit(oldUser, 'any-device', 'mobile')
+    expect(res.allowed).toBe(true)
+    expect(res.isNewDevice).toBe(false)
+  })
+
+  it('известное устройство разрешено', () => {
+    const user = { role: 'user', devices: [{ id: 'dev-1', type: 'mobile' }] }
+    const res = checkLoginDeviceLimit(user, 'dev-1', 'mobile')
+    expect(res.allowed).toBe(true)
+    expect(res.isNewDevice).toBeFalsy()
+  })
+
+  it('новое устройство того же типа запрещено', () => {
+    const user = { role: 'user', devices: [{ id: 'dev-1', type: 'mobile' }] }
+    const res = checkLoginDeviceLimit(user, 'dev-2', 'mobile')
+    expect(res.allowed).toBe(false)
+    expect(res.message).toMatch(/мобильного телефона/)
+  })
+
+  it('новое устройство другого типа разрешено и добавляется', () => {
+    const user = { role: 'user', devices: [{ id: 'dev-1', type: 'mobile' }] }
+    const res = checkLoginDeviceLimit(user, 'dev-2', 'desktop')
+    expect(res.allowed).toBe(true)
+    expect(res.isNewDevice).toBe(true)
+    expect(res.devices).toHaveLength(2)
+    expect(res.devices.some(d => d.id === 'dev-2' && d.type === 'desktop')).toBe(true)
   })
 })
