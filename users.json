@@ -138,6 +138,12 @@
         "type": "mobile",
         "addedAt": "2026-09-09T15:43:49.109Z",
         "lastLoginAt": "2026-09-09T15:43:49.109Z"
+      },
+      {
+        "id": "029c5b58-99b4-4a67-9cab-43366e13c3c0",
+        "type": "desktop",
+        "addedAt": "2026-09-09T16:12:03.922Z",
+        "lastLoginAt": "2026-09-09T16:12:03.922Z"
       }
     ],
     "registeredAt": "2026-09-09T14:33:53.990Z"
