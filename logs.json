@@ -1,5 +1,14 @@
 [
   {
+    "id": "1788968833278",
+    "timestamp": "2026-09-09T15:47:13.278Z",
+    "action": "device_added",
+    "userEmail": "test2@1.ru",
+    "details": "Новое устройство (телефон)",
+    "deviceId": "584f45cd-ef03-4936-9226-38c6ac573e38",
+    "deviceType": "mobile"
+  },
+  {
     "id": "1788968752774",
     "timestamp": "2026-09-09T15:45:52.774Z",
     "action": "login",
