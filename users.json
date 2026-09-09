@@ -132,5 +132,36 @@
     "blockedBy": null,
     "deviceId": "6b0192aa-af62-418d-976a-2e0327b91e49",
     "registeredAt": "2026-09-09T14:00:55.584Z"
+  },
+  {
+    "id": "1788962844076",
+    "email": "devtest@test.ru",
+    "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    "createdAt": "2026-09-09T14:07:24.076Z",
+    "role": "user",
+    "sessionVersion": 0,
+    "paid": false,
+    "paidAt": null,
+    "paidBy": null,
+    "unpaidAt": null,
+    "unpaidBy": null,
+    "runesPaid": false,
+    "runesPaidAt": null,
+    "runesPaidBy": null,
+    "runesUnpaidAt": null,
+    "runesUnpaidBy": null,
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null,
+    "deviceId": "44a426b4-3131-4de6-859d-0bff56f00fab",
+    "devices": [
+      {
+        "id": "44a426b4-3131-4de6-859d-0bff56f00fab",
+        "type": "desktop",
+        "addedAt": "2026-09-09T14:07:24.076Z",
+        "lastLoginAt": "2026-09-09T14:07:24.076Z"
+      }
+    ],
+    "registeredAt": "2026-09-09T14:07:24.076Z"
   }
 ]
