@@ -577,7 +577,7 @@ export default function Home({ user, onLogout }) {
             <div className="search-wrapper" style={{flex: 1}}>
               <input
                 type="text"
-                placeholder="Поиск по рунам..."
+                placeholder="Поиск по тексту..."
                 aria-label="Поиск по рунам"
                 value={runesSearchTerm}
                 onChange={(e) => setRunesSearchTerm(e.target.value)}
