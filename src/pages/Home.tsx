@@ -433,8 +433,8 @@ export default function Home({ user, onLogout }) {
     const term = (runesSearchTerm || '').toLowerCase().trim()
     if (!term) return runes
     if (runicSearchMode) {
-      // Рунный режим: ищем только по названию руны
-      return runes.filter(r => r.name && String(r.name).toLowerCase().includes(term))
+      // Рунный режим: ищем только по графическому изображению руны
+      return runes.filter(r => r.graphic && String(r.graphic).toLowerCase().includes(term))
     }
     return runes.filter(r =>
       [r.name, r.power, r.keywords, r.description, r.letter, r.graphic]
