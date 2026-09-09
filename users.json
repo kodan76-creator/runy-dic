@@ -146,5 +146,36 @@
       }
     ],
     "registeredAt": "2026-09-09T14:33:53.990Z"
+  },
+  {
+    "id": "1788968720370",
+    "email": "test2@1.ru",
+    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "createdAt": "2026-09-09T15:45:20.370Z",
+    "role": "user",
+    "sessionVersion": 0,
+    "paid": false,
+    "paidAt": null,
+    "paidBy": null,
+    "unpaidAt": null,
+    "unpaidBy": null,
+    "runesPaid": false,
+    "runesPaidAt": null,
+    "runesPaidBy": null,
+    "runesUnpaidAt": null,
+    "runesUnpaidBy": null,
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null,
+    "deviceId": "2e1c94ca-a8b3-4b27-a261-f7b32efc98a6",
+    "devices": [
+      {
+        "id": "2e1c94ca-a8b3-4b27-a261-f7b32efc98a6",
+        "type": "desktop",
+        "addedAt": "2026-09-09T15:45:20.370Z",
+        "lastLoginAt": "2026-09-09T15:45:20.370Z"
+      }
+    ],
+    "registeredAt": "2026-09-09T15:45:20.370Z"
   }
 ]
