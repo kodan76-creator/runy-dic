@@ -432,11 +432,15 @@ export default function Home({ user, onLogout }) {
   const filteredRunes = useMemo(() => {
     const term = (runesSearchTerm || '').toLowerCase().trim()
     if (!term) return runes
+    if (runicSearchMode) {
+      // Рунный режим: ищем только по названию руны
+      return runes.filter(r => r.name && String(r.name).toLowerCase().includes(term))
+    }
     return runes.filter(r =>
       [r.name, r.power, r.keywords, r.description, r.letter, r.graphic]
         .some(v => v && String(v).toLowerCase().includes(term))
     )
-  }, [runes, runesSearchTerm])
+  }, [runes, runesSearchTerm, runicSearchMode])
 
   const audio = useAudioPlayback({ user, words: filtered, playMode })
 
