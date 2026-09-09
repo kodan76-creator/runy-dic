@@ -109,5 +109,36 @@
     "runesUnpaidAt": "2026-08-10T18:47:59.974Z",
     "runesUnpaidBy": "ya.kodan76@ya.ru",
     "sessionVersion": 1
+  },
+  {
+    "id": "1788962100691",
+    "email": "devtest@test.ru",
+    "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    "createdAt": "2026-09-09T13:55:00.691Z",
+    "role": "user",
+    "sessionVersion": 0,
+    "paid": false,
+    "paidAt": null,
+    "paidBy": null,
+    "unpaidAt": null,
+    "unpaidBy": null,
+    "runesPaid": false,
+    "runesPaidAt": null,
+    "runesPaidBy": null,
+    "runesUnpaidAt": null,
+    "runesUnpaidBy": null,
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null,
+    "deviceId": "35fd81ed-a01c-4cec-a8e9-00b3a6a3a12f",
+    "devices": [
+      {
+        "id": "35fd81ed-a01c-4cec-a8e9-00b3a6a3a12f",
+        "type": "desktop",
+        "addedAt": "2026-09-09T13:55:00.691Z",
+        "lastLoginAt": "2026-09-09T13:55:00.691Z"
+      }
+    ],
+    "registeredAt": "2026-09-09T13:55:00.691Z"
   }
 ]
