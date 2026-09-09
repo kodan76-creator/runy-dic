@@ -1,5 +1,13 @@
 [
   {
+    "id": "1788969704591",
+    "timestamp": "2026-09-09T16:01:44.591Z",
+    "action": "device_unbound",
+    "userEmail": "test2@1.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "Отвязано устройство 584f45cd…"
+  },
+  {
     "id": "1788969245993",
     "timestamp": "2026-09-09T15:54:05.993Z",
     "action": "logout_all_devices",
