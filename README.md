@@ -51,7 +51,7 @@ npm run lint
 
 Проект развёрнут на домене:
 
-https://kos-fam.ru/
+https://rd.kos-fam.ru/
 
 Для публикации изменений используйте обычный деплой в ветку `main`:
 
@@ -62,7 +62,7 @@ git push origin main
 ```
 
 После деплоя проверьте:
-1. Сайт: https://kos-fam.ru/
+1. Сайт: https://rd.kos-fam.ru/
 2. Репозиторий: https://github.com/kodan76-creator/runy-dic
 
 ## 👥 Добавление администратора
