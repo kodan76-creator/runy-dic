@@ -1,5 +1,12 @@
 [
   {
+    "id": "1788969854318",
+    "timestamp": "2026-09-09T16:04:14.318Z",
+    "action": "search",
+    "userEmail": "citer2380@gmail.com",
+    "details": "Поиск: \"пен\""
+  },
+  {
     "id": "1788969831010",
     "timestamp": "2026-09-09T16:03:51.010Z",
     "action": "login",
