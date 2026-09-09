@@ -29,6 +29,10 @@ export default function LogsTab({
             <span className="log-action">{log.action}</span>
             <span className="log-user">{log.userEmail || 'system'}</span>
             <span className="log-details">{log.details}</span>
+            <span className="log-device">
+              {log.deviceType === 'mobile' ? '📱' : log.deviceType === 'desktop' ? '💻' : ''}
+              {log.deviceId ? ` ${log.deviceId.slice(0, 8)}…` : ''}
+            </span>
           </div>
         ))}
       </div>

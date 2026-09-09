@@ -65,6 +65,18 @@ export default function UsersTab({
               <p className="user-meta">Общий словарь: {u.paid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.paid ? u.paidAt : u.unpaidAt)}</p>
               <p className="user-meta">Новые Руны: {u.runesPaid ? 'Оплачено' : 'Не оплачено'} {formatDate(u.runesPaid ? u.runesPaidAt : u.runesUnpaidAt)}</p>
               <p className="user-date">Зарегистрирован: {formatDate(u.createdAt)}</p>
+              {u.devices?.length > 0 && (
+                <div className="user-devices">
+                  <p className="user-meta">Устройства ({u.devices.length}):</p>
+                  {u.devices.map(d => (
+                    <p key={d.id} className="user-device">
+                      {d.type === 'mobile' ? '📱 Телефон' : '💻 Компьютер'}
+                      <span className="user-device-id"> {d.id.slice(0, 8)}…</span>
+                      {d.lastLoginAt ? <span className="user-device-login"> · вход {formatDate(d.lastLoginAt)}</span> : ''}
+                    </p>
+                  ))}
+                </div>
+              )}
               {u.isBlocked && <p className="user-blocked">Заблокирован: {formatDate(u.blockedAt)} ({u.blockedBy})</p>}
             </div>
             {userEditingId === u.id ? (

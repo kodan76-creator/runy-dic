@@ -136,13 +136,13 @@ export const verifyUser = async (email, password) => {
         const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
         const updated = users.map(u => u.id === user.id ? { ...u, devices: limit.devices } : u)
         await updateGitHubFile(USERS_FILE, updated, sha)
-        addLog({ action: 'device_added', userEmail: email, details: `Новое устройство (${deviceType})` }).catch(() => {})
+        addLog({ action: 'device_added', userEmail: email, details: `Новое устройство (${deviceType === 'mobile' ? 'телефон' : 'компьютер'})`, deviceId, deviceType }).catch(() => {})
       } catch (e) {
         console.error('Failed to save login device:', e)
       }
     }
 
-    addLog({ action: 'login', userEmail: email, details: 'Вход' }).catch(() => {})
+    addLog({ action: 'login', userEmail: email, details: 'Вход', deviceId, deviceType }).catch(() => {})
     ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on login:', e))
     ensureUserDictionaryFile(email).catch(e => console.error('Failed to create user dictionary file on login:', e))
 
