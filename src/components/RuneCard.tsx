@@ -25,20 +25,22 @@ function highlightText(text, term) {
   return nodes
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', noDescHighlight = false }) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false }) {
   if (!rune) return null
   const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', '')
+  // В рунном режиме подсвечиваем только графическое изображение
+  const textHighlight = runicMode ? '' : highlight
 
   return (
     <div className={`rune-card align-${rune.textAlign || 'center'}`}>
       <div className="rune-card-body">
-        {rune.name && <h3 className="rune-card-name">{highlightText(rune.name, highlight)}</h3>}
+        {rune.name && <h3 className="rune-card-name">{highlightText(rune.name, textHighlight)}</h3>}
         {rune.graphic && (
           <div className="rune-card-glyph" title="Графическое изображение">
             {highlightText(rune.graphic, highlight)}
           </div>
         )}
-        {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, highlight)}</div>}
+        {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
         {imgUrl && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
@@ -48,19 +50,19 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', n
         {rune.power && (
           <div className="rune-card-power">
             <span className="rune-card-label">Описание Силы Руны:</span>
-            <span>{highlightText(rune.power, highlight)}</span>
+            <span>{highlightText(rune.power, textHighlight)}</span>
           </div>
         )}
         {rune.keywords && (
           <div className="rune-card-keywords">
             <span className="rune-card-label">Ключевые слова:</span>
-            <span>{highlightText(rune.keywords, highlight)}</span>
+            <span>{highlightText(rune.keywords, textHighlight)}</span>
           </div>
         )}
         {rune.description && (
           <div className="rune-card-desc">
             <span className="rune-card-label">Описание:</span>
-            <span dangerouslySetInnerHTML={{ __html: renderRichText(rune.description, noDescHighlight ? '' : highlight) }} />
+            <span dangerouslySetInnerHTML={{ __html: renderRichText(rune.description, textHighlight) }} />
           </div>
         )}
       </div>
