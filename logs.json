@@ -1,5 +1,14 @@
 [
   {
+    "id": "1788970133411",
+    "timestamp": "2026-09-09T16:08:53.411Z",
+    "action": "login",
+    "userEmail": "citer2380@gmail.com",
+    "details": "Вход",
+    "deviceId": "d0271a70-db6b-42b9-a5b6-3b1a2bf3bdea",
+    "deviceType": "mobile"
+  },
+  {
     "id": "1788970114699",
     "timestamp": "2026-09-09T16:08:34.699Z",
     "action": "logout_all_devices",
