@@ -34,6 +34,9 @@ export default function Home({ user, onLogout }) {
       return false
     }
   })
+  // 🪶 Режим рунического ввода: клик по логотипу run_r включает шрифт Dao Rus
+  // в поле поиска словаря (только в режиме «Словарь»).
+  const [runicSearchMode, setRunicSearchMode] = useState(false)
 
   // 🌐 Оффлайн-кэш личного словаря: сохраняем только личные слова пользователя,
   // чтобы при отсутствии интернета можно было пользоваться своим словарём.
@@ -546,7 +549,17 @@ export default function Home({ user, onLogout }) {
             </div>
           </>
         )}
-        <img src={`${import.meta.env.BASE_URL}images/run_r.png`} alt="Логотип" className="logo" />
+        <img
+          src={`${import.meta.env.BASE_URL}images/run_r.png`}
+          alt="Логотип"
+          className={`logo ${runicSearchMode ? 'logo-runic-active' : ''}`}
+          title={runicSearchMode ? 'Рунический ввод включён — нажмите, чтобы выключить' : 'Нажмите для рунического ввода в поиске'}
+          onClick={() => {
+            if (viewMode === 'dictionary') {
+              setRunicSearchMode(m => !m)
+            }
+          }}
+        />
         {/* Переключатель режима: Словарь / Новые Руны */}
         {user?.runesPaid && (
           <div className="view-toggle" role="group" aria-label="Режим отображения">
@@ -565,6 +578,7 @@ export default function Home({ user, onLogout }) {
               className={`view-toggle-btn ${viewMode === 'runes' ? 'active' : ''}`}
               onClick={() => {
                 setViewMode('runes')
+                setRunicSearchMode(false)
                 try { localStorage.setItem('home_view_mode', 'runes') } catch { /* ignore */ }
               }}
             >
@@ -678,7 +692,7 @@ export default function Home({ user, onLogout }) {
                   aria-label="Поиск по словарю"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
+                  className={`search-input ${runicSearchMode ? 'runic-input' : ''}`}
                 />
                 {searchTerm && (
                   <button

@@ -384,6 +384,34 @@ color: #5a0000;
   order: 4;
 }
 
+/* 🪶 Логотип run_r в режиме рунического ввода — подсветка */
+.logo-runic-active {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9)) brightness(1.15);
+  border-radius: 12px;
+  outline: 2px solid rgba(255, 215, 0, 0.7);
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+.logo {
+  cursor: pointer;
+}
+
+/* Поле поиска словаря в режиме рунического ввода (шрифт Dao Rus) */
+.search-input.runic-input {
+  font-family: 'Dao Rus', sans-serif;
+  font-size: 22px;
+  color: #FFD700;
+  letter-spacing: 1px;
+}
+
+.search-input.runic-input::placeholder {
+  font-family: var(--sans), 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--surface-muted);
+  letter-spacing: normal;
+}
+
 /* Переключатель режима: Словарь / Новые Руны */
 .view-toggle {
   display: flex;
