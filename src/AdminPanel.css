@@ -329,7 +329,7 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .clear-logs-btn { padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
 .clear-logs-btn:hover { background: #d32f2f; }
 .logs-list { display: flex; flex-direction: column; gap: 8px; }
-.log-item { display: grid; grid-template-columns: 150px 120px 200px 1fr auto; gap: 10px; padding: 10px; background: var(--field-bg); border-radius: 6px; font-size: 12px; align-items: center; }
+.log-item { display: grid; grid-template-columns: 150px 120px 200px 1fr auto; gap: 10px; padding: 10px; background: var(--field-bg); border-radius: 6px; font-size: 12px; align-items: center; text-align: left; }
 .log-time { color: var(--surface-muted); }
 .log-action { color: var(--app-accent); font-weight: bold; }
 .log-user { color: var(--app-accent); }
@@ -926,6 +926,7 @@ box-shadow: 0 6px 18px rgba(0,0,0,0.25);
   .audio-upload-btn:hover { background: var(--field-bg-hover); }
 
   .error { background: #3a1d1d; color: #ffb4b4; }
+  .auth-success { background: #1d2e1f; color: #a5d6a7; }
   .admin-message.success { background: #1d2e1f; color: #a5d6a7; border-color: #4caf50; }
   .admin-message.error { background: #3a1d1d; color: #ffb4b4; border-color: #ef5350; }
 

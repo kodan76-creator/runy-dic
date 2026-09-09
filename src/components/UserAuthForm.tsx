@@ -18,12 +18,14 @@ function UserAuthForm({ onLogin }) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loginHint, setLoginHint] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
     try {
       // Если нет интернета — пробуем оффлайн-вход по сохранённым данным,
@@ -76,7 +78,7 @@ function UserAuthForm({ onLogin }) {
         if (password !== confirmPassword) throw new Error('Пароли не совпадают')
         if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов')
         await registerUser(email, password)
-        setError('Регистрация успешна. Теперь войдите в аккаунт.')
+        setSuccess('Регистрация успешна. Теперь войдите в аккаунт.')
         setIsLogin(true)
         setPassword('')
         setConfirmPassword('')
@@ -114,9 +116,10 @@ function UserAuthForm({ onLogin }) {
             </>
           )}
           {error && <div className="error" role="alert">{error}</div>}
+          {success && <div className="auth-success" role="status">{success}</div>}
           <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}</button>
         </form>
-        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setLoginHint(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
+        <button className="toggle-auth-btn" onClick={() => { setIsLogin(!isLogin); setError(''); setSuccess(''); setLoginHint(''); setPassword(''); setConfirmPassword('') }} disabled={loading}>
           {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
         </button>
         <button className="admin-launch-btn" type="button" onClick={() => navigate('/admin')} disabled={loading}>

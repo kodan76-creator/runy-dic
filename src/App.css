@@ -81,6 +81,16 @@ button:hover:not(:disabled) {
   text-align: left;
 }
 
+.auth-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
 .auth-btn {
   width: 100%;
   padding: 12px;
