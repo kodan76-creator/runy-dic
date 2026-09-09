@@ -256,6 +256,29 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
   return safeUser
 }
 
+// 🚪 Разлогин пользователя на всех устройствах: инвалидируем все активные
+// сессии (sessionVersion++). Клиент на каждом устройстве заметит расхождение
+// при опросе и принудительно разлогинится.
+export const logoutAllDevices = async (userId, adminEmail) => {
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const user = users.find(u => u.id === userId)
+  if (!user) throw new Error('Пользователь не найден')
+
+  const updated = users.map(u => {
+    if (u.id !== userId) return u
+    return { ...u, sessionVersion: (u.sessionVersion || 0) + 1 }
+  })
+  await updateGitHubFile(USERS_FILE, updated, sha)
+  const changedUser = updated.find(u => u.id === userId)
+  addLog({
+    action: 'logout_all_devices',
+    userEmail: changedUser?.email || user.email,
+    adminEmail,
+    details: 'Разлогин на всех устройствах'
+  }).catch(() => {})
+  return true
+}
+
 export const deleteUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => u.id === userId)

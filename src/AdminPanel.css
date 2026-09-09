@@ -275,13 +275,15 @@ html, body { height: 100%; background-color: var(--app-accent); }
   justify-content: flex-end;
   align-content: flex-start;
 }
-.block-btn, .unblock-btn, .delete-user-btn, .edit-user-btn, .save-user-btn, .cancel-user-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
+.block-btn, .unblock-btn, .delete-user-btn, .edit-user-btn, .save-user-btn, .cancel-user-btn, .logout-devices-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
 .edit-user-btn { background: #2196f3; color: white; }
 .edit-user-btn:hover { background: #1976d2; }
 .block-btn { background: #f44336; color: white; }
 .block-btn:hover { background: #d32f2f; }
 .unblock-btn { background: #4caf50; color: white; }
 .unblock-btn:hover { background: #388e3c; }
+.logout-devices-btn { background: #ff9800; color: white; }
+.logout-devices-btn:hover { background: #f57c00; }
 .delete-user-btn { background: var(--app-bg); color: white; }
 .delete-user-btn:hover { background: var(--app-hover); }
 .user-edit-form {
@@ -618,7 +620,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
   .delete-user-btn,
   .edit-user-btn,
   .save-user-btn,
-  .cancel-user-btn {
+  .cancel-user-btn,
+  .logout-devices-btn {
     padding: 8px 16px;
     font-size: 14px;
   }

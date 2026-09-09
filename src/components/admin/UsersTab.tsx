@@ -20,6 +20,7 @@ export default function UsersTab({
   handleCancelEditUser,
   handleBlockUser,
   handleUnblockUser,
+  handleLogoutAllDevices,
   handleDeleteUser,
   formatDate,
 }) {
@@ -122,6 +123,7 @@ export default function UsersTab({
               <div className="user-actions">
                 <button onClick={() => handleEditUser(u)} className="edit-user-btn">Редактировать</button>
                 {u.isBlocked ? <button onClick={() => handleUnblockUser(u.id, u.email)} className="unblock-btn">✅ Разблокировать</button> : <button onClick={() => handleBlockUser(u.id, u.email)} className="block-btn">🚫 Заблокировать</button>}
+                <button onClick={() => handleLogoutAllDevices(u.id, u.email)} className="logout-devices-btn">🚪 Разлогинить все устройства</button>
                 <button onClick={() => handleDeleteUser(u.id, u.email)} className="delete-user-btn">Удалить пользователя</button>
               </div>
             )}
