@@ -829,7 +829,7 @@ export default function Home({ user, onLogout }) {
                 <h2 className="runes-section-title"><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" /> Новые Руны</h2>
                 <div className="runes-list-cards">
                   {filteredRunes.map(r => (
-                    <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} />
+                    <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} noDescHighlight={runicSearchMode} />
                   ))}
                 </div>
               </>

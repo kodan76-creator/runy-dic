@@ -25,7 +25,7 @@ function highlightText(text, term) {
   return nodes
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '' }) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', noDescHighlight = false }) {
   if (!rune) return null
   const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', '')
 
@@ -60,7 +60,7 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '' })
         {rune.description && (
           <div className="rune-card-desc">
             <span className="rune-card-label">Описание:</span>
-            <span dangerouslySetInnerHTML={{ __html: renderRichText(rune.description, highlight) }} />
+            <span dangerouslySetInnerHTML={{ __html: renderRichText(rune.description, noDescHighlight ? '' : highlight) }} />
           </div>
         )}
       </div>
