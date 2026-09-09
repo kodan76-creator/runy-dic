@@ -134,12 +134,6 @@
     "deviceId": "6b0192aa-af62-418d-976a-2e0327b91e49",
     "devices": [
       {
-        "id": "6b0192aa-af62-418d-976a-2e0327b91e49",
-        "type": "desktop",
-        "addedAt": "2026-09-09T14:33:53.990Z",
-        "lastLoginAt": "2026-09-09T14:33:53.990Z"
-      },
-      {
         "id": "584f45cd-ef03-4936-9226-38c6ac573e38",
         "type": "mobile",
         "addedAt": "2026-09-09T15:43:49.109Z",
