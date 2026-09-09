@@ -2,6 +2,15 @@
   {
     "id": "1788970325919",
     "timestamp": "2026-09-09T16:12:05.919Z",
+    "action": "login",
+    "userEmail": "test1@1.ru",
+    "details": "Вход",
+    "deviceId": "029c5b58-99b4-4a67-9cab-43366e13c3c0",
+    "deviceType": "desktop"
+  },
+  {
+    "id": "1788970325919",
+    "timestamp": "2026-09-09T16:12:05.919Z",
     "action": "device_added",
     "userEmail": "test1@1.ru",
     "details": "Новое устройство (компьютер)",
