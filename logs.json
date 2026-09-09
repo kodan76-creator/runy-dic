@@ -1,5 +1,12 @@
 [
   {
+    "id": "1788970425045",
+    "timestamp": "2026-09-09T16:13:45.045Z",
+    "action": "search",
+    "userEmail": "test1@1.ru",
+    "details": "Поиск: \"борлор\""
+  },
+  {
     "id": "1788970325919",
     "timestamp": "2026-09-09T16:12:05.919Z",
     "action": "login",
