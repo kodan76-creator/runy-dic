@@ -1230,6 +1230,16 @@ color: #5a0000;
   font-size: 14px;
   line-height: 1.5;
 }
+.rune-layout-modal-req {
+  margin: 0 0 12px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--surface-text);
+  font-size: 13px;
+  line-height: 1.4;
+}
 .rune-layout-error {
   margin: 10px 0 0 0;
   color: #ff5252;

@@ -13,6 +13,16 @@ const MIN_ZOOM = 0.5
 const MAX_ZOOM = 3
 const ZOOM_STEP = 0.1
 
+// 📏 Требования к фото во весь рост
+const PHOTO_ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp']
+const PHOTO_MAX_SIZE = 10 * 1024 * 1024 // 10 МБ
+const PHOTO_MIN_WIDTH = 400
+const PHOTO_MIN_HEIGHT = 800
+const PHOTO_MAX_WIDTH = 4000
+const PHOTO_MAX_HEIGHT = 8000
+const PHOTO_ACCEPT = 'image/png,image/jpeg,image/webp'
+const PHOTO_REQUIREMENTS_TEXT = `PNG, JPG, JPEG, WEBP · от ${PHOTO_MIN_WIDTH}×${PHOTO_MIN_HEIGHT} до ${PHOTO_MAX_WIDTH}×${PHOTO_MAX_HEIGHT} px · до ${Math.round(PHOTO_MAX_SIZE / 1024 / 1024)} МБ`
+
 export default function RuneLayout({ user, onUserUpdate }) {
   const [zoom, setZoom] = useState(1)
   const [showUpload, setShowUpload] = useState(false)
@@ -34,7 +44,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setUploading(true)
     setUploadError('')
     try {
-      const res = await uploadImageFile(file, user.email)
+      const res = await uploadImageFile(file, user.email, false, {
+        allowedExtensions: PHOTO_ALLOWED_EXTENSIONS,
+        maxSize: PHOTO_MAX_SIZE,
+        minWidth: PHOTO_MIN_WIDTH,
+        minHeight: PHOTO_MIN_HEIGHT,
+        maxWidth: PHOTO_MAX_WIDTH,
+        maxHeight: PHOTO_MAX_HEIGHT,
+      })
       const updated = await saveFullBodyPhoto(user.email, res.path)
       onUserUpdate(updated)
       setPhotoTs(Date.now())
@@ -125,10 +142,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <p className="rune-layout-modal-hint">
               Выберите фотографию, где человек виден во весь рост. Фото будет обрезано эллипсом.
             </p>
+            <p className="rune-layout-modal-req">Требования: {PHOTO_REQUIREMENTS_TEXT}</p>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+              accept={PHOTO_ACCEPT}
               onChange={handleFileSelected}
               disabled={uploading}
               className="visually-hidden"

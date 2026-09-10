@@ -14,12 +14,52 @@ import { emailToFolderName } from './audio'
 
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg']
 
+// � Читает реальные размеры изображения (в пикселях) до загрузки.
+const readImageDimensions = (file) => {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      resolve({ width: img.naturalWidth, height: img.naturalHeight })
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Не удалось прочитать изображение'))
+    }
+    img.src = url
+  })
+}
+
 // 🖼️ Загрузка картинки в public/images/ (общий словарь — корень, личный — папка пользователя)
-export const uploadImageFile = async (file, userEmail, rootUpload = false) => {
+// options (необязательно): { allowedExtensions, maxSize, minWidth, minHeight, maxWidth, maxHeight }
+export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}) => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
   const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
-  if (!IMAGE_EXTENSIONS.includes(ext)) {
-    throw new Error('Допускаются только изображения (PNG, JPG, JPEG, WEBP, GIF, SVG)')
+  const allowed = options.allowedExtensions || IMAGE_EXTENSIONS
+  if (!allowed.includes(ext)) {
+    throw new Error(`Допускаются только изображения (${allowed.join(', ').toUpperCase()})`)
+  }
+
+  // 📏 Проверки объёма и размеров (используются для фото во весь рост)
+  const maxSize = options.maxSize || 0
+  if (maxSize && file.size > maxSize) {
+    throw new Error(`Файл слишком большой. Максимальный размер — ${Math.round(maxSize / 1024 / 1024)} МБ.`)
+  }
+  if (options.minWidth || options.minHeight || options.maxWidth || options.maxHeight) {
+    const { width, height } = await readImageDimensions(file)
+    if (options.minWidth && width < options.minWidth) {
+      throw new Error(`Фото слишком узкое. Минимальная ширина — ${options.minWidth} px.`)
+    }
+    if (options.minHeight && height < options.minHeight) {
+      throw new Error(`Фото слишком низкое. Минимальная высота — ${options.minHeight} px.`)
+    }
+    if (options.maxWidth && width > options.maxWidth) {
+      throw new Error(`Фото слишком широкое. Максимальная ширина — ${options.maxWidth} px.`)
+    }
+    if (options.maxHeight && height > options.maxHeight) {
+      throw new Error(`Фото слишком высокое. Максимальная высота — ${options.maxHeight} px.`)
+    }
   }
 
   const folder = emailToFolderName(userEmail)
