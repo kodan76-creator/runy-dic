@@ -70,7 +70,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 style={{ transform: `scale(${zoom})` }}
               />
             </div>
-            <div className="rune-layout-ellipse-outline" aria-hidden="true" />
           </div>
           <div className="rune-layout-controls">
             <button
