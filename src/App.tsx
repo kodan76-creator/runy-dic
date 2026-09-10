@@ -70,6 +70,14 @@ function AppContent() {
     setUser(null)
   }
 
+  // 🥚 Обновление данных пользователя (например, после загрузки фото во весь рост
+  // для «Рунной раскладки»): сохраняем в localStorage и в состоянии приложения.
+  const handleUserUpdate = (updatedUser) => {
+    const nextUser = { ...updatedUser, role: updatedUser.role || 'user', paid: updatedUser.paid ?? false }
+    localStorage.setItem('currentUser', JSON.stringify(nextUser))
+    setUser(nextUser)
+  }
+
   const handleAdminLogout = () => {
     localStorage.removeItem('adminUser')
     localStorage.removeItem('currentUser')
@@ -164,7 +172,7 @@ function AppContent() {
             user?.role === 'admin' ? (
               <Navigate to="/admin" replace />
             ) : user?.role === 'user' ? (
-              <Home user={user} onLogout={handleUserLogout} />
+              <Home user={user} onLogout={handleUserLogout} onUserUpdate={handleUserUpdate} />
             ) : (
               <Navigate to="/auth" replace />
             )

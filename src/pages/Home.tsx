@@ -6,11 +6,12 @@ import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
 import RuneCard from '../components/RuneCard'
+import RuneLayout from '../components/RuneLayout'
 import FilterModal from '../components/FilterModal'
 import ThemeToggle from '../components/ThemeToggle'
 import '../App.css'
 
-export default function Home({ user, onLogout }) {
+export default function Home({ user, onLogout, onUserUpdate }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [runesSearchTerm, setRunesSearchTerm] = useState('')
   const [words, setWords] = useState<any[]>([])
@@ -26,6 +27,14 @@ export default function Home({ user, onLogout }) {
       if (saved === 'runes' && user?.runesPaid) return 'runes'
     } catch { /* ignore */ }
     return 'dictionary'
+  })
+  // 🥚 Подраздел «Новых Рун»: список рун или «Рунная раскладка» (фото в эллипсе)
+  const [runesSubMode, setRunesSubMode] = useState<'cards' | 'layout'>(() => {
+    try {
+      const saved = localStorage.getItem('home_runes_submode')
+      if (saved === 'layout') return 'layout'
+    } catch { /* ignore */ }
+    return 'cards'
   })
   const [headerCollapsed, setHeaderCollapsed] = useState(() => {
     try {
@@ -822,8 +831,34 @@ export default function Home({ user, onLogout }) {
           </div>
         </>
       ) : (
-        <div className="runes-dictionary-section" ref={runesSectionRef}>
-          {Array.isArray(runes) && runes.length > 0 ? (
+        <div className={`runes-dictionary-section${runesSubMode === 'layout' ? ' runes-layout-active' : ''}`} ref={runesSectionRef}>
+          <div className="runes-sub-toggle" role="group" aria-label="Подраздел рун">
+            <button
+              type="button"
+              className={`runes-sub-toggle-btn ${runesSubMode === 'cards' ? 'active' : ''}`}
+              aria-pressed={runesSubMode === 'cards'}
+              onClick={() => {
+                setRunesSubMode('cards')
+                try { localStorage.setItem('home_runes_submode', 'cards') } catch { /* ignore */ }
+              }}
+            >
+              🧿 Руны
+            </button>
+            <button
+              type="button"
+              className={`runes-sub-toggle-btn ${runesSubMode === 'layout' ? 'active' : ''}`}
+              aria-pressed={runesSubMode === 'layout'}
+              onClick={() => {
+                setRunesSubMode('layout')
+                try { localStorage.setItem('home_runes_submode', 'layout') } catch { /* ignore */ }
+              }}
+            >
+              🥚 Рунная раскладка
+            </button>
+          </div>
+          {runesSubMode === 'layout' ? (
+            <RuneLayout user={user} onUserUpdate={onUserUpdate} />
+          ) : Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
               <>
                 <h2 className="runes-section-title"><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" /> Новые Руны</h2>

@@ -906,6 +906,41 @@ color: #5a0000;
   border-radius: 6px;
   border: 3px solid transparent;
 }
+/* 🥚 В режиме «Рунная раскладка» секция становится флекс-колонкой на весь
+   экран: подраздел-переключатель сверху, фото в эллипсе занимает всё поле. */
+.runes-dictionary-section.runes-layout-active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px 8px 20px;
+}
+/* Переключатель подразделов «Новых Рун»: Руны / Рунная раскладка */
+.runes-sub-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.runes-sub-toggle-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 215, 0, 0.55);
+  background: rgba(255, 215, 0, 0.12);
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.runes-sub-toggle-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+}
+.runes-sub-toggle-btn.active {
+  background: #FFD700;
+  color: #6a1b9a;
+  border-color: #FFD700;
+}
 .runes-section-title {
   margin: 0 0 14px 0;
   font-size: 24px;
@@ -1038,6 +1073,173 @@ color: #5a0000;
   border-radius: 3px;
   padding: 0 2px;
   font-weight: 700;
+}
+
+/* 🥚 Подраздел «Рунная раскладка» — фото во весь рост в эллипсе-«яйце» */
+.rune-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* Сцена: всё поле, где лежит фото (накрывает весь экран раздела) */
+.rune-layout-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #2d1745;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Эллипс-фильтр: видна только центральная «яйцевидная» область,
+   по бокам ничего не показывается */
+.rune-layout-ellipse {
+  position: absolute;
+  inset: 0;
+  clip-path: ellipse(30% 47% at 50% 50%);
+  overflow: hidden;
+}
+
+/* Фото заполняет всё поле; масштаб меняется кнопками +/- */
+.rune-layout-photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transform-origin: center center;
+  transition: transform 0.15s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Золотая окантовка эллипса (поверх фото, не мешает кликам) */
+.rune-layout-ellipse-outline {
+  position: absolute;
+  inset: 0;
+  clip-path: ellipse(30% 47% at 50% 50%);
+  pointer-events: none;
+  background: transparent;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 215, 0, 0.65),
+    inset 0 0 46px rgba(0, 0, 0, 0.55);
+}
+
+/* Панель управления масштабом */
+.rune-layout-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.rune-layout-zoom-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #FFD700;
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.rune-layout-zoom-btn:hover:not(:disabled) {
+  background: rgba(255, 215, 0, 0.35);
+  transform: scale(1.06);
+}
+.rune-layout-zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rune-layout-zoom-value {
+  min-width: 56px;
+  text-align: center;
+  color: #FFD700;
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.rune-layout-replace-btn,
+.rune-layout-upload-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #FFD700;
+  background: rgba(255, 215, 0, 0.18);
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rune-layout-replace-btn:hover,
+.rune-layout-upload-btn:hover {
+  background: rgba(255, 215, 0, 0.35);
+}
+
+/* Пустое состояние: нет фото */
+.rune-layout-empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.rune-layout-empty h3 {
+  margin: 0;
+  color: #FFD700;
+  font-size: 22px;
+}
+.rune-layout-empty p {
+  margin: 0;
+  max-width: 420px;
+  font-size: 15px;
+  line-height: 1.5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Модальное окно загрузки фото */
+.rune-layout-modal {
+  width: 440px;
+  max-width: 92%;
+}
+.rune-layout-modal-hint {
+  margin: 0 0 12px 0;
+  color: var(--surface-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.rune-layout-error {
+  margin: 10px 0 0 0;
+  color: #ff5252;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .dictionary-source {

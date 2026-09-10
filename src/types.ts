@@ -73,6 +73,8 @@ export interface User {
   runesPaidBy?: string | null
   runesUnpaidAt?: string | null
   runesUnpaidBy?: string | null
+  /** Имя файла фото пользователя во весь рост (для «Рунной раскладки»). */
+  fullBodyPhoto?: string
   loginAt?: string
   [key: string]: unknown
 }
