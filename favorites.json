@@ -68,5 +68,10 @@
     "userEmail": "test2@1.ru",
     "favorites": [],
     "updatedAt": "2026-09-09T15:47:22.911Z"
+  },
+  {
+    "userEmail": "test@test.ru",
+    "favorites": [],
+    "updatedAt": "2026-09-10T16:05:22.813Z"
   }
 ]
