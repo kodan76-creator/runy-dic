@@ -75,25 +75,27 @@ export const processPhotoToEllipse = (
   quality = 0.85
 ): Promise<Blob> =>
   new Promise((resolve, reject) => {
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1
     const canvas = document.createElement('canvas')
-    canvas.width = Math.round(ellipseW)
-    canvas.height = Math.round(ellipseH)
+    canvas.width = Math.round(ellipseW * dpr)
+    canvas.height = Math.round(ellipseH * dpr)
     const ctx = canvas.getContext('2d')
     if (!ctx) return reject(new Error('Canvas не поддерживается'))
+    // Рисуем в CSS-пикселях, но с учётом DPR для чёткости
+    ctx.scale(dpr, dpr)
 
     const iw = img.naturalWidth
     const ih = img.naturalHeight
     if (!iw || !ih) return reject(new Error('Изображение не загружено'))
 
-    // object-fit: cover — масштабируем чтобы заполнить эллипс
+    // object-fit: cover + object-position: center top (как в CSS)
     const coverScale = Math.max(ellipseW / iw, ellipseH / ih)
     const coverW = iw * coverScale
     const coverH = ih * coverScale
     const coverX = (ellipseW - coverW) / 2
-    const coverY = (ellipseH - coverH) / 2
+    const coverY = 0 // center top — по вертикали прижато к верху
 
     // CSS: transform: translate(panX, panY) scale(zoom); transform-origin: center;
-    // Порядок: сначала scale вокруг центра, потом translate.
     const cx = ellipseW / 2
     const cy = ellipseH / 2
     ctx.save()

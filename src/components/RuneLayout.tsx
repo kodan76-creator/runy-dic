@@ -132,14 +132,17 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // 🔧 Зафиксировать позицию фото: обрезать по эллипсу + минимизация JPEG
   // Важно: НЕ сбрасываем zoom/pan и НЕ вызываем onUserUpdate так, чтобы
   // компонент размонтировался/перезагрузился — фото остаётся видимым.
+  // Также НЕ делаем setPhotoTs(Date.now()) — иначе src меняется и фото
+  // перезагружается (мигает/пропадает). Blob URL уже показывает результат.
   const handleApplyPhoto = async () => {
     if (!user?.email || !imgRef.current || !ellipseRef.current) return
     setApplying(true)
     setUploadError('')
+    let blob: Blob | null = null
     try {
       const ew = ellipseRef.current.clientWidth
       const eh = ellipseRef.current.clientHeight
-      const blob = await processPhotoToEllipse(imgRef.current, panX, panY, zoom, ew, eh)
+      blob = await processPhotoToEllipse(imgRef.current, panX, panY, zoom, ew, eh)
       // 🖼️ Показываем обработанное фото сразу (blob-URL), чтобы оно не исчезало
       if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
       const newLocalUrl = URL.createObjectURL(blob)
@@ -160,9 +163,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
             maxSize: PHOTO_MAX_SIZE,
           })
           const updated = await saveFullBodyPhoto(user.email, res.path)
-          // Обновляем пользователя без сброса blob URL — фото остаётся видимым
+          // Обновляем пользователя без сброса blob URL и без смены photoTs —
+          // фото остаётся видимым через blob URL, перезагрузки нет
           onUserUpdate(updated)
-          setPhotoTs(Date.now())
         } catch (uploadErr) {
           // Ошибка загрузки — кэшируем локально и ставим в очередь
           await cachePhotoBlob(user.email, blob)
@@ -206,7 +209,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
       await flushOfflineChanges(user)
       await removeCachedPhotoBlob(user.email)
       setPendingSync(false)
-      setPhotoTs(Date.now())
+      // Не меняем photoTs — blob URL остаётся, перезагрузки нет
     } catch (err) {
       setUploadError(err?.message || 'Ошибка синхронизации')
     } finally {
