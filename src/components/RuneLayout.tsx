@@ -58,14 +58,23 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
   const localPhotoUrlRef = useRef('')
-  // Проверяем, есть ли в IndexedDB кэш для текущего фото
+  // Проверяем, есть ли в IndexedDB кэш для текущего фото, и восстанавливаем blob URL
   useEffect(() => {
     if (!user?.email) return
-    getCachedPhotoBlob(user.email).then(blob => setPendingSync(!!blob)).catch(() => {})
+    getCachedPhotoBlob(user.email).then(blob => {
+      setPendingSync(!!blob)
+      if (blob) {
+        if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
+        const url = URL.createObjectURL(blob)
+        localPhotoUrlRef.current = url
+        setLocalPhotoUrl(url)
+      }
+    }).catch(() => {})
   }, [user?.email])
 
   const photoName = user?.fullBodyPhoto
   const folder = user?.email ? emailToFolderName(user.email) : ''
+  // Если есть локальный blob URL — показываем его (приоритет), иначе серверный URL
   const photoUrl = localPhotoUrl
     || (photoName ? `${buildImageUrl(photoName, folder)}?t=${photoTs}` : '')
 
@@ -121,6 +130,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }
 
   // 🔧 Зафиксировать позицию фото: обрезать по эллипсу + минимизация JPEG
+  // Важно: НЕ сбрасываем zoom/pan и НЕ вызываем onUserUpdate так, чтобы
+  // компонент размонтировался/перезагрузился — фото остаётся видимым.
   const handleApplyPhoto = async () => {
     if (!user?.email || !imgRef.current || !ellipseRef.current) return
     setApplying(true)
@@ -134,16 +145,35 @@ export default function RuneLayout({ user, onUserUpdate }) {
       const newLocalUrl = URL.createObjectURL(blob)
       localPhotoUrlRef.current = newLocalUrl
       setLocalPhotoUrl(newLocalUrl)
+      // Сбрасываем трансформацию — зафиксированное фото уже обрезано
+      setZoom(1)
+      setPanX(0)
+      setPanY(0)
+      clearLayoutState(user.email)
       const isConn = isOnline()
       if (isConn) {
-        // Онлайн — загружаем сразу
+        // Онлайн — загружаем в фоне, не блокируя отображение
         const file = new File([blob], `layout_${Date.now()}.jpg`, { type: 'image/jpeg' })
-        const res = await uploadImageFile(file, user.email, false, {
-          allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
-          maxSize: PHOTO_MAX_SIZE,
-        })
-        const updated = await saveFullBodyPhoto(user.email, res.path)
-        onUserUpdate(updated)
+        try {
+          const res = await uploadImageFile(file, user.email, false, {
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+            maxSize: PHOTO_MAX_SIZE,
+          })
+          const updated = await saveFullBodyPhoto(user.email, res.path)
+          // Обновляем пользователя без сброса blob URL — фото остаётся видимым
+          onUserUpdate(updated)
+          setPhotoTs(Date.now())
+        } catch (uploadErr) {
+          // Ошибка загрузки — кэшируем локально и ставим в очередь
+          await cachePhotoBlob(user.email, blob)
+          enqueueOfflineChange({
+            type: 'full_body_photo',
+            email: user.email,
+            timestamp: Date.now(),
+          })
+          setPendingSync(true)
+          setUploadError(uploadErr?.message || 'Ошибка загрузки, фото сохранено локально')
+        }
       } else {
         // Оффлайн — кэшируем blob и ставим в очередь
         await cachePhotoBlob(user.email, blob)
@@ -154,13 +184,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
         })
         setPendingSync(true)
       }
-      setPhotoTs(Date.now())
-      setZoom(1)
-      setPanX(0)
-      setPanY(0)
-      clearLayoutState(user.email)
     } catch (err) {
-      // При ошибке возвращаем серверный URL (blob-URL не фиксируем)
+      // При ошибке обработки возвращаем серверный URL (blob-URL не фиксируем)
       if (localPhotoUrlRef.current) {
         URL.revokeObjectURL(localPhotoUrlRef.current)
         localPhotoUrlRef.current = ''
@@ -283,17 +308,17 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
               Заменить фото
             </button>
-            {(panX !== 0 || panY !== 0 || zoom !== 1) && (
-              <button
-                type="button"
-                className="rune-layout-apply-btn"
-                onClick={handleApplyPhoto}
-                disabled={applying}
-                title="Зафиксировать текущую позицию и размер фото"
-              >
-                {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
-              </button>
-            )}
+            <button
+              type="button"
+              className="rune-layout-apply-btn"
+              onClick={handleApplyPhoto}
+              disabled={applying || (panX === 0 && panY === 0 && zoom === 1)}
+              title="Зафиксировать текущую позицию и размер фото"
+              style={{ visibility: (panX !== 0 || panY !== 0 || zoom !== 1) ? 'visible' : 'hidden' }}
+              aria-hidden={panX === 0 && panY === 0 && zoom === 1}
+            >
+              {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+            </button>
             {pendingSync && (
               <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
                 ☁️ Ожидает синхронизации

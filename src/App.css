@@ -1091,7 +1091,7 @@ color: #5a0000;
 .rune-layout-stage {
   position: relative;
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 380px;
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -1103,11 +1103,16 @@ color: #5a0000;
 }
 
 /* Вертикальный эллипс-«яйцо»: фиксированное соотношение 2:3 (высота больше
-   ширины), поэтому эллипс всегда вертикальный на любом экране. */
+   ширины), поэтому эллипс всегда вертикальный на любом экране.
+   Ширина задаёт размер (не высота), чтобы появление кнопки «Зафиксировать»
+   не уменьшало эллипс — высота эллипса не зависит от высоты сцены. */
 .rune-layout-ellipse {
   position: relative;
-  height: min(92%, 520px);
+  width: min(92%, 340px);
   aspect-ratio: 2 / 3;
+  max-height: min(92%, 520px);
+  height: auto;
+  flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
   box-shadow:
@@ -1137,7 +1142,8 @@ color: #5a0000;
   transition: none;
 }
 
-/* Панель управления масштабом */
+/* Панель управления масштабом — фиксированная высота, чтобы появление
+   кнопки «Зафиксировать» не сжимало сцену с эллипсом. */
 .rune-layout-controls {
   display: flex;
   align-items: center;
@@ -1145,6 +1151,7 @@ color: #5a0000;
   gap: 10px;
   flex-shrink: 0;
   flex-wrap: wrap;
+  min-height: 44px;
 }
 
 .rune-layout-zoom-btn {
