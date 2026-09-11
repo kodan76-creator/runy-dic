@@ -3,10 +3,21 @@
 // Показывает фото пользователя во весь рост, обрезанное эллипсом-«яйцом»,
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl } from '../api/images'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
+import { isOnline, enqueueOfflineChange } from '../api/offline'
+import { flushOfflineChanges } from '../api/dictionary'
+import {
+  cachePhotoBlob,
+  getCachedPhotoBlob,
+  removeCachedPhotoBlob,
+  processPhotoToEllipse,
+  saveLayoutState,
+  loadLayoutState,
+  clearLayoutState,
+} from '../api/photoCache'
 import '../App.css'
 
 const MIN_ZOOM = 0.5
@@ -24,26 +35,42 @@ const PHOTO_ACCEPT = 'image/png,image/jpeg,image/webp'
 const PHOTO_REQUIREMENTS_TEXT = `PNG, JPG, JPEG, WEBP · от ${PHOTO_MIN_WIDTH}×${PHOTO_MIN_HEIGHT} до ${PHOTO_MAX_WIDTH}×${PHOTO_MAX_HEIGHT} px · до ${Math.round(PHOTO_MAX_SIZE / 1024 / 1024)} МБ`
 
 export default function RuneLayout({ user, onUserUpdate }) {
-  const [zoom, setZoom] = useState(1)
+  // 💾 Восстановление pan/zoom из localStorage (кэширование состояния)
+  const savedState = user?.email ? loadLayoutState(user.email) : null
+  const [zoom, setZoom] = useState(savedState?.zoom ?? 1)
   const [showUpload, setShowUpload] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   // Версия фото для сброса кэша браузера после замены файла
   const [photoTs, setPhotoTs] = useState(() => Date.now())
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  // 🖐️ Drag-to-pan state
-  const [panX, setPanX] = useState(0)
-  const [panY, setPanY] = useState(0)
+  // 🖐️ Drag-to-pan state (восстанавливаем из кэша)
+  const [panX, setPanX] = useState(savedState?.panX ?? 0)
+  const [panY, setPanY] = useState(savedState?.panY ?? 0)
   const [dragging, setDragging] = useState(false)
   const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origPanX: 0, origPanY: 0 })
   const ellipseRef = useRef<HTMLDivElement | null>(null)
   const imgRef = useRef<HTMLImageElement | null>(null)
+  // 🔧 Apply (фиксация фото)
+  const [applying, setApplying] = useState(false)
+  const [pendingSync, setPendingSync] = useState(false)
+  // Проверяем, есть ли в IndexedDB кэш для текущего фото
+  useEffect(() => {
+    if (!user?.email) return
+    getCachedPhotoBlob(user.email).then(blob => setPendingSync(!!blob)).catch(() => {})
+  }, [user?.email])
 
   const photoName = user?.fullBodyPhoto
   const folder = user?.email ? emailToFolderName(user.email) : ''
   const photoUrl = photoName
     ? `${buildImageUrl(photoName, folder)}?t=${photoTs}`
     : ''
+
+  // 💾 Автосохранение pan/zoom при каждом изменении
+  useEffect(() => {
+    if (!user?.email) return
+    saveLayoutState(user.email, { panX, panY, zoom })
+  }, [panX, panY, zoom, user?.email])
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0]
@@ -65,6 +92,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setZoom(1)
       setPanX(0)
       setPanY(0)
+      if (user?.email) clearLayoutState(user.email)
       setShowUpload(false)
     } catch (err) {
       setUploadError(err?.message || 'Ошибка загрузки фото')
@@ -76,6 +104,64 @@ export default function RuneLayout({ user, onUserUpdate }) {
 
   const changeZoom = (delta) => {
     setZoom(z => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round((z + delta) * 100) / 100)))
+  }
+
+  // 🔧 Зафиксировать позицию фото: обрезать по эллипсу + минимизация JPEG
+  const handleApplyPhoto = async () => {
+    if (!user?.email || !imgRef.current || !ellipseRef.current) return
+    setApplying(true)
+    setUploadError('')
+    try {
+      const ew = ellipseRef.current.clientWidth
+      const eh = ellipseRef.current.clientHeight
+      const blob = await processPhotoToEllipse(imgRef.current, panX, panY, zoom, ew, eh)
+      const isConn = isOnline()
+      if (isConn) {
+        // Онлайн — загружаем сразу
+        const file = new File([blob], `layout_${Date.now()}.jpg`, { type: 'image/jpeg' })
+        const res = await uploadImageFile(file, user.email, false, {
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+          maxSize: PHOTO_MAX_SIZE,
+        })
+        const updated = await saveFullBodyPhoto(user.email, res.path)
+        onUserUpdate(updated)
+      } else {
+        // Оффлайн — кэшируем blob и ставим в очередь
+        await cachePhotoBlob(user.email, blob)
+        enqueueOfflineChange({
+          type: 'full_body_photo',
+          email: user.email,
+          timestamp: Date.now(),
+        })
+        setPendingSync(true)
+      }
+      setPhotoTs(Date.now())
+      setZoom(1)
+      setPanX(0)
+      setPanY(0)
+      clearLayoutState(user.email)
+    } catch (err) {
+      setUploadError(err?.message || 'Ошибка обработки фото')
+    } finally {
+      setApplying(false)
+    }
+  }
+
+  // ☁️ Ручная синхронизация: загружает кэшированное фото на сервер
+  const handleSyncNow = async () => {
+    if (!user?.email) return
+    setApplying(true)
+    setUploadError('')
+    try {
+      await flushOfflineChanges(user)
+      await removeCachedPhotoBlob(user.email)
+      setPendingSync(false)
+      setPhotoTs(Date.now())
+    } catch (err) {
+      setUploadError(err?.message || 'Ошибка синхронизации')
+    } finally {
+      setApplying(false)
+    }
   }
 
   // 🖐️ Drag-to-pan handlers (mouse + touch)
@@ -172,7 +258,34 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
               Заменить фото
             </button>
+            {(panX !== 0 || panY !== 0 || zoom !== 1) && (
+              <button
+                type="button"
+                className="rune-layout-apply-btn"
+                onClick={handleApplyPhoto}
+                disabled={applying}
+                title="Зафиксировать текущую позицию и размер фото"
+              >
+                {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+              </button>
+            )}
+            {pendingSync && (
+              <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
+                ☁️ Ожидает синхронизации
+                {isOnline() && (
+                  <button
+                    type="button"
+                    className="rune-layout-sync-btn"
+                    onClick={handleSyncNow}
+                    title="Загрузить фото на сервер сейчас"
+                  >
+                    ↻ Загрузить
+                  </button>
+                )}
+              </span>
+            )}
           </div>
+          {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
         </>
       ) : (
         <div className="rune-layout-empty">

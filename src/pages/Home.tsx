@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline } from '../githubApi'
+import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline, flushOfflineChanges } from '../githubApi'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
@@ -100,6 +100,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
       setIsOffline(false)
       setReloadToken(t => t + 1) // перезагружаем словарь при появлении сети
       resyncFavorites() // синхронизируем избранное, изменённое оффлайн
+      // 🖼️ Синхронизируем отложенное фото Рунной раскладки (если было оффлайн-применение)
+      flushOfflineChanges(user).catch(e => console.error('flushOfflineChanges photo sync error:', e))
     }
     const handleOffline = () => setIsOffline(true)
     window.addEventListener('online', handleOnline)

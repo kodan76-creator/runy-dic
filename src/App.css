@@ -1182,7 +1182,8 @@ color: #5a0000;
 }
 
 .rune-layout-replace-btn,
-.rune-layout-upload-btn {
+.rune-layout-upload-btn,
+.rune-layout-apply-btn {
   padding: 10px 16px;
   border-radius: 10px;
   border: 2px solid #FFD700;
@@ -1194,8 +1195,49 @@ color: #5a0000;
   transition: background 0.15s ease;
 }
 .rune-layout-replace-btn:hover,
-.rune-layout-upload-btn:hover {
+.rune-layout-upload-btn:hover,
+.rune-layout-apply-btn:hover {
   background: rgba(255, 215, 0, 0.35);
+}
+.rune-layout-apply-btn {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.18);
+  color: #4ade80;
+}
+.rune-layout-apply-btn:hover {
+  background: rgba(74, 222, 128, 0.35);
+}
+.rune-layout-apply-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ☁️ Бейдж «ожидает синхронизации» (фото сохранено локально, оффлайн) */
+.rune-layout-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px dashed #FFD700;
+  color: #FFD700;
+  font-size: 12px;
+  font-weight: 600;
+}
+.rune-layout-sync-btn {
+  border: 1px solid #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rune-layout-sync-btn:hover {
+  background: rgba(74, 222, 128, 0.35);
 }
 
 /* Пустое состояние: нет фото */
