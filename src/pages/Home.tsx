@@ -562,13 +562,15 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </div>
           </>
         )}
-        <img
-          src={`${import.meta.env.BASE_URL}images/run_r.png`}
-          alt="Логотип"
-          className={`logo ${runicSearchMode ? 'logo-runic-active' : ''}`}
-          title={runicSearchMode ? 'Рунный ввод включён — нажмите, чтобы выключить' : 'Нажмите для рунного ввода в поиске'}
-          onClick={() => setRunicSearchMode(m => !m)}
-        />
+        {runesSubMode !== 'layout' && (
+          <img
+            src={`${import.meta.env.BASE_URL}images/run_r.png`}
+            alt="Логотип"
+            className={`logo ${runicSearchMode ? 'logo-runic-active' : ''}`}
+            title={runicSearchMode ? 'Рунный ввод включён — нажмите, чтобы выключить' : 'Нажмите для рунного ввода в поиске'}
+            onClick={() => setRunicSearchMode(m => !m)}
+          />
+        )}
         {/* Переключатель режима: Словарь / Новые Руны */}
         {user?.runesPaid && (
           <div className="view-toggle" role="group" aria-label="Режим отображения">
@@ -594,7 +596,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </button>
           </div>
         )}
-        {viewMode === 'runes' && (
+        {viewMode === 'runes' && runesSubMode !== 'layout' && (
           <div className="search-row runes-search">
             <div className="search-wrapper" style={{flex: 1}}>
               <input
