@@ -512,7 +512,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           Изменения сохранятся, когда появится соединение.
         </div>
       )}
-      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}`}>
+      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${viewMode === 'runes' && runesSubMode === 'layout' ? ' header-layout-mode' : ''}`}>
         <button
           type="button"
           className="header-collapse-btn"
