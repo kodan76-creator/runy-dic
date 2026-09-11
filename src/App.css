@@ -1128,6 +1128,13 @@ color: #5a0000;
   transition: transform 0.15s ease;
   user-select: none;
   -webkit-user-drag: none;
+  cursor: grab;
+  touch-action: none;
+}
+
+.rune-layout-photo.dragging {
+  cursor: grabbing;
+  transition: none;
 }
 
 /* Панель управления масштабом */
@@ -1466,6 +1473,7 @@ color: #5a0000;
   .header {
     position: sticky; /* was fixed on desktop */
     top: 0;
+    width: 100%;
     max-width: none;
     flex-direction: column;
     align-items: center;
@@ -1639,14 +1647,16 @@ color: #5a0000;
     background: rgba(255, 255, 255, 0.4);
   }
 
-  /* Свёрнутое состояние шапки */
+  /* Свёрнутое состояние шапки: компактная «таблетка» по ширине кнопки, справа */
   .header-collapsed {
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    width: 100%;
+    width: auto;
+    margin-left: auto;
+    margin-right: 0;
   }
   .header-collapsed .logo {
     order: 1;
@@ -1691,14 +1701,16 @@ color: #5a0000;
     z-index: 1000;
   }
 
-  /* Свёрнутое состояние шапки (очень маленькие экраны) */
+  /* Свёрнутое состояние шапки (очень маленькие экраны): компактная «таблетка» справа */
   .header-collapsed {
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    width: 100%;
+    width: auto;
+    margin-left: auto;
+    margin-right: 0;
   }
   .header-collapsed .logo {
     order: 1;
@@ -2160,11 +2172,14 @@ color: #5a0000;
   font-weight: 700;
 }
 
-/* 🥚 В режиме «Рунная раскладка» логотип скрыт — переключатель становится первым
-   элементом шапки. На мобильных кнопка сворачивания позиционируется абсолютно
-   в правом верхнем углу и наезжала бы на переключатель — добавляем отступ сверху. */
+/* 🥚 В развёрнутом режиме «Рунная раскладка» логотип скрыт — переключатель
+   становится первым элементом шапки. На мобильных кнопка сворачивания
+   позиционируется абсолютно в правом верхнем углу и наезжала бы на
+   переключатель — добавляем отступ сверху (только в развёрнутом состоянии). */
 @media (max-width: 768px) {
-  .header-layout-mode {
+  .header-layout-mode:not(.header-collapsed) {
     padding-top: 52px;
   }
 }
+
+

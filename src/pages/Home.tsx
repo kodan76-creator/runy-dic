@@ -652,7 +652,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                   checked={sortMode === 'runes'}
                   onChange={() => setSortMode('runes')}
                 />
-                руны
+                руны-графика
               </label>
             </div>
             {hasSharedDictionaryAccess && (
@@ -844,7 +844,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                 try { localStorage.setItem('home_runes_submode', 'cards') } catch { /* ignore */ }
               }}
             >
-              🧿 Руны
+              🧿 Новые Руны
             </button>
             <button
               type="button"

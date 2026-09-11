@@ -3,7 +3,7 @@
 // Показывает фото пользователя во весь рост, обрезанное эллипсом-«яйцом»,
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { uploadImageFile, buildImageUrl } from '../api/images'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
@@ -31,6 +31,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // Версия фото для сброса кэша браузера после замены файла
   const [photoTs, setPhotoTs] = useState(() => Date.now())
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  // 🖐️ Drag-to-pan state
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origPanX: 0, origPanY: 0 })
+  const ellipseRef = useRef<HTMLDivElement | null>(null)
+  const imgRef = useRef<HTMLImageElement | null>(null)
 
   const photoName = user?.fullBodyPhoto
   const folder = user?.email ? emailToFolderName(user.email) : ''
@@ -56,6 +63,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
       onUserUpdate(updated)
       setPhotoTs(Date.now())
       setZoom(1)
+      setPanX(0)
+      setPanY(0)
       setShowUpload(false)
     } catch (err) {
       setUploadError(err?.message || 'Ошибка загрузки фото')
@@ -69,6 +78,50 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setZoom(z => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round((z + delta) * 100) / 100)))
   }
 
+  // 🖐️ Drag-to-pan handlers (mouse + touch)
+  // Фото заполняет эллипс через object-fit: cover, а transform применяется
+  // к самому элементу (бокс = размер эллипса). Поэтому предел сдвига зависит
+  // только от размера эллипса и зума: (размер * (zoom - 1)) / 2.
+  const clampPan = useCallback((px: number, py: number, s: number) => {
+    if (!ellipseRef.current) return { x: px, y: py }
+    const ew = ellipseRef.current.clientWidth
+    const eh = ellipseRef.current.clientHeight
+    const maxPanX = Math.max(0, (ew * (s - 1)) / 2)
+    const maxPanY = Math.max(0, (eh * (s - 1)) / 2)
+    return {
+      x: Math.round(Math.max(-maxPanX, Math.min(maxPanX, px)) * 10) / 10,
+      y: Math.round(Math.max(-maxPanY, Math.min(maxPanY, py)) * 10) / 10,
+    }
+  }, [])
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (e.button && e.button !== 0) return
+    dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, origPanX: panX, origPanY: panY }
+    setDragging(true)
+    try {
+      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+    } catch { /* pointer may already be gone (e.g. synthetic events) */ }
+  }, [panX, panY])
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragRef.current.dragging) return
+    e.preventDefault()
+    const dx = e.clientX - dragRef.current.startX
+    const dy = e.clientY - dragRef.current.startY
+    const clamped = clampPan(
+      dragRef.current.origPanX + dx,
+      dragRef.current.origPanY + dy,
+      zoom
+    )
+    setPanX(clamped.x)
+    setPanY(clamped.y)
+  }, [zoom, clampPan])
+
+  const handlePointerUp = useCallback(() => {
+    dragRef.current.dragging = false
+    setDragging(false)
+  }, [])
+
   return (
     <div className="rune-layout">
       <h2 className="runes-section-title">
@@ -79,12 +132,18 @@ export default function RuneLayout({ user, onUserUpdate }) {
       {photoUrl ? (
         <>
           <div className="rune-layout-stage">
-            <div className="rune-layout-ellipse">
+            <div className="rune-layout-ellipse" ref={ellipseRef}>
               <img
-                className="rune-layout-photo"
+                ref={imgRef}
+                className={`rune-layout-photo${dragging ? ' dragging' : ''}`}
                 src={photoUrl}
                 alt="Ваше фото во весь рост"
-                style={{ transform: `scale(${zoom})` }}
+                style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
+                draggable={false}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
               />
             </div>
           </div>
