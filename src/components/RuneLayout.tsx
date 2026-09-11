@@ -54,6 +54,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
   const [pendingSync, setPendingSync] = useState(false)
+  // 🖼️ Локальный blob-URL обработанного фото — показываем сразу после
+  // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
+  const [localPhotoUrl, setLocalPhotoUrl] = useState('')
+  const localPhotoUrlRef = useRef('')
   // Проверяем, есть ли в IndexedDB кэш для текущего фото
   useEffect(() => {
     if (!user?.email) return
@@ -62,9 +66,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
 
   const photoName = user?.fullBodyPhoto
   const folder = user?.email ? emailToFolderName(user.email) : ''
-  const photoUrl = photoName
-    ? `${buildImageUrl(photoName, folder)}?t=${photoTs}`
-    : ''
+  const photoUrl = localPhotoUrl
+    || (photoName ? `${buildImageUrl(photoName, folder)}?t=${photoTs}` : '')
+
+  // 🧹 Освобождаем blob-URL при размонтировании
+  useEffect(() => () => {
+    if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
+  }, [])
 
   // 💾 Автосохранение pan/zoom при каждом изменении
   useEffect(() => {
@@ -93,6 +101,12 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setPanX(0)
       setPanY(0)
       if (user?.email) clearLayoutState(user.email)
+      // Сбрасываем blob-URL при загрузке нового файла
+      if (localPhotoUrlRef.current) {
+        URL.revokeObjectURL(localPhotoUrlRef.current)
+        localPhotoUrlRef.current = ''
+        setLocalPhotoUrl('')
+      }
       setShowUpload(false)
     } catch (err) {
       setUploadError(err?.message || 'Ошибка загрузки фото')
@@ -115,6 +129,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
       const ew = ellipseRef.current.clientWidth
       const eh = ellipseRef.current.clientHeight
       const blob = await processPhotoToEllipse(imgRef.current, panX, panY, zoom, ew, eh)
+      // 🖼️ Показываем обработанное фото сразу (blob-URL), чтобы оно не исчезало
+      if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
+      const newLocalUrl = URL.createObjectURL(blob)
+      localPhotoUrlRef.current = newLocalUrl
+      setLocalPhotoUrl(newLocalUrl)
       const isConn = isOnline()
       if (isConn) {
         // Онлайн — загружаем сразу
@@ -141,6 +160,12 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setPanY(0)
       clearLayoutState(user.email)
     } catch (err) {
+      // При ошибке возвращаем серверный URL (blob-URL не фиксируем)
+      if (localPhotoUrlRef.current) {
+        URL.revokeObjectURL(localPhotoUrlRef.current)
+        localPhotoUrlRef.current = ''
+        setLocalPhotoUrl('')
+      }
       setUploadError(err?.message || 'Ошибка обработки фото')
     } finally {
       setApplying(false)
