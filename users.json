@@ -111,42 +111,5 @@
     "runesUnpaidBy": "ya.kodan76@ya.ru",
     "sessionVersion": 1,
     "fullBodyPhoto": "layout_1789233720326.jpg"
-  },
-  {
-    "id": "1788964433990",
-    "email": "test1@1.ru",
-    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-09-09T14:33:53.990Z",
-    "role": "user",
-    "sessionVersion": 0,
-    "paid": false,
-    "paidAt": null,
-    "paidBy": null,
-    "unpaidAt": null,
-    "unpaidBy": null,
-    "runesPaid": false,
-    "runesPaidAt": null,
-    "runesPaidBy": null,
-    "runesUnpaidAt": null,
-    "runesUnpaidBy": null,
-    "isBlocked": false,
-    "blockedAt": null,
-    "blockedBy": null,
-    "deviceId": "6b0192aa-af62-418d-976a-2e0327b91e49",
-    "devices": [
-      {
-        "id": "584f45cd-ef03-4936-9226-38c6ac573e38",
-        "type": "mobile",
-        "addedAt": "2026-09-09T15:43:49.109Z",
-        "lastLoginAt": "2026-09-09T15:43:49.109Z"
-      },
-      {
-        "id": "029c5b58-99b4-4a67-9cab-43366e13c3c0",
-        "type": "desktop",
-        "addedAt": "2026-09-09T16:12:03.922Z",
-        "lastLoginAt": "2026-09-09T16:12:03.922Z"
-      }
-    ],
-    "registeredAt": "2026-09-09T14:33:53.990Z"
   }
 ]
