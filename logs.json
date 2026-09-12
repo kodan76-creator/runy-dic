@@ -1,5 +1,14 @@
 [
   {
+    "id": "1789234316008",
+    "timestamp": "2026-09-12T17:31:56.008Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход",
+    "deviceId": "1d194ef6-7b3f-4e4b-b7c2-716613a0cdc0",
+    "deviceType": "desktop"
+  },
+  {
     "id": "1789234233852",
     "timestamp": "2026-09-12T17:30:33.852Z",
     "action": "logout",
