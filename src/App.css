@@ -1515,18 +1515,21 @@ color: #5a0000;
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  /* Restore the vertical ellipse on mobile: a fixed width/height pair
-     prevents the CSS aspect-ratio from collapsing into a perfectly
-     round circle on narrow screens. */
+  /* Mobile ellipse: use the same WIDTH-BASED approach as desktop
+     (width + aspect-ratio + max-height cap) so percentage heights
+     resolve against a definite parent size. Values tuned for mobile
+     viewports so the vertical 2:3 ellipse always fits. */
   .rune-layout-stage {
-    min-height: 420px;
+    min-height: 320px;
   }
   .rune-layout-ellipse {
-    width: min(260px, 78vw);
-    height: min(390px, 70vh);
-    aspect-ratio: auto;
-    max-height: none;
+    width: min(90%, 280px);
+    aspect-ratio: 2 / 3;
+    max-height: min(85vh, 420px);
+    height: auto;
+    flex-shrink: 0;
     border-radius: 50%;
+    overflow: hidden;
     contain: layout size;
   }
 
