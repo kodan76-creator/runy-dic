@@ -340,7 +340,12 @@ export default function Home({ user, onLogout, onUserUpdate }) {
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [user, reloadToken])
+    // Зависим только от полей пользователя, влияющих на загрузку словаря.
+    // Обновление фото во весь рост (fullBodyPhoto) не должно перезагружать
+    // словарь и размонтировать «Рунную раскладку» — иначе фото пропадает
+    // после фиксации.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email, user?.role, user?.runesPaid, reloadToken])
 
   // toggle category id in selectedFilters
   const toggleFilter = (id) => {

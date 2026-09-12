@@ -7,12 +7,11 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl } from '../api/images'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
-import { isOnline, enqueueOfflineChange } from '../api/offline'
+import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
 import { flushOfflineChanges } from '../api/dictionary'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
-  removeCachedPhotoBlob,
   processPhotoToEllipse,
   saveLayoutState,
   loadLayoutState,
@@ -62,7 +61,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
   useEffect(() => {
     if (!user?.email) return
     getCachedPhotoBlob(user.email).then(blob => {
-      setPendingSync(!!blob)
       if (blob) {
         if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
         const url = URL.createObjectURL(blob)
@@ -70,6 +68,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
         setLocalPhotoUrl(url)
       }
     }).catch(() => {})
+    // «Ожидает синхронизации» — только если в оффлайн-очереди есть фото
+    try {
+      const hasPending = getOfflineChanges().some(c =>
+        c.type === 'full_body_photo' &&
+        String(c.email || '').toLowerCase() === String(user.email).toLowerCase()
+      )
+      setPendingSync(hasPending)
+    } catch { /* ignore */ }
   }, [user?.email])
 
   const photoName = user?.fullBodyPhoto
@@ -116,6 +122,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
         localPhotoUrlRef.current = ''
         setLocalPhotoUrl('')
       }
+      // Кэшируем новый файл, чтобы фото не пропадало, пока файл не попал
+      // в собранный сайт (свежезагруженный файл недоступен по same-origin URL)
+      if (user?.email) await cachePhotoBlob(user.email, file)
       setShowUpload(false)
     } catch (err) {
       setUploadError(err?.message || 'Ошибка загрузки фото')
@@ -153,6 +162,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setPanX(0)
       setPanY(0)
       clearLayoutState(user.email)
+      // 🖼️ Всегда кэшируем обработанное фото — оно переживёт перезагрузку
+      // страницы и переключение подразделов. Иначе после фиксации фото
+      // пропадает: свежезагруженный файл ещё не попал в собранный сайт,
+      // и same-origin URL даёт 404.
+      await cachePhotoBlob(user.email, blob)
       const isConn = isOnline()
       if (isConn) {
         // Онлайн — загружаем в фоне, не блокируя отображение
@@ -166,9 +180,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
           // Обновляем пользователя без сброса blob URL и без смены photoTs —
           // фото остаётся видимым через blob URL, перезагрузки нет
           onUserUpdate(updated)
+          setPendingSync(false)
         } catch (uploadErr) {
-          // Ошибка загрузки — кэшируем локально и ставим в очередь
-          await cachePhotoBlob(user.email, blob)
+          // Ошибка загрузки — ставим в очередь
           enqueueOfflineChange({
             type: 'full_body_photo',
             email: user.email,
@@ -178,8 +192,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
           setUploadError(uploadErr?.message || 'Ошибка загрузки, фото сохранено локально')
         }
       } else {
-        // Оффлайн — кэшируем blob и ставим в очередь
-        await cachePhotoBlob(user.email, blob)
+        // Оффлайн — ставим в очередь
         enqueueOfflineChange({
           type: 'full_body_photo',
           email: user.email,
@@ -188,11 +201,21 @@ export default function RuneLayout({ user, onUserUpdate }) {
         setPendingSync(true)
       }
     } catch (err) {
-      // При ошибке обработки возвращаем серверный URL (blob-URL не фиксируем)
+      // При ошибке обработки возвращаем кэшированное/серверное фото
       if (localPhotoUrlRef.current) {
         URL.revokeObjectURL(localPhotoUrlRef.current)
         localPhotoUrlRef.current = ''
         setLocalPhotoUrl('')
+      }
+      // Если есть кэш — показываем его, чтобы фото не пропало
+      if (user?.email) {
+        getCachedPhotoBlob(user.email).then(cached => {
+          if (cached && !localPhotoUrlRef.current) {
+            const url = URL.createObjectURL(cached)
+            localPhotoUrlRef.current = url
+            setLocalPhotoUrl(url)
+          }
+        }).catch(() => {})
       }
       setUploadError(err?.message || 'Ошибка обработки фото')
     } finally {
@@ -206,9 +229,16 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setApplying(true)
     setUploadError('')
     try {
+      // Сохраняем blob для отображения — flushOfflineChanges удаляет его из кэша
+      const blob = await getCachedPhotoBlob(user.email)
       await flushOfflineChanges(user)
-      await removeCachedPhotoBlob(user.email)
-      setPendingSync(false)
+      if (blob) await cachePhotoBlob(user.email, blob)
+      // Бейдж показываем, только если синхронизация не завершилась
+      const hasPending = getOfflineChanges().some(c =>
+        c.type === 'full_body_photo' &&
+        String(c.email || '').toLowerCase() === String(user.email).toLowerCase()
+      )
+      setPendingSync(hasPending)
       // Не меняем photoTs — blob URL остаётся, перезагрузки нет
     } catch (err) {
       setUploadError(err?.message || 'Ошибка синхронизации')
