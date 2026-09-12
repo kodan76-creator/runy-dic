@@ -1515,17 +1515,18 @@ color: #5a0000;
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  /* restore the RuneLayout ellipse geometry on mobile to the same
-     default desktop-like proportions instead of letting the ellipse
-     shrink/fill unevenly in the narrow stage */
+  /* Restore the vertical ellipse on mobile: a fixed width/height pair
+     prevents the CSS aspect-ratio from collapsing into a perfectly
+     round circle on narrow screens. */
   .rune-layout-stage {
     min-height: 420px;
   }
   .rune-layout-ellipse {
-    width: min(340px, 92vw);
-    height: auto;
-    aspect-ratio: 2 / 3;
-    max-height: min(520px, 92vh);
+    width: min(260px, 78vw);
+    height: min(390px, 70vh);
+    aspect-ratio: auto;
+    max-height: none;
+    border-radius: 50%;
     contain: layout size;
   }
 
