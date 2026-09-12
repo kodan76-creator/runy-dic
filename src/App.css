@@ -1515,6 +1515,20 @@ color: #5a0000;
 
 /* Адаптивность */
 @media (max-width: 768px) {
+  /* restore the RuneLayout ellipse geometry on mobile to the same
+     default desktop-like proportions instead of letting the ellipse
+     shrink/fill unevenly in the narrow stage */
+  .rune-layout-stage {
+    min-height: 420px;
+  }
+  .rune-layout-ellipse {
+    width: min(340px, 92vw);
+    height: auto;
+    aspect-ratio: 2 / 3;
+    max-height: min(520px, 92vh);
+    contain: layout size;
+  }
+
   /* On mobile header stays in flow (flex column), only side padding is needed */
   .container {
     padding-left: 8px;
