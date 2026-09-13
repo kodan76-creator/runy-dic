@@ -192,9 +192,9 @@ export default function Home({ user, onLogout, onUserUpdate }) {
 
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
-  // persist favorites on change (enqueue write to server, fallback to localStorage)
+  // persist favorites on change only in dictionary view
   useEffect(() => {
-    if (!user || !user.email) return
+    if (!user || !user.email || viewMode !== 'dictionary') return
     const saveTask = async () => {
       setFavoritesSyncStatus('saving')
       try {
@@ -216,7 +216,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     writeQueueRef.current = writeQueueRef.current.then(() => saveTask()).catch(err => { console.error('Favorites queue task error', err) })
 
     return () => {}
-  }, [favorites, user])
+  }, [favorites, user, viewMode])
 
   const toggleFavorite = (id) => {
     const idStr = String(id)
