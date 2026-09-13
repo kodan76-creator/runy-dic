@@ -460,7 +460,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 )}
               </div>
             )
-          )
+          )}
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
         </>
       ) : (
