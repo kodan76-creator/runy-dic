@@ -400,7 +400,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 className="rune-layout-return-btn"
                 onClick={() => {
                   setSelectedLayoutChoice('')
-                  setShowLayoutChoice(true)
+                  setShowLayoutChoice(false)
+                  setZoom(1)
+                  setPanX(0)
+                  setPanY(0)
+                  clearLayoutState(user.email)
                 }}
                 title="Вернуться к выбору раскладки и масштабированию"
               >
