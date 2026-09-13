@@ -1,5 +1,54 @@
 [
   {
+    "id": "1789272942921",
+    "timestamp": "2026-09-13T04:15:42.921Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: evaluation"
+  },
+  {
+    "id": "1789272940745",
+    "timestamp": "2026-09-13T04:15:40.745Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): layout_1789272937121.jpg"
+  },
+  {
+    "id": "1789272919541",
+    "timestamp": "2026-09-13T04:15:19.541Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): 1000013083.jpg"
+  },
+  {
+    "id": "1789272904296",
+    "timestamp": "2026-09-13T04:15:04.296Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): layout_1789272896209.jpg"
+  },
+  {
+    "id": "1789272898958",
+    "timestamp": "2026-09-13T04:14:58.958Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: evaluation"
+  },
+  {
+    "id": "1789272887287",
+    "timestamp": "2026-09-13T04:14:47.287Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: healing"
+  },
+  {
+    "id": "1789272884731",
+    "timestamp": "2026-09-13T04:14:44.731Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): layout_1789272881175.jpg"
+  },
+  {
     "id": "1789272655462",
     "timestamp": "2026-09-13T04:10:55.462Z",
     "action": "rune_layout_type_updated",
