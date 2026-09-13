@@ -3,6 +3,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { uploadImageFile, listUserImages, cleanupUserPhotos, deleteImageFile } from './images'
 import { getGitHubFileSha, fetchGitHubFile } from './client'
+import { pickBodyPhotoName } from './auth'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
 vi.mock('./client', () => ({
@@ -32,6 +33,18 @@ const stubImageDimensions = (width: number, height: number) => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('photo variant selection', () => {
+  it('prefers mobileFullBodyPhoto for mobile layout and falls back to fullBodyPhoto', () => {
+    const user = {
+      email: 'test@test.ru',
+      fullBodyPhoto: 'desktop.jpg',
+      mobileFullBodyPhoto: 'mobile.jpg',
+    }
+    expect(pickBodyPhotoName(user, true)).toBe('mobile.jpg')
+    expect(pickBodyPhotoName(user, false)).toBe('desktop.jpg')
+  })
 })
 
 describe('uploadImageFile validation', () => {

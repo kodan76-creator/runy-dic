@@ -256,22 +256,29 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
   return safeUser
 }
 
+export const pickBodyPhotoName = (user, mobile = false) => {
+  if (!user) return ''
+  if (mobile && user.mobileFullBodyPhoto) return user.mobileFullBodyPhoto
+  return user.fullBodyPhoto || user.mobileFullBodyPhoto || ''
+}
+
 // 🥚 Сохранение фото пользователя во весь рост (для «Рунной раскладки»).
 // Записывает имя файла в users.json и возвращает обновлённого пользователя.
-export const saveFullBodyPhoto = async (userEmail, fileName) => {
+export const saveFullBodyPhoto = async (userEmail, fileName, variant = 'full') => {
   if (!userEmail || !fileName) throw new Error('Email или имя файла не указаны')
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
   if (!user) throw new Error('Пользователь не найден')
 
+  const field = variant === 'mobile' ? 'mobileFullBodyPhoto' : 'fullBodyPhoto'
   const updated = users.map(u =>
     String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
-      ? { ...u, fullBodyPhoto: fileName }
+      ? { ...u, [field]: fileName }
       : u
   )
   await updateGitHubFile(USERS_FILE, updated, sha)
   const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  addLog({ action: 'full_body_photo_updated', userEmail, details: `Фото во весь рост: ${fileName}` }).catch(() => {})
+  addLog({ action: variant === 'mobile' ? 'mobile_full_body_photo_updated' : 'full_body_photo_updated', userEmail, details: `Фото во весь рост${variant === 'mobile' ? ' (mobile)' : ''}: ${fileName}` }).catch(() => {})
   const { passwordHash: _, ...safeUser } = changed
   return safeUser
 }

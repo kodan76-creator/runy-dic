@@ -5,7 +5,7 @@
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl, cleanupUserPhotos } from '../api/images'
-import { saveFullBodyPhoto } from '../api/auth'
+import { saveFullBodyPhoto, pickBodyPhotoName } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
 import { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../api/constants'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
@@ -79,7 +79,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
     } catch { /* ignore */ }
   }, [user?.email])
 
-  const photoName = user?.fullBodyPhoto
+  const useMobileVariant = typeof window !== 'undefined' && window.innerWidth <= 768
+  const photoName = pickBodyPhotoName(user, useMobileVariant)
   const folder = user?.email ? emailToFolderName(user.email) : ''
   // Если есть локальный blob URL — показываем его (приоритет), иначе серверный URL
   const photoUrl = localPhotoUrl
@@ -137,7 +138,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
         maxWidth: PHOTO_MAX_WIDTH,
         maxHeight: PHOTO_MAX_HEIGHT,
       })
-      const updated = await saveFullBodyPhoto(user.email, res.path)
+      const updated = await saveFullBodyPhoto(user.email, res.path, useMobileVariant ? 'mobile' : 'full')
       onUserUpdate(updated)
       // 🧹 Удаляем старые фото с сервера — остаётся только новое
       await cleanupUserPhotos(user.email, res.path)
@@ -206,7 +207,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
             allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
             maxSize: PHOTO_MAX_SIZE,
           })
-          const updated = await saveFullBodyPhoto(user.email, res.path)
+          const updated = await saveFullBodyPhoto(user.email, res.path, useMobileVariant ? 'mobile' : 'full')
           // Обновляем пользователя без сброса blob URL и без смены photoTs —
           // фото остаётся видимым через blob URL, перезагрузки нет
           onUserUpdate(updated)
