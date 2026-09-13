@@ -341,6 +341,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 alt="Ваше фото во весь рост"
                 style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
                 draggable={false}
+                crossOrigin="anonymous"
                 onError={handlePhotoError}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}

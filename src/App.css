@@ -1520,12 +1520,14 @@ color: #5a0000;
      resolve against a definite parent size. Values tuned for mobile
      viewports so the vertical 2:3 ellipse always fits. */
   .rune-layout-stage {
-    min-height: 320px;
+    min-height: 280px;
+    max-height: 56vh;
+    height: min(56vh, 420px);
   }
   .rune-layout-ellipse {
-    width: min(90%, 280px);
+    width: min(86vw, 280px);
     aspect-ratio: 2 / 3;
-    max-height: min(85vh, 420px);
+    max-height: min(56vh, 360px);
     height: auto;
     flex-shrink: 0;
     border-radius: 50%;

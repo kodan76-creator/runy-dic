@@ -108,47 +108,70 @@ export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawRes
 }
 
 export const updateGitHubFile = async (fileName: string, newData: unknown, currentSha?: string | null): Promise<any> => {
-  try {
-    if (!TOKEN) {
-      throw new Error('Не задан VITE_GITHUB_TOKEN. Добавьте токен GitHub в .env и перезапустите приложение.')
+  let attempts = 0
+  const maxAttempts = 4
+  let workingSha = currentSha || null
+
+  while (attempts < maxAttempts) {
+    try {
+      if (!TOKEN) {
+        throw new Error('Не задан VITE_GITHUB_TOKEN. Добавьте токен GitHub в .env и перезапустите приложение.')
+      }
+
+      // Узнаём текущее состояние файла: существует ли он и в каком формате (зашифрован/открытый).
+      // Это нужно, чтобы НЕ «самошифровать» файлы при обычных записях:
+      // открытый файл → пишем открытым, зашифрованный → шифруем.
+      const { data, sha } = await fetchGitHubFileRaw(fileName)
+
+      // ⚠️ Защита от "HTTP 422: Invalid request. \"sha\" wasn't supplied.":
+      // если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
+      // Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
+      if (!workingSha && sha) {
+        throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+      }
+
+      // 🔐 Сохраняем текущий формат файла при записи.
+      const shouldEncrypt = sha ? isEncrypted(data) : true
+
+      // 📄 Пишем красиво (отступ 2 пробела), чтобы JSON был читаемым.
+      const payload = JSON.stringify(newData, null, 2)
+      const content = shouldEncrypt ? utf8ToBase64(await encrypt(payload)) : utf8ToBase64(payload)
+      const body: Record<string, string> = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
+      if (workingSha) body.sha = workingSha
+
+      const response = await fetch(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
+        { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
+      )
+
+      if (!response.ok) {
+        const err: any = await response.json().catch(() => ({}))
+        const msg = `HTTP ${response.status}: ${err.message || response.statusText}`
+        if (isRetryableGitHubError(msg) && attempts < maxAttempts - 1) {
+          attempts++
+          const { sha: latestSha } = await fetchGitHubFileRaw(fileName)
+          if (latestSha) workingSha = latestSha
+          await new Promise(res => setTimeout(res, 300 + attempts * 250))
+          continue
+        }
+        throw new Error(msg)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error(`Update ${fileName} error:`, error)
+      if (isRetryableGitHubError(error) && attempts < maxAttempts - 1) {
+        attempts++
+        const { sha: latestSha } = await fetchGitHubFileRaw(fileName)
+        if (latestSha) workingSha = latestSha
+        await new Promise(res => setTimeout(res, 300 + attempts * 250))
+        continue
+      }
+      throw error
     }
-
-    // Узнаём текущее состояние файла: существует ли он и в каком формате (зашифрован/открытый).
-    // Это нужно, чтобы НЕ «самошифровать» файлы при обычных записях:
-    // открытый файл → пишем открытым, зашифрованный → шифруем.
-    const { data, sha } = await fetchGitHubFileRaw(fileName)
-
-    // ⚠️ Защита от "HTTP 422: Invalid request. \"sha\" wasn't supplied.":
-    // если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
-    // Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
-    if (!currentSha && sha) {
-      throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
-    }
-
-    // 🔐 Сохраняем текущий формат файла при записи.
-    // Если файл существует — берём его формат; если новый — шифруем (безопасно по умолчанию).
-    const shouldEncrypt = sha ? isEncrypted(data) : true
-
-    // 📄 Пишем красиво (отступ 2 пробела), чтобы JSON был читаемым,
-    // а не в одну строку.
-    const payload = JSON.stringify(newData, null, 2)
-    const content = shouldEncrypt ? utf8ToBase64(await encrypt(payload)) : utf8ToBase64(payload)
-    const body: Record<string, string> = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
-    if (currentSha) body.sha = currentSha
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
-      { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
-    )
-
-    if (!response.ok) {
-      const err: any = await response.json().catch(() => ({}))
-      throw new Error(`HTTP ${response.status}: ${err.message || response.statusText}`)
-    }
-    return await response.json()
-  } catch (error) {
-    console.error(`Update ${fileName} error:`, error)
-    throw error
   }
+
+  throw new Error(`Остановлена попытка обновить ${fileName}: конфликт версий после нескольких попыток`)
 }
 
 // 🔒 Сериализация записей в один файл.
