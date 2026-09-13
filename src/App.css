@@ -1192,7 +1192,8 @@ color: #5a0000;
 
 .rune-layout-replace-btn,
 .rune-layout-upload-btn,
-.rune-layout-apply-btn {
+.rune-layout-apply-btn,
+.rune-layout-return-btn {
   padding: 10px 16px;
   border-radius: 10px;
   border: 2px solid #FFD700;
@@ -1205,7 +1206,8 @@ color: #5a0000;
 }
 .rune-layout-replace-btn:hover,
 .rune-layout-upload-btn:hover,
-.rune-layout-apply-btn:hover {
+.rune-layout-apply-btn:hover,
+.rune-layout-return-btn:hover {
   background: rgba(255, 215, 0, 0.35);
 }
 .rune-layout-apply-btn {
@@ -1219,6 +1221,12 @@ color: #5a0000;
 .rune-layout-apply-btn:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+.rune-layout-return-btn {
+  min-width: min(420px, calc(100vw - 32px));
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.18);
+  color: #FFD700;
 }
 
 .rune-layout-choice-panel {

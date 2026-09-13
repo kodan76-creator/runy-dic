@@ -392,55 +392,71 @@ export default function RuneLayout({ user, onUserUpdate }) {
             </div>
           )}
           <div className="rune-layout-controls">
-            <button
-              type="button"
-              className="rune-layout-zoom-btn"
-              onClick={() => changeZoom(-ZOOM_STEP)}
-              disabled={zoom <= MIN_ZOOM}
-              aria-label="Уменьшить фото"
-              title="Уменьшить фото"
-            >
-              −
-            </button>
-            <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
-            <button
-              type="button"
-              className="rune-layout-zoom-btn"
-              onClick={() => changeZoom(ZOOM_STEP)}
-              disabled={zoom >= MAX_ZOOM}
-              aria-label="Увеличить фото"
-              title="Увеличить фото"
-            >
-              +
-            </button>
-            <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
-              Заменить фото
-            </button>
-            <button
-              type="button"
-              className="rune-layout-apply-btn"
-              onClick={handleApplyPhoto}
-              disabled={applying || (panX === 0 && panY === 0 && zoom === 1)}
-              title="Зафиксировать текущую позицию и размер фото"
-              style={{ visibility: (panX !== 0 || panY !== 0 || zoom !== 1) ? 'visible' : 'hidden' }}
-              aria-hidden={panX === 0 && panY === 0 && zoom === 1}
-            >
-              {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
-            </button>
-            {pendingSync && (
-              <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
-                ☁️ Ожидает синхронизации
-                {isOnline() && (
-                  <button
-                    type="button"
-                    className="rune-layout-sync-btn"
-                    onClick={handleSyncNow}
-                    title="Загрузить фото на сервер сейчас"
-                  >
-                    ↻ Загрузить
-                  </button>
+            {selectedLayoutChoice ? (
+              <button
+                type="button"
+                className="rune-layout-return-btn"
+                onClick={() => {
+                  setSelectedLayoutChoice('')
+                  setShowLayoutChoice(true)
+                }}
+                title="Вернуться к выбору раскладки и повторному масштабированию"
+              >
+                Вернуться к выбору и масштабированию
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="rune-layout-zoom-btn"
+                  onClick={() => changeZoom(-ZOOM_STEP)}
+                  disabled={zoom <= MIN_ZOOM}
+                  aria-label="Уменьшить фото"
+                  title="Уменьшить фото"
+                >
+                  −
+                </button>
+                <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
+                <button
+                  type="button"
+                  className="rune-layout-zoom-btn"
+                  onClick={() => changeZoom(ZOOM_STEP)}
+                  disabled={zoom >= MAX_ZOOM}
+                  aria-label="Увеличить фото"
+                  title="Увеличить фото"
+                >
+                  +
+                </button>
+                <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
+                  Заменить фото
+                </button>
+                <button
+                  type="button"
+                  className="rune-layout-apply-btn"
+                  onClick={handleApplyPhoto}
+                  disabled={applying || (panX === 0 && panY === 0 && zoom === 1)}
+                  title="Зафиксировать текущую позицию и размер фото"
+                  style={{ visibility: (panX !== 0 || panY !== 0 || zoom !== 1) ? 'visible' : 'hidden' }}
+                  aria-hidden={panX === 0 && panY === 0 && zoom === 1}
+                >
+                  {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+                </button>
+                {pendingSync && (
+                  <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
+                    ☁️ Ожидает синхронизации
+                    {isOnline() && (
+                      <button
+                        type="button"
+                        className="rune-layout-sync-btn"
+                        onClick={handleSyncNow}
+                        title="Загрузить фото на сервер сейчас"
+                      >
+                        ↻ Загрузить
+                      </button>
+                    )}
+                  </span>
                 )}
-              </span>
+              </>
             )}
           </div>
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
