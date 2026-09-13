@@ -5,7 +5,7 @@
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl, cleanupUserPhotos } from '../api/images'
-import { saveFullBodyPhoto, pickBodyPhotoName } from '../api/auth'
+import { saveFullBodyPhoto, pickBodyPhotoName, saveRuneLayoutType } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
 import { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../api/constants'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
@@ -58,6 +58,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
   const localPhotoUrlRef = useRef('')
+  const [showLayoutChoice, setShowLayoutChoice] = useState(false)
+  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState('')
   // Проверяем, есть ли в IndexedDB кэш для текущего фото, и восстанавливаем blob URL
   useEffect(() => {
     if (!user?.email) return
@@ -198,6 +200,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
       // пропадает: свежезагруженный файл ещё не попал в собранный сайт,
       // и same-origin URL даёт 404.
       await cachePhotoBlob(user.email, blob)
+      setShowLayoutChoice(true)
+      setSelectedLayoutChoice('')
       const isConn = isOnline()
       if (isConn) {
         // Онлайн — загружаем в фоне, не блокируя отображение
@@ -351,6 +355,42 @@ export default function RuneLayout({ user, onUserUpdate }) {
               />
             </div>
           </div>
+          {showLayoutChoice && (
+            <div className="rune-layout-choice-panel">
+              <button
+                type="button"
+                className={`rune-layout-choice-btn ${selectedLayoutChoice === 'evaluation' ? 'selected' : ''}`}
+                onClick={async () => {
+                  setSelectedLayoutChoice('evaluation')
+                  setShowLayoutChoice(false)
+                  try {
+                    const updated = await saveRuneLayoutType(user.email, 'evaluation')
+                    onUserUpdate(updated)
+                  } catch (err) {
+                    setUploadError(err?.message || 'Ошибка сохранения типа раскладки')
+                  }
+                }}
+              >
+                Раскладка Новых Рун для оценки Пути Духовного развития или ситуация явления
+              </button>
+              <button
+                type="button"
+                className={`rune-layout-choice-btn ${selectedLayoutChoice === 'healing' ? 'selected' : ''}`}
+                onClick={async () => {
+                  setSelectedLayoutChoice('healing')
+                  setShowLayoutChoice(false)
+                  try {
+                    const updated = await saveRuneLayoutType(user.email, 'healing')
+                    onUserUpdate(updated)
+                  } catch (err) {
+                    setUploadError(err?.message || 'Ошибка сохранения типа раскладки')
+                  }
+                }}
+              >
+                Раскладка Новых Рун для исцеления
+              </button>
+            </div>
+          )}
           <div className="rune-layout-controls">
             <button
               type="button"

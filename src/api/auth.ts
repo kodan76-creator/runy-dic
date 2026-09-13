@@ -262,6 +262,29 @@ export const pickBodyPhotoName = (user, mobile = false) => {
   return user.fullBodyPhoto || user.mobileFullBodyPhoto || ''
 }
 
+export const saveRuneLayoutType = async (userEmail, layoutType) => {
+  if (!userEmail || !layoutType) throw new Error('Email или тип раскладки не указаны')
+  if (!['evaluation', 'healing'].includes(layoutType)) {
+    throw new Error('Неизвестный тип раскладки')
+  }
+
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
+  if (!user) throw new Error('Пользователь не найден')
+
+  const updated = users.map(u =>
+    String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
+      ? { ...u, runeLayoutType: layoutType }
+      : u
+  )
+
+  await updateGitHubFile(USERS_FILE, updated, sha)
+  const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
+  addLog({ action: 'rune_layout_type_updated', userEmail, details: `Схема раскладки: ${layoutType}` }).catch(() => {})
+  const { passwordHash: _, ...safeUser } = changed
+  return safeUser
+}
+
 // 🥚 Сохранение фото пользователя во весь рост (для «Рунной раскладки»).
 // Записывает имя файла в users.json и возвращает обновлённого пользователя.
 export const saveFullBodyPhoto = async (userEmail, fileName, variant = 'full') => {
