@@ -1,5 +1,12 @@
 [
   {
+    "id": "1789269759878",
+    "timestamp": "2026-09-13T03:22:39.878Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): 1000012453.jpg"
+  },
+  {
     "id": "1789269708749",
     "timestamp": "2026-09-13T03:21:48.749Z",
     "action": "rune_layout_type_updated",
