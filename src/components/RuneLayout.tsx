@@ -398,9 +398,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 className="rune-layout-return-btn"
                 onClick={() => {
                   setSelectedLayoutChoice('')
-                  setShowLayoutChoice(true)
+                  setShowLayoutChoice(false)
                 }}
-                title="Вернуться к выбору раскладки и повторному масштабированию"
+                title="Вернуться к выбору и масштабированию"
               >
                 Вернуться к выбору и масштабированию
               </button>
