@@ -406,9 +406,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   setPanY(0)
                   clearLayoutState(user.email)
                 }}
-                title="Вернуться к выбору раскладки и масштабированию"
+                title="Вернуться к выбору фото"
               >
-                Вернуться к выбору и масштабированию
+                Вернуться к выбору фото
               </button>
             </div>
           ) : (
