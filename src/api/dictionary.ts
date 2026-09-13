@@ -16,7 +16,7 @@ import {
   getCachedDictionary,
   cacheDictionaryForOffline,
 } from './offline'
-import { uploadImageFile } from './images'
+import { uploadImageFile, cleanupUserPhotos } from './images'
 import { getCachedPhotoBlob, removeCachedPhotoBlob } from './photoCache'
 
 const getDictionaryFileName = (user) => resolveDictionaryFile(user)
@@ -477,6 +477,8 @@ export const flushOfflineChanges = async (user: any = null) => {
           await updateGitHubFile(USERS_FILE, users, sha)
         }
       }
+      // 🧹 Удаляем старые фото — на сервере остаётся только загруженное
+      await cleanupUserPhotos(email, res.path)
       await removeCachedPhotoBlob(email)
       removeOfflineChanges([c.queuedAt])
     } catch (e) {

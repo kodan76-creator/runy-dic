@@ -126,6 +126,45 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false) =
   throw new Error('Ошибка удаления: конфликт версий, попробуйте позже')
 }
 
+// 📂 Список файлов в папке пользователя (public/images/{folder}/)
+export const listUserImages = async (userEmail) => {
+  if (!userEmail) return []
+  const folder = emailToFolderName(userEmail)
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/public/images/${folder}?ref=${GITHUB_BRANCH}`
+  const response = await fetch(url, { headers: getHeaders() })
+  if (!response.ok) {
+    if (response.status === 404) return []
+    throw new Error(`Ошибка чтения папки: ${response.statusText}`)
+  }
+  const data = await response.json()
+  if (!Array.isArray(data)) return []
+  return data.filter(item => item.type === 'file').map(item => item.name)
+}
+
+// 🧹 Оставляет на сервере только 1 фото пользователя: удаляет все файлы
+// в папке пользователя, кроме keepFileName. Ошибки не блокируют поток.
+export const cleanupUserPhotos = async (userEmail, keepFileName) => {
+  if (!userEmail || !keepFileName) return 0
+  try {
+    const files = await listUserImages(userEmail)
+    const imageExt = /\.(png|jpe?g|webp|gif)$/i
+    const toDelete = files.filter(f => f !== keepFileName && imageExt.test(f))
+    let deleted = 0
+    for (const f of toDelete) {
+      try {
+        await deleteImageFile(f, userEmail, false)
+        deleted++
+      } catch (e) {
+        console.warn(`Не удалось удалить ${f}:`, e)
+      }
+    }
+    return deleted
+  } catch (e) {
+    console.warn('cleanupUserPhotos error:', e)
+    return 0
+  }
+}
+
 // Строит URL картинки (same-origin, public/images/).
 export const buildImageUrl = (fileName, userFolder) => {
   if (!fileName) return ''

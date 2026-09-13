@@ -4,7 +4,7 @@
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { uploadImageFile, buildImageUrl } from '../api/images'
+import { uploadImageFile, buildImageUrl, cleanupUserPhotos } from '../api/images'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
@@ -111,6 +111,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
       })
       const updated = await saveFullBodyPhoto(user.email, res.path)
       onUserUpdate(updated)
+      // 🧹 Удаляем старые фото с сервера — остаётся только новое
+      await cleanupUserPhotos(user.email, res.path)
       setPhotoTs(Date.now())
       setZoom(1)
       setPanX(0)
@@ -180,6 +182,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
           // Обновляем пользователя без сброса blob URL и без смены photoTs —
           // фото остаётся видимым через blob URL, перезагрузки нет
           onUserUpdate(updated)
+          // 🧹 Удаляем старые фото с сервера — остаётся только зафиксированное
+          await cleanupUserPhotos(user.email, res.path)
           setPendingSync(false)
         } catch (uploadErr) {
           // Ошибка загрузки — ставим в очередь

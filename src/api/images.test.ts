@@ -1,7 +1,8 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { uploadImageFile } from './images'
+import { uploadImageFile, listUserImages, cleanupUserPhotos } from './images'
+import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
 vi.mock('./client', () => ({
@@ -82,5 +83,64 @@ describe('uploadImageFile validation', () => {
     await expect(
       uploadImageFile(file, 'test@test.ru', false, { maxWidth: 4000, maxHeight: 8000 })
     ).rejects.toThrow('Фото слишком высокое')
+  })
+})
+
+describe('listUserImages', () => {
+  it('returns file names from the user folder', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([
+        { type: 'file', name: 'a.jpg' },
+        { type: 'file', name: 'b.png' },
+        { type: 'dir', name: 'sub' },
+      ]),
+    }))
+    const files = await listUserImages('test@test.ru')
+    expect(files).toEqual(['a.jpg', 'b.png'])
+  })
+
+  it('returns empty array when folder is missing (404)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
+    const files = await listUserImages('test@test.ru')
+    expect(files).toEqual([])
+  })
+})
+
+describe('cleanupUserPhotos', () => {
+  it('deletes all image files except the one to keep', async () => {
+    const listResponse = {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([
+        { type: 'file', name: 'old.jpg' },
+        { type: 'file', name: 'keep.png' },
+        { type: 'file', name: 'orphan_layout.jpg' },
+        { type: 'dir', name: 'sub' },
+      ]),
+    }
+    const deleteResponse = { ok: true, status: 200, json: () => Promise.resolve({}) }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(listResponse)
+      .mockResolvedValue(deleteResponse)
+    vi.stubGlobal('fetch', fetchMock)
+    vi.mocked(getGitHubFileSha).mockResolvedValue('sha123')
+
+    const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
+
+    expect(deleted).toBe(2)
+    const deleteUrls = fetchMock.mock.calls
+      .filter(c => c[1]?.method === 'DELETE')
+      .map(c => c[0])
+    expect(deleteUrls.some(u => u.includes('old.jpg'))).toBe(true)
+    expect(deleteUrls.some(u => u.includes('orphan_layout.jpg'))).toBe(true)
+    expect(deleteUrls.some(u => u.includes('keep.png'))).toBe(false)
+  })
+
+  it('returns 0 and does not throw when listing fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' }))
+    const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
+    expect(deleted).toBe(0)
   })
 })
