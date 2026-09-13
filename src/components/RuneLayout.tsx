@@ -148,6 +148,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setZoom(1)
       setPanX(0)
       setPanY(0)
+      setShowLayoutChoice(false)
+      setSelectedLayoutChoice('')
       if (user?.email) clearLayoutState(user.email)
       // Сбрасываем blob-URL при загрузке нового файла
       if (localPhotoUrlRef.current) {
@@ -436,10 +438,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   type="button"
                   className="rune-layout-apply-btn"
                   onClick={handleApplyPhoto}
-                  disabled={applying || (panX === 0 && panY === 0 && zoom === 1)}
+                  disabled={applying}
                   title="Зафиксировать текущую позицию и размер фото"
-                  style={{ visibility: (panX !== 0 || panY !== 0 || zoom !== 1) ? 'visible' : 'hidden' }}
-                  aria-hidden={panX === 0 && panY === 0 && zoom === 1}
+                  style={{ visibility: 'visible' }}
+                  aria-hidden={false}
                 >
                   {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
                 </button>
