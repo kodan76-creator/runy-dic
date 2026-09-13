@@ -7,6 +7,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl, cleanupUserPhotos } from '../api/images'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
+import { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../api/constants'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
 import { flushOfflineChanges } from '../api/dictionary'
 import {
@@ -83,6 +84,33 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // Если есть локальный blob URL — показываем его (приоритет), иначе серверный URL
   const photoUrl = localPhotoUrl
     || (photoName ? `${buildImageUrl(photoName, folder)}?t=${photoTs}` : '')
+
+  // 🖼️ Текущий src фото. Same-origin URL (public/images/) кэшируется SW и
+  // работает оффлайн, но свежезагруженный файл может ещё не попасть в
+  // собранный сайт (rd.kos-fam.ru отстаёт от репозитория) → 404. Тогда
+  // откатываемся на raw.githubusercontent (всегда актуален).
+  const buildRawPhotoUrl = (fileName, userFolder) => {
+    if (!fileName) return ''
+    const base = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/public/images/`
+    if (fileName.includes('/')) return `${base}${fileName}`
+    if (userFolder) return `${base}${userFolder}/${fileName}`
+    return `${base}${fileName}`
+  }
+  const [photoSrc, setPhotoSrc] = useState(photoUrl)
+  useEffect(() => {
+    setPhotoSrc(photoUrl)
+  }, [photoUrl])
+  const handlePhotoError = () => {
+    // Same-origin не сработал — пробуем raw.githubusercontent
+    if (photoSrc && !photoSrc.startsWith('https://raw.githubusercontent.com')) {
+      const raw = buildRawPhotoUrl(photoName, folder)
+      if (raw) setPhotoSrc(raw)
+      else setPhotoSrc('')
+    } else {
+      // Файла нет и на GitHub — показываем пустое состояние
+      setPhotoSrc('')
+    }
+  }
 
   // 🧹 Освобождаем blob-URL при размонтировании
   useEffect(() => () => {
@@ -302,17 +330,18 @@ export default function RuneLayout({ user, onUserUpdate }) {
         Рунная раскладка
       </h2>
 
-      {photoUrl ? (
+      {photoSrc ? (
         <>
           <div className="rune-layout-stage">
             <div className="rune-layout-ellipse" ref={ellipseRef}>
               <img
                 ref={imgRef}
                 className={`rune-layout-photo${dragging ? ' dragging' : ''}`}
-                src={photoUrl}
+                src={photoSrc}
                 alt="Ваше фото во весь рост"
                 style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
                 draggable={false}
+                onError={handlePhotoError}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}

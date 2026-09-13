@@ -5,10 +5,12 @@ import {
   GITHUB_OWNER,
   GITHUB_REPO,
   GITHUB_BRANCH,
+  USERS_FILE,
 } from './constants'
 import {
   getGitHubFileSha,
   getHeaders,
+  fetchGitHubFile,
 } from './client'
 import { emailToFolderName } from './audio'
 
@@ -106,7 +108,10 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false) =
   while (retries < maxRetries) {
     // Получаем SHA напрямую через API (без декодирования бинарного контента)
     const sha = await getGitHubFileSha(filePath)
-    if (!sha) throw new Error('Файл не найден')
+    if (!sha) {
+      // Файл уже удалён (или никогда не существовал) — цель достигнута
+      return { deleted: true, name: fileName, alreadyGone: true }
+    }
 
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
     const body = { message: `Delete image: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
@@ -119,6 +124,9 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false) =
       retries++
       console.warn(`Delete image conflict, retrying ${retries}/${maxRetries}...`)
       await new Promise(res => setTimeout(res, 500 + retries * 300))
+    } else if (response.status === 404) {
+      // Файл уже удалён параллельной операцией — считаем успехом
+      return { deleted: true, name: fileName, alreadyGone: true }
     } else {
       throw new Error(`Ошибка удаления: ${errMsg}`)
     }
@@ -148,7 +156,21 @@ export const cleanupUserPhotos = async (userEmail, keepFileName) => {
   try {
     const files = await listUserImages(userEmail)
     const imageExt = /\.(png|jpe?g|webp|gif)$/i
-    const toDelete = files.filter(f => f !== keepFileName && imageExt.test(f))
+    // Текущее фото пользователя — его нельзя удалять, даже если оно не совпадает
+    // с keepFileName (параллельно могла быть загружена другая фотография).
+    let currentPhoto = ''
+    try {
+      const { data: users } = await fetchGitHubFile(USERS_FILE)
+      const u = (Array.isArray(users) ? users : []).find(x =>
+        String(x?.email || '').toLowerCase() === String(userEmail).toLowerCase()
+      )
+      currentPhoto = u?.fullBodyPhoto || ''
+    } catch { /* не критично — просто не сможем защитить текущее фото */ }
+    const toDelete = files.filter(f =>
+      f !== keepFileName &&
+      f !== currentPhoto &&
+      imageExt.test(f)
+    )
     let deleted = 0
     for (const f of toDelete) {
       try {
