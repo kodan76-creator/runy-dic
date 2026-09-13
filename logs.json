@@ -1,5 +1,12 @@
 [
   {
+    "id": "1789271866150",
+    "timestamp": "2026-09-13T03:57:46.150Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: healing"
+  },
+  {
     "id": "1789271862255",
     "timestamp": "2026-09-13T03:57:42.256Z",
     "action": "mobile_full_body_photo_updated",
