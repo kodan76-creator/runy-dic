@@ -1,5 +1,26 @@
 [
   {
+    "id": "1789272655462",
+    "timestamp": "2026-09-13T04:10:55.462Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: healing"
+  },
+  {
+    "id": "1789272636901",
+    "timestamp": "2026-09-13T04:10:36.901Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: healing"
+  },
+  {
+    "id": "1789272632595",
+    "timestamp": "2026-09-13T04:10:32.595Z",
+    "action": "mobile_full_body_photo_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Фото во весь рост (mobile): layout_1789272629056.jpg"
+  },
+  {
     "id": "1789272063216",
     "timestamp": "2026-09-13T04:01:03.216Z",
     "action": "full_body_photo_updated",
