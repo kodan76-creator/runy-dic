@@ -280,7 +280,6 @@ export const saveRuneLayoutType = async (userEmail, layoutType) => {
 
   await updateGitHubFile(USERS_FILE, updated, sha)
   const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  addLog({ action: 'rune_layout_type_updated', userEmail, details: `Схема раскладки: ${layoutType}` }).catch(() => {})
   const { passwordHash: _, ...safeUser } = changed
   return safeUser
 }
@@ -301,7 +300,6 @@ export const saveFullBodyPhoto = async (userEmail, fileName, variant = 'full') =
   )
   await updateGitHubFile(USERS_FILE, updated, sha)
   const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  addLog({ action: variant === 'mobile' ? 'mobile_full_body_photo_updated' : 'full_body_photo_updated', userEmail, details: `Фото во весь рост${variant === 'mobile' ? ' (mobile)' : ''}: ${fileName}` }).catch(() => {})
   const { passwordHash: _, ...safeUser } = changed
   return safeUser
 }
