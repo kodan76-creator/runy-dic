@@ -1,5 +1,12 @@
 [
   {
+    "id": "1789272942921",
+    "timestamp": "2026-09-13T04:15:42.921Z",
+    "action": "rune_layout_type_updated",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Схема раскладки: evaluation"
+  },
+  {
     "id": "1789272940745",
     "timestamp": "2026-09-13T04:15:40.745Z",
     "action": "mobile_full_body_photo_updated",
