@@ -34,6 +34,29 @@ const PHOTO_MAX_HEIGHT = 8000
 const PHOTO_ACCEPT = 'image/png,image/jpeg,image/webp'
 const PHOTO_REQUIREMENTS_TEXT = `PNG, JPG, JPEG, WEBP · от ${PHOTO_MIN_WIDTH}×${PHOTO_MIN_HEIGHT} до ${PHOTO_MAX_WIDTH}×${PHOTO_MAX_HEIGHT} px · до ${Math.round(PHOTO_MAX_SIZE / 1024 / 1024)} МБ`
 
+// 💾 Сохранение/восстановление состояния выбора раскладки в localStorage.
+// Нужно, чтобы при обновлении страницы пользователь оставался на текущем
+// экране («Вернуться к выбору фото»), а не возвращался к выбору раскладки.
+const LAYOUT_CHOICE_KEY = (email) => `rune_layout_choice:${email}`
+const loadLayoutChoice = (email) => {
+  try {
+    const raw = localStorage.getItem(LAYOUT_CHOICE_KEY(email))
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return {
+        selected: typeof parsed?.selected === 'string' ? parsed.selected : '',
+        show: Boolean(parsed?.show),
+      }
+    }
+  } catch { /* ignore */ }
+  return { selected: '', show: false }
+}
+const saveLayoutChoice = (email, selected, show) => {
+  try {
+    localStorage.setItem(LAYOUT_CHOICE_KEY(email), JSON.stringify({ selected, show }))
+  } catch { /* ignore */ }
+}
+
 export default function RuneLayout({ user, onUserUpdate }) {
   // 💾 Восстановление pan/zoom из localStorage (кэширование состояния)
   const savedState = user?.email ? loadLayoutState(user.email) : null
@@ -58,8 +81,16 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
   const localPhotoUrlRef = useRef('')
-  const [showLayoutChoice, setShowLayoutChoice] = useState(false)
-  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState('')
+  // 💾 Восстановление выбора раскладки из localStorage — при обновлении страницы
+  // пользователь остаётся на текущем экране, а не возвращается к выбору фото.
+  const savedLayoutChoice = user?.email ? loadLayoutChoice(user.email) : { selected: '', show: false }
+  const [showLayoutChoice, setShowLayoutChoice] = useState(savedLayoutChoice.show)
+  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState(savedLayoutChoice.selected)
+  // 💾 Автосохранение выбора раскладки при каждом изменении
+  useEffect(() => {
+    if (!user?.email) return
+    saveLayoutChoice(user.email, selectedLayoutChoice, showLayoutChoice)
+  }, [user?.email, selectedLayoutChoice, showLayoutChoice])
   // Проверяем, есть ли в IndexedDB кэш для текущего фото, и восстанавливаем blob URL
   useEffect(() => {
     if (!user?.email) return
