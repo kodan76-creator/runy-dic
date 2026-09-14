@@ -304,8 +304,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-зъпа",
-    "transcription": "ватзэльпа",
+    "word": "ватзъпа",
+    "transcription": "ватзЭльпа",
     "translation": "беззубая старуха",
     "example": "",
     "example2": "",
@@ -315,9 +315,9 @@
     "id": "1751600000020",
     "createdAt": "2025-06-18T10:00:19.000Z",
     "category": [
-      "1778594680012",
-      "1778594679979"
-    ]
+      "1778594680012"
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тъхыхгъфо",
