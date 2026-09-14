@@ -160,8 +160,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-меръфо",
-    "transcription": "ватмерэльфо",
+    "word": "ватмеъфо",
+    "transcription": "ватмерЭльфо",
     "translation": "безмерный",
     "example": "",
     "example2": "",
@@ -172,7 +172,8 @@
     "createdAt": "2025-06-18T10:00:10.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-юъфо",
