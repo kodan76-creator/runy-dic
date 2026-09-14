@@ -608,7 +608,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             <div className="search-wrapper" style={{flex: 1}}>
               <input
                 type="text"
-                placeholder="Поиск Руны..."
+                placeholder={runicSearchMode ? 'Поиск Руны...' : 'Поиск...'}
                 aria-label="Поиск по рунам"
                 value={runesSearchTerm}
                 onChange={(e) => setRunesSearchTerm(e.target.value)}
