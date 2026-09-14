@@ -32,8 +32,8 @@
     "textAlign": "center"
   },
   {
-    "word": "тъхбердэпэ",
-    "transcription": "тэльхбердэшпэ",
+    "word": "тъхбедэшпэ",
+    "transcription": "тэльхбердэшпЭ",
     "translation": "безмятежный",
     "example": "",
     "example2": "",
@@ -44,7 +44,8 @@
     "createdAt": "2025-06-18T10:00:02.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-сэпэ",
