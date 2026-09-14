@@ -128,8 +128,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватэйсэпэ",
-    "transcription": "ватэйсэпэ",
+    "word": "ватгсэпэ",
+    "transcription": "ватэйсэпЭ",
     "translation": "безобразный",
     "example": "",
     "example2": "",
@@ -140,7 +140,8 @@
     "createdAt": "2025-06-18T10:00:08.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхэйсэйс",
