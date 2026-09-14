@@ -64,8 +64,8 @@
     "textAlign": "center"
   },
   {
-    "word": "тъхбердэш",
-    "transcription": "тэльхбердэш",
+    "word": "тъхбедэщ",
+    "transcription": "тэльхбердэщ",
     "translation": "безмятежно",
     "example": "",
     "example2": "",
@@ -76,7 +76,8 @@
     "createdAt": "2025-06-18T10:00:04.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тъхмгегъфо",
