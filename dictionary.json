@@ -304,8 +304,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватовЕрфо",
-    "transcription": "ватовЕрфо",
+    "word": "ватовеофо",
+    "transcription": "ватовЕрофо",
     "translation": "безналичный",
     "example": "",
     "example2": "",
@@ -316,6 +316,7 @@
     "createdAt": "2025-06-18T10:00:19.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   }
 ]
