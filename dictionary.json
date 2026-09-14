@@ -48,9 +48,9 @@
     "textAlign": "center"
   },
   {
-    "word": "ша-йэщиИ",
-    "transcription": "ша-йэщиИ",
-    "translation": "безопасность",
+    "word": "ша-йэдщи",
+    "transcription": "ша-йэдщИ",
+    "translation": "безопасность (без опасности)",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -60,7 +60,8 @@
     "createdAt": "2025-06-18T10:00:03.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват вэдлэш",
