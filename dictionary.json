@@ -144,7 +144,7 @@
     "textAlign": "center"
   },
   {
-    "word": "тъхмерильфо",
+    "word": "тъхмеиъфо",
     "transcription": "тэльхмерИльфо",
     "translation": "безмерный",
     "example": "",
@@ -156,7 +156,8 @@
     "createdAt": "2025-06-18T10:00:09.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-меръфо",
