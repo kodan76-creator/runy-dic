@@ -26,12 +26,14 @@ export const migrateAllFiles = async () => {
     CATEGORIES_FILE,
     FAVORITES_FILE,
     QUEUE_FILE,
-    // Персональные словари
-    'kodan76.json',
-    'ya.kodan76.json',
-    'winx0212.json',
-    'test.json',
-    'test2.json',
+    // Персональные словари пользователей (в папках пользователей)
+    getDictionaryFileNameForEmail('kodan76@ya.ru'),
+    getDictionaryFileNameForEmail('ya.kodan76@ya.ru'),
+    getDictionaryFileNameForEmail('winx0212@ya.ru'),
+    getDictionaryFileNameForEmail('citer2380@gmail.com'),
+    getDictionaryFileNameForEmail('ya.kostima11@yandex.ru'),
+    getDictionaryFileNameForEmail('test@1.ru'),
+    getDictionaryFileNameForEmail('test2@1.ru'),
     'dictionary.json2'
   ]
 
@@ -159,12 +161,13 @@ const listRepoJsonFiles = async () => {
   return data.tree
     .filter(item => item.type === 'blob')
     .map(item => item.path)
-    .filter(path =>
-      /\.json$/i.test(path) &&                            // только JSON
-      !/[/]/.test(path) &&                                // только в корне репозитория
-      !/^package(-lock)?\.json$/i.test(path) &&           // без package.json / package-lock.json
-      !/^tsconfig(\.node)?\.json$/i.test(path)            // без tsconfig.json / tsconfig.node.json
-    )
+    .filter(path => {
+      if (!/\.json$/i.test(path)) return false
+      if (/^package(-lock)?\.json$/i.test(path)) return false
+      if (/^tsconfig(\.node)?\.json$/i.test(path)) return false
+      // Корневые JSON-файлы данных + личные словари пользователей в public/users/
+      return !/[/]/.test(path) || /^public\/users\/.*\.json$/i.test(path)
+    })
 }
 
 // Персональные словари пользователей, найденные в favorites.json (запасной вариант)

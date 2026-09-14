@@ -1,8 +1,12 @@
+import { emailToFolderName } from './api/audio'
+import { USERS_DIR } from './api/constants'
+
+// 📁 Личный словарь пользователя хранится в папке пользователя:
+// public/users/<email_folder>/dictionary.json
 export const getDictionaryFileNameForEmail = (email: string | null | undefined): string => {
-  const normalized = String(email || '').trim().toLowerCase()
-  const localPart = normalized.split('@')[0] || 'user'
-  if (!localPart) return 'user.json'
-  return `${localPart.replace(/[^a-z0-9._+-]+/g, '_')}.json`
+  const folder = emailToFolderName(email)
+  if (!folder) return 'user.json'
+  return `${USERS_DIR}/${folder}/dictionary.json`
 }
 
 /** Пользователь для resolveDictionaryFile: email-строка или объект пользователя. */

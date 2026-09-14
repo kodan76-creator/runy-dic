@@ -1,10 +1,11 @@
 // src/api/auth.js
 // Аутентификация и управление пользователями/администраторами
-import { USERS_FILE, ADMINS_FILE } from './constants'
+import { USERS_FILE, ADMINS_FILE, DELETED_USERS_DIR } from './constants'
 import { fetchGitHubFile, updateGitHubFile } from './client'
 import { addLog } from './logs'
-import { ensureUserAudioFolder } from './audio'
+import { ensureUserAudioFolder, emailToFolderName } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
+import { getDictionaryFileNameForEmail } from '../dictionaryAccess'
 import { cacheUserForOffline } from './offline'
 import { getDeviceId, getDeviceType, checkRegistrationLimit, recordRegistration, checkLoginDeviceLimit } from './deviceLimit'
 
@@ -349,9 +350,40 @@ export const unbindDevice = async (userId, deviceId, adminEmail) => {
   return true
 }
 
+// 📦 Архив удалённого пользователя: личный словарь + запись пользователя
+// (без пароля) сохраняются в public/users/_deleted/<email_folder>/.
+const archiveDeletedUser = async (user, adminEmail) => {
+  const folder = emailToFolderName(user?.email)
+  if (!folder) return
+  const archiveBase = `${DELETED_USERS_DIR}/${folder}`
+  const now = new Date().toISOString()
+
+  // 1. Личный словарь пользователя (если файл существует)
+  const dictName = getDictionaryFileNameForEmail(user.email)
+  const { data: dict, sha: dictSha } = await fetchGitHubFile(dictName)
+  if (dictSha) {
+    await updateGitHubFile(`${archiveBase}/dictionary.json`, Array.isArray(dict) ? dict : [], null)
+  }
+
+  // 2. Запись пользователя (без пароля) + метаданные удаления
+  const { passwordHash: _, ...safeUser } = user
+  const archiveRecord = { ...safeUser, deletedAt: now, deletedBy: adminEmail }
+  await updateGitHubFile(`${archiveBase}/user.json`, archiveRecord, null)
+}
+
 export const deleteUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => u.id === userId)
+  if (!user) throw new Error('Пользователь не найден')
+
+  // 📦 Сначала архивируем данные пользователя, затем удаляем запись.
+  // Ошибка архивации не блокирует удаление (но логируется).
+  try {
+    await archiveDeletedUser(user, adminEmail)
+  } catch (e) {
+    console.error('Failed to archive deleted user:', e)
+  }
+
   const filtered = users.filter(u => u.id !== userId)
   await updateGitHubFile(USERS_FILE, filtered, sha)
   addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})

@@ -14,4 +14,10 @@ export const RUNES_FILE = 'runes.json'
 export const FAVORITES_FILE = 'favorites.json'
 export const QUEUE_FILE = 'favorites_queue.json'
 
+// 📁 Папки данных пользователей: личные JSON-словари лежат в папке
+// пользователя (public/users/<email_folder>/dictionary.json), а при удалении
+// пользователя его данные архивируются в public/users/_deleted/<email_folder>/.
+export const USERS_DIR = 'public/users'
+export const DELETED_USERS_DIR = 'public/users/_deleted'
+
 export const TOKEN = import.meta.env.VITE_GITHUB_TOKEN
