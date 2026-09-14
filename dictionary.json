@@ -16,9 +16,9 @@
     "textAlign": "center"
   },
   {
-    "word": "шайдпэ",
-    "transcription": "шайдпэ",
-    "translation": "безопасный",
+    "word": "ша-йэдпэ",
+    "transcription": "шайэдпЭ",
+    "translation": "безопасный (без опасности)",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -28,7 +28,8 @@
     "createdAt": "2025-06-18T10:00:01.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "эльхэйдэль",
