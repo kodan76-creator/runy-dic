@@ -48,8 +48,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-сэпэ",
-    "transcription": "ватсэпэ",
+    "word": "ватсэпэ",
+    "transcription": "ватсэпЭ",
     "translation": "безмятежный",
     "example": "",
     "example2": "",
@@ -60,7 +60,8 @@
     "createdAt": "2025-06-18T10:00:03.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тъхбердэш",
