@@ -224,8 +224,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватэйфальфо",
-    "transcription": "ватэйфальфо",
+    "word": "ватгфаъфо",
+    "transcription": "ватэйфАльфо",
     "translation": "безоблачный",
     "example": "",
     "example2": "",
@@ -236,7 +236,8 @@
     "createdAt": "2025-06-18T10:00:14.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхтертэрпэ",
