@@ -288,8 +288,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-зъпэш",
-    "transcription": "ватзэльпэш",
+    "word": "ватзъпэш",
+    "transcription": "ватзэльпЭш",
     "translation": "беззубость",
     "example": "",
     "example2": "",
@@ -299,9 +299,9 @@
     "id": "1751600000019",
     "createdAt": "2025-06-18T10:00:18.000Z",
     "category": [
-      "1778594680012",
-      "1778594679979"
-    ]
+      "1778594680012"
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-зъпа",
