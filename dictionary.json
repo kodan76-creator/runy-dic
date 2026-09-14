@@ -80,8 +80,8 @@
     "textAlign": "center"
   },
   {
-    "word": "тэльхозерэйфо",
-    "transcription": "тэльхозерэйфо",
+    "word": "тъхозегфо",
+    "transcription": "тэльхозерЭйфо",
     "translation": "безоглядный",
     "example": "",
     "example2": "",
@@ -92,7 +92,8 @@
     "createdAt": "2025-06-18T10:00:05.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ватоэрпэ",
