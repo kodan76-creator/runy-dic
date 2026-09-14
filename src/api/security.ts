@@ -10,7 +10,6 @@ import {
   USERS_FILE,
   LOGS_FILE,
   CATEGORIES_FILE,
-  FAVORITES_FILE,
   QUEUE_FILE,
 } from './constants'
 import { fetchGitHubFileRaw, getHeaders, utf8ToBase64 } from './client'
@@ -24,7 +23,6 @@ export const migrateAllFiles = async () => {
     USERS_FILE,
     LOGS_FILE,
     CATEGORIES_FILE,
-    FAVORITES_FILE,
     QUEUE_FILE,
     // Персональные словари пользователей (в папках пользователей)
     getDictionaryFileNameForEmail('kodan76@ya.ru'),
@@ -146,7 +144,7 @@ export const decryptFile = async (fileName) => {
 // 🔐 Проверить статус шифрования всех файлов
 const KNOWN_FILES = [
   DATA_FILE, ADMINS_FILE, USERS_FILE, LOGS_FILE,
-  CATEGORIES_FILE, FAVORITES_FILE, QUEUE_FILE
+  CATEGORIES_FILE, QUEUE_FILE
 ]
 
 // Получить полный список JSON-файлов из репозитория (Git Trees API).
@@ -170,14 +168,15 @@ const listRepoJsonFiles = async () => {
     })
 }
 
-// Персональные словари пользователей, найденные в favorites.json (запасной вариант)
+// Персональные словари пользователей из users.json (запасной вариант,
+// если Git Trees API не вернул дерево репозитория)
 const listPersonalFilesFromFavorites = async () => {
-  const { data: favData } = await fetchGitHubFileRaw(FAVORITES_FILE)
-  if (!favData) return []
-  const raw = isEncrypted(favData) ? await decrypt(favData) : favData
+  const { data: usersData } = await fetchGitHubFileRaw(USERS_FILE)
+  if (!usersData) return []
+  const raw = isEncrypted(usersData) ? await decrypt(usersData) : usersData
   const parsed = JSON.parse(raw)
   if (!Array.isArray(parsed)) return []
-  return parsed.map(r => getDictionaryFileNameForEmail(r.userEmail)).filter(Boolean)
+  return parsed.map(u => getDictionaryFileNameForEmail(u.email)).filter(Boolean)
 }
 
 export const checkFilesEncryptionStatus = async () => {

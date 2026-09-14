@@ -1,12 +1,13 @@
 // src/api/dictionary.js
 // Работа со словарём: общий (dictionary.json) и личные словари пользователей
-import { DATA_FILE, FAVORITES_FILE, USERS_FILE } from './constants'
+import { DATA_FILE, USERS_FILE } from './constants'
 import {
   fetchGitHubFile,
   updateGitHubFile,
   isRetryableGitHubError,
 } from './client'
 import { getDictionaryFileNameForEmail, resolveDictionaryFile } from '../dictionaryAccess'
+import { removeWordFromAllFavorites } from './favorites'
 import {
   isOnline,
   enqueueOfflineChange,
@@ -263,23 +264,9 @@ export const deleteWord = async (id, user = null) => {
   const removed = arr.splice(idx, 1)
   await updateGitHubFile(fileName, arr, sha)
 
-  // Удалить ID из всех списков избранного в favorites.json
+  // Удалить ID из файлов избранного всех пользователей
   try {
-    const idStr = String(id)
-    const { data: favData, sha: favSha } = await fetchGitHubFile(FAVORITES_FILE)
-    if (Array.isArray(favData)) {
-      let changed = false
-      const updated = favData.map(entry => {
-        if (Array.isArray(entry.favorites) && entry.favorites.includes(idStr)) {
-          changed = true
-          return { ...entry, favorites: entry.favorites.filter(f => f !== idStr) }
-        }
-        return entry
-      })
-      if (changed) {
-        await updateGitHubFile(FAVORITES_FILE, updated, favSha)
-      }
-    }
+    await removeWordFromAllFavorites(id)
   } catch (e) {
     console.error('Failed to remove word from favorites after deletion:', e)
   }

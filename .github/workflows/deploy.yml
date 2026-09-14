@@ -26,7 +26,7 @@ jobs:
         name: Detect relevant changes
         run: |
           # Файлы данных, читаемые в рантайме через API (не влияют на сборку сайта)
-          DATA_FILES="runes.json categories.json users.json admins.json logs.json favorites.json favorites_queue.json dictionary.json test.json citer2380.json kodan76.json winx0212.json ya.kodan76.json ya.kostima11.json"
+          DATA_FILES="runes.json categories.json users.json admins.json logs.json favorites_queue.json dictionary.json test.json test1.json test2.json devtest.json"
 
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.event.after }}"
@@ -52,9 +52,11 @@ jobs:
             for d in $DATA_FILES; do
               if [ "$f" = "$d" ]; then is_data=1; break; fi
             done
-            # Загруженные пользователями медиа-файлы тоже data (не влияют на сборку)
+            # Загруженные пользователями медиа-файлы и данные в папках
+            # пользователей (словари, избранное) тоже data (не влияют на сборку)
             case "$f" in
               public/audio/*) is_data=1 ;;
+              public/users/*/*.json) is_data=1 ;;
             esac
             if [ "$is_data" -eq 0 ]; then need_deploy=1; fi
           done <<< "$changed"
