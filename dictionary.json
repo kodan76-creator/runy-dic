@@ -272,8 +272,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-зъпэ",
-    "transcription": "ватзэльпэ",
+    "word": "ватзъпэ",
+    "transcription": "ватзэльпЭ",
     "translation": "беззубый",
     "example": "",
     "example2": "",
@@ -282,7 +282,10 @@
     "audio2": "",
     "id": "1751600000018",
     "createdAt": "2025-06-18T10:00:17.000Z",
-    "category": []
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-зъпэш",
