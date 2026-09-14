@@ -1648,6 +1648,13 @@ color: #5a0000;
     flex-direction: row;
   }
 
+  /* ✅ Строка поиска — внизу шапки (order 6), иначе она встаёт в начало
+     (order по умолчанию 0) и кнопка сворачивания шапки наезжает на поле поиска */
+  .search-row {
+    order: 6;
+    width: 100%;
+  }
+
   .search-wrapper {
     order: 6;
     max-width: 100%;
