@@ -2291,13 +2291,29 @@ color: #5a0000;
   font-weight: 700;
 }
 
-/* 🥚 В развёрнутом режиме «Рунная раскладка» логотип скрыт — переключатель
-   становится первым элементом шапки. На мобильных кнопка сворачивания
-   позиционируется абсолютно в правом верхнем углу и наезжала бы на
-   переключатель — добавляем отступ сверху (только в развёрнутом состоянии). */
+/* 🥚 В развёрнутом режиме «Рунная раскладка» логотип скрыт. На мобильных
+   кнопка сворачивания шапки и переключатель «Словарь / Новые Руны»
+   располагаются в одной строке. */
 @media (max-width: 768px) {
   .header-layout-mode:not(.header-collapsed) {
-    padding-top: 52px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-layout-mode:not(.header-collapsed) .header-collapse-btn {
+    position: static;
+    order: 1;
+  }
+  .header-layout-mode:not(.header-collapsed) .view-toggle {
+    order: 2;
+    width: auto;
+  }
+  .header-layout-mode:not(.header-collapsed) .header-actions {
+    order: 3;
+    width: 100%;
+    justify-content: center;
   }
 }
 
