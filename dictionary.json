@@ -337,7 +337,7 @@
   },
   {
     "word": "ват-ыхгъфо",
-    "transcription": "ват-возхэйльфо",
+    "transcription": "ват-возхЭйльфо",
     "translation": "беззвучный",
     "example": "",
     "example2": "",
@@ -348,6 +348,7 @@
     "createdAt": "2025-06-18T10:00:21.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   }
 ]
