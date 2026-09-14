@@ -569,7 +569,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </div>
           </>
         )}
-        {runesSubMode !== 'layout' && (
+        {(viewMode !== 'runes' || runesSubMode !== 'layout') && (
           <img
             src={`${import.meta.env.BASE_URL}images/run_r.png`}
             alt="Логотип"
