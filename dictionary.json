@@ -80,7 +80,7 @@
     "textAlign": "center"
   },
   {
-    "word": "тъхмгегъфо",
+    "word": "тъхмгеъфо",
     "transcription": "тэльхмэйерЭльфо",
     "translation": "безмолвный",
     "example": "",
@@ -92,7 +92,8 @@
     "createdAt": "2025-06-18T10:00:05.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-мгегъфо",
