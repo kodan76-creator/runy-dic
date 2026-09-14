@@ -193,7 +193,7 @@
   },
   {
     "word": "тъховъфо",
-    "transcription": "тэльховэльфо",
+    "transcription": "тэльховЭльфо",
     "translation": "безликий",
     "example": "",
     "example2": "",
@@ -204,7 +204,8 @@
     "createdAt": "2025-06-18T10:00:12.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-овэрпэ",
