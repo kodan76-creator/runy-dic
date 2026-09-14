@@ -160,8 +160,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватэйсэй",
-    "transcription": "ватэйсэй",
+    "word": "ватгсэй",
+    "transcription": "ватэйсЭй",
     "translation": "безобразить",
     "example": "",
     "example2": "",
@@ -172,7 +172,8 @@
     "createdAt": "2025-06-18T10:00:10.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхэйсоЕ",
