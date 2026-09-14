@@ -176,7 +176,7 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-юъфо",
+    "word": "ватюъфо",
     "transcription": "ват-юЭльфо",
     "translation": "безлюдный",
     "example": "",
@@ -186,7 +186,8 @@
     "audio2": "",
     "id": "1751600000012",
     "createdAt": "2025-06-18T10:00:11.000Z",
-    "category": []
+    "category": [],
+    "textAlign": "center"
   },
   {
     "word": "тъховъфо",
