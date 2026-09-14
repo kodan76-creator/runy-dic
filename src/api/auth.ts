@@ -365,10 +365,11 @@ const archiveDeletedUser = async (user, adminEmail) => {
     await updateGitHubFile(`${archiveBase}/dictionary.json`, Array.isArray(dict) ? dict : [], null)
   }
 
-  // 2. Запись пользователя (без пароля) + метаданные удаления
+  // 2. Запись пользователя (без пароля) + метаданные удаления.
+  // Храним как массив — так архив читается через fetchGitHubFile (как остальные данные).
   const { passwordHash: _, ...safeUser } = user
   const archiveRecord = { ...safeUser, deletedAt: now, deletedBy: adminEmail }
-  await updateGitHubFile(`${archiveBase}/user.json`, archiveRecord, null)
+  await updateGitHubFile(`${archiveBase}/user.json`, [archiveRecord], null)
 }
 
 export const deleteUser = async (userId, adminEmail) => {
