@@ -64,9 +64,9 @@
     "textAlign": "center"
   },
   {
-    "word": "ват вэдлэш",
-    "transcription": "ват вэдлэш",
-    "translation": "беспрекословно, безоговорочно",
+    "word": "ват вэдэлэш",
+    "transcription": "ват вэдэлЭш",
+    "translation": "безоговорочно, беспрекословно",
     "example": "",
     "example2": "",
     "transcription2": "",
@@ -76,7 +76,8 @@
     "createdAt": "2025-06-18T10:00:04.000Z",
     "category": [
       "1778594679972"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхозерэйфо",
