@@ -208,8 +208,8 @@
     "textAlign": "center"
   },
   {
-    "word": "тэльхэйфальфо",
-    "transcription": "тэльхэйфальфо",
+    "word": "тъхгфаъфо",
+    "transcription": "тэльхэйфАльфо",
     "translation": "безоблачный",
     "example": "",
     "example2": "",
@@ -220,7 +220,8 @@
     "createdAt": "2025-06-18T10:00:13.000Z",
     "category": [
       "1778594679979"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ватэйфальфо",
