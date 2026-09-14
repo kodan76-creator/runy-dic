@@ -240,8 +240,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ват-лъсофо",
-    "transcription": "ватлэльсофо",
+    "word": "ватлъсофо",
+    "transcription": "ватлЭльсофо",
     "translation": "безлесный",
     "example": "",
     "example2": "",
@@ -252,7 +252,8 @@
     "createdAt": "2025-06-18T10:00:15.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "ват-зъпэд",
