@@ -192,8 +192,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватэйсэш",
-    "transcription": "ватэйсэш",
+    "word": "ватгсэш",
+    "transcription": "ватэйсЭш",
     "translation": "безобразие",
     "example": "",
     "example2": "",
@@ -204,7 +204,8 @@
     "createdAt": "2025-06-18T10:00:12.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхэйфальфо",
