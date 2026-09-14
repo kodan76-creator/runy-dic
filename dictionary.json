@@ -256,8 +256,8 @@
     "textAlign": "center"
   },
   {
-    "word": "ватертиньэпэ",
-    "transcription": "ватертиньэпэ",
+    "word": "ватетиьпэ",
+    "transcription": "ватертиньэпЭ",
     "translation": "безобидный",
     "example": "",
     "example2": "",
@@ -268,7 +268,8 @@
     "createdAt": "2025-06-18T10:00:16.000Z",
     "category": [
       "1778594680020"
-    ]
+    ],
+    "textAlign": "center"
   },
   {
     "word": "тэльхтертэрш",
