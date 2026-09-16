@@ -145,9 +145,19 @@ export default function RuneLayout({ user, onUserUpdate }) {
         localPhotoUrlRef.current = ''
         setLocalPhotoUrl('')
       }
-      // Кэшируем новый файл, чтобы фото не пропадало, пока файл не попал
-      // в собранный сайт (свежезагруженный файл недоступен по same-origin URL)
-      if (user?.email) await cachePhotoBlob(user.email, file)
+      // Показываем загруженное фото сразу через blob-URL — серверный файл
+      // ещё не попал в собранный сайт, и same-origin URL даёт 404
+      if (user?.email) {
+        const newLocalUrl = URL.createObjectURL(file)
+        localPhotoUrlRef.current = newLocalUrl
+        setLocalPhotoUrl(newLocalUrl)
+        // Кэшируем, чтобы фото пережило перезагрузку страницы (best-effort)
+        try {
+          await cachePhotoBlob(user.email, file)
+        } catch (e) {
+          console.warn('Failed to cache photo blob:', e)
+        }
+      }
       setShowUpload(false)
     } catch (err) {
       setUploadError(err?.message || 'Ошибка загрузки фото')
