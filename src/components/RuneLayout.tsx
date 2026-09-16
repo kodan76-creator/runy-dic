@@ -313,6 +313,17 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setSpreadRunes([])
   }
 
+  // 📷 Вернуться к выбору фото (режим редактирования: масштаб/замена/фиксация)
+  const handleReturnToPhoto = () => {
+    setShowLayoutChoice(false)
+    setSelectedLayoutChoice('')
+    setSpreadRunes([])
+    setZoom(1)
+    setPanX(0)
+    setPanY(0)
+    clearLayoutState(user.email)
+  }
+
   // 🖐️ Drag-to-pan handlers (mouse + touch)
   // Фото заполняет эллипс через object-fit: cover, а transform применяется
   // к самому элементу (бокс = размер эллипса). Поэтому предел сдвига зависит
@@ -411,6 +422,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 onClick={() => handleChooseLayout('healing')}
               >
                 Раскладка Новых Рун для исцеления
+              </button>
+              <button
+                type="button"
+                className="rune-layout-return-btn"
+                onClick={handleReturnToPhoto}
+                title="Вернуться к выбору фото"
+              >
+                Вернуться к выбору фото
               </button>
             </div>
           ) : selectedLayoutChoice ? (

@@ -161,8 +161,19 @@ export default function Home({ user, onLogout, onUserUpdate }) {
   useEffect(() => {
     let mounted = true
     if (!user || !user.email) return
+    // Избранное проверяем только когда активен словарь
+    if (viewMode !== 'dictionary') return
     // load from server, fallback to localStorage
     const load = async () => {
+      // Если есть несохранённые локальные изменения — не перезаписываем их серверными
+      try {
+        const pending = localStorage.getItem(`favorites:${user.email}`)
+        if (pending) {
+          const arr = JSON.parse(pending)
+          if (mounted) setFavorites(new Set((Array.isArray(arr) ? arr : []).map(String)))
+          return
+        }
+      } catch { /* ignore */ }
       try {
         const server = await getFavoritesForUser(user.email)
         if (mounted && Array.isArray(server)) {
@@ -189,7 +200,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     }
     load()
     return () => { mounted = false }
-  }, [user])
+  }, [user, viewMode])
 
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
