@@ -1111,9 +1111,11 @@ color: #5a0000;
    не уменьшало эллипс — высота эллипса не зависит от высоты сцены. */
 .rune-layout-ellipse {
   position: relative;
-  width: min(92%, 340px);
+  /* Ширина ограничена так, чтобы высота (1.5 × ширина) всегда помещалась
+     в сцену и не превышала 520px — эллипс всегда остаётся 2:3 и не
+     вырождается в круг на низких экранах. cqw/cqh — относительно сцены. */
+  width: min(92cqw, 340px, 61.333cqh, 346.667px);
   aspect-ratio: 2 / 3;
-  max-height: min(92%, 520px);
   height: auto;
   flex-shrink: 0;
   border-radius: 50%;
@@ -1121,8 +1123,9 @@ color: #5a0000;
   box-shadow:
     0 0 0 3px rgba(255, 215, 0, 0.65),
     0 0 46px rgba(0, 0, 0, 0.55);
-  /* Фиксируем размер эллипса — не должен меняться при появлении кнопок */
-  contain: layout size;
+  /* Контейнер для раскладки: cqh/cqw внутри эллипса считаются относительно
+     эллипса, поэтому крест всегда подстраивается под его размер. */
+  container-type: size;
 }
 
 /* Фото заполняет эллипс; масштаб меняется кнопками +/- */
@@ -1362,10 +1365,11 @@ color: #5a0000;
    5 — правой стороной к левой стороне 4
    6 — левой стороной к правой стороне 4 */
 .rune-layout-spread {
-  /* Размер руны: желаемый clamp, но не больше 1/5 высоты сцены (раскладка
-     занимает 5 рядов по вертикали: 1.5S сверху + 2.5S снизу) и не больше
-     1/3 ширины сцены (3 колонки). Так прямоугольники всегда помещаются. */
-  --rune-size: min(clamp(52px, 10vw, 92px), 20cqh, 33.333cqw);
+  /* Размер руны: желаемый clamp, но не больше 18% высоты эллипса (крест
+     поднят на 1 руну и занимает 2.5S сверху + 1.5S снизу от центра) и не
+     больше 1/3 ширины эллипса (3 колонки). Так весь крест всегда помещается
+     внутри эллипса. cqh/cqw — относительно эллипса (контейнера). */
+  --rune-size: min(clamp(52px, 10vw, 92px), 18cqh, 33.333cqw);
   --rune-2x: calc(var(--rune-size) + var(--rune-size));
   position: absolute;
   inset: 0;
@@ -1407,15 +1411,16 @@ color: #5a0000;
   text-align: center;
   box-sizing: border-box;
 }
-/* Позиции 1–7: центры смещены ровно на размер руны (--rune-size), поэтому
-   стороны прямоугольников соприкасаются без зазоров и наложений. */
-.rune-layout-spread-item.pos-1 { left: calc(50% - var(--rune-size)); top: calc(50% + var(--rune-2x)); }
-.rune-layout-spread-item.pos-2 { left: 50%; top: calc(50% + var(--rune-2x)); }
-.rune-layout-spread-item.pos-3 { left: 50%; top: calc(50% + var(--rune-size)); }
-.rune-layout-spread-item.pos-4 { left: 50%; top: 50%; }
-.rune-layout-spread-item.pos-5 { left: calc(50% - var(--rune-size)); top: 50%; }
-.rune-layout-spread-item.pos-6 { left: calc(50% + var(--rune-size)); top: 50%; }
-.rune-layout-spread-item.pos-7 { left: 50%; top: calc(50% - var(--rune-size)); }
+/* Позиции 1–7: крест поднят на высоту одной руны (все top смещены на -S),
+   чтобы он располагался в верхней части эллипса. Центры смещены ровно на
+   размер руны (--rune-size), поэтому стороны соприкасаются без зазоров. */
+.rune-layout-spread-item.pos-1 { left: calc(50% - var(--rune-size)); top: calc(50% + var(--rune-size)); }
+.rune-layout-spread-item.pos-2 { left: 50%; top: calc(50% + var(--rune-size)); }
+.rune-layout-spread-item.pos-3 { left: 50%; top: 50%; }
+.rune-layout-spread-item.pos-4 { left: 50%; top: calc(50% - var(--rune-size)); }
+.rune-layout-spread-item.pos-5 { left: calc(50% - var(--rune-size)); top: calc(50% - var(--rune-size)); }
+.rune-layout-spread-item.pos-6 { left: calc(50% + var(--rune-size)); top: calc(50% - var(--rune-size)); }
+.rune-layout-spread-item.pos-7 { left: 50%; top: calc(50% - var(--rune-2x)); }
 
 /* Кнопки раскладки */
 .rune-layout-spread-controls {
@@ -1675,14 +1680,13 @@ color: #5a0000;
     height: min(56vh, 420px);
   }
   .rune-layout-ellipse {
-    width: min(82vw, 260px);
+    width: min(82vw, 260px, 37.333vh, 226.667px);
     aspect-ratio: 2 / 3;
-    max-height: min(56vh, 340px);
     height: auto;
     flex-shrink: 0;
     border-radius: 50%;
     overflow: hidden;
-    contain: layout size;
+    container-type: size;
   }
 
   /* On mobile header stays in flow (flex column), only side padding is needed */

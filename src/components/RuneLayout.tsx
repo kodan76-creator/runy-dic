@@ -352,21 +352,21 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
               />
+              {spreadRunes.length > 0 && (
+                <div className="rune-layout-spread" aria-label="Раскладка Новых Рун">
+                  {spreadRunes.map((name, i) => (
+                    <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
+                      <img
+                        src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
+                        alt={`Руна ${i + 1}`}
+                        draggable={false}
+                      />
+                      <span className="rune-layout-spread-num">{i + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {spreadRunes.length > 0 && (
-              <div className="rune-layout-spread" aria-label="Раскладка Новых Рун">
-                {spreadRunes.map((name, i) => (
-                  <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
-                    <img
-                      src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
-                      alt={`Руна ${i + 1}`}
-                      draggable={false}
-                    />
-                    <span className="rune-layout-spread-num">{i + 1}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
           <div className="rune-layout-controls">
             <button
