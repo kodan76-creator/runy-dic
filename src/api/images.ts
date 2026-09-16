@@ -5,12 +5,10 @@ import {
   GITHUB_OWNER,
   GITHUB_REPO,
   GITHUB_BRANCH,
-  USERS_FILE,
 } from './constants'
 import {
   getGitHubFileSha,
   getHeaders,
-  fetchGitHubFile,
 } from './client'
 import { emailToFolderName } from './audio'
 
@@ -35,7 +33,7 @@ const readImageDimensions = (file) => {
 
 // 🖼️ Загрузка картинки в public/images/ (общий словарь — корень, личный — папка пользователя)
 // options (необязательно): { allowedExtensions, maxSize, minWidth, minHeight, maxWidth, maxHeight }
-export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}) => {
+export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}, subFolder = '') => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
   const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
   const allowed = options.allowedExtensions || IMAGE_EXTENSIONS
@@ -66,7 +64,7 @@ export const uploadImageFile = async (file, userEmail, rootUpload = false, optio
 
   const folder = emailToFolderName(userEmail)
   const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
-  const filePath = rootUpload ? `public/images/${safeName}` : `public/images/${folder}/${safeName}`
+  const filePath = rootUpload ? `public/images/${subFolder ? subFolder + '/' : ''}${safeName}` : `public/images/${folder}/${safeName}`
 
   // Получаем SHA, если файл уже существует (для перезаписи)
   const existingSha = await getGitHubFileSha(filePath)
@@ -93,14 +91,14 @@ export const uploadImageFile = async (file, userEmail, rootUpload = false, optio
     throw new Error(`Ошибка загрузки: ${err.message || response.statusText}`)
   }
 
-  return { path: safeName, folder: rootUpload ? '' : folder, name: safeName }
+  return { path: safeName, folder: rootUpload ? (subFolder || '') : folder, name: safeName }
 }
 
 // 🗑️ Удаление картинки из public/images/
-export const deleteImageFile = async (fileName, userEmail, rootUpload = false) => {
+export const deleteImageFile = async (fileName, userEmail, rootUpload = false, subFolder = '') => {
   if (!fileName || !userEmail) throw new Error('Имя файла или пользователь не указаны')
   const folder = emailToFolderName(userEmail)
-  const filePath = rootUpload ? `public/images/${fileName}` : `public/images/${folder}/${fileName}`
+  const filePath = rootUpload ? `public/images/${subFolder ? subFolder + '/' : ''}${fileName}` : `public/images/${folder}/${fileName}`
 
   let retries = 0
   const maxRetries = 5
@@ -108,10 +106,7 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false) =
   while (retries < maxRetries) {
     // Получаем SHA напрямую через API (без декодирования бинарного контента)
     const sha = await getGitHubFileSha(filePath)
-    if (!sha) {
-      // Файл уже удалён (или никогда не существовал) — цель достигнута
-      return { deleted: true, name: fileName, alreadyGone: true }
-    }
+    if (!sha) throw new Error('Файл не найден')
 
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
     const body = { message: `Delete image: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
@@ -124,9 +119,6 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false) =
       retries++
       console.warn(`Delete image conflict, retrying ${retries}/${maxRetries}...`)
       await new Promise(res => setTimeout(res, 500 + retries * 300))
-    } else if (response.status === 404) {
-      // Файл уже удалён параллельной операцией — считаем успехом
-      return { deleted: true, name: fileName, alreadyGone: true }
     } else {
       throw new Error(`Ошибка удаления: ${errMsg}`)
     }
@@ -156,21 +148,7 @@ export const cleanupUserPhotos = async (userEmail, keepFileName) => {
   try {
     const files = await listUserImages(userEmail)
     const imageExt = /\.(png|jpe?g|webp|gif)$/i
-    // Текущее фото пользователя — его нельзя удалять, даже если оно не совпадает
-    // с keepFileName (параллельно могла быть загружена другая фотография).
-    let currentPhoto = ''
-    try {
-      const { data: users } = await fetchGitHubFile(USERS_FILE)
-      const u = (Array.isArray(users) ? users : []).find(x =>
-        String(x?.email || '').toLowerCase() === String(userEmail).toLowerCase()
-      )
-      currentPhoto = u?.fullBodyPhoto || ''
-    } catch { /* не критично — просто не сможем защитить текущее фото */ }
-    const toDelete = files.filter(f =>
-      f !== keepFileName &&
-      f !== currentPhoto &&
-      imageExt.test(f)
-    )
+    const toDelete = files.filter(f => f !== keepFileName && imageExt.test(f))
     let deleted = 0
     for (const f of toDelete) {
       try {

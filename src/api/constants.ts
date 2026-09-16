@@ -11,6 +11,7 @@ export const USERS_FILE = 'users.json'
 export const LOGS_FILE = 'logs.json'
 export const CATEGORIES_FILE = 'categories.json'
 export const RUNES_FILE = 'runes.json'
+export const RUNES_IMAGE_DIR = 'n_runy'
 export const QUEUE_FILE = 'favorites_queue.json'
 
 // 📁 Папки данных пользователей: личные JSON-словари лежат в папке

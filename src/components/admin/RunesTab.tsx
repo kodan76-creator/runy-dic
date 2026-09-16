@@ -2,6 +2,7 @@
 // Вкладка «Новые Руны»: форма добавления/редактирования руны и список рун.
 import { useRef } from 'react'
 import { useScrollRestoration } from '../../hooks/useScrollRestoration'
+import { RUNES_IMAGE_DIR } from '../../api/constants'
 import RuneCard from '../RuneCard'
 
 export default function RunesTab({
@@ -92,7 +93,7 @@ export default function RunesTab({
           </div>
           {runeFormData.image && getImageSrc && (
             <div className="image-preview-row">
-              <img src={getImageSrc(runeFormData.image)} alt="Превью картинки руны" className="image-preview" onError={e => { e.currentTarget.style.display = 'none' }} />
+              <img src={getImageSrc(runeFormData.image, RUNES_IMAGE_DIR)} alt="Превью картинки руны" className="image-preview" onError={e => { e.currentTarget.style.display = 'none' }} />
             </div>
           )}
           <input
@@ -166,7 +167,7 @@ export default function RunesTab({
               <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
               <button onClick={() => handleMoveRuneToEnd(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="В конец">⏬</button>
             </div>
-            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image) : undefined} />
+            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image, RUNES_IMAGE_DIR) : undefined} />
             <div className="category-actions">
               <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>
               <button onClick={() => handleDeleteRune(r.id)} className="delete-btn">🗑️</button>

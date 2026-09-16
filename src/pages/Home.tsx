@@ -2,6 +2,7 @@
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline, flushOfflineChanges } from '../githubApi'
+import { RUNES_IMAGE_DIR } from '../api/constants'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
@@ -192,9 +193,9 @@ export default function Home({ user, onLogout, onUserUpdate }) {
 
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
-  // persist favorites on change only in dictionary view
+  // persist favorites on change (enqueue write to server, fallback to localStorage)
   useEffect(() => {
-    if (!user || !user.email || viewMode !== 'dictionary') return
+    if (!user || !user.email) return
     const saveTask = async () => {
       setFavoritesSyncStatus('saving')
       try {
@@ -216,7 +217,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     writeQueueRef.current = writeQueueRef.current.then(() => saveTask()).catch(err => { console.error('Favorites queue task error', err) })
 
     return () => {}
-  }, [favorites, user, viewMode])
+  }, [favorites, user])
 
   const toggleFavorite = (id) => {
     const idStr = String(id)
@@ -329,7 +330,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         const userFolder = user?.email ? emailToFolderName(user.email) : null
         precacheUrls(collectAudioUrls(wordRes.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
         // 🧿 Прогреваем картинки рун для оффлайн-режима
-        if (runeRes.runes.length > 0) precacheUrls(collectImageUrls(runeRes.runes, ''))
+        if (runeRes.runes.length > 0) precacheUrls(collectImageUrls(runeRes.runes, RUNES_IMAGE_DIR))
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)
@@ -569,7 +570,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </div>
           </>
         )}
-        {(viewMode !== 'runes' || runesSubMode !== 'layout') && (
+        {runesSubMode !== 'layout' && (
           <img
             src={`${import.meta.env.BASE_URL}images/run_r.png`}
             alt="Логотип"
@@ -608,7 +609,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             <div className="search-wrapper" style={{flex: 1}}>
               <input
                 type="text"
-                placeholder={runicSearchMode ? 'Поиск Руны...' : 'Поиск...'}
+                placeholder="Поиск по тексту..."
                 aria-label="Поиск по рунам"
                 value={runesSearchTerm}
                 onChange={(e) => setRunesSearchTerm(e.target.value)}
@@ -659,7 +660,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                   checked={sortMode === 'runes'}
                   onChange={() => setSortMode('runes')}
                 />
-                Руны
+                руны-графика
               </label>
             </div>
             {hasSharedDictionaryAccess && (

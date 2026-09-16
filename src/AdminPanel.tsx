@@ -9,6 +9,7 @@ import LogsTab from './components/admin/LogsTab'
 import SecurityTab from './components/admin/SecurityTab'
 import WordItem from './components/admin/WordItem'
 import ThemeToggle from './components/ThemeToggle'
+import { RUNES_IMAGE_DIR } from './api/constants'
 import { useScrollRestoration } from './hooks/useScrollRestoration'
 import './AdminPanel.css'
 
@@ -114,9 +115,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   // URL картинки (same-origin public/images/) для превью в админке:
   // админ — общий словарь (корень), обычный пользователь — личный (images/{emailFolder}/)
-  const getImageSrc = useCallback((fileName) => {
+  const getImageSrc = useCallback((fileName, folder?: string) => {
     if (!fileName) return ''
     if (/^https?:\/\//i.test(fileName)) return fileName
+    if (folder !== undefined) return buildImageUrl(fileName, folder)
     const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
     return buildImageUrl(fileName, userFolder)
   }, [isRestrictedUser, activeUser])
@@ -688,14 +690,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setError('')
     const oldName = runeFormData.image
     try {
-      // Руны — общий словарь, поэтому картинка всегда в корень public/images/
-      const result = await uploadImageFile(file, activeUser.email, true)
+      // Руны — картинка в public/images/n_runy/
+      const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
       showMessage(`✅ Картинка «${result.path}» загружена`)
       // Если был старый файл и он не совпадает с новым — удаляем старый
       if (oldName && oldName !== result.path) {
         try {
-          await deleteImageFile(oldName, activeUser.email, true)
+          await deleteImageFile(oldName, activeUser.email, true, RUNES_IMAGE_DIR)
         } catch { /* файл мог быть уже удалён — не критично */ }
       }
     } catch (err) {
@@ -715,7 +717,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('runeImage')
     setError('')
     try {
-      await deleteImageFile(fileName, activeUser.email, true)
+      await deleteImageFile(fileName, activeUser.email, true, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: '' }))
       showMessage(`✅ Картинка «${fileName}» удалена`)
     } catch (err) {

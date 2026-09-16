@@ -2,6 +2,7 @@
 // Карточка руны на главном экране (раздел «Новые Руны»)
 import { type ReactNode } from 'react'
 import { buildImageUrl } from '../api/images'
+import { RUNES_IMAGE_DIR } from '../api/constants'
 import { renderRichText } from '../utils/richText'
 import '../App.css'
 
@@ -27,7 +28,7 @@ function highlightText(text, term) {
 
 export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false }) {
   if (!rune) return null
-  const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', '')
+  const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
   // В рунном режиме подсвечиваем только графическое изображение
   const textHighlight = runicMode ? '' : highlight
 
