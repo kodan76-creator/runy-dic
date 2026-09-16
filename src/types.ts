@@ -75,10 +75,6 @@ export interface User {
   runesUnpaidBy?: string | null
   /** Имя файла фото пользователя во весь рост (для «Рунной раскладки»). */
   fullBodyPhoto?: string
-  /** Дополнительное имя файла мобильной версии фото во весь рост. */
-  mobileFullBodyPhoto?: string
-  /** Тип выбранной раскладки пользователя: evaluation = оценка пути/ситуации, healing = исцеление. */
-  runeLayoutType?: 'evaluation' | 'healing'
   loginAt?: string
   [key: string]: unknown
 }

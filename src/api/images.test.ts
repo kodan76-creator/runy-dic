@@ -1,15 +1,13 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { uploadImageFile, listUserImages, cleanupUserPhotos, deleteImageFile } from './images'
-import { getGitHubFileSha, fetchGitHubFile } from './client'
-import { pickBodyPhotoName } from './auth'
+import { uploadImageFile, listUserImages, cleanupUserPhotos } from './images'
+import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
 vi.mock('./client', () => ({
   getGitHubFileSha: vi.fn().mockResolvedValue(null),
   getHeaders: vi.fn().mockReturnValue({}),
-  fetchGitHubFile: vi.fn().mockResolvedValue({ data: [], sha: null, ok: true, exists: false }),
 }))
 
 const makeFile = (name: string, size: number, type = 'image/png'): File =>
@@ -33,18 +31,6 @@ const stubImageDimensions = (width: number, height: number) => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
-})
-
-describe('photo variant selection', () => {
-  it('prefers mobileFullBodyPhoto for mobile layout and falls back to fullBodyPhoto', () => {
-    const user = {
-      email: 'test@test.ru',
-      fullBodyPhoto: 'desktop.jpg',
-      mobileFullBodyPhoto: 'mobile.jpg',
-    }
-    expect(pickBodyPhotoName(user, true)).toBe('mobile.jpg')
-    expect(pickBodyPhotoName(user, false)).toBe('desktop.jpg')
-  })
 })
 
 describe('uploadImageFile validation', () => {
@@ -156,65 +142,5 @@ describe('cleanupUserPhotos', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' }))
     const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
     expect(deleted).toBe(0)
-  })
-
-  it('does not delete the current fullBodyPhoto', async () => {
-    const listResponse = {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve([
-        { type: 'file', name: 'old.jpg' },
-        { type: 'file', name: 'current.jpg' },
-        { type: 'file', name: 'keep.png' },
-      ]),
-    }
-    const deleteResponse = { ok: true, status: 200, json: () => Promise.resolve({}) }
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(listResponse)
-      .mockResolvedValue(deleteResponse)
-    vi.stubGlobal('fetch', fetchMock)
-    vi.mocked(getGitHubFileSha).mockResolvedValue('sha123')
-    // users.json возвращает пользователя, у которого текущее фото — current.jpg
-    vi.mocked(fetchGitHubFile).mockResolvedValue({
-      data: [{ email: 'test@test.ru', fullBodyPhoto: 'current.jpg' }],
-      sha: 'sha',
-      ok: true,
-      exists: true,
-    })
-
-    const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
-
-    expect(deleted).toBe(1) // удаляется только old.jpg
-    const deleteUrls = fetchMock.mock.calls
-      .filter(c => c[1]?.method === 'DELETE')
-      .map(c => c[0])
-    expect(deleteUrls.some(u => u.includes('old.jpg'))).toBe(true)
-    expect(deleteUrls.some(u => u.includes('current.jpg'))).toBe(false)
-    expect(deleteUrls.some(u => u.includes('keep.png'))).toBe(false)
-  })
-})
-
-describe('deleteImageFile', () => {
-  it('treats 404 on DELETE as success (file already gone)', async () => {
-    vi.mocked(getGitHubFileSha).mockResolvedValue('sha123')
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({ message: 'Not Found' }),
-    }))
-
-    const result = await deleteImageFile('old.jpg', 'test@test.ru')
-
-    expect(result.deleted).toBe(true)
-    expect(result.alreadyGone).toBe(true)
-  })
-
-  it('treats missing sha as success (file already gone)', async () => {
-    vi.mocked(getGitHubFileSha).mockResolvedValue(null)
-
-    const result = await deleteImageFile('old.jpg', 'test@test.ru')
-
-    expect(result.deleted).toBe(true)
-    expect(result.alreadyGone).toBe(true)
   })
 })

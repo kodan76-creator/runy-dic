@@ -1,11 +1,10 @@
 // src/api/auth.js
 // Аутентификация и управление пользователями/администраторами
-import { USERS_FILE, ADMINS_FILE, DELETED_USERS_DIR } from './constants'
+import { USERS_FILE, ADMINS_FILE } from './constants'
 import { fetchGitHubFile, updateGitHubFile } from './client'
 import { addLog } from './logs'
-import { ensureUserAudioFolder, emailToFolderName } from './audio'
+import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
-import { getDictionaryFileNameForEmail } from '../dictionaryAccess'
 import { cacheUserForOffline } from './offline'
 import { getDeviceId, getDeviceType, checkRegistrationLimit, recordRegistration, checkLoginDeviceLimit } from './deviceLimit'
 
@@ -257,50 +256,22 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
   return safeUser
 }
 
-export const pickBodyPhotoName = (user, mobile = false) => {
-  if (!user) return ''
-  if (mobile && user.mobileFullBodyPhoto) return user.mobileFullBodyPhoto
-  return user.fullBodyPhoto || user.mobileFullBodyPhoto || ''
-}
-
-export const saveRuneLayoutType = async (userEmail, layoutType) => {
-  if (!userEmail || !layoutType) throw new Error('Email или тип раскладки не указаны')
-  if (!['evaluation', 'healing'].includes(layoutType)) {
-    throw new Error('Неизвестный тип раскладки')
-  }
-
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
-  const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  if (!user) throw new Error('Пользователь не найден')
-
-  const updated = users.map(u =>
-    String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
-      ? { ...u, runeLayoutType: layoutType }
-      : u
-  )
-
-  await updateGitHubFile(USERS_FILE, updated, sha)
-  const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  const { passwordHash: _, ...safeUser } = changed
-  return safeUser
-}
-
 // 🥚 Сохранение фото пользователя во весь рост (для «Рунной раскладки»).
 // Записывает имя файла в users.json и возвращает обновлённого пользователя.
-export const saveFullBodyPhoto = async (userEmail, fileName, variant = 'full') => {
+export const saveFullBodyPhoto = async (userEmail, fileName) => {
   if (!userEmail || !fileName) throw new Error('Email или имя файла не указаны')
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
   if (!user) throw new Error('Пользователь не найден')
 
-  const field = variant === 'mobile' ? 'mobileFullBodyPhoto' : 'fullBodyPhoto'
   const updated = users.map(u =>
     String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
-      ? { ...u, [field]: fileName }
+      ? { ...u, fullBodyPhoto: fileName }
       : u
   )
   await updateGitHubFile(USERS_FILE, updated, sha)
   const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
+  addLog({ action: 'full_body_photo_updated', userEmail, details: `Фото во весь рост: ${fileName}` }).catch(() => {})
   const { passwordHash: _, ...safeUser } = changed
   return safeUser
 }
@@ -350,41 +321,9 @@ export const unbindDevice = async (userId, deviceId, adminEmail) => {
   return true
 }
 
-// 📦 Архив удалённого пользователя: личный словарь + запись пользователя
-// (без пароля) сохраняются в public/users/_deleted/<email_folder>/.
-const archiveDeletedUser = async (user, adminEmail) => {
-  const folder = emailToFolderName(user?.email)
-  if (!folder) return
-  const archiveBase = `${DELETED_USERS_DIR}/${folder}`
-  const now = new Date().toISOString()
-
-  // 1. Личный словарь пользователя (если файл существует)
-  const dictName = getDictionaryFileNameForEmail(user.email)
-  const { data: dict, sha: dictSha } = await fetchGitHubFile(dictName)
-  if (dictSha) {
-    await updateGitHubFile(`${archiveBase}/dictionary.json`, Array.isArray(dict) ? dict : [], null)
-  }
-
-  // 2. Запись пользователя (без пароля) + метаданные удаления.
-  // Храним как массив — так архив читается через fetchGitHubFile (как остальные данные).
-  const { passwordHash: _, ...safeUser } = user
-  const archiveRecord = { ...safeUser, deletedAt: now, deletedBy: adminEmail }
-  await updateGitHubFile(`${archiveBase}/user.json`, [archiveRecord], null)
-}
-
 export const deleteUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => u.id === userId)
-  if (!user) throw new Error('Пользователь не найден')
-
-  // 📦 Сначала архивируем данные пользователя, затем удаляем запись.
-  // Ошибка архивации не блокирует удаление (но логируется).
-  try {
-    await archiveDeletedUser(user, adminEmail)
-  } catch (e) {
-    console.error('Failed to archive deleted user:', e)
-  }
-
   const filtered = users.filter(u => u.id !== userId)
   await updateGitHubFile(USERS_FILE, filtered, sha)
   addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})
