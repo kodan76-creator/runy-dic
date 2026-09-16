@@ -1459,6 +1459,12 @@ color: #5a0000;
 .rune-layout-spread-clear-btn:hover {
   background: rgba(255, 82, 82, 0.3);
 }
+.rune-layout-spread-loading {
+  color: #FFD700;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.85;
+}
 
 .dictionary-source {
   display: inline-block;

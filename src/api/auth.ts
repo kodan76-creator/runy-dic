@@ -276,6 +276,29 @@ export const saveFullBodyPhoto = async (userEmail, fileName) => {
   return safeUser
 }
 
+// 🎲 Сохранение типа раскладки Новых Рун (для «Рунной раскладки»).
+// Записывает runeLayoutType в users.json и возвращает обновлённого пользователя.
+export const saveRuneLayoutType = async (userEmail, layoutType) => {
+  if (!userEmail || !layoutType) throw new Error('Email или тип раскладки не указаны')
+  if (!['evaluation', 'healing'].includes(layoutType)) {
+    throw new Error('Неизвестный тип раскладки')
+  }
+  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
+  const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
+  if (!user) throw new Error('Пользователь не найден')
+
+  const updated = users.map(u =>
+    String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
+      ? { ...u, runeLayoutType: layoutType }
+      : u
+  )
+  await updateGitHubFile(USERS_FILE, updated, sha)
+  const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
+  addLog({ action: 'rune_layout_type_updated', userEmail, details: `Тип раскладки: ${layoutType}` }).catch(() => {})
+  const { passwordHash: _, ...safeUser } = changed
+  return safeUser
+}
+
 // 🚪 Разлогин пользователя на всех устройствах: инвалидируем все активные
 // сессии (sessionVersion++). Клиент на каждом устройстве заметит расхождение
 // при опросе и принудительно разлогинится.

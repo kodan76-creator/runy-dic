@@ -6,7 +6,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadImageFile, buildImageUrl, cleanupUserPhotos, listRuneLayoutImages, selectRandomRunes } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
-import { saveFullBodyPhoto } from '../api/auth'
+import { saveFullBodyPhoto, saveRuneLayoutType } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
 import { flushOfflineChanges } from '../api/dictionary'
@@ -70,6 +70,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса
   const [spreadRunes, setSpreadRunes] = useState<string[]>([])
   const [spreadLoading, setSpreadLoading] = useState(false)
+  // 🎛️ Выбор раскладки: после фиксации фото показываем 2 кнопки
+  // (оценка / исцеление). После выбора — крест с рунами + кнопка возврата.
+  const [showLayoutChoice, setShowLayoutChoice] = useState(false)
+  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState('')
   // 🖼️ Локальный blob-URL обработанного фото — показываем сразу после
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
@@ -181,6 +185,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setPanX(0)
       setPanY(0)
       clearLayoutState(user.email)
+      // После фиксации фото — показываем выбор раскладки (2 кнопки)
+      setShowLayoutChoice(true)
+      setSelectedLayoutChoice('')
+      setSpreadRunes([])
       // 🖼️ Всегда кэшируем обработанное фото — оно переживёт перезагрузку
       // страницы и переключение подразделов. Иначе после фиксации фото
       // пропадает: свежезагруженный файл ещё не попал в собранный сайт,
@@ -285,6 +293,26 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }
   }
 
+  // 🎛️ Выбор типа раскладки (оценка / исцеление): генерируем руны и сохраняем тип
+  const handleChooseLayout = async (type) => {
+    setSelectedLayoutChoice(type)
+    setShowLayoutChoice(false)
+    handleSpread()
+    try {
+      const updated = await saveRuneLayoutType(user.email, type)
+      onUserUpdate(updated)
+    } catch (err) {
+      setUploadError(err?.message || 'Ошибка сохранения типа раскладки')
+    }
+  }
+
+  // ↩️ Вернуться к выбору раскладки (2 кнопки)
+  const handleReturnToChoice = () => {
+    setSelectedLayoutChoice('')
+    setShowLayoutChoice(true)
+    setSpreadRunes([])
+  }
+
   // 🖐️ Drag-to-pan handlers (mouse + touch)
   // Фото заполняет эллипс через object-fit: cover, а transform применяется
   // к самому элементу (бокс = размер эллипса). Поэтому предел сдвига зависит
@@ -368,77 +396,89 @@ export default function RuneLayout({ user, onUserUpdate }) {
               )}
             </div>
           </div>
-          <div className="rune-layout-controls">
-            <button
-              type="button"
-              className="rune-layout-zoom-btn"
-              onClick={() => changeZoom(-ZOOM_STEP)}
-              disabled={zoom <= MIN_ZOOM}
-              aria-label="Уменьшить фото"
-              title="Уменьшить фото"
-            >
-              −
-            </button>
-            <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
-            <button
-              type="button"
-              className="rune-layout-zoom-btn"
-              onClick={() => changeZoom(ZOOM_STEP)}
-              disabled={zoom >= MAX_ZOOM}
-              aria-label="Увеличить фото"
-              title="Увеличить фото"
-            >
-              +
-            </button>
-            <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
-              Заменить фото
-            </button>
-            <button
-              type="button"
-              className="rune-layout-apply-btn"
-              onClick={handleApplyPhoto}
-              disabled={applying || (panX === 0 && panY === 0 && zoom === 1)}
-              title="Зафиксировать текущую позицию и размер фото"
-              style={{ visibility: (panX !== 0 || panY !== 0 || zoom !== 1) ? 'visible' : 'hidden' }}
-              aria-hidden={panX === 0 && panY === 0 && zoom === 1}
-            >
-              {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
-            </button>
-            {pendingSync && (
-              <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
-                ☁️ Ожидает синхронизации
-                {isOnline() && (
-                  <button
-                    type="button"
-                    className="rune-layout-sync-btn"
-                    onClick={handleSyncNow}
-                    title="Загрузить фото на сервер сейчас"
-                  >
-                    ↻ Загрузить
-                  </button>
-                )}
-              </span>
-            )}
-          </div>
-          <div className="rune-layout-spread-controls">
-            <button
-              type="button"
-              className="rune-layout-spread-btn"
-              onClick={handleSpread}
-              disabled={spreadLoading}
-            >
-              {spreadLoading ? '⏳ Выбор рун…' : 'Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления'}
-            </button>
-            {spreadRunes.length > 0 && (
+          {showLayoutChoice && !selectedLayoutChoice ? (
+            <div className="rune-layout-choice-panel">
               <button
                 type="button"
-                className="rune-layout-spread-clear-btn"
-                onClick={() => setSpreadRunes([])}
+                className="rune-layout-choice-btn"
+                onClick={() => handleChooseLayout('evaluation')}
               >
-                ✕ Сбросить раскладку
+                Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления
               </button>
-            )}
-          </div>
+              <button
+                type="button"
+                className="rune-layout-choice-btn"
+                onClick={() => handleChooseLayout('healing')}
+              >
+                Раскладка Новых Рун для исцеления
+              </button>
+            </div>
+          ) : selectedLayoutChoice ? (
+            <div className="rune-layout-controls">
+              <button
+                type="button"
+                className="rune-layout-return-btn"
+                onClick={handleReturnToChoice}
+                title="Вернуться к выбору раскладок"
+              >
+                Вернуться к выбору раскладок
+              </button>
+              {spreadLoading && (
+                <span className="rune-layout-spread-loading">⏳ Выбор рун…</span>
+              )}
+            </div>
+          ) : (
+            <div className="rune-layout-controls">
+              <button
+                type="button"
+                className="rune-layout-zoom-btn"
+                onClick={() => changeZoom(-ZOOM_STEP)}
+                disabled={zoom <= MIN_ZOOM}
+                aria-label="Уменьшить фото"
+                title="Уменьшить фото"
+              >
+                −
+              </button>
+              <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
+              <button
+                type="button"
+                className="rune-layout-zoom-btn"
+                onClick={() => changeZoom(ZOOM_STEP)}
+                disabled={zoom >= MAX_ZOOM}
+                aria-label="Увеличить фото"
+                title="Увеличить фото"
+              >
+                +
+              </button>
+              <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
+                Заменить фото
+              </button>
+              <button
+                type="button"
+                className="rune-layout-apply-btn"
+                onClick={handleApplyPhoto}
+                disabled={applying}
+                title="Зафиксировать текущую позицию и размер фото"
+              >
+                {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+              </button>
+              {pendingSync && (
+                <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
+                  ☁️ Ожидает синхронизации
+                  {isOnline() && (
+                    <button
+                      type="button"
+                      className="rune-layout-sync-btn"
+                      onClick={handleSyncNow}
+                      title="Загрузить фото на сервер сейчас"
+                    >
+                      ↻ Загрузить
+                    </button>
+                  )}
+                </span>
+              )}
+            </div>
+          )}
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
         </>
       ) : (
