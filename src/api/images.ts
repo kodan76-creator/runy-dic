@@ -107,7 +107,8 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false, s
   while (retries < maxRetries) {
     // Получаем SHA напрямую через API (без декодирования бинарного контента)
     const sha = await getGitHubFileSha(filePath)
-    if (!sha) throw new Error('Файл не найден')
+    // Файла уже нет на сервере — считаем удаление успешным (идемпотентно)
+    if (!sha) return { deleted: false, name: fileName }
 
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
     const body = { message: `Delete image: ${fileName}${rootUpload ? '' : ' from ' + folder}`, sha, branch: GITHUB_BRANCH }
@@ -120,6 +121,9 @@ export const deleteImageFile = async (fileName, userEmail, rootUpload = false, s
       retries++
       console.warn(`Delete image conflict, retrying ${retries}/${maxRetries}...`)
       await new Promise(res => setTimeout(res, 500 + retries * 300))
+    } else if (response.status === 404) {
+      // Файл удалён между получением SHA и DELETE — тоже считаем успехом
+      return { deleted: false, name: fileName }
     } else {
       throw new Error(`Ошибка удаления: ${errMsg}`)
     }

@@ -143,6 +143,45 @@ describe('cleanupUserPhotos', () => {
     const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
     expect(deleted).toBe(0)
   })
+
+  it('treats already-deleted files (404) as success, not an error', async () => {
+    const listResponse = {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([
+        { type: 'file', name: 'old.jpg' },
+        { type: 'file', name: 'keep.png' },
+      ]),
+    }
+    // DELETE возвращает 404 — файл уже удалён (например, гонка или устаревший список)
+    const deleteResponse = { ok: false, status: 404, json: () => Promise.resolve({ message: 'Not Found' }) }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(listResponse)
+      .mockResolvedValue(deleteResponse)
+    vi.stubGlobal('fetch', fetchMock)
+    vi.mocked(getGitHubFileSha).mockResolvedValue('sha123')
+
+    // Не должно бросать исключение — 404 считается успешной очисткой
+    const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
+    expect(deleted).toBe(1)
+  })
+
+  it('treats missing file (no SHA) as already deleted', async () => {
+    const listResponse = {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([
+        { type: 'file', name: 'ghost.jpg' },
+        { type: 'file', name: 'keep.png' },
+      ]),
+    }
+    const fetchMock = vi.fn().mockResolvedValueOnce(listResponse)
+    vi.stubGlobal('fetch', fetchMock)
+    vi.mocked(getGitHubFileSha).mockResolvedValue(null)
+
+    const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
+    expect(deleted).toBe(1)
+  })
 })
 
 describe('selectRandomRunes', () => {
