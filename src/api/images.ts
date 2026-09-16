@@ -34,8 +34,9 @@ const readImageDimensions = (file) => {
 
 // 🖼️ Загрузка картинки в public/images/ (общий словарь — корень, личный — папка пользователя)
 // options (необязательно): { allowedExtensions, maxSize, minWidth, minHeight, maxWidth, maxHeight }
-export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}, subFolder = '') => {
-  if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
+// 📏 Проверка файла изображения (расширение, объём, размеры) без загрузки на сервер.
+export const validateImageFile = async (file, options = {}) => {
+  if (!file) throw new Error('Файл не указан')
   const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
   const allowed = options.allowedExtensions || IMAGE_EXTENSIONS
   if (!allowed.includes(ext)) {
@@ -62,6 +63,11 @@ export const uploadImageFile = async (file, userEmail, rootUpload = false, optio
       throw new Error(`Фото слишком высокое. Максимальная высота — ${options.maxHeight} px.`)
     }
   }
+}
+
+export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}, subFolder = '') => {
+  if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
+  await validateImageFile(file, options)
 
   const folder = emailToFolderName(userEmail)
   const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')

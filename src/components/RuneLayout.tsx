@@ -4,12 +4,10 @@
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { uploadImageFile, buildImageUrl, cleanupUserPhotos, listRuneLayoutImages, selectRandomRunes } from '../api/images'
+import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
-import { saveFullBodyPhoto, saveRuneLayoutType } from '../api/auth'
+import { saveRuneLayoutType } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
-import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
-import { flushOfflineChanges } from '../api/dictionary'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
@@ -66,7 +64,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const imgRef = useRef<HTMLImageElement | null>(null)
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
-  const [pendingSync, setPendingSync] = useState(false)
   // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса
   const [spreadRunes, setSpreadRunes] = useState<string[]>([])
   const [spreadLoading, setSpreadLoading] = useState(false)
@@ -89,14 +86,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
         setLocalPhotoUrl(url)
       }
     }).catch(() => {})
-    // «Ожидает синхронизации» — только если в оффлайн-очереди есть фото
-    try {
-      const hasPending = getOfflineChanges().some(c =>
-        c.type === 'full_body_photo' &&
-        String(c.email || '').toLowerCase() === String(user.email).toLowerCase()
-      )
-      setPendingSync(hasPending)
-    } catch { /* ignore */ }
   }, [user?.email])
 
   const photoName = user?.fullBodyPhoto
@@ -122,7 +111,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setUploading(true)
     setUploadError('')
     try {
-      const res = await uploadImageFile(file, user.email, false, {
+      // 📏 Проверяем файл локально (расширение, объём, размеры) — без загрузки на сервер
+      await validateImageFile(file, {
         allowedExtensions: PHOTO_ALLOWED_EXTENSIONS,
         maxSize: PHOTO_MAX_SIZE,
         minWidth: PHOTO_MIN_WIDTH,
@@ -130,10 +120,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
         maxWidth: PHOTO_MAX_WIDTH,
         maxHeight: PHOTO_MAX_HEIGHT,
       })
-      const updated = await saveFullBodyPhoto(user.email, res.path)
-      onUserUpdate(updated)
-      // 🧹 Удаляем старые фото с сервера — остаётся только новое
-      await cleanupUserPhotos(user.email, res.path)
       setPhotoTs(Date.now())
       setZoom(1)
       setPanX(0)
@@ -145,8 +131,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
         localPhotoUrlRef.current = ''
         setLocalPhotoUrl('')
       }
-      // Показываем загруженное фото сразу через blob-URL — серверный файл
-      // ещё не попал в собранный сайт, и same-origin URL даёт 404
+      // 🖼️ Фото хранится только локально: показываем через blob-URL и кэшируем
       if (user?.email) {
         const newLocalUrl = URL.createObjectURL(file)
         localPhotoUrlRef.current = newLocalUrl
@@ -172,8 +157,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }
 
   // 🔧 Зафиксировать позицию фото: обрезать по эллипсу + минимизация JPEG
-  // Важно: НЕ сбрасываем zoom/pan и НЕ вызываем onUserUpdate так, чтобы
-  // компонент размонтировался/перезагрузился — фото остаётся видимым.
+  // Фото хранится только локально (blob-URL + кэш IndexedDB), на сервер не отправляется.
+  // НЕ сбрасываем zoom/pan и НЕ вызываем onUserUpdate — фото остаётся видимым.
   // Также НЕ делаем setPhotoTs(Date.now()) — иначе src меняется и фото
   // перезагружается (мигает/пропадает). Blob URL уже показывает результат.
   const handleApplyPhoto = async () => {
@@ -199,46 +184,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setShowLayoutChoice(true)
       setSelectedLayoutChoice('')
       setSpreadRunes([])
-      // 🖼️ Всегда кэшируем обработанное фото — оно переживёт перезагрузку
-      // страницы и переключение подразделов. Иначе после фиксации фото
-      // пропадает: свежезагруженный файл ещё не попал в собранный сайт,
-      // и same-origin URL даёт 404.
+      // 🖼️ Фото хранится только локально — кэшируем обработанное фото,
+      // чтобы оно пережило перезагрузку страницы и переключение подразделов
       await cachePhotoBlob(user.email, blob)
-      const isConn = isOnline()
-      if (isConn) {
-        // Онлайн — загружаем в фоне, не блокируя отображение
-        const file = new File([blob], `layout_${Date.now()}.jpg`, { type: 'image/jpeg' })
-        try {
-          const res = await uploadImageFile(file, user.email, false, {
-            allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
-            maxSize: PHOTO_MAX_SIZE,
-          })
-          const updated = await saveFullBodyPhoto(user.email, res.path)
-          // Обновляем пользователя без сброса blob URL и без смены photoTs —
-          // фото остаётся видимым через blob URL, перезагрузки нет
-          onUserUpdate(updated)
-          // 🧹 Удаляем старые фото с сервера — остаётся только зафиксированное
-          await cleanupUserPhotos(user.email, res.path)
-          setPendingSync(false)
-        } catch (uploadErr) {
-          // Ошибка загрузки — ставим в очередь
-          enqueueOfflineChange({
-            type: 'full_body_photo',
-            email: user.email,
-            timestamp: Date.now(),
-          })
-          setPendingSync(true)
-          setUploadError(uploadErr?.message || 'Ошибка загрузки, фото сохранено локально')
-        }
-      } else {
-        // Оффлайн — ставим в очередь
-        enqueueOfflineChange({
-          type: 'full_body_photo',
-          email: user.email,
-          timestamp: Date.now(),
-        })
-        setPendingSync(true)
-      }
     } catch (err) {
       // При ошибке обработки возвращаем кэшированное/серверное фото
       if (localPhotoUrlRef.current) {
@@ -257,30 +205,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
         }).catch(() => {})
       }
       setUploadError(err?.message || 'Ошибка обработки фото')
-    } finally {
-      setApplying(false)
-    }
-  }
-
-  // ☁️ Ручная синхронизация: загружает кэшированное фото на сервер
-  const handleSyncNow = async () => {
-    if (!user?.email) return
-    setApplying(true)
-    setUploadError('')
-    try {
-      // Сохраняем blob для отображения — flushOfflineChanges удаляет его из кэша
-      const blob = await getCachedPhotoBlob(user.email)
-      await flushOfflineChanges(user)
-      if (blob) await cachePhotoBlob(user.email, blob)
-      // Бейдж показываем, только если синхронизация не завершилась
-      const hasPending = getOfflineChanges().some(c =>
-        c.type === 'full_body_photo' &&
-        String(c.email || '').toLowerCase() === String(user.email).toLowerCase()
-      )
-      setPendingSync(hasPending)
-      // Не меняем photoTs — blob URL остаётся, перезагрузки нет
-    } catch (err) {
-      setUploadError(err?.message || 'Ошибка синхронизации')
     } finally {
       setApplying(false)
     }
@@ -491,21 +415,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
               </button>
-              {pendingSync && (
-                <span className="rune-layout-sync-badge" title="Фото сохранено локально, будет загружено при подключении к интернету">
-                  ☁️ Ожидает синхронизации
-                  {isOnline() && (
-                    <button
-                      type="button"
-                      className="rune-layout-sync-btn"
-                      onClick={handleSyncNow}
-                      title="Загрузить фото на сервер сейчас"
-                    >
-                      ↻ Загрузить
-                    </button>
-                  )}
-                </span>
-              )}
             </div>
           )}
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
