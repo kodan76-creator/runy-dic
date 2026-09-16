@@ -117,6 +117,16 @@ function AppContent() {
         if (!serverUser) return
         if (Number(serverUser.sessionVersion ?? 0) !== Number(sessionVersion ?? 0)) {
           forceLogout()
+          return
+        }
+        // Синхронизируем данные пользователя с сервера (фото, тип раскладки и т.д.),
+        // чтобы локальный кэш не оставался устаревшим после изменений на другом устройстве
+        const { passwordHash: _, ...safeServerUser } = serverUser
+        const localUser = user
+        if (localUser) {
+          const fieldsToSync = ['fullBodyPhoto', 'runeLayoutType', 'paid', 'sessionVersion', 'role']
+          const needsSync = fieldsToSync.some(f => safeServerUser[f] !== localUser[f])
+          if (needsSync) handleUserUpdate(safeServerUser)
         }
       } catch (e) {
         console.error('Session check failed:', e)
