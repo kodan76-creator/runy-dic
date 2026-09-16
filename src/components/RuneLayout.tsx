@@ -4,7 +4,8 @@
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { uploadImageFile, buildImageUrl, cleanupUserPhotos } from '../api/images'
+import { uploadImageFile, buildImageUrl, cleanupUserPhotos, listRuneLayoutImages, selectRandomRunes } from '../api/images'
+import { RUNES_IMAGE_DIR } from '../api/constants'
 import { saveFullBodyPhoto } from '../api/auth'
 import { emailToFolderName } from '../api/audio'
 import { isOnline, enqueueOfflineChange, getOfflineChanges } from '../api/offline'
@@ -33,6 +34,19 @@ const PHOTO_MAX_HEIGHT = 8000
 const PHOTO_ACCEPT = 'image/png,image/jpeg,image/webp'
 const PHOTO_REQUIREMENTS_TEXT = `PNG, JPG, JPEG, WEBP · от ${PHOTO_MIN_WIDTH}×${PHOTO_MIN_HEIGHT} до ${PHOTO_MAX_WIDTH}×${PHOTO_MAX_HEIGHT} px · до ${Math.round(PHOTO_MAX_SIZE / 1024 / 1024)} МБ`
 
+// 🎲 Резервный список файлов рун раскладки (если GitHub API недоступен)
+const RUNES_LAYOUT_FALLBACK = [
+  '1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png',
+  '5_ТУРЗ.png', '6_АЗ.png', '7_РАДО.png', '8_РАДО_П.png', '9_АЛУ.png',
+  '10_ХЕБО.png', '11_ХЕБО_П.png', '12_ВИНЬО.png', '13_ВИНЬО_П.png',
+  '14_ПУСТАЯ.png', '15_ТАК.png', '16_ТАК_П.png', '17_ЙЕХ.png', '18_ЙЕХ_П.png',
+  '19_АЙЯ.png', '20_ЭЙСА.png', '21_ЫРД.png', '22_АЛЬ-ГО.png', '23_ЭЛЬ.png',
+  '24_АМАЮН.png', '25_АМАЮН_П.png', '26_БЕРКУТ.png', '27_БЕРКУТ_П.png',
+  '28_ВОЗ.png', '29_МЭТР.png', '30_МЭТР_П.png', '31_ЛАТХУ.png', '32_ЛАУКАР.png',
+  '33_ША.png', '34_ША_П.png', '35_КИЙГ.png', '36_ЦЭРЭ.png', '37_ЦЭРЭ.png',
+  '38_РУНА ТИШИНЫ.png',
+]
+
 export default function RuneLayout({ user, onUserUpdate }) {
   // 💾 Восстановление pan/zoom из localStorage (кэширование состояния)
   const savedState = user?.email ? loadLayoutState(user.email) : null
@@ -53,6 +67,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
   const [pendingSync, setPendingSync] = useState(false)
+  // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса
+  const [spreadRunes, setSpreadRunes] = useState<string[]>([])
+  const [spreadLoading, setSpreadLoading] = useState(false)
   // 🖼️ Локальный blob-URL обработанного фото — показываем сразу после
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
@@ -251,6 +268,23 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }
   }
 
+  // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy
+  const handleSpread = async () => {
+    setSpreadLoading(true)
+    try {
+      let files = await listRuneLayoutImages()
+      // Оставляем только файлы с порядковым номером до «_»
+      files = files.filter(f => /^\d+_/.test(f))
+      if (files.length === 0) files = [...RUNES_LAYOUT_FALLBACK]
+      setSpreadRunes(selectRandomRunes(files, 7))
+    } catch (e) {
+      console.warn('handleSpread error:', e)
+      setSpreadRunes(selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7))
+    } finally {
+      setSpreadLoading(false)
+    }
+  }
+
   // 🖐️ Drag-to-pan handlers (mouse + touch)
   // Фото заполняет эллипс через object-fit: cover, а transform применяется
   // к самому элементу (бокс = размер эллипса). Поэтому предел сдвига зависит
@@ -319,6 +353,20 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 onPointerCancel={handlePointerUp}
               />
             </div>
+            {spreadRunes.length > 0 && (
+              <div className="rune-layout-spread" aria-label="Раскладка Новых Рун">
+                {spreadRunes.map((name, i) => (
+                  <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
+                    <img
+                      src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
+                      alt={`Руна ${i + 1}`}
+                      draggable={false}
+                    />
+                    <span className="rune-layout-spread-num">{i + 1}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="rune-layout-controls">
             <button
@@ -370,6 +418,25 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   </button>
                 )}
               </span>
+            )}
+          </div>
+          <div className="rune-layout-spread-controls">
+            <button
+              type="button"
+              className="rune-layout-spread-btn"
+              onClick={handleSpread}
+              disabled={spreadLoading}
+            >
+              {spreadLoading ? '⏳ Выбор рун…' : 'Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления'}
+            </button>
+            {spreadRunes.length > 0 && (
+              <button
+                type="button"
+                className="rune-layout-spread-clear-btn"
+                onClick={() => setSpreadRunes([])}
+              >
+                ✕ Сбросить раскладку
+              </button>
             )}
           </div>
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}

@@ -5,6 +5,7 @@ import {
   GITHUB_OWNER,
   GITHUB_REPO,
   GITHUB_BRANCH,
+  RUNES_IMAGE_DIR,
 } from './constants'
 import {
   getGitHubFileSha,
@@ -163,6 +164,51 @@ export const cleanupUserPhotos = async (userEmail, keepFileName) => {
     console.warn('cleanupUserPhotos error:', e)
     return 0
   }
+}
+
+// 🎲 Раскладка Новых Рун: список файлов в папке public/images/n_runy/runy/
+// (файлы вида «N_НАЗВАНИЕ.png» / «N_НАЗВАНИЕ_П.png» — порядковый номер до «_»).
+export const listRuneLayoutImages = async () => {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/public/images/${RUNES_IMAGE_DIR}/runy?ref=${GITHUB_BRANCH}`
+  try {
+    const response = await fetch(url, { headers: getHeaders() })
+    if (!response.ok) {
+      if (response.status === 404) return []
+      throw new Error(`Ошибка чтения папки: ${response.statusText}`)
+    }
+    const data = await response.json()
+    if (!Array.isArray(data)) return []
+    return data.filter(item => item.type === 'file').map(item => item.name)
+  } catch (e) {
+    console.warn('listRuneLayoutImages error:', e)
+    return []
+  }
+}
+
+// 🎲 Выбор N случайных рун для раскладки.
+// Правило: нельзя выбирать одновременно «N_НАЗВАНИЕ» и «N_НАЗВАНИЕ_П» —
+// группируем по имени (без порядкового номера и суффикса «_П») и берём
+// по одной из группы. Пример: «1_ФАИС-СУ» и «2_ФАИС-СУ_П» — одна группа.
+export const selectRandomRunes = (files: string[], count = 7): string[] => {
+  const groups = new Map<string, string[]>()
+  for (const f of files) {
+    const base = f
+      .replace(/\.\w+$/, '')   // убираем расширение
+      .replace(/^\d+_/, '')    // убираем порядковый номер до «_»
+      .replace(/_П$/, '')      // убираем суффикс «_П»
+    if (!groups.has(base)) groups.set(base, [])
+    groups.get(base)!.push(f)
+  }
+  const names = [...groups.keys()]
+  // Перемешиваем группы (Fisher–Yates)
+  for (let i = names.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[names[i], names[j]] = [names[j], names[i]]
+  }
+  return names.slice(0, count).map(g => {
+    const arr = groups.get(g)!
+    return arr[Math.floor(Math.random() * arr.length)]
+  })
 }
 
 // Строит URL картинки (same-origin, public/images/).

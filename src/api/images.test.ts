@@ -1,7 +1,7 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { uploadImageFile, listUserImages, cleanupUserPhotos } from './images'
+import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes } from './images'
 import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
@@ -142,5 +142,50 @@ describe('cleanupUserPhotos', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' }))
     const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
     expect(deleted).toBe(0)
+  })
+})
+
+describe('selectRandomRunes', () => {
+  const files = [
+    '1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png',
+    '5_ТУРЗ.png', '6_АЗ.png', '7_РАДО.png', '8_РАДО_П.png', '9_АЛУ.png',
+    '10_ХЕБО.png', '11_ХЕБО_П.png', '12_ВИНЬО.png', '13_ВИНЬО_П.png',
+    '14_ПУСТАЯ.png', '15_ТАК.png', '16_ТАК_П.png', '17_ЙЕХ.png', '18_ЙЕХ_П.png',
+    '19_АЙЯ.png', '20_ЭЙСА.png', '21_ЫРД.png', '22_АЛЬ-ГО.png', '23_ЭЛЬ.png',
+    '24_АМАЮН.png', '25_АМАЮН_П.png', '26_БЕРКУТ.png', '27_БЕРКУТ_П.png',
+    '28_ВОЗ.png', '29_МЭТР.png', '30_МЭТР_П.png', '31_ЛАТХУ.png', '32_ЛАУКАР.png',
+    '33_ША.png', '34_ША_П.png', '35_КИЙГ.png', '36_ЦЭРЭ.png', '37_ЦЭРЭ.png',
+    '38_РУНА ТИШИНЫ.png',
+  ]
+
+  it('selects exactly 7 unique files', () => {
+    const selected = selectRandomRunes(files, 7)
+    expect(selected).toHaveLength(7)
+    expect(new Set(selected).size).toBe(7)
+  })
+
+  it('never selects both «N_НАЗВАНИЕ» and «N_НАЗВАНИЕ_П» together', () => {
+    // Ключ группы: имя без порядкового номера и суффикса «_П»
+    const key = (f: string) => f.replace(/\.\w+$/, '').replace(/^\d+_/, '').replace(/_П$/, '')
+    for (let i = 0; i < 50; i++) {
+      const selected = selectRandomRunes(files, 7)
+      const keys = selected.map(key)
+      // Все ключи должны быть уникальны — значит «_П» и базовая версия не выбраны вместе
+      expect(new Set(keys).size).toBe(keys.length)
+    }
+  })
+
+  it('never selects both duplicate ЦЭРЭ files (same base name)', () => {
+    for (let i = 0; i < 50; i++) {
+      const selected = selectRandomRunes(files, 7)
+      const chere = selected.filter(f => f.includes('ЦЭРЭ'))
+      expect(chere.length).toBeLessThanOrEqual(1)
+    }
+  })
+
+  it('returns all files when count exceeds group count', () => {
+    const selected = selectRandomRunes(files, 100)
+    expect(selected.length).toBeLessThanOrEqual(files.length)
+    expect(new Set(selected).size).toBe(selected.length)
   })
 })
