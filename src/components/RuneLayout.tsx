@@ -302,14 +302,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setDragging(false)
   }, [])
 
-  // 🖱️ Клик по фото после «Зафиксировать»: переход к следующему сценарию —
-  // раскладке Новых Рун (оценка). Пока фото в режиме редактирования
-  // (масштаб/сдвиг) клик не делает ничего — там работает drag-to-pan.
-  const handlePhotoClick = () => {
-    if (!showLayoutChoice || selectedLayoutChoice) return
-    handleChooseLayout('evaluation')
-  }
-
   return (
     <div className="rune-layout">
       <h2 className="runes-section-title">
@@ -323,12 +315,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <div className="rune-layout-ellipse" ref={ellipseRef}>
               <img
                 ref={imgRef}
-                className={`rune-layout-photo${dragging ? ' dragging' : ''}${showLayoutChoice && !selectedLayoutChoice ? ' clickable' : ''}`}
+                className={`rune-layout-photo${dragging ? ' dragging' : ''}`}
                 src={photoUrl}
                 alt="Ваше фото во весь рост"
                 style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
                 draggable={false}
-                onClick={handlePhotoClick}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
