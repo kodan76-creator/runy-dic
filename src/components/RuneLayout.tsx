@@ -315,7 +315,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <div className="rune-layout-ellipse" ref={ellipseRef}>
               <img
                 ref={imgRef}
-                className={`rune-layout-photo${dragging ? ' dragging' : ''}`}
+                className={`rune-layout-photo${dragging ? ' dragging' : ''}${!showLayoutChoice && !selectedLayoutChoice ? ' editable' : ''}`}
                 src={photoUrl}
                 alt="Ваше фото во весь рост"
                 style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}

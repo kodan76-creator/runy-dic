@@ -1145,8 +1145,13 @@ color: #5a0000;
   touch-action: none;
 }
 
-.rune-layout-photo.dragging {
-  cursor: default;
+/* До «Зафиксировать» фото можно двигать/масштабировать — курсор-«рука» */
+.rune-layout-photo.editable {
+  cursor: grab;
+}
+
+.rune-layout-photo.editable.dragging {
+  cursor: grabbing;
   transition: none;
 }
 
