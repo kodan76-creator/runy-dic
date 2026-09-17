@@ -1141,12 +1141,12 @@ color: #5a0000;
   transition: transform 0.15s ease;
   user-select: none;
   -webkit-user-drag: none;
-  cursor: grab;
+  cursor: default;
   touch-action: none;
 }
 
 .rune-layout-photo.dragging {
-  cursor: grabbing;
+  cursor: default;
   transition: none;
 }
 
