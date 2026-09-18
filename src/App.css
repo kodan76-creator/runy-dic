@@ -1396,38 +1396,53 @@ color: #5a0000;
   transform: translate(-50%, -50%);
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid rgba(255, 215, 0, 0.75);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  /* Сплошная непрозрачная рамка: полупрозрачная золотая сливалась с фото
+     из эллипса, и плитка выглядела «почти прозрачной». */
+  border: 2px solid #b8860b;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
   /* Светлый плотный фон: полностью непрозрачный, фото в эллипсе
      сквозь плитки не просвечивает (сами PNG рун на 60–80% прозрачные,
-     поэтому без плотной подложки крест выглядел «почти прозрачным»). */
-  background: #fffbeb;
+     поэтому без плотной подложки крест выглядел «почти прозрачным»).
+     Тёплый янтарный — контрастирует и со светлым, и с тёмным фото. */
+  background: #fef3c7;
+  /* Картинка меньше плитки: по краям остаётся полоса фона, в углу которой
+     сидит номерок — он лежит на фоне плитки и не наезжает на рисунок руны. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .rune-layout-spread-item img {
-  width: 100%;
-  height: 100%;
+  width: 82%;
+  height: 82%;
   object-fit: contain;
   display: block;
   /* Та же плотная подложка, что у плитки: PNG рун на 60–80% прозрачные,
      без этого сквозь картинку просвечивало бы фото из эллипса. */
-  background: #fffbeb;
+  background: #fef3c7;
 }
 .rune-layout-spread-num {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
+  /* Номерок масштабируется вместе с плиткой (через --rune-size): на любом
+     экране он маленький относительно руны и сидит в углу на полосе фона,
+     а не поверх картинки. Фиксированных px нет — иначе на мобильных номер
+     занимал бы треть плитки и налезал на рисунок. */
+  top: calc(var(--rune-size) * 0.04);
+  right: calc(var(--rune-size) * 0.04);
+  min-width: calc(var(--rune-size) * 0.26);
+  height: calc(var(--rune-size) * 0.26);
+  padding: 0 calc(var(--rune-size) * 0.06);
   border-radius: 999px;
   background: #ffffff;
   color: #6b4e00;
   border: 1px solid rgba(122, 92, 0, 0.45);
-  font-size: 11px;
+  font-size: calc(var(--rune-size) * 0.17);
   font-weight: 700;
-  line-height: 18px;
+  line-height: calc(var(--rune-size) * 0.26);
   text-align: center;
   box-sizing: border-box;
+  /* Поверх картинки: номерок лежит на полосе фона плитки, но должен
+     перекрывать край картинки, а не уходить под неё. */
+  z-index: 1;
 }
 /* Позиции 1–7: крест поднят на высоту одной руны (все top смещены на -S),
    чтобы он располагался в верхней части эллипса. Центры смещены ровно на
