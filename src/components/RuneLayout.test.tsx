@@ -73,7 +73,7 @@ describe('RuneLayout — выбор типа раскладки', () => {
   })
 })
 
-// ── Геометрия креста для исцеления (App.css) ────────────────────────────────
+// ── Геометрия креста для исцеления (App.css) ───────────────────────────────
 // Координаты читаем из CSS и переводим в единицы размера руны:
 // 50% → 0, 50% - S → -1, 50% + S → +1, 50% - 2S → -2.
 const AXIS_VALUES: Record<string, number> = {
@@ -84,9 +84,11 @@ const AXIS_VALUES: Record<string, number> = {
   'calc(50% + var(--rune-2x))': 2,
 }
 
-function readHealingCells(): Record<number, { x: number; y: number }> {
-  const css = fs.readFileSync(path.resolve(process.cwd(), 'src/App.css'), 'utf8')
-  const blockRe = /\.rune-layout-spread\.healing\s+\.rune-layout-spread-item\.pos-(\d)\s*\{([^}]*)\}/g
+const APP_CSS_PATH = path.resolve(process.cwd(), 'src/App.css')
+const readAppCss = () => fs.readFileSync(APP_CSS_PATH, 'utf8')
+
+function readCells(blockRe: RegExp): Record<number, { x: number; y: number }> {
+  const css = readAppCss()
   const cells: Record<number, { x: number; y: number }> = {}
   for (const match of css.matchAll(blockRe)) {
     const declarations = match[2]
@@ -102,6 +104,9 @@ function readHealingCells(): Record<number, { x: number; y: number }> {
   }
   return cells
 }
+
+const readHealingCells = () =>
+  readCells(/\.rune-layout-spread\.healing\s+\.rune-layout-spread-item\.pos-(\d)\s*\{([^}]*)\}/g)
 
 describe('Раскладка для исцеления — крест перевёрнут на 180° (App.css)', () => {
   it('описаны все 7 позиций (и они не накладываются друг на друга)', () => {
@@ -126,5 +131,62 @@ describe('Раскладка для исцеления — крест перев
     expect({ x: r6.x, y: r6.y }).toEqual({ x: r4.x - 1, y: r4.y })
     // 7 — левой стороной к правой стороне 4 (7 справа от 4, в том же ряду)
     expect({ x: r7.x, y: r7.y }).toEqual({ x: r4.x + 1, y: r4.y })
+  })
+})
+
+// ── Крест не должен пересекать линию эллипса ────────────────────────────────
+// Эллипс задан как aspect-ratio 2/3 (высота = 1.5 × ширины W) и вписан в свой
+// бокс: полуоси в единицах ширины — a = 0.5, b = 0.5 × (H/W). Размер руны
+// ограничен `18cqh` (cqh = высота эллипса), т.е. в худшем случае
+// S = 0.18 × (H/W) × W. Проверяем, что каждый угол каждого из 7
+// прямоугольников лежит внутри эллипса: (X/a)² + (Y/b)² ≤ 1.
+function readEllipseFit() {
+  const css = readAppCss()
+  const ellipseBlock = /\.rune-layout-ellipse\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+  const ar = /aspect-ratio:\s*([\d.]+)\s*\/\s*([\d.]+)/.exec(ellipseBlock)
+  expect(ar, 'App.css: у .rune-layout-ellipse не найден aspect-ratio').not.toBeNull()
+  const spreadBlock = /\.rune-layout-spread\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+  const cqh = /([\d.]+)cqh/.exec(spreadBlock)
+  expect(cqh, 'App.css: у .rune-layout-spread не найден предел размера руны в cqh').not.toBeNull()
+  const hOverW = Number(ar![2]) / Number(ar![1])
+  return { hOverW, runeOverW: (Number(cqh![1]) / 100) * hOverW }
+}
+
+/** Список углов прямоугольников, вылезающих за эллипс (пустой — всё внутри). */
+function cornersOutsideEllipse(cells: Record<number, { x: number; y: number }>) {
+  const { hOverW, runeOverW: s } = readEllipseFit()
+  const a = 0.5
+  const b = 0.5 * hOverW
+  const violations: string[] = []
+  for (const [rune, cell] of Object.entries(cells)) {
+    for (const dx of [-0.5, 0.5]) {
+      for (const dy of [-0.5, 0.5]) {
+        const X = (cell.x + dx) * s
+        const Y = (cell.y + dy) * s
+        const value = (X / a) ** 2 + (Y / b) ** 2
+        if (value > 1) {
+          violations.push(`руна ${rune}, угол (${X.toFixed(3)}; ${Y.toFixed(3)}): ${value.toFixed(3)} > 1`)
+        }
+      }
+    }
+  }
+  return violations
+}
+
+describe('Крест не пересекает линию эллипса (App.css)', () => {
+  it('параметры эллипса и размера руны читаются из CSS', () => {
+    const { hOverW, runeOverW } = readEllipseFit()
+    expect(hOverW).toBeGreaterThan(1) // вертикальный эллипс 2:3
+    expect(runeOverW).toBeLessThan(1 / 3) // 3 колонки креста помещаются по ширине
+  })
+
+  it('раскладка для исцеления целиком внутри эллипса', () => {
+    expect(cornersOutsideEllipse(readHealingCells())).toEqual([])
+  })
+
+  it('раскладка для оценки целиком внутри эллипса', () => {
+    const cells = readCells(/(?<!\.healing )\.rune-layout-spread-item\.pos-(\d)\s*\{([^}]*)\}/g)
+    expect(Object.keys(cells)).toHaveLength(7)
+    expect(cornersOutsideEllipse(cells)).toEqual([])
   })
 })

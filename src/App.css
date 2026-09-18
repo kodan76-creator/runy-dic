@@ -1440,35 +1440,39 @@ color: #5a0000;
    4 — нижней стороной к верхней стороне 5
    6 — правой стороной к левой стороне 4
    7 — левой стороной к правой стороне 4
-   Габариты те же, что и у раскладки для оценки (3 колонки × 4 ряда),
-   поэтому крест так же целиком помещается в эллипс. */
+   Перевёрнутый крест зеркален по вертикали относительно раскладки для
+   оценки: та поднята над центром эллипса, эта опущена под центр (все top
+   смещены на +S). Без этого двухрунный хвост (1–2) попадал в сужающуюся
+   верхнюю часть эллипса и его углы пересекали линию эллипса. Так крест
+   целиком лежит внутри эллипса — с тем же запасом, что и раскладка для
+   оценки (запас проверяется тестом RuneLayout.test.tsx). */
 .rune-layout-spread.healing .rune-layout-spread-item.pos-1 {
   left: calc(50% + var(--rune-size));
-  top: calc(50% - var(--rune-2x));
+  top: calc(50% - var(--rune-size));
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-2 {
   left: 50%;
-  top: calc(50% - var(--rune-2x));
+  top: calc(50% - var(--rune-size));
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-3 {
   left: 50%;
-  top: calc(50% - var(--rune-size));
+  top: 50%;
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-4 {
   left: 50%;
-  top: 50%;
+  top: calc(50% + var(--rune-size));
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-5 {
   left: 50%;
-  top: calc(50% + var(--rune-size));
+  top: calc(50% + var(--rune-2x));
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-6 {
   left: calc(50% - var(--rune-size));
-  top: 50%;
+  top: calc(50% + var(--rune-size));
 }
 .rune-layout-spread.healing .rune-layout-spread-item.pos-7 {
   left: calc(50% + var(--rune-size));
-  top: 50%;
+  top: calc(50% + var(--rune-size));
 }
 
 /* Кнопки раскладки */
