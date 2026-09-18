@@ -5,7 +5,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import RuneLayout from './RuneLayout'
 
 // ── Моки API: компонент не должен ходить в сеть/IndexedDB в тестах ─────────
@@ -46,6 +46,9 @@ beforeEach(() => {
   // jsdom не реализует blob-URL — подменяем, чтобы фиксация фото не падала
   Object.defineProperty(URL, 'createObjectURL', { configurable: true, writable: true, value: vi.fn(() => 'blob:mock') })
   Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, writable: true, value: vi.fn() })
+  // Крест запоминается в localStorage — чистим между тестами, иначе второй
+  // тест увидит крест первого и не найдёт кнопку «Зафиксировать»
+  localStorage.clear()
 })
 
 // Пройти путь: фото → «Зафиксировать» → выбор раскладки → нажать кнопку раскладки.
@@ -74,6 +77,27 @@ describe('RuneLayout — выбор типа раскладки', () => {
     )
     expect(spread).toHaveClass('rune-layout-spread')
     expect(spread).not.toHaveClass('healing')
+  })
+})
+
+describe('RuneLayout — крест переживает перезагрузку (localStorage)', () => {
+  it('после выбора раскладки тип и 7 рун сохранены в localStorage', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    const raw = localStorage.getItem(`rune_spread:${TEST_USER.email}`)
+    expect(raw).toBeTruthy()
+    const parsed = JSON.parse(raw!)
+    expect(parsed.type).toBe('healing')
+    expect(parsed.runes).toHaveLength(7)
+  })
+
+  it('после перезагрузки крест показывается сразу, без повторного выбора', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    // «Перезагрузка»: чистый рендер только из localStorage (прошлый размонтирован)
+    cleanup()
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    const spread = await screen.findByLabelText('Раскладка Новых Рун')
+    expect(spread).toHaveClass('healing')
+    expect(spread.querySelectorAll('.rune-layout-spread-item')).toHaveLength(7)
   })
 })
 

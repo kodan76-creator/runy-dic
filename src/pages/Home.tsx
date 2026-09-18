@@ -89,6 +89,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         if (ok) {
           setFavorites(new Set(localFavs.map(String)))
           setFavoritesSyncStatus('idle')
+          lastSyncedFavoritesRef.current = JSON.stringify([...localFavs.map(String)].sort())
+          favoritesLoadedRef.current = true
           // после успешной синхронизации локальная копия больше не нужна
           localStorage.removeItem(`favorites:${user.email}`)
         }
@@ -141,6 +143,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(savedSettings.showOnlyFavorites)
   const [dictionarySourceFilter, setDictionarySourceFilter] = useState(savedSettings.dictionarySourceFilter)
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
+  const favoritesLoadedRef = useRef(false) // избранное загружено хотя бы раз — до этого на сервер не пишем
+  const lastSyncedFavoritesRef = useRef<string | null>(null) // снимок последней записи — то же самое повторно не пишем
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const runesSectionRef = useRef<HTMLDivElement | null>(null)
 
@@ -164,21 +168,30 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     // Избранное проверяем только когда активен словарь
     if (viewMode !== 'dictionary') return
     // load from server, fallback to localStorage
+    // Применяем загруженное избранное и фиксируем снимок: пока загрузка не
+    // завершена, эффект сохранения молчит — иначе пустой Set с начального
+    // рендера затирал бы favorites.json на сервере.
+    const applyLoaded = (arr: unknown) => {
+      if (!mounted) return
+      const normalized = (Array.isArray(arr) ? arr : []).map(String)
+      setFavorites(new Set(normalized))
+      lastSyncedFavoritesRef.current = JSON.stringify([...normalized].sort())
+      favoritesLoadedRef.current = true
+    }
     const load = async () => {
       // Если есть несохранённые локальные изменения — не перезаписываем их серверными
       try {
         const pending = localStorage.getItem(`favorites:${user.email}`)
         if (pending) {
-          const arr = JSON.parse(pending)
-          if (mounted) setFavorites(new Set((Array.isArray(arr) ? arr : []).map(String)))
+          applyLoaded(JSON.parse(pending))
           return
         }
       } catch { /* ignore */ }
       try {
         const server = await getFavoritesForUser(user.email)
-        if (mounted && Array.isArray(server)) {
+        if (Array.isArray(server)) {
           // normalize ids to strings for consistent comparisons
-          setFavorites(new Set(server.map(String)))
+          applyLoaded(server)
           return
         }
       } catch (e) {
@@ -187,15 +200,10 @@ export default function Home({ user, onLogout, onUserUpdate }) {
 
       try {
         const raw = localStorage.getItem(`favorites:${user.email}`)
-        if (raw) {
-          const arr = JSON.parse(raw)
-          if (mounted) setFavorites(new Set((Array.isArray(arr) ? arr : []).map(String)))
-        } else if (mounted) {
-          setFavorites(new Set())
-        }
+        applyLoaded(raw ? JSON.parse(raw) : [])
       } catch (e) {
         console.error('Failed to load favorites from localStorage', e)
-        if (mounted) setFavorites(new Set())
+        applyLoaded([])
       }
     }
     load()
@@ -205,14 +213,28 @@ export default function Home({ user, onLogout, onUserUpdate }) {
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
   // persist favorites on change (enqueue write to server, fallback to localStorage)
+  // Пишем только в разделе «Словарь» и только после первой загрузки: в «Рунной
+  // раскладке» избранное не загружается (остаётся пустой Set с монтирования) —
+  // без этих guards каждое монтирование перезаписывало бы favorites.json.
+  // Повторную запись тех же данных тоже пропускаем (сверяем со снимком).
   useEffect(() => {
     if (!user || !user.email) return
+    if (viewMode !== 'dictionary') return
+    if (!favoritesLoadedRef.current) return
+    const snapshot = JSON.stringify(Array.from(favorites).map(String).sort())
+    if (lastSyncedFavoritesRef.current === snapshot) {
+      setFavoritesSyncStatus('idle')
+      return
+    }
     const saveTask = async () => {
       setFavoritesSyncStatus('saving')
       try {
         const now = new Date().toISOString()
         const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
-        if (ok) setFavoritesSyncStatus('idle')
+        if (ok) {
+          setFavoritesSyncStatus('idle')
+          lastSyncedFavoritesRef.current = snapshot
+        }
         else {
           setFavoritesSyncStatus('error')
           try { localStorage.setItem(`favorites:${user.email}`, JSON.stringify(Array.from(favorites))) } catch (err) { console.error('Failed to save favorites locally', err) }
@@ -228,7 +250,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     writeQueueRef.current = writeQueueRef.current.then(() => saveTask()).catch(err => { console.error('Favorites queue task error', err) })
 
     return () => {}
-  }, [favorites, user])
+  }, [favorites, user, viewMode])
 
   const toggleFavorite = (id) => {
     const idStr = String(id)

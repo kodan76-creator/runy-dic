@@ -70,14 +70,59 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const imgRef = useRef<HTMLImageElement | null>(null)
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
-  // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса
-  const [spreadRunes, setSpreadRunes] = useState<string[]>([])
+  // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса.
+  // 💾 Страница с крестом переживает перезагрузку: выбранный тип раскладки и
+  // сами 7 рун храним в localStorage (по email). Руны кешируем вместе с типом —
+  // иначе после обновления получили бы те же места, но другие картинки.
+  const savedSpread = (() => {
+    try {
+      if (!user?.email) return null
+      const raw = localStorage.getItem('rune_spread:' + user.email)
+      if (!raw) return null
+      const parsed = JSON.parse(raw)
+      if (parsed?.type !== 'evaluation' && parsed?.type !== 'healing') return null
+      if (!Array.isArray(parsed?.runes) || parsed.runes.length !== 7) return null
+      if (!parsed.runes.every((name) => typeof name === 'string' && name.length > 0)) return null
+      return { type: parsed.type, runes: parsed.runes }
+    } catch { return null }
+  })()
+  const [spreadRunes, setSpreadRunes] = useState(() => savedSpread?.runes ?? [])
   const [spreadLoading, setSpreadLoading] = useState(false)
   // 🎛️ Выбор раскладки: после фиксации фото показываем 2 кнопки
   // (оценка / исцеление). После выбора — крест с рунами + кнопка возврата.
+  // Начальное значение — из localStorage, чтобы страница с крестом переживала F5.
+  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState(() => savedSpread?.type ?? '')
   const [showLayoutChoice, setShowLayoutChoice] = useState(false)
-  const [selectedLayoutChoice, setSelectedLayoutChoice] = useState('')
-  // 🖼️ Локальный blob-URL обработанного фото — показываем сразу после
+  // Ключ localStorage для запомненной страницы с крестом (по email).
+  const spreadKey = user?.email ? 'rune_spread:' + user.email : null
+  const persistSpread = (type, runes) => {
+    try {
+      if (!spreadKey) return
+      localStorage.setItem(spreadKey, JSON.stringify({ type, runes }))
+    } catch { /* ignore */ }
+  }
+  const clearPersistedSpread = () => {
+    try {
+      if (!spreadKey) return
+      localStorage.removeItem(spreadKey)
+    } catch { /* ignore */ }
+  }
+  // Если user подставился позже первого рендера — подтягиваем сохранённый крест.
+  useEffect(() => {
+    if (!user?.email) return
+    if (spreadRunes.length > 0 || selectedLayoutChoice) return
+    try {
+      const raw = localStorage.getItem('rune_spread:' + user.email)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (parsed?.type !== 'evaluation' && parsed?.type !== 'healing') return
+      if (!Array.isArray(parsed?.runes) || parsed.runes.length !== 7) return
+      setSpreadRunes(parsed.runes)
+      setSelectedLayoutChoice(parsed.type)
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email])
+  // Локальный blob-URL обработанного фото — показываем сразу после
   // «Зафиксировать», чтобы фото не исчезало, пока серверный файл не готов.
   const [localPhotoUrl, setLocalPhotoUrl] = useState('')
   const localPhotoUrlRef = useRef('')
@@ -229,7 +274,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }
 
   // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy
-  const handleSpread = async () => {
+  // layoutType передаём параметром: setState асинхронен, и чтение
+  // selectedLayoutChoice сразу после setSelectedLayoutChoice дало бы старое значение.
+  const handleSpread = async (layoutType = selectedLayoutChoice) => {
     setSpreadLoading(true)
     try {
       let files = await listRuneLayoutImages()
@@ -245,11 +292,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
       }
       const chosen = selectRandomRunes(files, 7)
       setSpreadRunes(chosen)
+      persistSpread(layoutType, chosen)
       precacheLayoutImages(chosen)
     } catch (e) {
       console.warn('handleSpread error:', e)
       const chosen = selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7)
       setSpreadRunes(chosen)
+      persistSpread(layoutType, chosen)
       precacheLayoutImages(chosen)
     } finally {
       setSpreadLoading(false)
@@ -260,7 +309,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const handleChooseLayout = async (type) => {
     setSelectedLayoutChoice(type)
     setShowLayoutChoice(false)
-    handleSpread()
+    await handleSpread(type)
     try {
       const updated = await saveRuneLayoutType(user.email, type)
       onUserUpdate(updated)
@@ -270,10 +319,12 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }
 
   // ↩️ Вернуться к выбору раскладки (2 кнопки)
+  // Запомненный крест тоже стираем — страница выбора после F5 покажет выбор, а не крест.
   const handleReturnToChoice = () => {
     setSelectedLayoutChoice('')
     setShowLayoutChoice(true)
     setSpreadRunes([])
+    clearPersistedSpread()
   }
 
   // 📷 Вернуться к выбору фото (режим редактирования: масштаб/замена/фиксация)
@@ -281,6 +332,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setShowLayoutChoice(false)
     setSelectedLayoutChoice('')
     setSpreadRunes([])
+    clearPersistedSpread()
     setZoom(1)
     setPanX(0)
     setPanY(0)
