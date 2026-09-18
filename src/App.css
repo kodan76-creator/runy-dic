@@ -1398,7 +1398,10 @@ color: #5a0000;
   overflow: hidden;
   border: 2px solid rgba(255, 215, 0, 0.75);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  background: rgba(255, 251, 235, 0.94);
+  /* Светлый плотный фон: полностью непрозрачный, фото в эллипсе
+     сквозь плитки не просвечивает (сами PNG рун на 60–80% прозрачные,
+     поэтому без плотной подложки крест выглядел «почти прозрачным»). */
+  background: #fffbeb;
 }
 .rune-layout-spread-item img {
   width: 100%;
@@ -1414,7 +1417,7 @@ color: #5a0000;
   height: 18px;
   padding: 0 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   color: #6b4e00;
   border: 1px solid rgba(122, 92, 0, 0.45);
   font-size: 11px;
