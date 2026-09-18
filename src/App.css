@@ -1372,15 +1372,17 @@ color: #5a0000;
    5 — правой стороной к левой стороне 4
    6 — левой стороной к правой стороне 4 */
 .rune-layout-spread {
-  /* 📏 Размер руны зависит только от размеров эллипса: не больше 18% его
-     высоты (крест занимает по высоте 4 руны) и не больше 1/3 ширины
-     (3 колонки). Никакого фиксированного минимума в px: из-за него на
-     мобильных эллипс маленький, а крест оставался далеко от его линии.
-     Так крест всегда стоит максимально близко к линии эллипса и на
-     мобильных, и на десктопе — но не пересекает её (тест «Крест не
-     пересекает линию эллипса» в RuneLayout.test.tsx).
+  /* 📏 Размер руны зависит только от размеров эллипса: не больше 18.4% его
+     высоты и не больше 1/3 ширины (3 колонки). 18.4cqh — геометрический
+     потолок для креста 3×4 в эллипсе 2:3: внешние углы боковых рун дают
+     (1.5S/a)² + (1.5S/b)² = 13S², и при S > 1/√13 ширины (= 18.49cqh) они
+     пересекли бы линию эллипса. Никакого фиксированного минимума в px:
+     из-за него на мобильных эллипс маленький, а крест оставался далеко
+     от его линии. Так крест крупный и стоит максимально близко к линии
+     эллипса, но не пересекает её (тест «Крест не пересекает линию
+     эллипса» в RuneLayout.test.tsx).
      cqh/cqw — относительно эллипса (контейнера). */
-  --rune-size: min(18cqh, 33.333cqw);
+  --rune-size: min(18.4cqh, 33.333cqw);
   --rune-2x: calc(var(--rune-size) + var(--rune-size));
   position: absolute;
   inset: 0;
@@ -1422,15 +1424,44 @@ color: #5a0000;
   border-radius: 10px;
 }
 .rune-layout-spread-item img {
-  width: 70%;
-  height: 70%;
+  /* Рисунок руны занимает 78% плитки (увеличен с 70%): по краям остаётся
+     воздушная полоса фона, номерок висит снаружи угла и не наезжает на
+     рисунок. */
+  width: 78%;
+  height: 78%;
   object-fit: contain;
   display: block;
   /* Прозрачная: вуаль даёт сама плитка, отдельный фон у картинки не нужен —
-     иначе сквозь рисунок не было бы видно фото. Лёгкое светлое свечение —
-     чтобы тёмно-золотая руна читалась и на тёмном, и на светлом фото. */
+     иначе сквозь рисунок не было бы видно фото. */
   background: transparent;
   filter: drop-shadow(0 0 3px rgba(255, 251, 235, 0.9));
+}
+
+/* 💓 Пульсация свечения руны — мягкая «дыхательная» волна золотого света.
+   Задержки по позициям сдвигают фазы: волна бежит по кресту от руны 1 к 7. */
+@keyframes rune-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(255, 251, 235, 0.9));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 215, 0, 0.95))
+            drop-shadow(0 0 14px rgba(255, 215, 0, 0.55));
+  }
+}
+.rune-layout-spread-item img {
+  animation: rune-glow-pulse 2.6s ease-in-out infinite;
+}
+.rune-layout-spread-item.pos-2 img { animation-delay: 0.3s; }
+.rune-layout-spread-item.pos-3 img { animation-delay: 0.6s; }
+.rune-layout-spread-item.pos-4 img { animation-delay: 0.9s; }
+.rune-layout-spread-item.pos-5 img { animation-delay: 1.2s; }
+.rune-layout-spread-item.pos-6 img { animation-delay: 1.5s; }
+.rune-layout-spread-item.pos-7 img { animation-delay: 1.8s; }
+/* Уважаем настройку «меньше анимации» в системе. */
+@media (prefers-reduced-motion: reduce) {
+  .rune-layout-spread-item img {
+    animation: none;
+  }
 }
 .rune-layout-spread-num {
   position: absolute;
@@ -1560,10 +1591,43 @@ color: #5a0000;
   opacity: 0.85;
 }
 
-/* Карточка руны креста: тот же RuneCard, что в разделе Новые руны. */
+/* Карточка руны креста: тот же RuneCard, что в разделе Новые руны.
+   Флекс-колонка: контент растягивается, кнопка «Закрыть» прижата к низу,
+   когда модалка вытянута до высоты эллипса на мобильных. */
 .rune-layout-rune-modal {
   max-height: 88vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.rune-layout-rune-modal .rune-card {
+  flex: 1 1 auto;
+}
+.rune-layout-rune-modal .filter-actions {
+  margin-top: auto;
+  padding-top: 10px;
+}
+/* Шапка модалки: отдельный текст — смысл позиции руны в выбранной
+   раскладке (оценка/исцеление), над карточкой. */
+.rune-layout-rune-position {
+  margin: 0 0 12px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 215, 0, 0.14);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--app-accent);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: left;
+}
+/* 📱 Мобильная версия: если модалка по содержанию ниже эллипса — растягиваем
+   её до высоты эллипса. Высоту замеряет компонент и передаёт через
+   переменную --rune-modal-min-h (задаётся только при открытой модалке). */
+@media (max-width: 768px) {
+  .rune-layout-rune-modal {
+    min-height: var(--rune-modal-min-h, auto);
+  }
 }
 
 .dictionary-source {

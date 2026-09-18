@@ -26,7 +26,7 @@ function highlightText(text, term) {
   return nodes
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false }) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false }) {
   if (!rune) return null
   const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
   // В рунном режиме подсвечиваем только графическое изображение
@@ -48,7 +48,8 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
             <img className="rune-image" src={imgUrl} alt={rune.name || 'Руна'} loading="lazy" />
           </div>
         )}
-        {rune.power && (
+        {/* hidePower: в модалке раскладки «Описание Силы Руны» не показываем */}
+        {rune.power && !hidePower && (
           <div className="rune-card-power">
             <span className="rune-card-label">Описание Силы Руны:</span>
             <span>{highlightText(rune.power, textHighlight)}</span>

@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import RuneLayout from './RuneLayout'
 import { listRuneLayoutImages } from '../api/images'
+import { EVALUATION_POSITION_LABELS, HEALING_POSITION_LABELS, getPositionLabel } from './runeLayoutTexts'
 
 // ── Моки API: компонент не должен ходить в сеть/IndexedDB в тестах ─────────
 vi.mock('../api/images', () => ({
@@ -179,7 +180,10 @@ describe('RuneLayout — модалка руны по клику', () => {
     fireEvent.click(tile)
     const dialog = await screen.findByRole('dialog')
     expect(dialog.textContent).toContain('ФАИС-СУ')
-    expect(dialog.textContent).toContain('Гармония стихий в человеке использует духовную энергию')
+    // «Описание Силы Руны» из модалки убрано (hidePower у RuneCard)
+    expect(dialog.textContent).not.toContain('Гармония стихий в человеке использует духовную энергию')
+    // Шапка: смысл позиции 1 раскладки «для исцеления»
+    expect(dialog.textContent).toContain('Руна 1 - ПРЕДЕЛ или ПОТОЛОК вашего сознания.')
     expect(dialog.textContent).toContain('Состояние, состоятельность')
     expect(dialog.textContent).toContain('Собственностью человека может стать лишь творчество его духа.')
     // Закрытие
@@ -199,9 +203,57 @@ describe('RuneLayout — модалка руны по клику', () => {
     const dialog = await screen.findByRole('dialog')
     // Карточка именно перевёрнутого положения, а не прямой руны
     expect(dialog.textContent).toContain('перевернутое положение')
-    expect(dialog.textContent).toContain('Росток пробивается из опыта')
+    // «Описание Силы Руны» скрыто и для перевёрнутой руны (hidePower)
+    expect(dialog.textContent).not.toContain('Росток пробивается из опыта')
+    expect(dialog.textContent).toContain('Перевёрнутое положение показывает необходимость обращения к опыту.')
     fireEvent.click(screen.getByText('Закрыть'))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  })
+})
+
+describe('RuneLayout — шапка позиции в модалке', () => {
+  it('тексты всех 7 позиций заданы для обеих раскладок и без кавычек', () => {
+    expect(EVALUATION_POSITION_LABELS).toHaveLength(7)
+    expect(HEALING_POSITION_LABELS).toHaveLength(7)
+    for (const t of [...EVALUATION_POSITION_LABELS, ...HEALING_POSITION_LABELS]) {
+      expect(t.trim().length).toBeGreaterThan(0)
+      // Текст-шапка задаётся «без ковычек»
+      expect(t).not.toMatch(/[«»"]/)
+    }
+  })
+
+  it('getPositionLabel отдаёт текст по раскладке и позиции', () => {
+    expect(getPositionLabel('evaluation', 1)).toBe(EVALUATION_POSITION_LABELS[0])
+    expect(getPositionLabel('healing', 1)).toBe(HEALING_POSITION_LABELS[0])
+    expect(getPositionLabel('healing', 7)).toContain('ЛЮБВИ')
+    expect(getPositionLabel('evaluation', 8)).toBe('')
+  })
+
+  it('в оценке шапка отвечает смыслу позиции (1 — ПРОШЛОЕ, 7 — БУДУЩЕЕ)', async () => {
+    const spread = await chooseLayout(
+      'Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления'
+    )
+    fireEvent.click(spread.querySelector('.rune-layout-spread-item.pos-1') as HTMLElement)
+    let dialog = await screen.findByRole('dialog')
+    expect(dialog.textContent).toContain(
+      'Руна 1 - ПРОШЛОЕ. Основная характеристика того, что привело вас (ситуацию, явление) в нынешнее состояние.'
+    )
+    fireEvent.click(screen.getByText('Закрыть'))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    // Руна 7 той же раскладки — своя шапка
+    fireEvent.click(spread.querySelector('.rune-layout-spread-item.pos-7') as HTMLElement)
+    dialog = await screen.findByRole('dialog')
+    expect(dialog.textContent).toContain('Руна 7 - БУДУЩЕЕ при исполнении всех условий.')
+    fireEvent.click(screen.getByText('Закрыть'))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  })
+
+  it('в исцелении шапка позиции другая (7 — любовь для исцеления души, не БУДУЩЕЕ)', async () => {
+    const spread = await chooseLayout('Раскладка Новых Рун для исцеления')
+    fireEvent.click(spread.querySelector('.rune-layout-spread-item.pos-7') as HTMLElement)
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog.textContent).toContain('Руна 7 - Требуемые проявления ЛЮБВИ для исцеления души.')
+    expect(dialog.textContent).not.toContain('БУДУЩЕЕ при исполнении всех условий')
   })
 })
 
@@ -292,7 +344,7 @@ describe('Крест не пересекает линию эллипса (App.cs
 // Раньше размер руны начинался с clamp(52px, …): на мобильных эллипс
 // маленький, а 52px-минимум держал крест далеко от его линии. Теперь размер
 // руны зависит только от размеров эллипса, поэтому крест занимает ту же долю
-// ширины эллипса (3 × 18cqh = 0.81 ширины), что и на десктопе.
+// ширины эллипса (3 × 18.4cqh ≈ 0.828 ширины), что и на десктопе.
 function readRuneSizeRule() {
   const css = readAppCss()
   const block = /\.rune-layout-spread\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
@@ -312,15 +364,20 @@ describe('Размер креста и эллипса — мобильные и 
     const rule = readRuneSizeRule()
     expect(rule).not.toMatch(/px/)
     expect(rule).not.toMatch(/clamp\(/)
-    expect(rule).toBe('min(18cqh, 33.333cqw)')
+    expect(rule).toBe('min(18.4cqh, 33.333cqw)')
   })
 
-  it('крест занимает ~81% ширины эллипса на любом размере экрана', () => {
+  it('крест занимает ~83% ширины эллипса на любом размере экрана', () => {
     const cqh = Number(/([\d.]+)cqh/.exec(readRuneSizeRule())?.[1])
     const { hOverW } = readEllipseFit()
-    // 3 руны по ширине / ширина эллипса (18cqh = 18% высоты = 0.18 × 1.5 ширины)
+    // 3 руны по ширине / ширина эллипса (18.4cqh = 18.4% высоты = 0.184 × 1.5 ширины)
     const crossWidthShare = (3 * (cqh / 100) * hOverW) / 1
-    expect(crossWidthShare).toBeCloseTo(0.81, 5)
+    expect(crossWidthShare).toBeCloseTo(0.828, 5)
+  })
+
+  it('рисунок руны увеличен внутри плитки (78% вместо прежних 70%)', () => {
+    const blocks = [...readAppCss().matchAll(/\.rune-layout-spread-item img\s*\{([^}]*)\}/g)].map(m => m[1])
+    expect(blocks.some(b => b.includes('width: 78%'))).toBe(true)
   })
 
   it('эллипс масштабируется под свою сцену (только cqw/cqh, без px/vw/vh)', () => {

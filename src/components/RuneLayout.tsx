@@ -3,10 +3,11 @@
 // Показывает фото пользователя во весь рост, обрезанное эллипсом-«яйцом»,
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
+import { getPositionLabel } from './runeLayoutTexts'
 import type { Rune } from '../types'
 import { getRunes } from '../api/runes'
 import { getCachedRunes, cacheRunesForOffline } from '../api/offline'
@@ -125,6 +126,17 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }, [])
   // 🔎 Выбранная руна креста (модальное окно с карточкой из раздела «Новые руны»)
   const [selectedRuneIndex, setSelectedRuneIndex] = useState<number | null>(null)
+  // 📱 Мобильная версия: модалка руны не ниже эллипса. Высоту эллипса замеряем
+  // при открытии модалки (и на resize, пока она открыта) и отдаём в CSS через
+  // переменную --rune-modal-min-h: media-запрос применяет её только на мобильных.
+  const [runeModalMinH, setRuneModalMinH] = useState(0)
+  useEffect(() => {
+    if (selectedRuneIndex === null) return
+    const measure = () => setRuneModalMinH(ellipseRef.current?.clientHeight ?? 0)
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [selectedRuneIndex])
   // 💾 Восстановление pan/zoom из localStorage (кэширование состояния)
   const savedState = user?.email ? loadLayoutState(user.email) : null
   const [zoom, setZoom] = useState(savedState?.zoom ?? 1)
@@ -651,12 +663,18 @@ export default function RuneLayout({ user, onUserUpdate }) {
         >
           <div
             className="filter-modal rune-layout-rune-modal"
+            style={runeModalMinH > 0 ? { '--rune-modal-min-h': `${runeModalMinH}px` } as CSSProperties : undefined}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Шапка модалки: смысл позиции руны в выбранной раскладке */}
+            <p className="rune-layout-rune-position">
+              {getPositionLabel(selectedLayoutChoice, selectedRuneIndex + 1)}
+            </p>
             <RuneCard
               rune={findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)
                 ?? { name: spreadRunes[selectedRuneIndex].replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
               imageSrc={buildImageUrl(spreadRunes[selectedRuneIndex], `${RUNES_IMAGE_DIR}/runy`)}
+              hidePower
             />
             <div className="filter-actions">
               <button className="close-btn" onClick={() => setSelectedRuneIndex(null)}>
