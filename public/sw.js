@@ -5,7 +5,7 @@
  * - Статика: stale-while-revalidate (сначала кэш, фоном обновляется).
  * - API-запросы (api.github.com и другие домены) не перехватываются.
  */
-const CACHE_NAME = 'runy-dic-v5'
+const CACHE_NAME = 'runy-dic-v7'
 const APP_SHELL = ['./', './index.html']
 
 self.addEventListener('install', (event) => {

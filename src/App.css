@@ -1410,35 +1410,39 @@ color: #5a0000;
   justify-content: center;
 }
 .rune-layout-spread-item img {
-  width: 76%;
-  height: 76%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
   display: block;
   /* Прозрачная: вуаль даёт сама плитка, отдельный фон у картинки не нужен —
-     иначе сквозь рисунок не было бы видно фото. */
+     иначе сквозь рисунок не было бы видно фото. Лёгкое светлое свечение —
+     чтобы тёмно-золотая руна читалась и на тёмном, и на светлом фото. */
   background: transparent;
+  filter: drop-shadow(0 0 3px rgba(255, 251, 235, 0.9));
 }
 .rune-layout-spread-num {
   position: absolute;
-  /* Номерок висит снаружи правого верхнего угла плитки — никак не
-     перекрывает рисунок руны. Масштабируется вместе с плиткой
-     (через --rune-size), фиксированных px нет. */
+  /* Номерок висит СНАРУЖИ угла плитки (наполовину за её границей) и никак
+     не перекрывает рисунок руны: картинка ужата до 70% и отцентрована,
+     а бейдж вынесен наружу через translate. overflow у плитки — visible,
+     чтобы бейдж не обрезался. Масштабируется вместе с плиткой через
+     --rune-size, фиксированных px нет. */
   top: 0;
   right: 0;
-  transform: translate(45%, -45%);
-  min-width: calc(var(--rune-size) * 0.26);
-  height: calc(var(--rune-size) * 0.26);
-  padding: 0 calc(var(--rune-size) * 0.06);
+  transform: translate(35%, -35%);
+  min-width: calc(var(--rune-size) * 0.24);
+  height: calc(var(--rune-size) * 0.24);
+  padding: 0 calc(var(--rune-size) * 0.05);
   border-radius: 999px;
   background: #ffffff;
   color: #6b4e00;
   border: 1px solid rgba(122, 92, 0, 0.45);
-  font-size: calc(var(--rune-size) * 0.17);
+  font-size: calc(var(--rune-size) * 0.155);
   font-weight: 700;
-  line-height: calc(var(--rune-size) * 0.26);
+  line-height: calc(var(--rune-size) * 0.24);
   text-align: center;
   box-sizing: border-box;
-  /* Поверх соседней плитки на стыках креста. */
+  /* Поверх фона плитки, но под ничего не подлезает — всё внутри своей плитки. */
   z-index: 2;
 }
 /* Позиции 1–7: крест поднят на высоту одной руны (все top смещены на -S),
