@@ -6,6 +6,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
+import RuneCard from './RuneCard'
+import type { Rune } from '../types'
+import { getRunes } from '../api/runes'
+import { getCachedRunes, cacheRunesForOffline } from '../api/offline'
 import { saveRuneLayoutType } from '../api/auth'
 import { emailToFolderName, precacheUrls } from '../api/audio'
 import {
@@ -38,6 +42,57 @@ const PHOTO_MAX_HEIGHT = 8000
 const PHOTO_ACCEPT = 'image/png,image/jpeg,image/webp'
 const PHOTO_REQUIREMENTS_TEXT = `PNG, JPG, JPEG, WEBP · от ${PHOTO_MIN_WIDTH}×${PHOTO_MIN_HEIGHT} до ${PHOTO_MAX_WIDTH}×${PHOTO_MAX_HEIGHT} px · до ${Math.round(PHOTO_MAX_SIZE / 1024 / 1024)} МБ`
 
+// 🃏 Имя файла раскладки → карточка «Новых Рун» (раздел «Новые Руны»).
+// Файлы вида «N_НАЗВАНИЕ.png» (прямое положение) и «N_НАЗВАНИЕ_П.png»
+// (перевёрнутое положение, суффикс «_П»). Карточка ищется по имени руны:
+// для «_П» — запись «НАЗВАНИЕ (перевернутое положение)» / «(перевёрнутое
+// положение)» (в runes.json встречаются оба написания «е/ё»), иначе —
+// запись с чистым именем. Сравнение — по нормализованной строке
+// (регистр/ё/пробелы-дефисы), т.к. имена файлов и карточек могут
+// расходиться в мелочах (например «ФАИС-СУ» в файле и карточке).
+function normalizeRuneName(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+
+    .replace(/[_\s\-–—]+/g, ' ')
+    .trim()
+}
+
+// Разбирает имя файла раскладки: «1_ФАИС-СУ.png» → { baseName: 'ФАИС-СУ', inverted: false },
+// «2_ФАИС-СУ_П.png» → { baseName: 'ФАИС-СУ', inverted: true }.
+function parseLayoutFileName(fileName) {
+  const withoutExt = String(fileName ?? '').replace(/\.\w+$/, '')
+  const withoutNum = withoutExt.replace(/^\d+_/, '')
+  const inverted = /_П$/.test(withoutNum)
+  const baseName = inverted ? withoutNum.replace(/_П$/, '') : withoutNum
+  return { baseName, inverted }
+}
+
+// Находит карточку руны для файла раскладки среди карточек раздела «Новые Руны».
+// Возвращает null, если карточки нет (модалка тогда покажет только картинку).
+function findLayoutRune(fileName, runes) {
+  const list = Array.isArray(runes) ? runes : []
+  if (list.length === 0) return null
+  const { baseName, inverted } = parseLayoutFileName(fileName)
+  const base = normalizeRuneName(baseName)
+  // 1) Точное совпадение по имени: прямое — «НАЗВАНИЕ», перевёрнутое —
+  // «НАЗВАНИЕ (перевернутое положение)».
+  const directHit = list.find((r) => normalizeRuneName(r?.name) === base) ?? null
+  const invertedHit = list.find((r) => {
+    const n = normalizeRuneName(r?.name)
+    return n === `${base} (перевернутое положение)` || n === `${base} (перевернутое)` || n.startsWith(`${base} (`)
+  }) ?? null
+  if (inverted && invertedHit) return invertedHit
+  if (!inverted && directHit) return directHit
+  // 2) Запасной вариант: запись, чьё нормализованное имя содержит базу
+  // (например файл «22_АЛЬ-ГО» ↔ карточка «АЛЬ-ГО»).
+  return list.find((r) => {
+    const n = normalizeRuneName(r?.name)
+    return n === base || n.startsWith(`${base} `) || n.startsWith(`${base}(`)
+  }) ?? (inverted ? invertedHit ?? directHit : directHit ?? invertedHit) ?? null
+}
+
 // 🎲 Резервный список файлов рун раскладки (если GitHub API недоступен)
 const RUNES_LAYOUT_FALLBACK = [
   '1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png',
@@ -52,6 +107,24 @@ const RUNES_LAYOUT_FALLBACK = [
 ]
 
 export default function RuneLayout({ user, onUserUpdate }) {
+  // 📖 Каталог «Новых Рун» (тексты карточек раздела) — для модалки по клику.
+  // Сначала берём оффлайн-кэш (мгновенно и без сети), затем тихо обновляем
+  // онлайн-версией с GitHub и освежаем кэш. Тот же источник данных, что и
+  // карточки раздела «Новые руны», — тексты в модалке совпадают с ними.
+  const [runesCatalog, setRunesCatalog] = useState<Rune[]>(() => getCachedRunes() || [])
+  useEffect(() => {
+    let cancelled = false
+    getRunes()
+      .then(({ data }) => {
+        if (cancelled || !Array.isArray(data) || data.length === 0) return
+        setRunesCatalog(data)
+        cacheRunesForOffline(data)
+      })
+      .catch(() => { /* оффлайн: остаёмся на кэше */ })
+    return () => { cancelled = true }
+  }, [])
+  // 🔎 Выбранная руна креста (модальное окно с карточкой из раздела «Новые руны»)
+  const [selectedRuneIndex, setSelectedRuneIndex] = useState<number | null>(null)
   // 💾 Восстановление pan/zoom из localStorage (кэширование состояния)
   const savedState = user?.email ? loadLayoutState(user.email) : null
   const [zoom, setZoom] = useState(savedState?.zoom ?? 1)
@@ -411,16 +484,26 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}`}
                   aria-label="Раскладка Новых Рун"
                 >
-                  {spreadRunes.map((name, i) => (
-                    <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
-                      <img
-                        src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
-                        alt={`Руна ${i + 1}`}
-                        draggable={false}
-                      />
-                      <span className="rune-layout-spread-num">{i + 1}</span>
-                    </div>
-                  ))}
+                  {spreadRunes.map((name, i) => {
+                    const rune = findLayoutRune(name, runesCatalog)
+                    return (
+                      <button
+                        key={name}
+                        type="button"
+                        className={`rune-layout-spread-item pos-${i + 1}`}
+                        onClick={() => setSelectedRuneIndex(i)}
+                        aria-label={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
+                        title={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
+                      >
+                        <img
+                          src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
+                          alt={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
+                          draggable={false}
+                        />
+                        <span className="rune-layout-spread-num" aria-hidden="true">{i + 1}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -549,6 +632,34 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 {uploading ? 'Загрузка…' : 'Выбрать файл'}
               </button>
               <button className="close-btn" onClick={() => setShowUpload(false)} disabled={uploading}>
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedRuneIndex !== null && spreadRunes[selectedRuneIndex] && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setSelectedRuneIndex(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)?.name
+            ? `Руна ${selectedRuneIndex + 1}: ${findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)?.name}`
+            : `Руна ${selectedRuneIndex + 1}`}
+        >
+          <div
+            className="filter-modal rune-layout-rune-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <RuneCard
+              rune={findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)
+                ?? { name: spreadRunes[selectedRuneIndex].replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
+              imageSrc={buildImageUrl(spreadRunes[selectedRuneIndex], `${RUNES_IMAGE_DIR}/runy`)}
+            />
+            <div className="filter-actions">
+              <button className="close-btn" onClick={() => setSelectedRuneIndex(null)}>
                 Закрыть
               </button>
             </div>

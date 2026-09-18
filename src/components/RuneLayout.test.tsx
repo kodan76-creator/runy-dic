@@ -5,8 +5,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import RuneLayout from './RuneLayout'
+import { listRuneLayoutImages } from '../api/images'
 
 // ── Моки API: компонент не должен ходить в сеть/IndexedDB в тестах ─────────
 vi.mock('../api/images', () => ({
@@ -39,6 +40,38 @@ vi.mock('../api/photoCache', () => ({
   loadLayoutState: vi.fn(() => null),
   clearLayoutState: vi.fn(),
 }))
+
+vi.mock('../api/runes', () => ({
+  getRunes: vi.fn(async () => ({ data: [], sha: null, ok: true, exists: true })),
+}))
+
+vi.mock('../api/offline', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...(actual as object),
+    cacheRuneLayoutImageList: vi.fn(),
+    getCachedRuneLayoutImageList: vi.fn(() => null),
+    isRuneLayoutPrecached: vi.fn(() => true),
+    markRuneLayoutPrecached: vi.fn(),
+    cacheRunesForOffline: vi.fn(),
+    getCachedRunes: vi.fn(() => [
+      {
+        name: 'ФАИС-СУ',
+        image: '01.png',
+        power: 'Гармония стихий в человеке использует духовную энергию',
+        keywords: 'Состояние, состоятельность',
+        description: '<p>Собственностью человека может стать лишь творчество его духа.</p>',
+      },
+      {
+        name: 'ФАИС-СУ (перевернутое положение)',
+        image: '',
+        power: 'Росток пробивается из опыта',
+        keywords: 'Росток, опыт',
+        description: '<p>Перевёрнутое положение показывает необходимость обращения к опыту.</p>',
+      },
+    ]),
+  }
+})
 
 const TEST_USER = { email: 'test@example.com', fullBodyPhoto: 'photo.jpg' }
 
@@ -135,6 +168,42 @@ function readCells(blockRe: RegExp): Record<number, { x: number; y: number }> {
 
 const readHealingCells = () =>
   readCells(/\.rune-layout-spread\.healing\s+\.rune-layout-spread-item\.pos-(\d)\s*\{([^}]*)\}/g)
+
+describe('RuneLayout — модалка руны по клику', () => {
+  it('клик по плитке креста открывает карточку руны из раздела «Новые руны»', async () => {
+    const spread = await chooseLayout('Раскладка Новых Рун для исцеления')
+    // Плитки креста — кнопки (кликабельны)
+    const tile = spread.querySelector('.rune-layout-spread-item.pos-1') as HTMLElement
+    expect(tile.tagName).toBe('BUTTON')
+    // ФАИС-СУ — прямое положение: модалка показывает поля карточки
+    fireEvent.click(tile)
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog.textContent).toContain('ФАИС-СУ')
+    expect(dialog.textContent).toContain('Гармония стихий в человеке использует духовную энергию')
+    expect(dialog.textContent).toContain('Состояние, состоятельность')
+    expect(dialog.textContent).toContain('Собственностью человека может стать лишь творчество его духа.')
+    // Закрытие
+    fireEvent.click(screen.getByText('Закрыть'))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  })
+
+  it('клик по перевёрнутой руне (_П) показывает карточку «перевёрнутого положения»', async () => {
+    // Подменяем список раскладки: первая руна — перевёрнутая «2_ФАИС-СУ_П.png»
+    vi.mocked(listRuneLayoutImages).mockResolvedValueOnce([
+      '2_ФАИС-СУ_П.png', '3_ОРС.png', '5_ТУРЗ.png', '6_АЗ.png',
+      '7_РАДО.png', '9_АЛУ.png', '10_ХЕБО.png',
+    ])
+    const spread = await chooseLayout('Раскладка Новых Рун для исцеления')
+    const tile = spread.querySelector('.rune-layout-spread-item.pos-1') as HTMLElement
+    fireEvent.click(tile)
+    const dialog = await screen.findByRole('dialog')
+    // Карточка именно перевёрнутого положения, а не прямой руны
+    expect(dialog.textContent).toContain('перевернутое положение')
+    expect(dialog.textContent).toContain('Росток пробивается из опыта')
+    fireEvent.click(screen.getByText('Закрыть'))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  })
+})
 
 describe('Раскладка для исцеления — крест перевёрнут на 180° (App.css)', () => {
   it('описаны все 7 позиций (и они не накладываются друг на друга)', () => {

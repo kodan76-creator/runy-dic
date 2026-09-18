@@ -1397,6 +1397,13 @@ color: #5a0000;
   border-radius: 10px;
   /* Номерок вынесен за угол плитки — ей нужен видимый перелив наружу. */
   overflow: visible;
+  /* Плитка — кнопка: клик открывает карточку руны. Контейнер креста глушит
+     клики (pointer-events: none), поэтому плитке возвращаем их явно. */
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  color: inherit;
   /* Почти прозрачный крест: сквозь плитки хорошо видно фото в эллипсе.
      Лёгкая светлая вуаль — только чтобы читались сами PNG рун
      (они тёмно-золотые на прозрачном фоне). */
@@ -1408,6 +1415,11 @@ color: #5a0000;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.rune-layout-spread-item:focus-visible {
+  outline: 3px solid rgba(255, 215, 0, 0.85);
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 .rune-layout-spread-item img {
   width: 70%;
@@ -1546,6 +1558,12 @@ color: #5a0000;
   font-size: 14px;
   font-weight: 700;
   opacity: 0.85;
+}
+
+/* Карточка руны креста: тот же RuneCard, что в разделе Новые руны. */
+.rune-layout-rune-modal {
+  max-height: 88vh;
+  overflow-y: auto;
 }
 
 .dictionary-source {
