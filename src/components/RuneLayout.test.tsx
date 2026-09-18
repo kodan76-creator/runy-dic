@@ -12,6 +12,8 @@ import RuneLayout from './RuneLayout'
 vi.mock('../api/images', () => ({
   validateImageFile: vi.fn(async () => {}),
   buildImageUrl: (fileName: string, userFolder: string) => `/images/${userFolder}/${fileName}`,
+  collectRuneLayoutImageUrls: (names: string[]) =>
+    names.map(name => `/images/n_runy/runy/${name}`),
   listRuneLayoutImages: vi.fn(async () => [
     '1_ФАИС-СУ.png', '3_ОРС.png', '5_ТУРЗ.png', '6_АЗ.png',
     '7_РАДО.png', '9_АЛУ.png', '10_ХЕБО.png',
@@ -25,6 +27,8 @@ vi.mock('../api/auth', () => ({
 
 vi.mock('../api/audio', () => ({
   emailToFolderName: (email: string) => email.replace(/[@.]/g, '_'),
+  // Прогрев кэша картинок: в тестах ничего не отправляем, но вызывать можно
+  precacheUrls: vi.fn(() => false),
 }))
 
 vi.mock('../api/photoCache', () => ({
@@ -188,5 +192,50 @@ describe('Крест не пересекает линию эллипса (App.cs
     const cells = readCells(/(?<!\.healing )\.rune-layout-spread-item\.pos-(\d)\s*\{([^}]*)\}/g)
     expect(Object.keys(cells)).toHaveLength(7)
     expect(cornersOutsideEllipse(cells)).toEqual([])
+  })
+})
+
+// ── Мобильная версия: крест ближе к линии эллипса (App.css) ─────────────────
+// Раньше размер руны начинался с clamp(52px, …): на мобильных эллипс
+// маленький, а 52px-минимум держал крест далеко от его линии. Теперь размер
+// руны зависит только от размеров эллипса, поэтому крест занимает ту же долю
+// ширины эллипса (3 × 18cqh = 0.81 ширины), что и на десктопе.
+function readRuneSizeRule() {
+  const css = readAppCss()
+  const block = /\.rune-layout-spread\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+  const rule = /--rune-size:\s*([^;]+);/.exec(block)?.[1]?.trim() ?? ''
+  expect(rule, 'App.css: не найдено правило --rune-size').not.toBe('')
+  return rule
+}
+
+function readEllipseWidthRules() {
+  return [...readAppCss().matchAll(/\.rune-layout-ellipse\s*\{([^}]*)\}/g)]
+    .map(m => /width:\s*([^;]+);/.exec(m[1])?.[1]?.trim())
+    .filter((v): v is string => Boolean(v))
+}
+
+describe('Размер креста и эллипса — мобильные и десктоп (App.css)', () => {
+  it('размер руны задан только в единицах эллипса (без px-минимума)', () => {
+    const rule = readRuneSizeRule()
+    expect(rule).not.toMatch(/px/)
+    expect(rule).not.toMatch(/clamp\(/)
+    expect(rule).toBe('min(18cqh, 33.333cqw)')
+  })
+
+  it('крест занимает ~81% ширины эллипса на любом размере экрана', () => {
+    const cqh = Number(/([\d.]+)cqh/.exec(readRuneSizeRule())?.[1])
+    const { hOverW } = readEllipseFit()
+    // 3 руны по ширине / ширина эллипса (18cqh = 18% высоты = 0.18 × 1.5 ширины)
+    const crossWidthShare = (3 * (cqh / 100) * hOverW) / 1
+    expect(crossWidthShare).toBeCloseTo(0.81, 5)
+  })
+
+  it('эллипс масштабируется под свою сцену (только cqw/cqh, без px/vw/vh)', () => {
+    const widths = readEllipseWidthRules()
+    expect(widths.length).toBeGreaterThan(0)
+    for (const width of widths) {
+      expect(width, `ширина эллипса должна считаться от сцены: ${width}`).toMatch(/cqw|cqh/)
+      expect(width, `в ширине эллипса не должно быть px/vw/vh: ${width}`).not.toMatch(/px|vw|vh/)
+    }
   })
 })

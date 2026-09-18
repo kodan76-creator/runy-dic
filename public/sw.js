@@ -28,6 +28,8 @@ self.addEventListener('activate', (event) => {
 
 // Прогрев кэша: приложение присылает список загруженных ассетов,
 // чтобы оффлайн работал уже после первого визита
+const PRECACHE_CHUNK_SIZE = 6
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'PRECACHE_URLS' && Array.isArray(event.data.urls)) {
     const urls = event.data.urls.filter((u) => {
@@ -36,7 +38,13 @@ self.addEventListener('message', (event) => {
     if (urls.length) {
       event.waitUntil(
         caches.open(CACHE_NAME)
-          .then((cache) => Promise.all(urls.map((u) => cache.add(u).catch((err) => console.error('PRECACHE one failed:', u, err)))))
+          .then(async (cache) => {
+            // Грузим пачками: сразу 38 картинок рун «забивают» канал на телефоне
+            for (let i = 0; i < urls.length; i += PRECACHE_CHUNK_SIZE) {
+              const part = urls.slice(i, i + PRECACHE_CHUNK_SIZE)
+              await Promise.all(part.map((u) => cache.add(u).catch((err) => console.error('PRECACHE one failed:', u, err))))
+            }
+          })
           .catch((err) => console.error('PRECACHE failed:', err))
       )
     }

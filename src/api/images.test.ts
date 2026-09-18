@@ -1,7 +1,7 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes } from './images'
+import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls } from './images'
 import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
@@ -226,5 +226,20 @@ describe('selectRandomRunes', () => {
     const selected = selectRandomRunes(files, 100)
     expect(selected.length).toBeLessThanOrEqual(files.length)
     expect(new Set(selected).size).toBe(selected.length)
+  })
+})
+
+// URL картинок раскладки собираются для прогрева кэша Service Worker:
+// крест должен показываться и онлайн, и офлайн.
+describe('collectRuneLayoutImageUrls', () => {
+  it('строит пути картинок рун в папке runy', () => {
+    expect(collectRuneLayoutImageUrls(['1_ФАИС-СУ.png'])).toEqual([
+      `${import.meta.env.BASE_URL}images/n_runy/runy/1_ФАИС-СУ.png`,
+    ])
+  })
+
+  it('пропускает пустые имена и не падает на не-массиве', () => {
+    expect(collectRuneLayoutImageUrls(['', '5_ТУРЗ.png'])).toHaveLength(1)
+    expect(collectRuneLayoutImageUrls(null as unknown as string[])).toEqual([])
   })
 })

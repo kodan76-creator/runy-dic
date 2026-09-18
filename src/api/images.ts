@@ -10,6 +10,9 @@ import {
 import {
   getGitHubFileSha,
   getHeaders,
+  githubFetch,
+  isBrowserOffline,
+  warnFetchFailure,
 } from './client'
 import { emailToFolderName } from './audio'
 
@@ -179,9 +182,11 @@ export const cleanupUserPhotos = async (userEmail, keepFileName) => {
 // 🎲 Раскладка Новых Рун: список файлов в папке public/images/n_runy/runy/
 // (файлы вида «N_НАЗВАНИЕ.png» / «N_НАЗВАНИЕ_П.png» — порядковый номер до «_»).
 export const listRuneLayoutImages = async () => {
+  // Без сети сразу отдаём пустой список: компонент возьмёт локальный кэш
+  if (isBrowserOffline()) return []
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/public/images/${RUNES_IMAGE_DIR}/runy?ref=${GITHUB_BRANCH}`
   try {
-    const response = await fetch(url, { headers: getHeaders() })
+    const response = await githubFetch(url, { headers: getHeaders() })
     if (!response.ok) {
       if (response.status === 404) return []
       throw new Error(`Ошибка чтения папки: ${response.statusText}`)
@@ -190,7 +195,7 @@ export const listRuneLayoutImages = async () => {
     if (!Array.isArray(data)) return []
     return data.filter(item => item.type === 'file').map(item => item.name)
   } catch (e) {
-    console.warn('listRuneLayoutImages error:', e)
+    warnFetchFailure('runy', e, 'List')
     return []
   }
 }
@@ -238,6 +243,19 @@ export const collectImageUrls = (words, resolveFolder) => {
     if (!w?.image) continue
     const folder = typeof resolveFolder === 'function' ? resolveFolder(w) : resolveFolder
     const u = buildImageUrl(w.image, folder)
+    if (u && u.startsWith(import.meta.env.BASE_URL)) urls.push(u)
+  }
+  return urls
+}
+
+//  Собирает URL картинок раскладки рун (public/images/<RUNES_IMAGE_DIR>/runy/).
+// Используется для прогрева кэша Service Worker: картинки креста должны быть
+// доступны и онлайн, и офлайн.
+export const collectRuneLayoutImageUrls = (names: string[]): string[] => {
+  const urls: string[] = []
+  for (const name of (Array.isArray(names) ? names : [])) {
+    if (!name) continue
+    const u = buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)
     if (u && u.startsWith(import.meta.env.BASE_URL)) urls.push(u)
   }
   return urls

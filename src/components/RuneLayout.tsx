@@ -4,10 +4,16 @@
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes } from '../api/images'
+import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import { saveRuneLayoutType } from '../api/auth'
-import { emailToFolderName } from '../api/audio'
+import { emailToFolderName, precacheUrls } from '../api/audio'
+import {
+  cacheRuneLayoutImageList,
+  getCachedRuneLayoutImageList,
+  isRuneLayoutPrecached,
+  markRuneLayoutPrecached,
+} from '../api/offline'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
@@ -210,6 +216,18 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }
   }
 
+  // 🧿 Прогрев картинок раскладки в кэш Service Worker.
+  // Выбранные руны кэшируем всегда (их показываем прямо сейчас), а весь набор
+  // из папки runy — один раз, чтобы оффлайн-выбор любых рун тоже отображался.
+  const precacheLayoutImages = (names: string[]) => {
+    precacheUrls(collectRuneLayoutImageUrls(names))
+    if (isRuneLayoutPrecached()) return
+    // Отмечаем прогрев только если SW реально принял список (иначе повторим позже)
+    if (precacheUrls(collectRuneLayoutImageUrls(RUNES_LAYOUT_FALLBACK))) {
+      markRuneLayoutPrecached()
+    }
+  }
+
   // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy
   const handleSpread = async () => {
     setSpreadLoading(true)
@@ -217,11 +235,22 @@ export default function RuneLayout({ user, onUserUpdate }) {
       let files = await listRuneLayoutImages()
       // Оставляем только файлы с порядковым номером до «_»
       files = files.filter(f => /^\d+_/.test(f))
-      if (files.length === 0) files = [...RUNES_LAYOUT_FALLBACK]
-      setSpreadRunes(selectRandomRunes(files, 7))
+      if (files.length > 0) {
+        // Список доступен — кэшируем его, чтобы оффлайн выбирать руны
+        // из реального набора, а не только из резервного списка в коде
+        cacheRuneLayoutImageList(files)
+      } else {
+        // Нет сети/GitHub API — берём список из кэша, иначе резервный
+        files = getCachedRuneLayoutImageList() || [...RUNES_LAYOUT_FALLBACK]
+      }
+      const chosen = selectRandomRunes(files, 7)
+      setSpreadRunes(chosen)
+      precacheLayoutImages(chosen)
     } catch (e) {
       console.warn('handleSpread error:', e)
-      setSpreadRunes(selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7))
+      const chosen = selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7)
+      setSpreadRunes(chosen)
+      precacheLayoutImages(chosen)
     } finally {
       setSpreadLoading(false)
     }

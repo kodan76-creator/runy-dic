@@ -144,6 +144,52 @@ export const getCachedRunes = () => {
   }
 }
 
+// ── Оффлайн-кэш списка картинок раскладки рун ─────────────────────────
+// Список файлов папки runy читается через GitHub API, который без
+// интернета недоступен. Кэшируем его, чтобы оффлайн выбирать руны
+// из реального списка (а не только из резервного варианта в коде).
+const OFFLINE_RUNE_LAYOUT_LIST_KEY = 'offline_rune_layout_list'
+
+/** Сохранить список файлов раскладки рун в офлайн-кэш. */
+export const cacheRuneLayoutImageList = (files: string[]) => {
+  const list = Array.isArray(files) ? files.filter((f) => typeof f === 'string' && f) : []
+  if (list.length === 0) return
+  try {
+    localStorage.setItem(OFFLINE_RUNE_LAYOUT_LIST_KEY, JSON.stringify({ files: list, savedAt: Date.now() }))
+  } catch (e) {
+    console.error('cacheRuneLayoutImageList error:', e)
+  }
+}
+
+/** Получить кэшированный список файлов раскладки рун (массив или null). */
+export const getCachedRuneLayoutImageList = (): string[] | null => {
+  try {
+    const raw = localStorage.getItem(OFFLINE_RUNE_LAYOUT_LIST_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed.files) && parsed.files.length > 0 ? parsed.files : null
+  } catch {
+    return null
+  }
+}
+
+/** Отмечался ли прогрев картинок раскладки в кэш Service Worker. */
+const RUNE_LAYOUT_PRECACHE_KEY = 'rune_layout_precached'
+
+export const isRuneLayoutPrecached = (): boolean => {
+  try {
+    return localStorage.getItem(RUNE_LAYOUT_PRECACHE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export const markRuneLayoutPrecached = () => {
+  try {
+    localStorage.setItem(RUNE_LAYOUT_PRECACHE_KEY, '1')
+  } catch { /* приватный режим: просто прогреем кэш повторно в следующий раз */ }
+}
+
 /** Применить одно отложенное изменение к массиву слов (чистая функция).
  *  Используется и для локального кэша, и для воспроизведения очереди при
  *  возврате соединения. Типы: add / update / delete / move. */

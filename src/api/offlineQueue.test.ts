@@ -1,6 +1,6 @@
 // Тесты оффлайн-очереди: применение отложенных изменений к массиву слов.
 import { describe, it, expect, beforeEach } from 'vitest'
-import { applyOfflineChange, enqueueOfflineChange, getOfflineChanges, removeOfflineChanges, cacheDictionaryForOffline, getCachedDictionary } from './offline'
+import { applyOfflineChange, enqueueOfflineChange, getOfflineChanges, removeOfflineChanges, cacheDictionaryForOffline, getCachedDictionary, cacheRuneLayoutImageList, getCachedRuneLayoutImageList } from './offline'
 
 const w1 = { id: '1', word: 'hello', translation: 'привет' }
 const w2 = { id: '2', word: 'world', translation: 'мир' }
@@ -75,5 +75,30 @@ describe('offline queue (localStorage)', () => {
     cacheDictionaryForOffline('u@test.com', [w1])
     const cached = getCachedDictionary('u@test.com')
     expect(cached).toEqual([w1])
+  })
+})
+
+// Список картинок раскладки рун читается через GitHub API, который оффлайн
+// недоступен. Кэш позволяет выбирать руны креста и показывать картинки без сети.
+describe('offline cache: картинки раскладки рун', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('сохраняет и возвращает список файлов раскладки', () => {
+    expect(getCachedRuneLayoutImageList()).toBeNull()
+    cacheRuneLayoutImageList(['1_ФАИС-СУ.png', '2_ОРС.png'])
+    expect(getCachedRuneLayoutImageList()).toEqual(['1_ФАИС-СУ.png', '2_ОРС.png'])
+  })
+
+  it('не затирает кэш пустым списком (оффлайн-ответ API)', () => {
+    cacheRuneLayoutImageList(['3_ТУРЗ.png'])
+    cacheRuneLayoutImageList([])
+    expect(getCachedRuneLayoutImageList()).toEqual(['3_ТУРЗ.png'])
+  })
+
+  it('битые данные в localStorage не ломают выбор рун', () => {
+    localStorage.setItem('offline_rune_layout_list', '{не json')
+    expect(getCachedRuneLayoutImageList()).toBeNull()
   })
 })

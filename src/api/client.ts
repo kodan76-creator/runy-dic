@@ -16,14 +16,79 @@ export const getHeaders = (includeAuth = true): Record<string, string> => ({
   'Content-Type': 'application/json',
 })
 
+// ── 🌐 Сеть: таймаут, повтор при обрыве, тихие логи ───────────────────
+// GitHub API может быть недоступен (нет сети, ERR_TIMED_OUT, блокировка).
+// Приложение не должно из-за этого сыпать ошибками в консоль и бесконечно
+// ждать ответа: чтение файлов работает на локальных кэшах (api/offline).
+const FETCH_TIMEOUT_MS = 15000
+const NETWORK_RETRY_DELAY_MS = 600
+const FAILURE_LOG_THROTTLE_MS = 120000
+
+/** Есть ли сеть по данным браузера (в оффлайне запросы к GitHub бессмысленны). */
+export const isBrowserOffline = (): boolean =>
+  typeof navigator !== 'undefined' && navigator.onLine === false
+
+/** Сетевой сбой (обрыв/таймаут), а не ответ сервера с ошибкой. */
+export const isNetworkFetchError = (error: unknown): boolean => {
+  if (typeof DOMException !== 'undefined' && error instanceof DOMException) return true
+  if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TypeError')) return true
+  const msg = error instanceof Error ? error.message : String(error || '')
+  return /Failed to fetch|NetworkError|Load failed|ERR_|aborted|timed out/i.test(msg)
+}
+
+/** fetch с таймаутом: не даём запросу висеть бесконечно (ERR_TIMED_OUT). */
+export const fetchWithTimeout = async (
+  url: string,
+  options: RequestInit = {},
+  timeoutMs = FETCH_TIMEOUT_MS
+): Promise<Response> => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { ...options, signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/** fetch к GitHub: один повтор при обрыве сети (короткий сетевой «чих»). */
+export const githubFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  if (isBrowserOffline()) throw new TypeError('Failed to fetch')
+  try {
+    return await fetchWithTimeout(url, options)
+  } catch (error) {
+    if (!isNetworkFetchError(error) || isBrowserOffline()) throw error
+    await new Promise((res) => setTimeout(res, NETWORK_RETRY_DELAY_MS))
+    return await fetchWithTimeout(url, options)
+  }
+}
+
+// Сетевые сбои логируем не чаще одного раза на файл в 2 минуты: иначе
+// минутный опрос users.json засоряет консоль одинаковыми ошибками.
+const lastFailureLogAt = new Map<string, number>()
+
+export const warnFetchFailure = (fileName: string, error: unknown, kind = 'Fetch'): void => {
+  const now = Date.now()
+  const last = lastFailureLogAt.get(fileName) || 0
+  if (now - last < FAILURE_LOG_THROTTLE_MS) return
+  lastFailureLogAt.set(fileName, now)
+  const msg = error instanceof Error ? error.message : String(error || '')
+  if (isNetworkFetchError(error)) {
+    console.warn(`${kind} ${fileName}: нет связи с GitHub — работаем на локальных данных (${msg})`)
+  } else {
+    console.warn(`${kind} ${fileName} error: ${msg}`)
+  }
+}
+
 export const utf8ToBase64 = (str: string): string => btoa(unescape(encodeURIComponent(str)))
 export const base64ToUtf8 = (str: string): string => decodeURIComponent(escape(atob(str)))
 
 // Получить SHA файла без декодирования контента (для бинарных файлов)
 export const getGitHubFileSha = async (filePath: string): Promise<string | null> => {
+  if (isBrowserOffline()) return null
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`
-    const resp = await fetch(url, { headers: getHeaders() })
+    const resp = await githubFetch(url, { headers: getHeaders() })
     if (!resp.ok) return null
     const data = await resp.json()
     return data.sha || null
@@ -34,9 +99,12 @@ export const getGitHubFileSha = async (filePath: string): Promise<string | null>
 
 // ✅ Всегда возвращаем { data, sha, ok, exists }
 export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResult<any[]>> => {
+  // Сети нет — GitHub API недоступен: читатели сами возьмут локальный кэш,
+  // поэтому не шумим в консоль и не ждём таймаут
+  if (isBrowserOffline()) return { data: [], sha: null, ok: false, exists: null }
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    const response = await githubFetch(url, { headers: getHeaders(), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: [], sha: null, ok: true, exists: false }
       const errText = await response.text().catch(() => '')
@@ -82,7 +150,8 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
     // ✅ Возвращаем { data, sha, ok, exists }
     return { data: Array.isArray(content) ? content : [], sha: fileSha, ok: true, exists: true }
   } catch (error) {
-    console.error(`Fetch ${fileName} error:`, error)
+    // Сетевой сбой → тихий троттлинг-лог (без стека и без спама раз в минуту)
+    warnFetchFailure(fileName, error)
     // Сетевая/API-ошибка — существование файла неизвестно
     return { data: [], sha: null, ok: false, exists: null }
   }
@@ -90,9 +159,10 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
 
 // Сырой fetch (без расшифровки) — для миграции и проверки статуса шифрования
 export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawResult> => {
+  if (isBrowserOffline()) return { data: null, sha: null }
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    const response = await githubFetch(url, { headers: getHeaders(), cache: 'no-cache' })
     if (!response.ok) {
       if (response.status === 404) return { data: null, sha: null }
       throw new Error(`HTTP ${response.status}`)
@@ -102,7 +172,7 @@ export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawRes
     const raw = base64ToUtf8(fileData.content)
     return { data: raw.replace(/^\uFEFF/, '').trim(), sha: fileData.sha }
   } catch (error) {
-    console.error(`FetchRaw ${fileName} error:`, error)
+    warnFetchFailure(fileName, error, 'FetchRaw')
     return { data: null, sha: null }
   }
 }
@@ -139,7 +209,7 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
       const body: Record<string, string> = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
       if (workingSha) body.sha = workingSha
 
-      const response = await fetch(
+      const response = await githubFetch(
         `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}`,
         { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) }
       )
@@ -159,7 +229,9 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
 
       return await response.json()
     } catch (error) {
-      console.error(`Update ${fileName} error:`, error)
+      // 🌐 Сетевые сбои и конфликты (409/422) — тихий троттлинг-лог вместо
+      // console.error: запись повторяется, а консоль не засоряется
+      warnFetchFailure(fileName, error, 'Update')
       if (isRetryableGitHubError(error) && attempts < maxAttempts - 1) {
         attempts++
         const { sha: latestSha } = await fetchGitHubFileRaw(fileName)

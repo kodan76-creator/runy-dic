@@ -98,16 +98,19 @@ export const collectAudioUrls = (words, resolveFolder) => {
 }
 
 // Отправляет список URL в Service Worker для прогрева кэша (оффлайн-воспроизведение).
+// Возвращает true, если список отправлен (значит, SW контролирует страницу).
 export const precacheUrls = (urls) => {
-  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return false
   const controller = navigator.serviceWorker?.controller
-  if (!controller) return
+  if (!controller) return false
   const sameOrigin = (Array.isArray(urls) ? urls : []).filter((u) => {
     try { return new URL(u).origin === location.origin } catch { return false }
   })
   if (sameOrigin.length) {
     controller.postMessage({ type: 'PRECACHE_URLS', urls: sameOrigin })
+    return true
   }
+  return false
 }
 
 // 🗑️ Удаление аудиофайла из папки пользователя
