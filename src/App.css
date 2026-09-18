@@ -1408,6 +1408,9 @@ color: #5a0000;
   height: 100%;
   object-fit: contain;
   display: block;
+  /* Та же плотная подложка, что у плитки: PNG рун на 60–80% прозрачные,
+     без этого сквозь картинку просвечивало бы фото из эллипса. */
+  background: #fffbeb;
 }
 .rune-layout-spread-num {
   position: absolute;
