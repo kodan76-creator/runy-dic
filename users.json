@@ -73,7 +73,8 @@
     "runesPaidAt": "2026-09-08T16:56:50.209Z",
     "runesPaidBy": "ya.kodan76@ya.ru",
     "runesUnpaidAt": null,
-    "runesUnpaidBy": null
+    "runesUnpaidBy": null,
+    "runeLayoutType": "healing"
   },
   {
     "id": "1784820018822",
