@@ -326,7 +326,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 onPointerCancel={handlePointerUp}
               />
               {spreadRunes.length > 0 && (
-                <div className="rune-layout-spread" aria-label="Раскладка Новых Рун">
+                <div
+                  className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}`}
+                  aria-label="Раскладка Новых Рун"
+                >
                   {spreadRunes.map((name, i) => (
                     <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
                       <img
