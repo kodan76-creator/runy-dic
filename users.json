@@ -114,5 +114,36 @@
     "fullBodyPhoto": "1000012452.jpg",
     "mobileFullBodyPhoto": "layout_1789499556200.jpg",
     "runeLayoutType": "healing"
+  },
+  {
+    "id": "1789821046328",
+    "email": "test7@1.ru",
+    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "createdAt": "2026-09-19T12:30:46.319Z",
+    "role": "user",
+    "sessionVersion": 0,
+    "paid": false,
+    "paidAt": null,
+    "paidBy": null,
+    "unpaidAt": null,
+    "unpaidBy": null,
+    "runesPaid": false,
+    "runesPaidAt": null,
+    "runesPaidBy": null,
+    "runesUnpaidAt": null,
+    "runesUnpaidBy": null,
+    "isBlocked": false,
+    "blockedAt": null,
+    "blockedBy": null,
+    "deviceId": "50ca4311-bc07-4136-a084-9daa08a6cd66",
+    "devices": [
+      {
+        "id": "50ca4311-bc07-4136-a084-9daa08a6cd66",
+        "type": "desktop",
+        "addedAt": "2026-09-19T12:30:46.319Z",
+        "lastLoginAt": "2026-09-19T12:30:46.319Z"
+      }
+    ],
+    "registeredAt": "2026-09-19T12:30:46.319Z"
   }
 ]
