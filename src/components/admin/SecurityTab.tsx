@@ -77,7 +77,7 @@ export default function SecurityTab({
                     onClick={handleEncryptSelected}
                     disabled={encryptLoading}
                     className="clear-logs-btn"
-                    style={{ fontSize: '12px', padding: '2px 8px', background: '#2d6a4f', borderColor: '#2d6a4f' }}
+                    style={{ fontSize: '12px', padding: '2px 8px', background: 'var(--app-accent)', borderColor: 'var(--app-accent)' }}
                   >
                     {encryptLoading ? '⏳ Шифрование...' : `🔐 Зашифровать (${selectedFiles.size})`}
                   </button>
@@ -85,9 +85,9 @@ export default function SecurityTab({
               )}
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #555' }}>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
                   <th style={{ padding: '2px 6px', width: '30px' }}>
                     <input
                       type="checkbox"
@@ -105,7 +105,7 @@ export default function SecurityTab({
               </thead>
               <tbody>
                 {filesStatus.map((f, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #333', opacity: f.status === 'not_found' ? 0.4 : 1 }}>
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)', opacity: f.status === 'not_found' ? 0.4 : 1 }}>
                     <td style={{ padding: '2px 6px' }}>
                       {f.encrypted !== null && (
                         <input
@@ -137,11 +137,11 @@ export default function SecurityTab({
           { label: 'Результат шифрования:', data: encryptResult },
         ].filter(g => g.data && g.data.length > 0).map(group => (
           <div key={group.label} style={{ marginTop: '8px' }}>
-            <h4 style={{ color: '#fff', margin: '0 0 4px', fontSize: '13px' }}>{group.label}</h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ccc', fontSize: '12px' }}>
+            <h4 style={{ color: 'var(--text-h)', margin: '0 0 4px', fontSize: '13px' }}>{group.label}</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px' }}>
               <tbody>
                 {group.data.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #333' }}>
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '2px 6px' }}>{r.file}</td>
                     <td style={{ padding: '2px 6px' }}>
                       {r.status === 'encrypted' && '🔐 Зашифрован'}

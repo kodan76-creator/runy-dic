@@ -72,8 +72,8 @@ button:hover:not(:disabled) {
 }
 
 .auth-hint {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--hint-bg);
+  color: var(--hint-text);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -82,8 +82,8 @@ button:hover:not(:disabled) {
 }
 
 .auth-success {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-bg);
+  color: var(--success-text);
   padding: 12px;
   border-radius: 6px;
   margin-top: 10px;
@@ -95,7 +95,7 @@ button:hover:not(:disabled) {
   width: 100%;
   padding: 12px;
   background: #aa3bff;
-  color: white;
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -109,7 +109,7 @@ button:hover:not(:disabled) {
 }
 
 .auth-btn:disabled {
-  background: #ccc;
+  background: var(--disabled);
   cursor: not-allowed;
 }
 
@@ -128,7 +128,7 @@ button:hover:not(:disabled) {
 
 .toggle-auth-btn:hover:not(:disabled) {
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
 }
 
 .toggle-auth-btn:disabled {
@@ -155,14 +155,14 @@ button:hover:not(:disabled) {
 }
 
 .admin-launch-btn:disabled {
-  background: #ccc;
+  background: var(--disabled);
   cursor: not-allowed;
 }
 
 /* Кнопка выхода пользователя */
 .logout-btn-user {
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
@@ -196,7 +196,7 @@ button:hover:not(:disabled) {
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  color: #ffffff;
+  color: var(--on-accent);
   font-size: 12px;
   font-weight: 700;
   line-height: 1.25;
@@ -215,7 +215,7 @@ content: "";
 align-self: stretch;
 width: 2px;
 margin-left: 6px;
-background: rgba(255,255,255,0.35);
+background: rgba(246, 240, 253, 0.35);
 border-radius: 2px;
 }
 
@@ -226,20 +226,20 @@ display: inline-flex;
 align-items: center;
 justify-content: center;
 border-radius: 8px;
-background: rgba(255,255,255,0.12);
-color: white;
+background: rgba(246, 240, 253, 0.12);
+color: var(--on-accent);
 font-weight: 700;
 cursor: pointer;
 user-select: none;
 }
 
 .fav-status:hover {
-background: rgba(255,255,255,0.2);
+background: rgba(246, 240, 253, 0.2);
 }
 
 .fav-status[title^="Ошибка"] {
-background: #ff8a80;
-color: #5a0000;
+  background: var(--error-bg);
+  color: var(--error-text);
 }
 
 .header-admin-btn {
@@ -315,9 +315,9 @@ color: #5a0000;
   max-width: 1200px;
   margin: 10px auto 0;
   padding: 10px 16px;
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #f0c36d;
+  background: var(--hint-bg);
+  color: var(--hint-text);
+  border: 1px solid var(--hint-border);
   border-radius: 8px;
   font-size: 13px;
   text-align: center;
@@ -342,13 +342,13 @@ color: #5a0000;
 }
 
 .listen-btn:disabled {
-  background: #ccc;
+  background: var(--disabled);
   cursor: not-allowed;
 }
 
 .listen-btn.playing {
   background: #ff4444;
-  color: white;
+  color: var(--on-accent);
   animation: pulse 1s infinite;
 }
 
@@ -377,7 +377,7 @@ color: #5a0000;
   display: flex;
   align-items: center;
   gap: 4px;
-  color: white;
+  color: var(--on-accent);
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
@@ -427,8 +427,8 @@ color: #5a0000;
   display: flex;
   gap: 5px;
   align-items: center;
-  background: rgba(255, 255, 255, 0.14);
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(246, 240, 253, 0.14);
+  border: 2px solid rgba(246, 240, 253, 0.35);
   border-radius: 999px;
   padding: 3px;
   order: 5;
@@ -436,7 +436,7 @@ color: #5a0000;
 .view-toggle-btn {
   border: none;
   background: transparent;
-  color: #fff;
+  color: var(--on-accent);
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -447,7 +447,7 @@ color: #5a0000;
   transition: background 0.2s, color 0.2s;
 }
 .view-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(246, 240, 253, 0.15);
 }
 .view-toggle-btn.active {
   background: #FFD700;
@@ -460,7 +460,7 @@ color: #5a0000;
   align-items: center;
   gap: 5px;
   order: 6;
-  color: white;
+  color: var(--on-accent);
 }
 
 /* Вертикальный разделитель между «Сортировать» и «Словари» (в конце сортировки) */
@@ -469,7 +469,7 @@ color: #5a0000;
   align-self: stretch;
   width: 2px;
   margin-left: 3px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(246, 240, 253, 0.35);
   border-radius: 2px;
 }
 
@@ -479,7 +479,7 @@ color: #5a0000;
   align-items: center;
   gap: 6px;
   order: 7;
-  color: white;
+  color: var(--on-accent);
 }
 
 /* Вертикальный разделитель после «Словари» (после «основной») */
@@ -488,7 +488,7 @@ color: #5a0000;
   align-self: stretch;
   width: 2px;
   margin-left: 3px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(246, 240, 253, 0.35);
   border-radius: 2px;
 }
 
@@ -604,19 +604,19 @@ color: #5a0000;
 }
 
 .results::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(42, 17, 69, 0.05);
   border-radius: 6px;
 }
 
 .results::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(42, 17, 69, 0.35);
   border-radius: 6px;
   border: 3px solid transparent;
 }
 
 .results {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.05);
+  scrollbar-color: rgba(42, 17, 69, 0.35) rgba(42, 17, 69, 0.05);
 }
 
 /* Filter button + modal styles */
@@ -657,13 +657,13 @@ color: #5a0000;
 
 .filter-btn {
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
   border: 3px solid #7b1fa2;
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px rgba(42, 17, 69, 0.12);
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -679,11 +679,11 @@ color: #5a0000;
   top: -8px;
   right: -8px;
   background: #ff5252;
-  color: white;
+  color: var(--on-accent);
   font-size: 12px;
   padding: 4px 7px;
   border-radius: 999px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(42, 17, 69, 0.2);
 }
 
 .modal-backdrop {
@@ -709,7 +709,7 @@ color: #5a0000;
   color: var(--surface-text);
   border: 3px solid var(--surface-border);
   scrollbar-width: thin;
-  scrollbar-color: #7b1fa2 #f1f1f1;
+  scrollbar-color: #7b1fa2 var(--track);
 }
 
 .filter-modal h3 {
@@ -783,12 +783,12 @@ color: #5a0000;
 
 .apply-btn {
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
 }
 
 .cancel-btn {
-  background: #9e9e9e;
-  color: white;
+  background: var(--cancel-bg);
+  color: var(--on-accent);
 }
 
 .close-btn {
@@ -822,7 +822,7 @@ color: #5a0000;
   /* ✅ Чуть меньше скругление */
   border: 2px solid var(--card-border);
   border-left: 6px solid var(--card-border);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(42, 17, 69, 0.2);
   position: relative;
   min-height: 130px;
   /* ✅ Увеличена минимальная высота */
@@ -842,7 +842,7 @@ color: #5a0000;
   font-size: 45px;
   color: #FFD700;
   font-family: 'Dao Rus', sans-serif;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
   line-height: 1.3;
   white-space: pre-wrap;
 }
@@ -851,7 +851,7 @@ color: #5a0000;
   margin: 0;
   color: #7d19b9;
   font-style: italic;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.3);
   font-size: 20px;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -859,10 +859,10 @@ color: #5a0000;
 
 .translation {
   margin: 0 0 10px 0;
-  color: white;
+  color: var(--on-accent);
   font-size: 18px;
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.3);
   line-height: 1.5;
   white-space: pre-wrap;
 }
@@ -892,17 +892,17 @@ color: #5a0000;
   background: #4a2a6b;
   border-radius: 12px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.05);
+  scrollbar-color: rgba(42, 17, 69, 0.35) rgba(42, 17, 69, 0.05);
 }
 .runes-dictionary-section::-webkit-scrollbar {
   width: 12px;
 }
 .runes-dictionary-section::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(42, 17, 69, 0.05);
   border-radius: 6px;
 }
 .runes-dictionary-section::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(42, 17, 69, 0.35);
   border-radius: 6px;
   border: 3px solid transparent;
 }
@@ -946,7 +946,7 @@ color: #5a0000;
   font-size: 24px;
   color: #FFD700;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
   text-align: center;
 }
 /* Иконка голубя в заголовке раздела «Новые Руны» */
@@ -974,7 +974,7 @@ color: #5a0000;
   border-radius: 10px;
   border: 2px solid var(--card-border);
   border-left: 6px solid var(--card-border);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(42, 17, 69, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1026,9 +1026,9 @@ color: #5a0000;
 .rune-card-power,
 .rune-card-keywords,
 .rune-card-power-image {
-  color: white;
+  color: var(--on-accent);
   font-size: 15px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.3);
   line-height: 1.4;
   white-space: pre-wrap;
 }
@@ -1039,7 +1039,7 @@ color: #5a0000;
 }
 .rune-card-desc {
   margin: 4px 0 0 0;
-  color: #e0e0e0;
+  color: var(--plum-100);
   font-size: 14px;
   line-height: 1.5;
   text-align: center;
@@ -1095,7 +1095,7 @@ color: #5a0000;
   font-size: 15px;
   font-weight: 700;
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
 }
 
 /* Сцена: всё поле, где лежит фото (накрывает весь экран раздела) */
@@ -1110,7 +1110,7 @@ color: #5a0000;
   justify-content: center;
   border-radius: 12px;
   background: #2d1745;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 0 60px rgba(42, 17, 69, 0.45);
   /* Контейнер для раскладки: cqh/cqw позволяют подгонять размер рун
      под высоту/ширину сцены, чтобы раскладка всегда помещалась */
   container-type: size;
@@ -1135,7 +1135,7 @@ color: #5a0000;
   overflow: hidden;
   box-shadow:
     0 0 0 3px rgba(255, 215, 0, 0.65),
-    0 0 46px rgba(0, 0, 0, 0.55);
+    0 0 46px rgba(42, 17, 69, 0.55);
   /* Контейнер для раскладки: cqh/cqw внутри эллипса считаются относительно
      эллипса, поэтому крест всегда подстраивается под его размер. */
   container-type: size;
@@ -1211,7 +1211,7 @@ color: #5a0000;
   color: #FFD700;
   font-size: 16px;
   font-weight: 700;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
 }
 
 .rune-layout-replace-btn,
@@ -1256,6 +1256,8 @@ color: #5a0000;
 /* ⚪ Белый фон: раскладка без фото — эллипс залит плотным белым.
    Класс вешается на эллипс, фото в этом режиме не рендерится вовсе. */
 .rune-layout-ellipse.white-bg {
+  /* 🔒 Настоящий белый — это пользовательский выбор «Белый фон»,
+     его нельзя подменять лавандовым токеном темы. */
   background: #ffffff;
 }
 
@@ -1352,7 +1354,7 @@ color: #5a0000;
   justify-content: center;
   gap: 12px;
   text-align: center;
-  color: white;
+  color: var(--on-accent);
   padding: 20px;
   box-sizing: border-box;
 }
@@ -1366,7 +1368,7 @@ color: #5a0000;
   max-width: 420px;
   font-size: 15px;
   line-height: 1.5;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.4);
 }
 
 /* Модальное окно загрузки фото */
@@ -1447,9 +1449,9 @@ color: #5a0000;
   /* Почти прозрачный крест: сквозь плитки хорошо видно фото в эллипсе.
      Лёгкая светлая вуаль — только чтобы читались сами PNG рун
      (они тёмно-золотые на прозрачном фоне). */
-  border: 2px solid rgba(184, 134, 11, 0.4);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 251, 235, 0.12);
+  border: 2px solid rgba(74, 42, 107, 0.4);
+  box-shadow: 0 2px 10px rgba(42, 17, 69, 0.2);
+  background: rgba(246, 240, 253, 0.12);
   /* Картинка по центру плитки — по краям остаётся воздушная полоса фона,
      номерок висит снаружи угла и не наезжает на рисунок руны. */
   display: flex;
@@ -1472,14 +1474,14 @@ color: #5a0000;
   /* Прозрачная: вуаль даёт сама плитка, отдельный фон у картинки не нужен —
      иначе сквозь рисунок не было бы видно фото. */
   background: transparent;
-  filter: drop-shadow(0 0 3px rgba(255, 251, 235, 0.9));
+  filter: drop-shadow(0 0 3px rgba(246, 240, 253, 0.9));
 }
 
 /* 💓 Пульсация свечения руны — мягкая «дыхательная» волна золотого света.
    Задержки по позициям сдвигают фазы: волна бежит по кресту от руны 1 к 7. */
 @keyframes rune-glow-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 3px rgba(255, 251, 235, 0.9));
+    filter: drop-shadow(0 0 3px rgba(246, 240, 253, 0.9));
   }
   50% {
     filter: drop-shadow(0 0 7px rgba(255, 215, 0, 0.95))
@@ -1515,9 +1517,9 @@ color: #5a0000;
   height: calc(var(--rune-size) * 0.24);
   padding: 0 calc(var(--rune-size) * 0.05);
   border-radius: 999px;
-  background: #ffffff;
-  color: #6b4e00;
-  border: 1px solid rgba(122, 92, 0, 0.45);
+  background: var(--on-accent);
+  color: var(--plum-800);
+  border: 1px solid rgba(74, 42, 107, 0.45);
   font-size: calc(var(--rune-size) * 0.155);
   font-weight: 700;
   line-height: calc(var(--rune-size) * 0.24);
@@ -1654,7 +1656,7 @@ color: #5a0000;
   padding: 10px 10px 10px 12px;
   background: linear-gradient(160deg, rgba(122, 61, 0, 0.95), rgba(255, 155, 30, 0.92));
   border-bottom: 2px solid #ffd700;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 3px 12px rgba(42, 17, 69, 0.45);
 }
 /* Текст позиции внутри закреплённой шапки: крупнее и контрастнее */
 .rune-layout-rune-header .rune-layout-rune-position {
@@ -1663,9 +1665,9 @@ color: #5a0000;
   padding: 0;
   border: none;
   background: transparent;
-  color: #fff8e1;
+  color: var(--surface);
   font-size: 15px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.55);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.55);
 }
 /* Кнопка «Закрыть» в шапке: яркая, заметная, крупная зона нажатия */
 .rune-layout-rune-close {
@@ -1673,9 +1675,9 @@ color: #5a0000;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--on-accent);
   background: #d81b1b;
-  color: #ffffff;
+  color: var(--on-accent);
   font-size: 20px;
   font-weight: 700;
   line-height: 1;
@@ -1683,7 +1685,7 @@ color: #5a0000;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(42, 17, 69, 0.5);
   transition: transform 0.12s ease, background 0.15s ease;
 }
 .rune-layout-rune-close:hover {
@@ -1705,13 +1707,13 @@ color: #5a0000;
   padding: 4px 10px;
   border-radius: 999px;
   background: rgba(55, 0, 104, 0.35);
-  color: #ffffff;
+  color: var(--on-accent);
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: 0.02em;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(246, 240, 253, 0.2);
 }
 
 .dictionary-source.shared {
@@ -1767,7 +1769,7 @@ color: #5a0000;
   color: #9c27b0;
   font-style: italic;
   font-size: 20px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.2);
   line-height: 1.5;
   white-space: pre-wrap;
 }
@@ -1784,7 +1786,7 @@ color: #5a0000;
   font-style: italic;
   color: #FFD700;
   font-size: 27px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.2);
   transform: translateY(-2px);
   line-height: 1.3;
   white-space: pre-wrap;
@@ -1796,7 +1798,7 @@ color: #5a0000;
   font-size: 18px;
   color: #7d19b9;
   font-style: italic;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.15);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -1808,7 +1810,7 @@ color: #5a0000;
   top: 15px;
   left: 15px;
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -1828,7 +1830,7 @@ color: #5a0000;
   top: 15px;
   right: 15px;
   background: transparent;
-  color: #fff;
+  color: var(--on-accent);
   border: none;
   width: 36px;
   height: 36px;
@@ -1845,8 +1847,8 @@ color: #5a0000;
   position: absolute;
   right: 12px;
   bottom: 12px;
-  background: rgba(0,0,0,0.12);
-  color: #fff;
+  background: rgba(42, 17, 69, 0.12);
+  color: var(--on-accent);
   border: none;
   width: 40px;
   height: 40px;
@@ -1859,7 +1861,7 @@ color: #5a0000;
   justify-content: center;
   backdrop-filter: blur(4px);
 }
-.card-scroll-top-btn:hover { transform: translateY(-3px); background: rgba(0,0,0,0.18); }
+.card-scroll-top-btn:hover { transform: translateY(-3px); background: rgba(42, 17, 69, 0.18); }
 
 @media (max-width: 480px) {
   .card-scroll-top-btn { width: 36px; height: 36px; right: 10px; bottom: 10px; font-size: 16px; }
@@ -1881,7 +1883,7 @@ color: #5a0000;
   bottom: 15px;
   left: 15px;
   background: #7b1fa2;
-  color: white;
+  color: var(--on-accent);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -1903,7 +1905,7 @@ color: #5a0000;
 
 .audio-btn:disabled,
 .audio-btn-bottom:disabled {
-  background: #ccc;
+  background: var(--disabled);
   cursor: not-allowed;
 }
 
@@ -2101,15 +2103,15 @@ color: #5a0000;
     padding: 0;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    color: #fff;
+    background: rgba(246, 240, 253, 0.25);
+    color: var(--on-accent);
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
     z-index: 2;
   }
   .header-collapse-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(246, 240, 253, 0.4);
   }
 
   /* Свёрнутое состояние шапки: компактная «таблетка» по ширине кнопки, справа */
@@ -2215,7 +2217,7 @@ color: #5a0000;
     padding: 5px 20px;
     font-size: 15px;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 18px rgba(42, 17, 69, 0.12);
   }
 
   /* Controls stacked */
@@ -2364,17 +2366,17 @@ color: #5a0000;
   }
 
   .results::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(42, 17, 69, 0.04);
   }
 
   .results::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.28);
+    background: rgba(42, 17, 69, 0.28);
     border-radius: 6px;
   }
 
   /* Reduce heavy shadows for mobile */
   .card {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(42, 17, 69, 0.12);
   }
 }
 
@@ -2387,7 +2389,7 @@ color: #5a0000;
   justify-content: center;
   gap: 12px;
   background-color: #7b1fa2;
-  color: #fff;
+  color: var(--on-accent);
   text-align: center;
   padding: 20px;
   box-sizing: border-box;
@@ -2404,7 +2406,7 @@ color: #5a0000;
 }
 
 .error-boundary button {
-  background: #fff;
+  background: var(--on-accent);
   color: #7b1fa2;
   border: none;
   border-radius: 8px;
@@ -2444,13 +2446,13 @@ color: #5a0000;
     background: var(--field-bg);
   }
   .auth-hint {
-    background: #3d3420;
+    background: var(--hint-bg);
     color: #ffd970;
   }
   .offline-banner {
-    background: #3d3420;
+    background: var(--hint-bg);
     color: #ffd970;
-    border-color: #6b5b22;
+    border-color: var(--hint-border);
   }
 
   /* карточки слов */
@@ -2473,9 +2475,9 @@ color: #5a0000;
     color: #c77dff;
     text-shadow: 0 0 10px rgba(199, 125, 255, 0.45), 1px 1px 2px rgba(74, 26, 107, 0.6);
   }
-  .dictionary-source { background: rgba(0, 0, 0, 0.35); }
+  .dictionary-source { background: rgba(42, 17, 69, 0.35); }
   .dictionary-source.shared { background: rgba(255, 215, 0, 0.2); }
-  .dictionary-source.personal { background: rgba(0, 0, 0, 0.35); }
+  .dictionary-source.personal { background: rgba(42, 17, 69, 0.35); }
 
   /* счётчик избранного */
   .fav-count {
@@ -2499,25 +2501,25 @@ color: #5a0000;
   .filter-list::-webkit-scrollbar-track { background: transparent; }
 
   /* скроллбары результатов */
-  .results::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-  .results::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
-  .results { scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.2); }
+  .results::-webkit-scrollbar-track { background: rgba(42, 17, 69, 0.2); }
+  .results::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.25); }
+  .results { scrollbar-color: rgba(246, 240, 253, 0.25) rgba(42, 17, 69, 0.2); }
 
   /* скроллбар раздела «Новые Руны» — как в Словарь */
-  .runes-dictionary-section::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-  .runes-dictionary-section::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
-  .runes-dictionary-section { scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.2); }
+  .runes-dictionary-section::-webkit-scrollbar-track { background: rgba(42, 17, 69, 0.2); }
+  .runes-dictionary-section::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.25); }
+  .runes-dictionary-section { scrollbar-color: rgba(246, 240, 253, 0.25) rgba(42, 17, 69, 0.2); }
 
   /* кнопка «вверх» в карточке */
-  .card-scroll-top-btn { background: rgba(255, 255, 255, 0.16); }
-  .card-scroll-top-btn:hover { background: rgba(255, 255, 255, 0.26); }
-  .card-scroll-top-btn.admin { background: rgba(255, 255, 255, 0.16); }
-  .card-scroll-top-btn.admin:hover { background: rgba(255, 255, 255, 0.26); }
+  .card-scroll-top-btn { background: rgba(246, 240, 253, 0.16); }
+  .card-scroll-top-btn:hover { background: rgba(246, 240, 253, 0.26); }
+  .card-scroll-top-btn.admin { background: rgba(246, 240, 253, 0.16); }
+  .card-scroll-top-btn.admin:hover { background: rgba(246, 240, 253, 0.26); }
 }
 
 /* 🦴 Скелетон загрузки */
 .skeleton-card {
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.22) 40%, rgba(255, 255, 255, 0.12) 60%);
+  background: linear-gradient(120deg, rgba(246, 240, 253, 0.12) 0%, rgba(246, 240, 253, 0.22) 40%, rgba(246, 240, 253, 0.12) 60%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
   border-radius: 10px;
@@ -2536,7 +2538,7 @@ color: #5a0000;
 .skeleton-line {
   height: 14px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(42, 17, 69, 0.22);
 }
 .skeleton-short { width: 40%; }
 .skeleton-medium { width: 65%; }
@@ -2551,10 +2553,10 @@ color: #5a0000;
   gap: 10px;
   text-align: center;
   padding: 60px 20px;
-  color: #fff;
+  color: var(--on-accent);
 }
 .state-icon { font-size: 48px; }
-.state-block h2 { margin: 0; color: #fff; }
+.state-block h2 { margin: 0; color: var(--on-accent); }
 .state-block p { margin: 0; opacity: 0.9; max-width: 460px; }
 .state-retry-btn,
 .state-reset-btn {
@@ -2567,7 +2569,7 @@ color: #5a0000;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 14px rgba(42, 17, 69, 0.25);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .state-retry-btn:hover,
@@ -2590,14 +2592,14 @@ color: #5a0000;
   flex-shrink: 0;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  scrollbar-color: rgba(246, 240, 253, 0.35) transparent;
   -webkit-overflow-scrolling: touch;
 }
 .category-stats::-webkit-scrollbar { height: 6px; }
 .category-stats::-webkit-scrollbar-track { background: transparent; }
-.category-stats::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+.category-stats::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.3); border-radius: 3px; }
 .category-stats-title {
-  color: #fff;
+  color: var(--on-accent);
   font-size: 12px;
   font-weight: 700;
   opacity: 0.9;
@@ -2605,9 +2607,9 @@ color: #5a0000;
   flex-shrink: 0;
 }
 .category-stat-chip {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
+  background: rgba(42, 17, 69, 0.25);
+  border: 1px solid rgba(246, 240, 253, 0.35);
+  color: var(--on-accent);
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 999px;
@@ -2617,7 +2619,7 @@ color: #5a0000;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.category-stat-chip:hover { background: rgba(0, 0, 0, 0.4); border-color: rgba(255, 255, 255, 0.55); }
+.category-stat-chip:hover { background: rgba(42, 17, 69, 0.4); border-color: rgba(246, 240, 253, 0.55); }
 .category-stat-chip:active { transform: scale(0.96); }
 .category-stat-chip.active {
   background: var(--rune);
