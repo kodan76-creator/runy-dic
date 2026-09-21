@@ -318,9 +318,16 @@ describe('RuneLayout — белый фон вместо фото', () => {
     cleanup()
   })
 
-  it('в пустом состоянии кнопки «Белый фон» нет — она только на странице редактирования фото', () => {
+  it('без фото белый фон выбирается прямо из экрана загрузки', () => {
     render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
-    expect(screen.queryByRole('button', { name: /Белый фон/ })).toBeNull()
+    // Кнопка доступна рядом с «Загрузить фото»
+    const toggle = screen.getByRole('button', { name: /Белый фон/ })
+    fireEvent.click(toggle)
+    // Эллипс стал белым, выбор сохранён, кнопка перешла в нажатое состояние
+    expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBe('1')
+    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
     cleanup()
   })
 
@@ -331,9 +338,10 @@ describe('RuneLayout — белый фон вместо фото', () => {
     expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
     expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
     const toggle = screen.getByRole('button', { name: /Белый фон/ })
-    // Выключение возвращает в пустое состояние, где кнопки уже нет
+    // Выключение возвращает в пустое состояние, где кнопка снова доступна
     fireEvent.click(toggle)
-    expect(screen.queryByRole('button', { name: /Белый фон/ })).toBeNull()
+    expect(screen.getByText('Загрузите фото во весь рост')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'false')
     expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBeNull()
     cleanup()
   })

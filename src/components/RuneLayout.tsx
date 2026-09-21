@@ -691,6 +691,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
           <button type="button" className="rune-layout-upload-btn" onClick={() => setShowUpload(true)}>
             Загрузить фото
           </button>
+          {whiteBgToggle}
         </div>
       )}
 
