@@ -116,10 +116,10 @@
     "runeLayoutType": "healing"
   },
   {
-    "id": "1789988335719",
-    "email": "test8@1.ru",
+    "id": "1790000625519",
+    "email": "test1@2.ru",
     "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-09-21T10:58:55.719Z",
+    "createdAt": "2026-09-21T14:23:45.519Z",
     "role": "user",
     "sessionVersion": 0,
     "paid": false,
@@ -127,9 +127,9 @@
     "paidBy": null,
     "unpaidAt": null,
     "unpaidBy": null,
-    "runesPaid": true,
-    "runesPaidAt": "2026-09-21T11:15:24.719Z",
-    "runesPaidBy": "ya.kodan76@ya.ru",
+    "runesPaid": false,
+    "runesPaidAt": null,
+    "runesPaidBy": null,
     "runesUnpaidAt": null,
     "runesUnpaidBy": null,
     "isBlocked": false,
@@ -140,11 +140,10 @@
       {
         "id": "1d194ef6-7b3f-4e4b-b7c2-716613a0cdc0",
         "type": "desktop",
-        "addedAt": "2026-09-21T10:58:55.719Z",
-        "lastLoginAt": "2026-09-21T10:58:55.719Z"
+        "addedAt": "2026-09-21T14:23:45.519Z",
+        "lastLoginAt": "2026-09-21T14:23:45.519Z"
       }
     ],
-    "registeredAt": "2026-09-21T10:58:55.719Z",
-    "runeLayoutType": "healing"
+    "registeredAt": "2026-09-21T14:23:45.519Z"
   }
 ]
