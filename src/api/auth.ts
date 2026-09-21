@@ -6,6 +6,7 @@ import { addLog } from './logs'
 import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
 import { cacheUserForOffline } from './offline'
+import { notifyRegistration } from './registrationNotify'
 import { getDeviceId, getDeviceType, checkRegistrationLimit, recordRegistration, checkLoginDeviceLimit } from './deviceLimit'
 
 export const hashPassword = async (password) => {
@@ -109,6 +110,9 @@ export const registerUser = async (email, password) => {
   const { passwordHash: _, ...safeUser } = newUser
   // 🌐 Кэшируем для оффлайн-входа
   cacheUserForOffline(safeUser, passwordHash)
+  // 📧 Письмо администраторам: не блокирует регистрацию, ошибки глотаются
+  // внутри notifyRegistration (отправляет workflow в GitHub Actions).
+  notifyRegistration(email, now).catch(() => {})
   // ✅ Возвращаем с role: 'user'
   return { ...safeUser, role: 'user' }
 }

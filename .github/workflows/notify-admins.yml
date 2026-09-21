@@ -1,0 +1,47 @@
+name: Notify admins about new registration
+
+# Письмо администраторам об успешной регистрации пользователя.
+# Фронтенд (src/api/registrationNotify.ts) после записи в users.json шлёт
+# repository_dispatch с типом user_registered; этот workflow читает email
+# нового пользователя из client_payload и отправляет письмо через SMTP.
+# Data-файлы (users.json и т.п.) сюда не попадают — deploy.yml их пропускает,
+# поэтому отдельный конкурентный деплой/уведомление не конфликтует с сайтом.
+
+on:
+  repository_dispatch:
+    types: [user_registered]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    # Только события из нашего приложения (защита от чужих dispatch-событий)
+    if: github.event.client_payload.app == 'runy-dic'
+    steps:
+      - name: Validate payload
+        run: |
+          EMAIL="${{ github.event.client_payload.email }}"
+          if [ -z "$EMAIL" ]; then
+            echo "Пустой email в client_payload — письмо не отправляем."
+            exit 1
+          fi
+
+      - name: Send email to admins
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Новый пользователь: ${{ github.event.client_payload.email }}"
+          to: ${{ secrets.ADMIN_NOTIFY_EMAILS }}
+          from: ${{ secrets.SMTP_FROM }}
+          secure: true
+          body: |
+            Зарегистрирован новый пользователь.
+
+            Email: ${{ github.event.client_payload.email }}
+            Дата регистрации (UTC): ${{ github.event.client_payload.createdAt }}
+            Репозиторий: ${{ github.repository }}
