@@ -1,5 +1,31 @@
 [
   {
+    "id": "1790011356365",
+    "timestamp": "2026-09-21T17:22:36.365Z",
+    "action": "login",
+    "userEmail": "test9@3.ru",
+    "details": "Вход",
+    "deviceId": "584f45cd-ef03-4936-9226-38c6ac573e38",
+    "deviceType": "mobile"
+  },
+  {
+    "id": "1790011356364",
+    "timestamp": "2026-09-21T17:22:36.364Z",
+    "action": "device_added",
+    "userEmail": "test9@3.ru",
+    "details": "Новое устройство (телефон)",
+    "deviceId": "584f45cd-ef03-4936-9226-38c6ac573e38",
+    "deviceType": "mobile"
+  },
+  {
+    "id": "1790011306875",
+    "timestamp": "2026-09-21T17:21:46.875Z",
+    "action": "logout_all_devices",
+    "userEmail": "test9@3.ru",
+    "adminEmail": "ya.kodan76@ya.ru",
+    "details": "Разлогин на всех устройствах"
+  },
+  {
     "id": "1790011299929",
     "timestamp": "2026-09-21T17:21:39.929Z",
     "action": "user_updated",
