@@ -1,1 +1,32 @@
-ENC:v1:c3GOtpCv+Ww0rPiyQoU6aupXBQV63NGzTR0ZmDluPxLkwiZfRCcvyPhyGr8PjPvvQk1GWR0fRyiRgnBAPwUjUCPqfqu1jVcu5v8wSYZPFrG/1LH0M77V3D8Vjk981Qiy9uLDS4gFeMd+tz3JmY2+uuDs0F+Pq83ZwW6fr0uNlezKwAhUFgOefUhtonYPgeAw1kaURusurKI1wlYcIQ+8XZeBf0rg41bMv3nnFBu24dN1uRq2qBjEqic7Dg37upF7VH2fsRVYs3aOA0a+0XRHC+6/N65TTjs9xohAU24yy1t9Mdr35vy6VnaXR2+gdP4Kttna6l30RACyOXVLKlZSj+uGMq0/2WsJA0FsTB3bDc//63yxopKBBQF5d6xzB0z/xpGIOJMGlARTJpKJ8tjJcpSnu9QSNBlapKfWyJXQFD4M/M+QPA1UxCRzPHZqIqO0L1yeQplaoZbS+W4jLaSs0EKguqPlQUgSGR/KyuLwrvoA5H+Xz0q1WMRdrN+BYRjssTR6GCiQL0DFpU2fDiZOi8lYkdfChE20XymMKSpZdA8Xe6dIgst82x7lCUB8U3+Rj2wONqDrXfgAOU3FEspVQBPb9AwAI6bSfHzpjJXdGOtFUtVesz8h+0Mo7rHs6n1Wj7z7y3HJjsVG9jj0ylxtQx6/ObeRFPHUZCDKAwWe8PMbg7EEyYG3x79bcppDfBtHJJJgeuXQPial7LFV6/7YFZID4Q18QoDObkLCIC6987IzxjemUQ19L2ckMC4odlaSsQLcngVrvvqlBOLURlAUXt9IEciOchAtjgTJJL0ygLv7MsaVGtaUglTygkjWlCIT7rMkpf/kiNqsOHHts6+/P3jjlJQAigL3fOvb2fb0RG0Tp/kyfNbCfIekbQ2a3xS9l8CXqdx5fi5okAlnIUIwGhJL2VtYPaYlVZ8fAjIWKGFyDPcBi3X7m5GFItWxxCCfd9lyoAdsKRH3JNxRDlpAZFBVQTd+w7CCnzj1uCq0tEm6P/zmpQJ1hrB2IW20Wl50kNQYwmmaIDK0Obh8mX+zb3SRTTI5le9g0gL242uWjFdPvH2EvL/FDUNN9cWL140=
+[
+  {
+    "word": "кива",
+    "transcription": "кива",
+    "translation": "любовь",
+    "category": [],
+    "example": "любовь",
+    "example2": "кива",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "center",
+    "id": "1789821718368",
+    "createdAt": "2026-09-19T12:41:58.368Z",
+    "createdBy": "test7@1.ru"
+  },
+  {
+    "word": "жъ",
+    "transcription": "жэль",
+    "translation": "день",
+    "category": [],
+    "example": "Сегодня день",
+    "example2": "сежъ жъ",
+    "transcription2": "сержэль жэль",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1789821499515",
+    "createdAt": "2026-09-19T12:38:19.515Z",
+    "createdBy": "test7@1.ru"
+  }
+]
