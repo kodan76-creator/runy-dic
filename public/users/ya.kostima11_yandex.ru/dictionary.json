@@ -1,1 +1,36 @@
-ENC:v1:kQIxhwlhRXhaVIBDOuHtcXHNGE6UZZyYyLoiSarxAgs0sFxYfklgqS5N7t7rmWJhrfQloqaZfZJvWQjQnXnYSriaSbFdu8MUo+B1S8fsyF8AB+cUIGmVfZa48QsrlzxB4Wq73zKnBJ1WJEPLYK3c8/Ob63JO2doh/Tf9DeJ6i6588Cm59qWqzpdf/hE5CSMYMRDd8PQqBB2jjiX45OdJyXYmotNd/GVl3m4R10gzYn13aJIfUVnd6i8AU5caGnxbdmmKg4zWKAs1lZ4RJwPZyA5KCWPAMT3DrLIZySJRHg3AmZ7idQN9CDSLwHzKNEZeBf1DaCuMbDVBKEod5Za37fNfK+/L3nBwjlMeLMBJFzE9IqKMAnmstPBes6NT5a7FQHbkhw6MoTsdISIQoQbVw6/l4VimctYq6yrscVrp2FVdnA2n2kEnP1y5IOaR+x0PFHsSS7zrA3Z5k/u2UBA6sgqW1nSmjKaEdJGNaKW4Z/8dEWHyH416AP1UBzPHEPvmy7JOgNZZWeHSSagAHqDTs5mwXAXktdEwd/iIL3KD6+iGYbG8SmtwROa/vqIe0E774DuofCWA1ejnSWlNVzwSfImMYagzsQlSo6PAPyKkv/yQTIm4huDFz41Kr2mOIrmune+TysTJBIG4ZstK1ms77S9XzMRD3Ha946R4532JzDZ5ffrsF/DH/Lii978M1xUYu3/qWL08a1iiZwhaPo1SigRATrREhW/9JrE9A6Hka2WTCPtvTwDl2dAt1+8f5o4Ya6KqPGtzWvwlRcyBNN6K2P2WtbWhbtRvbpkKdHhOWN7Y4ijpTybw0G/pqkGwT7e8n0MZcSrwdlUeLv0pt8s90IAV4AGh8933hZ1nN/vB6zlOdI3YOFnGNHayUH+Gm1LWmEl+imIhK1HkBPWK4krW2BlpuExqXWbALynayLpEvlzW2bHGx3BaQpat1KeS6U7Waf/ARgYAYZmwpAoSrcaGmG+vCYskeaNx5aCnQlfjFhFOpRpCxm834g8VADOOgpQ+Vkiq6Fq+2gJkOdJnBD9sxcZqfwJrxS98sKQKrA==
+[
+  {
+    "word": "лалъ",
+    "transcription": "лалЭль",
+    "translation": "семья",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "1",
+    "createdAt": "2026-08-04T18:30:59.212Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  },
+  {
+    "word": "ъфъ",
+    "transcription": "эльфэль",
+    "translation": "дом",
+    "category": [
+      "1778594679986"
+    ],
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "textAlign": "left",
+    "id": "2",
+    "createdAt": "2026-08-04T18:35:22.699Z",
+    "createdBy": "ya.kostima11@yandex.ru"
+  }
+]
