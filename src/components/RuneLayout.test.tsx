@@ -312,16 +312,29 @@ describe('RuneLayout — белый фон вместо фото', () => {
     const spread = await screen.findByLabelText('Раскладка Новых Рун')
     expect(spread.querySelectorAll('.rune-layout-spread-item')).toHaveLength(7)
     expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    // Переключатель «Белый фон» есть только на странице редактирования фото:
+    // в панели выбора раскладки и на кресте его нет
+    expect(screen.queryByRole('button', { name: /Белый фон/ })).toBeNull()
     cleanup()
   })
 
-  it('белый фон доступен и без загруженного фото (пустое состояние)', () => {
+  it('в пустом состоянии кнопки «Белый фон» нет — она только на странице редактирования фото', () => {
     render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
-    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
-    // Кнопка в пустом состоянии сразу включает белый фон
-    fireEvent.click(screen.getByRole('button', { name: /Белый фон/ }))
+    expect(screen.queryByRole('button', { name: /Белый фон/ })).toBeNull()
+    cleanup()
+  })
+
+  it('сохранённый белый фон работает и без фото: переключатель вернёт в пустое состояние', () => {
+    localStorage.setItem(`rune_layout_white_bg:${TEST_USER.email}`, '1')
+    render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
+    // Белый эллипс без фото, переключатель — на странице редактирования
     expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
-    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBe('1')
+    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
+    const toggle = screen.getByRole('button', { name: /Белый фон/ })
+    // Выключение возвращает в пустое состояние, где кнопки уже нет
+    fireEvent.click(toggle)
+    expect(screen.queryByRole('button', { name: /Белый фон/ })).toBeNull()
+    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBeNull()
     cleanup()
   })
 })

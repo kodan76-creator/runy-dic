@@ -605,7 +605,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 Вернуться к выбору фото
               </button>
-              {whiteBgToggle}
             </div>
           ) : selectedLayoutChoice ? (
             <div className="rune-layout-controls">
@@ -617,7 +616,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 Вернуться к выбору раскладок
               </button>
-              {whiteBgToggle}
               {spreadLoading && (
                 <span className="rune-layout-spread-loading">⏳ Выбор рун…</span>
               )}
@@ -693,7 +691,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
           <button type="button" className="rune-layout-upload-btn" onClick={() => setShowUpload(true)}>
             Загрузить фото
           </button>
-          {whiteBgToggle}
         </div>
       )}
 
