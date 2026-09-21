@@ -1087,6 +1087,17 @@ color: #5a0000;
   box-sizing: border-box;
 }
 
+/* 📛 Название выбранной раскладки: показывается над сценой с крестом
+   после нажатия одной из кнопок выбора (и после перезагрузки страницы). */
+.rune-layout-active-name {
+  margin: -6px 0 0;
+  color: #FFD700;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 /* Сцена: всё поле, где лежит фото (накрывает весь экран раздела) */
 .rune-layout-stage {
   position: relative;

@@ -30,3 +30,17 @@ export function getPositionLabel(layoutType: string, position: number): string {
   const list = layoutType === 'healing' ? HEALING_POSITION_LABELS : EVALUATION_POSITION_LABELS
   return list[position - 1] ?? ''
 }
+
+// 📛 Полные названия раскладок: те же тексты, что на кнопках выбора.
+// Показываются над сценой с крестом после выбора раскладки.
+export const LAYOUT_NAMES = {
+  evaluation: 'Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления',
+  healing: 'Раскладка Новых Рун для исцеления',
+}
+
+/** Название раскладки по типу ('evaluation' | 'healing'), '' — если тип неизвестен. */
+export function getLayoutName(layoutType: string): string {
+  if (layoutType === 'healing') return LAYOUT_NAMES.healing
+  if (layoutType === 'evaluation') return LAYOUT_NAMES.evaluation
+  return ''
+}

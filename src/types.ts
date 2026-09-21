@@ -73,7 +73,11 @@ export interface User {
   runesPaidBy?: string | null
   runesUnpaidAt?: string | null
   runesUnpaidBy?: string | null
-  /** Имя файла фото пользователя во весь рост (для «Рунной раскладки»). */
+  /**
+   * @deprecated Имя файла фото во весь рост из старых данных (users.json).
+   * Фото «Рунной раскладки» теперь хранится только локально (IndexedDB),
+   * на сервер не отправляется и в users.json не пишется.
+   */
   fullBodyPhoto?: string
   loginAt?: string
   [key: string]: unknown

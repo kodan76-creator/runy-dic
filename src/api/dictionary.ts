@@ -16,8 +16,6 @@ import {
   getCachedDictionary,
   cacheDictionaryForOffline,
 } from './offline'
-import { uploadImageFile, cleanupUserPhotos } from './images'
-import { getCachedPhotoBlob, removeCachedPhotoBlob } from './photoCache'
 import { removeWordFromAllFavorites } from './favorites'
 
 const getDictionaryFileName = (user) => resolveDictionaryFile(user)
@@ -439,39 +437,8 @@ export const flushOfflineChanges = async (user: any = null) => {
     }
   }
 
-  // 🖼️ Синхронизация фото Рунной раскладки (full_body_photo), сохранённого оффлайн
-  const photoChanges = all.filter(c => c.type === 'full_body_photo')
-  for (const c of photoChanges) {
-    try {
-      const email = c.email
-      if (!email) continue
-      const blob = await getCachedPhotoBlob(email)
-      if (!blob) {
-        // Кэша нет — просто убираем из очереди
-        removeOfflineChanges([c.queuedAt])
-        continue
-      }
-      const file = new File([blob], `layout_${Date.now()}.jpg`, { type: 'image/jpeg' })
-      const res = await uploadImageFile(file, email, false, {
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
-      })
-      // Обновляем users.json напрямую (без auth.ts — избегаем циклического импорта)
-      const { data: users, sha, ok } = await fetchGitHubFile(USERS_FILE)
-      if (ok && Array.isArray(users)) {
-        const u = users.find(x => x?.email?.toLowerCase() === String(email).toLowerCase())
-        if (u) {
-          u.fullBodyPhoto = res.path
-          await updateGitHubFile(USERS_FILE, users, sha)
-        }
-      }
-      // 🧹 Удаляем старые фото — на сервере остаётся только загруженное
-      await cleanupUserPhotos(email, res.path)
-      await removeCachedPhotoBlob(email)
-      removeOfflineChanges([c.queuedAt])
-    } catch (e) {
-      console.error('flushOfflineChanges full_body_photo error:', e)
-    }
-  }
+  // 🖼️ Фото «Рунной раскладки» на сервер НЕ синхронизируется: оно хранится
+  // только локально (IndexedDB + blob-URL) и нужно лишь этому устройству.
 
   const mine = all.filter(c => c.fileName === fileName)
   if (mine.length === 0) return 0

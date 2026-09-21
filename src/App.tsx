@@ -124,7 +124,9 @@ function AppContent() {
         const { passwordHash: _, ...safeServerUser } = serverUser
         const localUser = user
         if (localUser) {
-          const fieldsToSync = ['fullBodyPhoto', 'runeLayoutType', 'paid', 'sessionVersion', 'role']
+          // Фото «Рунной раскладки» (fullBodyPhoto) НЕ синхронизируем: оно
+          // хранится только локально на устройстве и в users.json не пишется.
+          const fieldsToSync = ['runeLayoutType', 'paid', 'sessionVersion', 'role']
           const needsSync = fieldsToSync.some(f => safeServerUser[f] !== localUser[f])
           if (needsSync) handleUserUpdate(safeServerUser)
         }

@@ -256,25 +256,9 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
   return safeUser
 }
 
-// 🥚 Сохранение фото пользователя во весь рост (для «Рунной раскладки»).
-// Записывает имя файла в users.json и возвращает обновлённого пользователя.
-export const saveFullBodyPhoto = async (userEmail, fileName) => {
-  if (!userEmail || !fileName) throw new Error('Email или имя файла не указаны')
-  const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
-  const user = users.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  if (!user) throw new Error('Пользователь не найден')
-
-  const updated = users.map(u =>
-    String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase()
-      ? { ...u, fullBodyPhoto: fileName }
-      : u
-  )
-  await updateGitHubFile(USERS_FILE, updated, sha)
-  const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
-  addLog({ action: 'full_body_photo_updated', userEmail, details: `Фото во весь рост: ${fileName}` }).catch(() => {})
-  const { passwordHash: _, ...safeUser } = changed
-  return safeUser
-}
+// 🥚 Фото пользователя во весь рост (для «Рунной раскладки») хранится ТОЛЬКО
+// локально — IndexedDB (photoCache.ts) + blob-URL. На сервер не отправляется
+// и в users.json не пишется: фото используется исключительно на устройстве.
 
 // 🎲 Сохранение типа раскладки Новых Рун (для «Рунной раскладки»).
 // Записывает runeLayoutType в users.json и возвращает обновлённого пользователя.

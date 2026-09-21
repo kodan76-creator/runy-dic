@@ -7,12 +7,12 @@ import { useState, useRef, useCallback, useEffect, type CSSProperties } from 're
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
-import { getPositionLabel } from './runeLayoutTexts'
+import { getPositionLabel, getLayoutName } from './runeLayoutTexts'
 import type { Rune } from '../types'
 import { getRunes } from '../api/runes'
 import { getCachedRunes, cacheRunesForOffline } from '../api/offline'
 import { saveRuneLayoutType } from '../api/auth'
-import { emailToFolderName, precacheUrls } from '../api/audio'
+import { precacheUrls } from '../api/audio'
 import {
   cacheRuneLayoutImageList,
   getCachedRuneLayoutImageList,
@@ -143,8 +143,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const [showUpload, setShowUpload] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
-  // Версия фото для сброса кэша браузера после замены файла
-  const [photoTs, setPhotoTs] = useState(() => Date.now())
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   // 🖐️ Drag-to-pan state (восстанавливаем из кэша)
   const [panX, setPanX] = useState(savedState?.panX ?? 0)
@@ -262,12 +260,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }).catch(() => {})
   }, [user?.email])
 
-  const photoName = user?.fullBodyPhoto
-  const folder = user?.email ? emailToFolderName(user.email) : ''
-  // Если есть локальный blob URL — показываем его (приоритет), иначе серверный URL
+  // 🖼️ Фото хранится только локально (IndexedDB + blob-URL) и НИКОГДА
+  // не отправляется на сервер: оно нужно лишь этому устройству для раскладки.
   const photoUrl = localPhotoUrl
-    || (photoName ? `${buildImageUrl(photoName, folder)}?t=${photoTs}` : '')
-
   // 🧹 Освобождаем blob-URL при размонтировании
   useEffect(() => () => {
     if (localPhotoUrlRef.current) URL.revokeObjectURL(localPhotoUrlRef.current)
@@ -294,7 +289,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
         maxWidth: PHOTO_MAX_WIDTH,
         maxHeight: PHOTO_MAX_HEIGHT,
       })
-      setPhotoTs(Date.now())
       setZoom(1)
       setPanX(0)
       setPanY(0)
@@ -533,6 +527,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
         <img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" />
         Рунная раскладка
       </h2>
+
+      {/* 📛 Название выбранной раскладки: показываем на странице с эллипсом и крестом */}
+      {selectedLayoutChoice && (
+        <p className="rune-layout-active-name">{getLayoutName(selectedLayoutChoice)}</p>
+      )}
 
       {photoUrl || whiteBackground ? (
         <>

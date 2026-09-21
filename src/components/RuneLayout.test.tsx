@@ -21,6 +21,8 @@ vi.mock('../api/images', () => ({
     '7_РАДО.png', '9_АЛУ.png', '10_ХЕБО.png',
   ]),
   selectRandomRunes: (files: string[], count: number) => files.slice(0, count),
+  // Загрузка на сервер не используется фото-раскладкой — контролируем это в тестах
+  uploadImageFile: vi.fn(async () => ({ path: 'uploaded.jpg' })),
 }))
 
 vi.mock('../api/auth', () => ({
@@ -35,7 +37,10 @@ vi.mock('../api/audio', () => ({
 
 vi.mock('../api/photoCache', () => ({
   cachePhotoBlob: vi.fn(async () => {}),
-  getCachedPhotoBlob: vi.fn(async () => null),
+  // Фото хранится только локально (IndexedDB): для «фото-пользователя»
+  // возвращаем blob, для остальных — нет
+  getCachedPhotoBlob: vi.fn(async (email: string) =>
+    email === 'test@example.com' ? new Blob(['photo'], { type: 'image/jpeg' }) : null),
   processPhotoToEllipse: vi.fn(async () => new Blob(['photo'], { type: 'image/jpeg' })),
   saveLayoutState: vi.fn(),
   loadLayoutState: vi.fn(() => null),
@@ -74,7 +79,9 @@ vi.mock('../api/offline', async (importOriginal) => {
   }
 })
 
-const TEST_USER = { email: 'test@example.com', fullBodyPhoto: 'photo.jpg' }
+const TEST_USER = { email: 'test@example.com' }
+// Пользователь без локального фото: попадает в пустое состояние
+const NO_PHOTO_USER = { email: 'nophoto@example.com' }
 
 beforeEach(() => {
   // jsdom не реализует blob-URL — подменяем, чтобы фиксация фото не падала
@@ -85,10 +92,14 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-// Пройти путь: фото → «Зафиксировать» → выбор раскладки → нажать кнопку раскладки.
+// Пройти путь: фото (восстановленное из IndexedDB) → «Зафиксировать» →
+// выбор раскладки → нажать кнопку раскладки.
 async function chooseLayout(buttonText: string) {
+  // Сохранённый крест от предыдущего рендера не должен влиять на этот прогон
+  localStorage.removeItem(`rune_spread:${TEST_USER.email}`)
   render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
-  fireEvent.click(screen.getByTitle('Зафиксировать текущую позицию и размер фото'))
+  // Blob фото восстанавливается из IndexedDB асинхронно — ждём панель редактирования
+  fireEvent.click(await screen.findByTitle('Зафиксировать текущую позицию и размер фото'))
   fireEvent.click(await screen.findByText(buttonText))
   return screen.findByLabelText('Раскладка Новых Рун')
 }
@@ -281,7 +292,10 @@ describe('RuneLayout — шапка позиции в модалке', () => {
 describe('RuneLayout — белый фон вместо фото', () => {
   it('кнопка «Белый фон» переключает режим и сохраняет выбор в localStorage', async () => {
     render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
-    // Пользователь с фото: режим включается кнопкой в панели редактирования
+    // Пользователь с локальным фото: режим включается кнопкой в панели редактирования.
+    // Фото восстанавливается из IndexedDB асинхронно — дожидаемся панели редактирования,
+    // иначе кнопку найдём в блоке «Загрузите фото», который исчезнет до клика.
+    await screen.findByAltText('Ваше фото во весь рост')
     const toggle = screen.getByRole('button', { name: /Белый фон/ })
     expect(toggle).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(toggle)
@@ -296,7 +310,7 @@ describe('RuneLayout — белый фон вместо фото', () => {
     fireEvent.click(toggleOn)
     expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'false')
     expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBeNull()
-    expect(screen.getByAltText('Ваше фото во весь рост')).toBeTruthy()
+    expect(await screen.findByAltText('Ваше фото во весь рост')).toBeTruthy()
     cleanup()
   })
 
@@ -319,21 +333,21 @@ describe('RuneLayout — белый фон вместо фото', () => {
   })
 
   it('без фото белый фон выбирается прямо из экрана загрузки', () => {
-    render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
     // Кнопка доступна рядом с «Загрузить фото»
     const toggle = screen.getByRole('button', { name: /Белый фон/ })
     fireEvent.click(toggle)
     // Эллипс стал белым, выбор сохранён, кнопка перешла в нажатое состояние
     expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'true')
     expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
-    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBe('1')
+    expect(localStorage.getItem(`rune_layout_white_bg:${NO_PHOTO_USER.email}`)).toBe('1')
     expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
     cleanup()
   })
 
   it('сохранённый белый фон работает и без фото: переключатель вернёт в пустое состояние', () => {
-    localStorage.setItem(`rune_layout_white_bg:${TEST_USER.email}`, '1')
-    render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
+    localStorage.setItem(`rune_layout_white_bg:${NO_PHOTO_USER.email}`, '1')
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
     // Белый эллипс без фото, переключатель — на странице редактирования
     expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
     expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
@@ -342,7 +356,7 @@ describe('RuneLayout — белый фон вместо фото', () => {
     fireEvent.click(toggle)
     expect(screen.getByText('Загрузите фото во весь рост')).toBeTruthy()
     expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'false')
-    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBeNull()
+    expect(localStorage.getItem(`rune_layout_white_bg:${NO_PHOTO_USER.email}`)).toBeNull()
     cleanup()
   })
 })
@@ -489,5 +503,52 @@ describe('Словарь — подпись сортировки рун', () => 
     )
     expect(home).not.toMatch(/руны-графика/)
     expect(home).toMatch(/>\s*Руны\s*<\/label>/)
+  })
+})
+
+// ── Название выбранной раскладки над крестом ─────────────────────────────────
+describe('RuneLayout — название выбранной раскладки', () => {
+  it('после выбора раскладки её название показано над крестом (обе раскладки)', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    expect(screen.getByText('Раскладка Новых Рун для исцеления')).toBeTruthy()
+    expect(document.querySelector('.rune-layout-active-name')).not.toBeNull()
+    cleanup()
+
+    await chooseLayout('Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления')
+    expect(screen.getByText('Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления')).toBeTruthy()
+    cleanup()
+  })
+
+  it('после перезагрузки название восстанавливается вместе с крестом', async () => {
+    localStorage.setItem(
+      `rune_spread:${TEST_USER.email}`,
+      JSON.stringify({
+        type: 'healing',
+        runes: ['1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png', '5_ТУРЗ.png', '6_АЗ.png', '7_РАДО.png'],
+      }),
+    )
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    await screen.findByLabelText('Раскладка Новых Рун')
+    expect(screen.getByText('Раскладка Новых Рун для исцеления')).toBeTruthy()
+    cleanup()
+  })
+})
+
+// ── Фото хранится только локально и не отправляется на сервер ────────────────
+describe('RuneLayout — фото только локально', () => {
+  it('выбранное фото показывается из blob-URL и не уходит на сервер', async () => {
+    const { uploadImageFile } = await import('../api/images')
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
+    // Экран загрузки: открываем модалку и выбираем файл
+    fireEvent.click(screen.getByRole('button', { name: 'Загрузить фото' }))
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+    expect(input).not.toBeNull()
+    const file = new File(['x'], 'photo.jpg', { type: 'image/jpeg' })
+    fireEvent.change(input, { target: { files: [file] } })
+    // Фото показано локально (blob-URL), без загрузки на сервер
+    const img = await screen.findByAltText('Ваше фото во весь рост')
+    expect(img.getAttribute('src')).toBe('blob:mock')
+    expect(uploadImageFile).not.toHaveBeenCalled()
+    cleanup()
   })
 })
