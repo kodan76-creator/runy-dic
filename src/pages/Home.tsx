@@ -545,6 +545,12 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     )
   }
 
+  // «Рунная раскладка» — единственный экран, где шапка компактная и логотип
+  // скрыт. Подрежим «Новых Рун» хранится в localStorage и остаётся 'layout'
+  // даже после возврата в «Словарь», поэтому смотрим на оба состояния вместе:
+  // иначе логотип run_r пропадал бы в Словаре после посещения раскладки.
+  const isRuneLayoutView = viewMode === 'runes' && runesSubMode === 'layout'
+
   return (
     <div className="container">
       {isOffline && (
@@ -553,7 +559,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           Изменения сохранятся, когда появится соединение.
         </div>
       )}
-      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${viewMode === 'runes' && runesSubMode === 'layout' ? ' header-layout-mode' : ''}`}>
+      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${isRuneLayoutView ? ' header-layout-mode' : ''}`}>
         <button
           type="button"
           className="header-collapse-btn"
@@ -603,7 +609,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </div>
           </>
         )}
-        {runesSubMode !== 'layout' && (
+        {!isRuneLayoutView && (
           <img
             src={`${import.meta.env.BASE_URL}images/run_r.png`}
             alt="Логотип"
