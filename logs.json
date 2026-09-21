@@ -1,5 +1,13 @@
 [
   {
+    "id": "1790010195360",
+    "timestamp": "2026-09-21T17:03:15.360Z",
+    "action": "register",
+    "userEmail": "test9@3.ru",
+    "details": "Регистрация",
+    "deviceId": "1d194ef6-7b3f-4e4b-b7c2-716613a0cdc0"
+  },
+  {
     "id": "1790009530882",
     "timestamp": "2026-09-21T16:52:10.882Z",
     "action": "logout",
