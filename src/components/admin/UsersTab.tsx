@@ -105,13 +105,15 @@ export default function UsersTab({
                 <select
                   value={userFormData.paid ? 'paid' : 'unpaid'}
                   onChange={e => setUserFormData({ ...userFormData, paid: e.target.value === 'paid' })}
+                  aria-label="Статус оплаты общего словаря"
                 >
-                  <option value="paid">Оплачено</option>
-                  <option value="unpaid">Не оплачено</option>
+                  <option value="paid">Общий словарь: Оплачено</option>
+                  <option value="unpaid">Общий словарь: Не оплачено</option>
                 </select>
                 <select
                   value={userFormData.runesPaid ? 'paid' : 'unpaid'}
                   onChange={e => setUserFormData({ ...userFormData, runesPaid: e.target.value === 'paid' })}
+                  aria-label="Статус оплаты Новых Рун"
                 >
                   <option value="paid">Новые Руны: Оплачено</option>
                   <option value="unpaid">Новые Руны: Не оплачено</option>
