@@ -42,13 +42,13 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
           </div>
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
-        {imgUrl && (
+        {/* hidePower: в модалке раскладки не показываем ни «Отображение Силы Руны», ни «Описание Силы Руны» */}
+        {imgUrl && !hidePower && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
             <img className="rune-image" src={imgUrl} alt={rune.name || 'Руна'} loading="lazy" />
           </div>
         )}
-        {/* hidePower: в модалке раскладки «Описание Силы Руны» не показываем */}
         {rune.power && !hidePower && (
           <div className="rune-card-power">
             <span className="rune-card-label">Описание Силы Руны:</span>

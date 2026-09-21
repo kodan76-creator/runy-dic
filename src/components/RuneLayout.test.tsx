@@ -182,6 +182,9 @@ describe('RuneLayout — модалка руны по клику', () => {
     expect(dialog.textContent).toContain('ФАИС-СУ')
     // «Описание Силы Руны» из модалки убрано (hidePower у RuneCard)
     expect(dialog.textContent).not.toContain('Гармония стихий в человеке использует духовную энергию')
+    // «Отображение Силы Руны» тоже убрано — картинок в диалоге нет вовсе
+    expect(dialog.textContent).not.toContain('Отображение Силы Руны')
+    expect(dialog.querySelector('img')).toBeNull()
     // Шапка: смысл позиции 1 раскладки «для исцеления»
     expect(dialog.textContent).toContain('Руна 1 - ПРЕДЕЛ или ПОТОЛОК вашего сознания.')
     expect(dialog.textContent).toContain('Состояние, состоятельность')
@@ -205,6 +208,8 @@ describe('RuneLayout — модалка руны по клику', () => {
     expect(dialog.textContent).toContain('перевернутое положение')
     // «Описание Силы Руны» скрыто и для перевёрнутой руны (hidePower)
     expect(dialog.textContent).not.toContain('Росток пробивается из опыта')
+    expect(dialog.textContent).not.toContain('Отображение Силы Руны')
+    expect(dialog.querySelector('img')).toBeNull()
     expect(dialog.textContent).toContain('Перевёрнутое положение показывает необходимость обращения к опыту.')
     fireEvent.click(screen.getByText('Закрыть'))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
