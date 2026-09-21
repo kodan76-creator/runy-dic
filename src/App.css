@@ -1242,6 +1242,33 @@ color: #5a0000;
   color: #FFD700;
 }
 
+/* ⚪ Белый фон: раскладка без фото — эллипс залит плотным белым.
+   Класс вешается на эллипс, фото в этом режиме не рендерится вовсе. */
+.rune-layout-ellipse.white-bg {
+  background: #ffffff;
+}
+
+/* 🔘 Кнопка-переключатель «Фото / Белый фон» — в стиле кнопок управления */
+.rune-layout-bg-toggle {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #FFD700;
+  background: rgba(255, 215, 0, 0.18);
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.rune-layout-bg-toggle:hover {
+  background: rgba(255, 215, 0, 0.35);
+}
+/* Активный режим (белый фон включён): подсвечиваем, чтобы состояние было видно */
+.rune-layout-bg-toggle.active {
+  background: #FFD700;
+  color: #2d1745;
+}
+
 .rune-layout-choice-panel {
   display: flex;
   align-items: center;
@@ -1592,8 +1619,7 @@ color: #5a0000;
 }
 
 /* Карточка руны креста: тот же RuneCard, что в разделе Новые руны.
-   Флекс-колонка: контент растягивается, кнопка «Закрыть» прижата к низу,
-   когда модалка вытянута до высоты эллипса на мобильных. */
+   Флекс-колонка: контент скроллится, шапка и её кнопка «Закрыть» закреплены. */
 .rune-layout-rune-modal {
   max-height: 88vh;
   overflow-y: auto;
@@ -1603,23 +1629,55 @@ color: #5a0000;
 .rune-layout-rune-modal .rune-card {
   flex: 1 1 auto;
 }
-.rune-layout-rune-modal .filter-actions {
-  margin-top: auto;
-  padding-top: 10px;
+/* 📌 Закреплённая шапка модалки: текст позиции + кнопка «Закрыть».
+   sticky держит её поверх карточки при прокрутке содержимого. */
+.rune-layout-rune-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  /* Тянем на поля модалки, чтобы фон шапки был сплошным при прокрутке */
+  margin: -15px -15px 12px -15px;
+  padding: 10px 10px 10px 12px;
+  background: linear-gradient(160deg, rgba(122, 61, 0, 0.95), rgba(255, 155, 30, 0.92));
+  border-bottom: 2px solid #ffd700;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
 }
-/* Шапка модалки: отдельный текст — смысл позиции руны в выбранной
-   раскладке (оценка/исцеление), над карточкой. */
-.rune-layout-rune-position {
-  margin: 0 0 12px 0;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(255, 215, 0, 0.14);
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  color: var(--app-accent);
-  font-size: 14px;
+/* Текст позиции внутри закреплённой шапки: крупнее и контрастнее */
+.rune-layout-rune-header .rune-layout-rune-position {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #fff8e1;
+  font-size: 15px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.55);
+}
+/* Кнопка «Закрыть» в шапке: яркая, заметная, крупная зона нажатия */
+.rune-layout-rune-close {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #d81b1b;
+  color: #ffffff;
+  font-size: 20px;
   font-weight: 700;
-  line-height: 1.45;
-  text-align: left;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.rune-layout-rune-close:hover {
+  background: #ff2e2e;
+  transform: scale(1.08);
 }
 /* 📱 Мобильная версия: если модалка по содержанию ниже эллипса — растягиваем
    её до высоты эллипса. Высоту замеряет компонент и передаёт через

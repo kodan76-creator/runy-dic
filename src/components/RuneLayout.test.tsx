@@ -189,8 +189,8 @@ describe('RuneLayout — модалка руны по клику', () => {
     expect(dialog.textContent).toContain('Руна 1 - ПРЕДЕЛ или ПОТОЛОК вашего сознания.')
     expect(dialog.textContent).toContain('Состояние, состоятельность')
     expect(dialog.textContent).toContain('Собственностью человека может стать лишь творчество его духа.')
-    // Закрытие
-    fireEvent.click(screen.getByText('Закрыть'))
+    // Закрытие (кнопка ✕ в закреплённой шапке)
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
@@ -211,7 +211,11 @@ describe('RuneLayout — модалка руны по клику', () => {
     expect(dialog.textContent).not.toContain('Отображение Силы Руны')
     expect(dialog.querySelector('img')).toBeNull()
     expect(dialog.textContent).toContain('Перевёрнутое положение показывает необходимость обращения к опыту.')
-    fireEvent.click(screen.getByText('Закрыть'))
+    // Кнопка закрытия — в шапке модалки (внутри .rune-layout-rune-header)
+    const header = dialog.querySelector('.rune-layout-rune-header')
+    expect(header).not.toBeNull()
+    expect(header!.querySelector('button')).not.toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 })
@@ -243,13 +247,13 @@ describe('RuneLayout — шапка позиции в модалке', () => {
     expect(dialog.textContent).toContain(
       'Руна 1 - ПРОШЛОЕ. Основная характеристика того, что привело вас (ситуацию, явление) в нынешнее состояние.'
     )
-    fireEvent.click(screen.getByText('Закрыть'))
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     // Руна 7 той же раскладки — своя шапка
     fireEvent.click(spread.querySelector('.rune-layout-spread-item.pos-7') as HTMLElement)
     dialog = await screen.findByRole('dialog')
     expect(dialog.textContent).toContain('Руна 7 - БУДУЩЕЕ при исполнении всех условий.')
-    fireEvent.click(screen.getByText('Закрыть'))
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
@@ -259,6 +263,66 @@ describe('RuneLayout — шапка позиции в модалке', () => {
     const dialog = await screen.findByRole('dialog')
     expect(dialog.textContent).toContain('Руна 7 - Требуемые проявления ЛЮБВИ для исцеления души.')
     expect(dialog.textContent).not.toContain('БУДУЩЕЕ при исполнении всех условий')
+  })
+
+  it('шапка позиции закреплена (sticky) и выделена цветом — по App.css', () => {
+    const css = readAppCss()
+    const headerBlock = /\.rune-layout-rune-header\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(headerBlock, 'App.css: нет стиля закреплённой шапки .rune-layout-rune-header').not.toBe('')
+    // Закрепление при прокрутке контента
+    expect(headerBlock).toMatch(/position:\s*sticky/)
+    expect(headerBlock).toMatch(/top:\s*0/)
+    // Шапка выделена цветом: свой фон + заметная нижняя граница
+    expect(headerBlock).toMatch(/background:\s*linear-gradient/)
+    expect(headerBlock).toMatch(/border-bottom:\s*2px solid #ffd700/)
+  })
+})
+
+describe('RuneLayout — белый фон вместо фото', () => {
+  it('кнопка «Белый фон» переключает режим и сохраняет выбор в localStorage', async () => {
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    // Пользователь с фото: режим включается кнопкой в панели редактирования
+    const toggle = screen.getByRole('button', { name: /Белый фон/ })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(toggle)
+    // После перерендера элемент пересоздаётся — запрашиваем заново
+    const toggleOn = screen.getByRole('button', { name: /Белый фон/ })
+    expect(toggleOn).toHaveAttribute('aria-pressed', 'true')
+    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBe('1')
+    // Фото скрыто, эллипс получил класс white-bg
+    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
+    expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    // Повторный клик возвращает фото
+    fireEvent.click(toggleOn)
+    expect(screen.getByRole('button', { name: /Белый фон/ })).toHaveAttribute('aria-pressed', 'false')
+    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBeNull()
+    expect(screen.getByAltText('Ваше фото во весь рост')).toBeTruthy()
+    cleanup()
+  })
+
+  it('выбор переживает перезагрузку: белый фон без фото, раскладка работает', async () => {
+    localStorage.setItem(`rune_layout_white_bg:${TEST_USER.email}`, '1')
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    // Фото не показано, эллипс белый
+    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
+    expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    // Фиксация белого фона открывает выбор раскладки, руны ложатся на белый фон
+    fireEvent.click(screen.getByRole('button', { name: /Зафиксировать/ }))
+    fireEvent.click(await screen.findByText('Раскладка Новых Рун для исцеления'))
+    const spread = await screen.findByLabelText('Раскладка Новых Рун')
+    expect(spread.querySelectorAll('.rune-layout-spread-item')).toHaveLength(7)
+    expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    cleanup()
+  })
+
+  it('белый фон доступен и без загруженного фото (пустое состояние)', () => {
+    render(<RuneLayout user={{ email: TEST_USER.email }} onUserUpdate={vi.fn()} />)
+    expect(screen.queryByAltText('Ваше фото во весь рост')).toBeNull()
+    // Кнопка в пустом состоянии сразу включает белый фон
+    fireEvent.click(screen.getByRole('button', { name: /Белый фон/ }))
+    expect(document.querySelector('.rune-layout-ellipse.white-bg')).not.toBeNull()
+    expect(localStorage.getItem(`rune_layout_white_bg:${TEST_USER.email}`)).toBe('1')
+    cleanup()
   })
 })
 
@@ -392,5 +456,17 @@ describe('Размер креста и эллипса — мобильные и 
       expect(width, `ширина эллипса должна считаться от сцены: ${width}`).toMatch(/cqw|cqh/)
       expect(width, `в ширине эллипса не должно быть px/vw/vh: ${width}`).not.toMatch(/px|vw|vh/)
     }
+  })
+})
+
+// ── Словарь: подпись сортировки «руны-графика» исправлена на «Руны» ─────────
+describe('Словарь — подпись сортировки рун', () => {
+  it('радиокнопка сортировки подписана «Руны», а не «руны-графика»', () => {
+    const home = fs.readFileSync(
+      path.resolve(__dirname, '../pages/Home.tsx'),
+      'utf8',
+    )
+    expect(home).not.toMatch(/руны-графика/)
+    expect(home).toMatch(/>\s*Руны\s*<\/label>/)
   })
 })

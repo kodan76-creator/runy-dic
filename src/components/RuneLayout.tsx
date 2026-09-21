@@ -153,6 +153,44 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origPanX: 0, origPanY: 0 })
   const ellipseRef = useRef<HTMLDivElement | null>(null)
   const imgRef = useRef<HTMLImageElement | null>(null)
+  // ⚪ Белый фон вместо фото: раскладку можно делать без загруженного фото.
+  // Выбор сохраняется в localStorage (по email) и переживает перезагрузку.
+  const whiteBgKey = user?.email ? 'rune_layout_white_bg:' + user.email : null
+  const [whiteBackground, setWhiteBackground] = useState(() => {
+    try {
+      if (!user?.email) return false
+      return localStorage.getItem('rune_layout_white_bg:' + user.email) === '1'
+    } catch { return false }
+  })
+  // Если user подставился позже первого рендера — подтягиваем сохранённый выбор
+  useEffect(() => {
+    if (!whiteBgKey) return
+    try {
+      setWhiteBackground(localStorage.getItem(whiteBgKey) === '1')
+    } catch { /* ignore */ }
+  }, [whiteBgKey])
+  const toggleWhiteBackground = () => {
+    const next = !whiteBackground
+    setWhiteBackground(next)
+    try {
+      if (whiteBgKey) {
+        if (next) localStorage.setItem(whiteBgKey, '1')
+        else localStorage.removeItem(whiteBgKey)
+      }
+    } catch { /* ignore */ }
+  }
+  // 🔘 Кнопка-переключатель «Фото / Белый фон» (одна и та же во всех панелях)
+  const whiteBgToggle = (
+    <button
+      type="button"
+      className={`rune-layout-bg-toggle${whiteBackground ? ' active' : ''}`}
+      onClick={toggleWhiteBackground}
+      aria-pressed={whiteBackground}
+      title={whiteBackground ? 'Вернуться к фото (если оно загружено)' : 'Сделать раскладку на белом фоне, без фото'}
+    >
+      ⚪ Белый фон
+    </button>
+  )
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
   // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса.
@@ -261,6 +299,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setPanX(0)
       setPanY(0)
       if (user?.email) clearLayoutState(user.email)
+      // Новое фото выбрано — выключаем белый фон, чтобы фото было видно сразу
+      if (whiteBackground) {
+        setWhiteBackground(false)
+        try { if (whiteBgKey) localStorage.removeItem(whiteBgKey) } catch { /* ignore */ }
+      }
       // Сбрасываем blob-URL при загрузке нового файла
       if (localPhotoUrlRef.current) {
         URL.revokeObjectURL(localPhotoUrlRef.current)
@@ -341,6 +384,22 @@ export default function RuneLayout({ user, onUserUpdate }) {
         }).catch(() => {})
       }
       setUploadError(err?.message || 'Ошибка обработки фото')
+    } finally {
+      setApplying(false)
+    }
+  }
+
+  // ⚪ Зафиксировать белый фон: без фото — просто переходим к выбору раскладки.
+  // Картинка с белым эллипсом в кэш не пишется: белый фон — это отсутствие фото,
+  // он и так восстанавливается из localStorage при перезагрузке.
+  const handleApplyWhitePhoto = async () => {
+    if (!user?.email) return
+    setApplying(true)
+    setUploadError('')
+    try {
+      setShowLayoutChoice(true)
+      setSelectedLayoutChoice('')
+      setSpreadRunes([])
     } finally {
       setApplying(false)
     }
@@ -475,22 +534,24 @@ export default function RuneLayout({ user, onUserUpdate }) {
         Рунная раскладка
       </h2>
 
-      {photoUrl ? (
+      {photoUrl || whiteBackground ? (
         <>
           <div className="rune-layout-stage">
-            <div className="rune-layout-ellipse" ref={ellipseRef}>
-              <img
-                ref={imgRef}
-                className={`rune-layout-photo${dragging ? ' dragging' : ''}${!showLayoutChoice && !selectedLayoutChoice ? ' editable' : ''}`}
-                src={photoUrl}
-                alt="Ваше фото во весь рост"
-                style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
-                draggable={false}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-              />
+            <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`} ref={ellipseRef}>
+              {photoUrl && !whiteBackground && (
+                <img
+                  ref={imgRef}
+                  className={`rune-layout-photo${dragging ? ' dragging' : ''}${!showLayoutChoice && !selectedLayoutChoice ? ' editable' : ''}`}
+                  src={photoUrl}
+                  alt="Ваше фото во весь рост"
+                  style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
+                  draggable={false}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                />
+              )}
               {spreadRunes.length > 0 && (
                 <div
                   className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}`}
@@ -544,6 +605,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 Вернуться к выбору фото
               </button>
+              {whiteBgToggle}
             </div>
           ) : selectedLayoutChoice ? (
             <div className="rune-layout-controls">
@@ -555,45 +617,67 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 Вернуться к выбору раскладок
               </button>
+              {whiteBgToggle}
               {spreadLoading && (
                 <span className="rune-layout-spread-loading">⏳ Выбор рун…</span>
               )}
             </div>
           ) : (
             <div className="rune-layout-controls">
-              <button
-                type="button"
-                className="rune-layout-zoom-btn"
-                onClick={() => changeZoom(-ZOOM_STEP)}
-                disabled={zoom <= MIN_ZOOM}
-                aria-label="Уменьшить фото"
-                title="Уменьшить фото"
-              >
-                −
-              </button>
-              <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
-              <button
-                type="button"
-                className="rune-layout-zoom-btn"
-                onClick={() => changeZoom(ZOOM_STEP)}
-                disabled={zoom >= MAX_ZOOM}
-                aria-label="Увеличить фото"
-                title="Увеличить фото"
-              >
-                +
-              </button>
-              <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
-                Заменить фото
-              </button>
-              <button
-                type="button"
-                className="rune-layout-apply-btn"
-                onClick={handleApplyPhoto}
-                disabled={applying}
-                title="Зафиксировать текущую позицию и размер фото"
-              >
-                {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
-              </button>
+              {whiteBackground ? (
+                <>
+                  <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
+                    Заменить фото
+                  </button>
+                  {whiteBgToggle}
+                  <button
+                    type="button"
+                    className="rune-layout-apply-btn"
+                    onClick={handleApplyWhitePhoto}
+                    disabled={applying}
+                    title="Подтвердить белый фон и перейти к выбору раскладки"
+                  >
+                    {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="rune-layout-zoom-btn"
+                    onClick={() => changeZoom(-ZOOM_STEP)}
+                    disabled={zoom <= MIN_ZOOM}
+                    aria-label="Уменьшить фото"
+                    title="Уменьшить фото"
+                  >
+                    −
+                  </button>
+                  <span className="rune-layout-zoom-value">{Math.round(zoom * 100)}%</span>
+                  <button
+                    type="button"
+                    className="rune-layout-zoom-btn"
+                    onClick={() => changeZoom(ZOOM_STEP)}
+                    disabled={zoom >= MAX_ZOOM}
+                    aria-label="Увеличить фото"
+                    title="Увеличить фото"
+                  >
+                    +
+                  </button>
+                  <button type="button" className="rune-layout-replace-btn" onClick={() => setShowUpload(true)}>
+                    Заменить фото
+                  </button>
+                  {whiteBgToggle}
+                  <button
+                    type="button"
+                    className="rune-layout-apply-btn"
+                    onClick={handleApplyPhoto}
+                    disabled={applying}
+                    title="Зафиксировать текущую позицию и размер фото"
+                  >
+                    {applying ? '⏳ Обработка…' : '✓ Зафиксировать'}
+                  </button>
+                </>
+              )}
             </div>
           )}
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
@@ -609,6 +693,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
           <button type="button" className="rune-layout-upload-btn" onClick={() => setShowUpload(true)}>
             Загрузить фото
           </button>
+          {whiteBgToggle}
         </div>
       )}
 
@@ -666,20 +751,26 @@ export default function RuneLayout({ user, onUserUpdate }) {
             style={runeModalMinH > 0 ? { '--rune-modal-min-h': `${runeModalMinH}px` } as CSSProperties : undefined}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Шапка модалки: смысл позиции руны в выбранной раскладке */}
-            <p className="rune-layout-rune-position">
-              {getPositionLabel(selectedLayoutChoice, selectedRuneIndex + 1)}
-            </p>
+            {/* 📌 Закреплённая шапка: смысл позиции руны + кнопка «Закрыть» */}
+            <div className="rune-layout-rune-header">
+              <p className="rune-layout-rune-position">
+                {getPositionLabel(selectedLayoutChoice, selectedRuneIndex + 1)}
+              </p>
+              <button
+                type="button"
+                className="rune-layout-rune-close"
+                onClick={() => setSelectedRuneIndex(null)}
+                aria-label="Закрыть"
+                title="Закрыть"
+              >
+                ✕
+              </button>
+            </div>
             <RuneCard
               rune={findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)
                 ?? { name: spreadRunes[selectedRuneIndex].replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
               hidePower
             />
-            <div className="filter-actions">
-              <button className="close-btn" onClick={() => setSelectedRuneIndex(null)}>
-                Закрыть
-              </button>
-            </div>
           </div>
         </div>
       )}

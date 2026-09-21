@@ -693,7 +693,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                   checked={sortMode === 'runes'}
                   onChange={() => setSortMode('runes')}
                 />
-                руны-графика
+                Руны
               </label>
             </div>
             {hasSharedDictionaryAccess && (
