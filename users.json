@@ -116,38 +116,6 @@
     "runeLayoutType": "evaluation"
   },
   {
-    "id": "1789821046328",
-    "email": "test7@1.ru",
-    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "createdAt": "2026-09-19T12:30:46.319Z",
-    "role": "user",
-    "sessionVersion": 0,
-    "paid": true,
-    "paidAt": "2026-09-19T12:52:31.573Z",
-    "paidBy": "ya.kodan76@ya.ru",
-    "unpaidAt": null,
-    "unpaidBy": null,
-    "runesPaid": true,
-    "runesPaidAt": "2026-09-19T12:52:31.573Z",
-    "runesPaidBy": "ya.kodan76@ya.ru",
-    "runesUnpaidAt": null,
-    "runesUnpaidBy": null,
-    "isBlocked": false,
-    "blockedAt": null,
-    "blockedBy": null,
-    "deviceId": "50ca4311-bc07-4136-a084-9daa08a6cd66",
-    "devices": [
-      {
-        "id": "50ca4311-bc07-4136-a084-9daa08a6cd66",
-        "type": "desktop",
-        "addedAt": "2026-09-19T12:30:46.319Z",
-        "lastLoginAt": "2026-09-19T12:30:46.319Z"
-      }
-    ],
-    "registeredAt": "2026-09-19T12:30:46.319Z",
-    "runeLayoutType": "healing"
-  },
-  {
     "id": "1789988335719",
     "email": "test8@1.ru",
     "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
