@@ -42,6 +42,5 @@ jobs:
           body: |
             Зарегистрирован новый пользователь.
 
-            Email: ${{ github.event.client_payload.email }}
+            Логин: ${{ github.event.client_payload.email }}
             Дата регистрации (UTC): ${{ github.event.client_payload.createdAt }}
-            Репозиторий: ${{ github.repository }}
