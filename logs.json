@@ -1,5 +1,14 @@
 [
   {
+    "id": "1790011728871",
+    "timestamp": "2026-09-21T17:28:48.871Z",
+    "action": "login",
+    "userEmail": "kodan76@ya.ru",
+    "details": "Вход",
+    "deviceId": "584f45cd-ef03-4936-9226-38c6ac573e38",
+    "deviceType": "mobile"
+  },
+  {
     "id": "1790011405289",
     "timestamp": "2026-09-21T17:23:25.289Z",
     "action": "rune_layout_type_updated",
