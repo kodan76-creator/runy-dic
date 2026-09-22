@@ -344,9 +344,13 @@ export const deleteUser = async (userId, adminEmail) => {
   // public/users/_deleted/<email_folder>/ (личный словарь, аудио, картинки),
   // локальные кэши чистим. Сбой архивации не отменяет удаление учётной
   // записи — ошибка фиксируется в логах.
+  // Возвращаем итог архивации, чтобы UI мог показать начало/конец процесса.
+  const archive: { moved: number; errors: string[] } = { moved: 0, errors: [] }
   if (user?.email) {
     try {
       const { moved, errors } = await archiveUserFolders(user.email)
+      archive.moved = moved
+      archive.errors.push(...errors)
       addLog({
         action: 'user_files_archived',
         userEmail: user.email,
@@ -356,13 +360,16 @@ export const deleteUser = async (userId, adminEmail) => {
           : `Перенесено в корзину файлов: ${moved}`,
       }).catch(() => {})
     } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      archive.errors.push(msg)
       console.warn('archiveUserFolders error:', e)
       addLog({
         action: 'user_files_archived',
         userEmail: user.email,
         adminEmail,
-        details: `Не удалось перенести файлы в корзину: ${e instanceof Error ? e.message : String(e)}`,
+        details: `Не удалось перенести файлы в корзину: ${msg}`,
       }).catch(() => {})
     }
   }
+  return archive
 }

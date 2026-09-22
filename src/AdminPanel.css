@@ -333,11 +333,11 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .clear-logs-btn { padding: 8px 16px; background: #f44336; color: var(--on-accent); border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
 .clear-logs-btn:hover { background: #d32f2f; }
 .logs-list { display: flex; flex-direction: column; gap: 8px; }
-.log-item { display: grid; grid-template-columns: 150px 120px 200px 1fr auto; gap: 10px; padding: 10px; background: var(--field-bg); border-radius: 6px; font-size: 12px; align-items: center; text-align: left; }
+.log-item { display: grid; grid-template-columns: 150px minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 2fr) auto; gap: 10px; padding: 10px; background: var(--field-bg); border-radius: 6px; font-size: 12px; align-items: center; text-align: left; }
 .log-time { color: var(--surface-muted); }
-.log-action { color: var(--app-accent); font-weight: bold; }
-.log-user { color: var(--app-accent); }
-.log-details { color: var(--surface-text); }
+.log-action { color: var(--app-accent); font-weight: bold; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.log-user { color: var(--app-accent); min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.log-details { color: var(--surface-text); min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 .log-device { color: var(--surface-muted); font-size: 11px; white-space: nowrap; }
 
 /* Контент */

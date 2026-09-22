@@ -85,7 +85,7 @@ export default function SecurityTab({
               )}
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px', tableLayout: 'fixed' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
                   <th style={{ padding: '2px 6px', width: '30px' }}>
@@ -100,7 +100,7 @@ export default function SecurityTab({
                     />
                   </th>
                   <th style={{ padding: '2px 6px', textAlign: 'left' }}>Файл</th>
-                  <th style={{ padding: '2px 6px', textAlign: 'left' }}>Статус</th>
+                  <th style={{ padding: '2px 6px', textAlign: 'left', width: '140px' }}>Статус</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,8 +115,8 @@ export default function SecurityTab({
                         />
                       )}
                     </td>
-                    <td style={{ padding: '2px 6px' }}>{f.file}</td>
-                    <td style={{ padding: '2px 6px' }}>
+                    <td style={{ padding: '2px 6px', textAlign: 'left', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{f.file}</td>
+                    <td style={{ padding: '2px 6px', textAlign: 'left', whiteSpace: 'nowrap' }}>
                       {f.encrypted === true && '🔒 Зашифрован'}
                       {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан'}
                       {f.encrypted === false && f.status === 'plain' && '📄 Открытый'}
@@ -138,12 +138,12 @@ export default function SecurityTab({
         ].filter(g => g.data && g.data.length > 0).map(group => (
           <div key={group.label} style={{ marginTop: '8px' }}>
             <h4 style={{ color: 'var(--text-h)', margin: '0 0 4px', fontSize: '13px' }}>{group.label}</h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)', fontSize: '12px', tableLayout: 'fixed' }}>
               <tbody>
                 {group.data.map((r, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '2px 6px' }}>{r.file}</td>
-                    <td style={{ padding: '2px 6px' }}>
+                    <td style={{ padding: '2px 6px', textAlign: 'left', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{r.file}</td>
+                    <td style={{ padding: '2px 6px', textAlign: 'left', width: '160px', whiteSpace: 'nowrap' }}>
                       {r.status === 'encrypted' && '🔐 Зашифрован'}
                       {r.status === 'already_encrypted' && '🔒 Уже зашифрован'}
                       {r.status === 'decrypted' && '🔓 Расшифрован'}

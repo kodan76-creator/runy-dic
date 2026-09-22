@@ -61,10 +61,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const msgTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [message, setMessage] = useState<{ text: string; type?: string } | ''>('')
 
-  const showMessage = useCallback((text, type = 'success') => {
+  const showMessage = useCallback((text, type = 'success', ms = 4000) => {
     setMessage({ text, type })
     if (msgTimeoutRef.current) clearTimeout(msgTimeoutRef.current)
-    msgTimeoutRef.current = setTimeout(() => setMessage(''), 4000)
+    msgTimeoutRef.current = setTimeout(() => setMessage(''), ms)
   }, [])
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
@@ -982,7 +982,24 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
   const handleDeleteUser = async (userId, userEmail) => {
     if (window.confirm(`Удалить пользователя ${userEmail}? Это действие нельзя отменить.`)) {
-      try { await deleteUser(userId, adminUser?.email); await loadUsers(); await loadLogs() } catch (err) { setError('Ошибка: ' + err.message) }
+      setError('')
+      // Начало процесса — сообщение висит дольше (15 с), чтобы его было видно
+      // на время переноса папки пользователя в корзину.
+      showMessage(`⏳ Удаление пользователя ${userEmail}… переносим учётную запись и файлы в корзину`, 'success', 15000)
+      try {
+        const archive = await deleteUser(userId, adminUser?.email)
+        await loadUsers()
+        await loadLogs()
+        const moved = archive?.moved ?? 0
+        const errors = archive?.errors ?? []
+        // Конец процесса.
+        showMessage(
+          errors.length
+            ? `⚠️ Пользователь ${userEmail} удалён; файлов в корзину: ${moved}, ошибки: ${errors.join('; ')}`
+            : `✅ Пользователь ${userEmail} удалён; файлов в корзину: ${moved}`,
+          errors.length ? 'error' : 'success'
+        )
+      } catch (err) { setError('Ошибка: ' + err.message); showMessage(`❌ Не удалось удалить пользователя ${userEmail}: ${err.message}`, 'error') }
     }
   }
   const handleEditUser = (user) => {
