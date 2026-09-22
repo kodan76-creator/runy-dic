@@ -1307,16 +1307,7 @@ background: rgba(246, 240, 253, 0.2);
   }
   .rune-layout-print {
     display: block !important;
-    color: #2d1745;
-    /* 🖨️ Печать — только тёмно-фиолетовый вместо чёрного и светлых токенов
-       темы (на бумаге лаванда пропадает, а браузер подменяет её чёрным).
-       Переопределяем токены локально для печатной версии: фон белый,
-       весь текст — тёмно-фиолетовый. */
-    --card-bg: #ffffff;
-    --card-border: #2d1745;
-    --on-accent: #2d1745;
-    --plum-100: #2d1745;
-    --surface-muted: #2d1745;
+    color: #000;
   }
   .rune-layout-print-cover {
     page-break-after: always;
@@ -1324,14 +1315,13 @@ background: rgba(246, 240, 253, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #2d1745;
   }
   .rune-layout-print-name {
     margin: 0 0 8mm 0;
     font-size: 18pt;
     font-weight: 700;
     text-align: center;
-    color: #2d1745;
+    color: #000;
   }
   .rune-layout-print-scene {
     width: 150mm;
@@ -1357,65 +1347,18 @@ background: rgba(246, 240, 253, 0.2);
     break-before: page;
     page-break-inside: avoid;
     break-inside: avoid;
-    color: #2d1745;
   }
   .rune-layout-print-rune-position {
     margin: 0 0 5mm 0;
     padding: 3mm 4mm;
     font-size: 12pt;
     font-weight: 700;
-    color: #2d1745;
-    border: 1pt solid #2d1745;
+    color: #000;
+    border: 1pt solid #000;
   }
   .rune-layout-print-rune-card .rune-card {
-    background: #ffffff;
     box-shadow: none;
-    text-shadow: none;
-    border: 1pt solid #2d1745;
-  }
-  /* Подсветка поиска в печати: вместо золотого фона — тёмно-фиолетовый
-     жирный текст без фона (золото на белой бумаге нечитаемо). */
-  .rune-layout-print-rune-card .rune-hl,
-  .rune-layout-print-rune-card mark {
-    background: transparent;
-    color: #2d1745;
-    font-weight: 700;
-  }
-  /* Карточка руны в печати: весь текст — тёмно-фиолетовый (#2d1745), без
-     экранных свечений (золото/циан на белой бумаге нечитаемы, тени дают
-     серый ореол). */
-  .rune-layout-print-rune-card .rune-card-glyph,
-  .rune-layout-print-rune-card .rune-card-letter,
-  .rune-layout-print-rune-card .rune-card-power,
-  .rune-layout-print-rune-card .rune-card-keywords,
-  .rune-layout-print-rune-card .rune-card-power-image,
-  .rune-layout-print-rune-card .rune-card-desc,
-  .rune-layout-print-rune-card .rune-card-label {
-    color: #2d1745;
-    text-shadow: none;
-  }
-  /* Плитки креста на обложке: без светлой вуали и ореолов — только рамка.
-     Тени убираем, иначе чёрный ореол PNG вернётся на бумагу. */
-  .rune-layout-print-scene .rune-layout-spread-item {
-  .rune-layout-print-scene .rune-layout-spread-item {
-    background: transparent;
-    box-shadow: none;
-    border-color: #2d1745;
-  }
-  .rune-layout-print-scene .rune-layout-spread-item img {
-    filter: none;
-  }
-  .rune-layout-print-scene .rune-layout-spread-num {
-    background: #2d1745;
-    color: #ffffff;
-    border-color: #2d1745;
-  }
-  /* тёмная тема: в печати карточка принудительно белая (см. токены выше),
-     поэтому её имя — тоже тёмно-фиолетовое, иначе браузер оставит
-     ярко-фиолетовое #c77dff на белом и текст будет блеклым */
-  .rune-layout-print-rune-card .rune-card-name {
-    color: #2d1745;
-    text-shadow: none;
+    border: 1pt solid #000;
   }
   .rune-layout-print-rune-card img {
     max-width: 100%;
