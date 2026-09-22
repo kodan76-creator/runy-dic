@@ -555,8 +555,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     <div className="container">
       {isOffline && (
         <div className="offline-banner" role="status">
-          ⚠️ Нет интернета или слабое соединение — показан ваш личный словарь (офлайн-копия).
-          Изменения сохранятся, когда появится соединение.
+          ⚠️ Нет интернета или слабое соединение !
         </div>
       )}
       <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${isRuneLayoutView ? ' header-layout-mode' : ''}`}>

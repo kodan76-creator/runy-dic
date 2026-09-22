@@ -419,6 +419,26 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }
   }
 
+  // 🔁 Если при загрузке SW ещё не контролировал страницу (первый визит или
+  // обновление SW), прогрев не срабатывает — повторяем, когда контроллер
+  // появится. Без этого картинки рун не попадали в кэш и пропадали оффлайн.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
+    let cancelled = false
+    navigator.serviceWorker.ready.then((reg) => {
+      if (cancelled || !reg.active || navigator.serviceWorker.controller) return
+      // Контроллер ещё не назначен (SW только что активировался) — после
+      // clients.claim() он появится; даём момент и догреваем кэш.
+      setTimeout(() => {
+        if (!cancelled && isRuneLayoutPrecached()) return
+        if (precacheUrls(collectRuneLayoutImageUrls(RUNES_LAYOUT_FALLBACK))) {
+          markRuneLayoutPrecached()
+        }
+      }, 1000)
+    }).catch(() => { /* нет SW — оффлайн-прогрев недоступен */ })
+    return () => { cancelled = true }
+  }, [])
+
   // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy
   // layoutType передаём параметром: setState асинхронен, и чтение
   // selectedLayoutChoice сразу после setSelectedLayoutChoice дало бы старое значение.
