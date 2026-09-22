@@ -1265,6 +1265,106 @@ background: rgba(246, 240, 253, 0.2);
   color: #FFD700;
 }
 
+/* 🖨️ Кнопка печати — в стиле остальных кнопок управления раскладкой */
+.rune-layout-print-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #FFD700;
+  background: rgba(255, 215, 0, 0.18);
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rune-layout-print-btn:hover {
+  background: rgba(255, 215, 0, 0.35);
+}
+.rune-layout-print-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* 🖨️ Печатная версия раскладки: на экране скрыта, видна только при печати.
+   1-я страница — название + эллипс с крестом, далее по странице на каждую
+   руну (шапка позиции + карточка из раздела «Новые Руны»). */
+.rune-layout-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  /* На печать уходит только печатная версия: остальной интерфейс скрываем */
+  body > #root {
+    display: none !important;
+  }
+  body::before,
+  body::after {
+    display: none !important;
+  }
+  .rune-layout-print {
+    display: block !important;
+    color: #000;
+  }
+  .rune-layout-print-cover {
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rune-layout-print-name {
+    margin: 0 0 8mm 0;
+    font-size: 18pt;
+    font-weight: 700;
+    text-align: center;
+    color: #000;
+  }
+  .rune-layout-print-scene {
+    width: 150mm;
+    height: 200mm;
+    container-type: size;
+  }
+  .rune-layout-print-scene .rune-layout-ellipse {
+    width: min(96cqw, 64cqh);
+    box-shadow: none;
+  }
+  /* Номера рун в печати — внутри плиток, чтобы не вылезать за края страницы */
+  .rune-layout-print-scene .rune-layout-spread-num {
+    transform: none;
+    top: 2px;
+    right: 2px;
+  }
+  /* Без пульсации на бумаге: статичное свечение вместо анимации */
+  .rune-layout-print-scene .rune-layout-spread-item img {
+    animation: none;
+  }
+  .rune-layout-print-rune {
+    page-break-before: always;
+    break-before: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .rune-layout-print-rune-position {
+    margin: 0 0 5mm 0;
+    padding: 3mm 4mm;
+    font-size: 12pt;
+    font-weight: 700;
+    color: #000;
+    border: 1pt solid #000;
+  }
+  .rune-layout-print-rune-card .rune-card {
+    box-shadow: none;
+    border: 1pt solid #000;
+  }
+  .rune-layout-print-rune-card img {
+    max-width: 100%;
+  }
+}
+
 /* ⚪ Белый фон: раскладка без фото — эллипс залит плотным белым.
    Класс вешается на эллипс, фото в этом режиме не рендерится вовсе. */
 .rune-layout-ellipse.white-bg {

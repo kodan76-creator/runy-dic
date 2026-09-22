@@ -510,12 +510,17 @@ describe('Словарь — подпись сортировки рун', () => 
 describe('RuneLayout — название выбранной раскладки', () => {
   it('после выбора раскладки её название показано над крестом (обе раскладки)', async () => {
     await chooseLayout('Раскладка Новых Рун для исцеления')
-    expect(screen.getByText('Раскладка Новых Рун для исцеления')).toBeTruthy()
-    expect(document.querySelector('.rune-layout-active-name')).not.toBeNull()
+    // Название есть и на экране (.rune-layout-active-name), и в печатной
+    // версии (.rune-layout-print-name, портал в body) — проверяем экранное.
+    expect(document.querySelector('.rune-layout-active-name')).toHaveTextContent(
+      'Раскладка Новых Рун для исцеления'
+    )
     cleanup()
 
     await chooseLayout('Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления')
-    expect(screen.getByText('Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления')).toBeTruthy()
+    expect(document.querySelector('.rune-layout-active-name')).toHaveTextContent(
+      'Раскладка Новых Рун для оценки Пути Духовного развития или ситуации явления'
+    )
     cleanup()
   })
 
@@ -529,7 +534,47 @@ describe('RuneLayout — название выбранной раскладки'
     )
     render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
     await screen.findByLabelText('Раскладка Новых Рун')
-    expect(screen.getByText('Раскладка Новых Рун для исцеления')).toBeTruthy()
+    expect(document.querySelector('.rune-layout-active-name')).toHaveTextContent(
+      'Раскладка Новых Рун для исцеления'
+    )
+    cleanup()
+  })
+})
+
+// ── Печать раскладки на А4 ───────────────────────────────────────────────────
+describe('RuneLayout — печать на А4', () => {
+  it('кнопка «Печать на А4» видна на странице креста', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    expect(screen.getByRole('button', { name: '🖨️ Печать на А4' })).toBeTruthy()
+    cleanup()
+  })
+
+  it('печатная версия: название, эллипс с крестом и 7 рун с шапками позиций', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    // Печатная версия рендерится порталом в body (display:none на экране)
+    const printRoot = document.querySelector('.rune-layout-print')
+    expect(printRoot).not.toBeNull()
+    expect(printRoot?.querySelector('.rune-layout-print-name')).toHaveTextContent(
+      'Раскладка Новых Рун для исцеления'
+    )
+    // Обложка: эллипс с крестом из 7 плиток
+    expect(printRoot?.querySelector('.rune-layout-print-cover .rune-layout-ellipse')).not.toBeNull()
+    expect(printRoot?.querySelectorAll('.rune-layout-print-cover .rune-layout-spread-item')).toHaveLength(7)
+    // 7 страниц рун: та же шапка позиции, что в модалке (исцеление, руна 1)
+    const runePages = printRoot?.querySelectorAll('.rune-layout-print-rune')
+    expect(runePages).toHaveLength(7)
+    expect(runePages?.[0].querySelector('.rune-layout-print-rune-position')).toHaveTextContent(
+      HEALING_POSITION_LABELS[0]
+    )
+    cleanup()
+  })
+
+  it('клик по «Печать на А4» вызывает window.print', async () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    fireEvent.click(screen.getByRole('button', { name: '🖨️ Печать на А4' }))
+    expect(printSpy).toHaveBeenCalled()
+    printSpy.mockRestore()
     cleanup()
   })
 })

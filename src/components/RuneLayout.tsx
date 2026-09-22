@@ -4,6 +4,7 @@
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
 import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
@@ -106,6 +107,13 @@ const RUNES_LAYOUT_FALLBACK = [
   '33_ША.png', '34_ША_П.png', '35_КИЙГ.png', '36_ЦЭРЭ.png', '37_ЦЭРЭ_П.png',
   '38_РУНА ТИШИНЫ.png',
 ]
+
+// 🖨️ Данные для печати: та же картинка руны, что на плитке креста
+// (buildImageUrl), карточка из раздела «Новые Руны» (findLayoutRune) и та же
+// шапка позиции, что в модалке (getPositionLabel).
+function printLayout() {
+  window.print()
+}
 
 export default function RuneLayout({ user, onUserUpdate }) {
   // 📖 Каталог «Новых Рун» (тексты карточек раздела) — для модалки по клику.
@@ -610,6 +618,15 @@ export default function RuneLayout({ user, onUserUpdate }) {
               >
                 Вернуться к выбору раскладок
               </button>
+              <button
+                type="button"
+                className="rune-layout-print-btn"
+                onClick={printLayout}
+                disabled={spreadRunes.length !== 7}
+                title="Распечатать раскладку на листах А4: эллипс с крестом и описания рун"
+              >
+                🖨️ Печать на А4
+              </button>
               {spreadLoading && (
                 <span className="rune-layout-spread-loading">⏳ Выбор рун…</span>
               )}
@@ -726,6 +743,62 @@ export default function RuneLayout({ user, onUserUpdate }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 🖨️ Печатная версия раскладки — порталом в body, чтобы на неё не влияли
+          overflow/clip предков и её можно было изолировать в @media print.
+          Видна только при печати: 1-я страница — название + эллипс с крестом,
+          далее по одной странице на руну — та же шапка позиции и та же карточка,
+          что в модалке. */}
+      {selectedLayoutChoice && spreadRunes.length === 7 && createPortal(
+        <div className="rune-layout-print" aria-hidden="true">
+          <section className="rune-layout-print-cover">
+            <h1 className="rune-layout-print-name">{getLayoutName(selectedLayoutChoice)}</h1>
+            <div className="rune-layout-print-scene">
+              <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`}>
+                {photoUrl && !whiteBackground && (
+                  <img
+                    className="rune-layout-photo"
+                    src={photoUrl}
+                    alt=""
+                    style={{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})` }}
+                  />
+                )}
+                <div
+                  className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}`}
+                >
+                  {spreadRunes.map((name, i) => (
+                    <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
+                      <img
+                        src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
+                        alt=""
+                      />
+                      <span className="rune-layout-spread-num" aria-hidden="true">{i + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+          {spreadRunes.map((name, i) => {
+            const rune = findLayoutRune(name, runesCatalog)
+            return (
+              <section key={name} className="rune-layout-print-rune">
+                <h2 className="rune-layout-print-rune-position">
+                  {getPositionLabel(selectedLayoutChoice, i + 1)}
+                </h2>
+                <div className="rune-layout-print-rune-card">
+                  <RuneCard
+                    rune={rune
+                      ?? { name: name.replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
+                    hidePower
+                  />
+                </div>
+              </section>
+            )
+          })}
+        </div>,
+        document.body
       )}
 
       {selectedRuneIndex !== null && spreadRunes[selectedRuneIndex] && (
