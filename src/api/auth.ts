@@ -7,6 +7,7 @@ import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
 import { cacheUserForOffline } from './offline'
 import { notifyRegistration } from './registrationNotify'
+import { archiveUserFolders } from './userFolder'
 import { getDeviceId, getDeviceType, checkRegistrationLimit, recordRegistration, checkLoginDeviceLimit } from './deviceLimit'
 
 export const hashPassword = async (password) => {
@@ -338,4 +339,30 @@ export const deleteUser = async (userId, adminEmail) => {
   const filtered = users.filter(u => u.id !== userId)
   await updateGitHubFile(USERS_FILE, filtered, sha)
   addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})
+
+  // 🗑️ Файлы пользователя не удаляем безвозвратно, а переносим в корзину
+  // public/users/_deleted/<email_folder>/ (личный словарь, аудио, картинки),
+  // локальные кэши чистим. Сбой архивации не отменяет удаление учётной
+  // записи — ошибка фиксируется в логах.
+  if (user?.email) {
+    try {
+      const { moved, errors } = await archiveUserFolders(user.email)
+      addLog({
+        action: 'user_files_archived',
+        userEmail: user.email,
+        adminEmail,
+        details: errors.length
+          ? `Перенесено в корзину файлов: ${moved}; ошибки: ${errors.join('; ')}`
+          : `Перенесено в корзину файлов: ${moved}`,
+      }).catch(() => {})
+    } catch (e) {
+      console.warn('archiveUserFolders error:', e)
+      addLog({
+        action: 'user_files_archived',
+        userEmail: user.email,
+        adminEmail,
+        details: `Не удалось перенести файлы в корзину: ${e instanceof Error ? e.message : String(e)}`,
+      }).catch(() => {})
+    }
+  }
 }
