@@ -1259,7 +1259,9 @@ background: rgba(246, 240, 253, 0.2);
   cursor: wait;
 }
 .rune-layout-return-btn {
-  min-width: min(420px, calc(100vw - 32px));
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 420px;
   border-color: #FFD700;
   background: rgba(255, 215, 0, 0.18);
   color: #FFD700;
