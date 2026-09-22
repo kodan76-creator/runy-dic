@@ -625,7 +625,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 disabled={spreadRunes.length !== 7}
                 title="Распечатать раскладку на листах А4: эллипс с крестом и описания рун"
               >
-                🖨️ Печать на А4
+                🖨️ Печать
               </button>
               {spreadLoading && (
                 <span className="rune-layout-spread-loading">⏳ Выбор рун…</span>

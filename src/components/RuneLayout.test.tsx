@@ -543,9 +543,9 @@ describe('RuneLayout — название выбранной раскладки'
 
 // ── Печать раскладки на А4 ───────────────────────────────────────────────────
 describe('RuneLayout — печать на А4', () => {
-  it('кнопка «Печать на А4» видна на странице креста', async () => {
+  it('кнопка «Печать» видна на странице креста', async () => {
     await chooseLayout('Раскладка Новых Рун для исцеления')
-    expect(screen.getByRole('button', { name: '🖨️ Печать на А4' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '🖨️ Печать' })).toBeTruthy()
     cleanup()
   })
 
@@ -569,10 +569,10 @@ describe('RuneLayout — печать на А4', () => {
     cleanup()
   })
 
-  it('клик по «Печать на А4» вызывает window.print', async () => {
+  it('клик по «Печать» вызывает window.print', async () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
     await chooseLayout('Раскладка Новых Рун для исцеления')
-    fireEvent.click(screen.getByRole('button', { name: '🖨️ Печать на А4' }))
+    fireEvent.click(screen.getByRole('button', { name: '🖨️ Печать' }))
     expect(printSpy).toHaveBeenCalled()
     printSpy.mockRestore()
     cleanup()
