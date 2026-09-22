@@ -914,7 +914,7 @@ background: rgba(246, 240, 253, 0.2);
   overflow: hidden;
   padding: 20px 8px 20px;
 }
-/* Переключатель подразделов «Новых Рун»: Руны / Рунная раскладка */
+/* Переключатель подразделов «Новых Рун»: иконки Руны / Рунная раскладка */
 .runes-sub-toggle {
   display: flex;
   justify-content: center;
@@ -923,7 +923,7 @@ background: rgba(246, 240, 253, 0.2);
   flex-shrink: 0;
 }
 .runes-sub-toggle-btn {
-  padding: 8px 18px;
+  padding: 6px;
   border-radius: 999px;
   border: 2px solid rgba(255, 215, 0, 0.55);
   background: rgba(255, 215, 0, 0.12);
@@ -932,6 +932,12 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 14px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Тап-зона 44px, сама иконка крупнее текстовой строки */
+  min-width: 44px;
+  min-height: 44px;
 }
 .runes-sub-toggle-btn:hover {
   background: rgba(255, 215, 0, 0.3);
@@ -940,6 +946,12 @@ background: rgba(246, 240, 253, 0.2);
   background: #FFD700;
   color: #6a1b9a;
   border-color: #FFD700;
+}
+/* Иконки в кнопках-переключателях подразделов — крупнее текстовой строки */
+.runes-sub-toggle-btn .rune-tab-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 0;
 }
 .runes-section-title {
   margin: 0 0 14px 0;

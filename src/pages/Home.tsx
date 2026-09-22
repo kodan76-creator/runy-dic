@@ -639,7 +639,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                 try { localStorage.setItem('home_view_mode', 'runes') } catch { /* ignore */ }
               }}
             >
-              <img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-tab-icon" /> Новые Руны
+              <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/36_ЦЭРЭ.png`} alt="" className="rune-tab-icon" /> Новые Руны
             </button>
           </div>
         )}
@@ -886,37 +886,38 @@ export default function Home({ user, onLogout, onUserUpdate }) {
               type="button"
               className={`runes-sub-toggle-btn ${runesSubMode === 'cards' ? 'active' : ''}`}
               aria-pressed={runesSubMode === 'cards'}
+              aria-label="Новые Руны"
+              title="Новые Руны"
               onClick={() => {
                 setRunesSubMode('cards')
                 try { localStorage.setItem('home_runes_submode', 'cards') } catch { /* ignore */ }
               }}
             >
-              🧿 Новые Руны
+              <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/36_ЦЭРЭ.png`} alt="" className="rune-tab-icon" />
             </button>
             <button
               type="button"
               className={`runes-sub-toggle-btn ${runesSubMode === 'layout' ? 'active' : ''}`}
               aria-pressed={runesSubMode === 'layout'}
+              aria-label="Рунная раскладка"
+              title="Рунная раскладка"
               onClick={() => {
                 setRunesSubMode('layout')
                 try { localStorage.setItem('home_runes_submode', 'layout') } catch { /* ignore */ }
               }}
             >
-              🥚 Рунная раскладка
+              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" />
             </button>
           </div>
           {runesSubMode === 'layout' ? (
             <RuneLayout user={user} onUserUpdate={onUserUpdate} />
           ) : Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
-              <>
-                <h2 className="runes-section-title"><img src={`${import.meta.env.BASE_URL}golub-icon.png`} alt="" className="rune-title-icon" /> Новые Руны</h2>
-                <div className="runes-list-cards">
+              <div className="runes-list-cards">
                   {filteredRunes.map(r => (
                     <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} runicMode={runicSearchMode} />
                   ))}
                 </div>
-              </>
             ) : (
               <div className="state-block empty-state">
                 <div className="state-icon" aria-hidden="true">🔍</div>

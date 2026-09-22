@@ -91,3 +91,27 @@ describe('Шапка Home: логотип run_r', () => {
     expect(screen.getByAltText('Логотип')).toBeInTheDocument()
   })
 })
+
+describe('Подразделы «Новых Рун»: иконки без дублирующих подписей', () => {
+  it('переключатель — только иконки 36_ЦЭРЭ и голубя', async () => {
+    localStorage.setItem('home_view_mode', 'runes')
+    localStorage.setItem('home_runes_submode', 'cards')
+
+    await renderHome()
+
+    // Кнопки-иконки ищем внутри переключателя подразделов, а не по всему
+    // экрану: в шапке есть таб с тем же доступным именем «Новые Руны».
+    const toggle = document.querySelector('.runes-sub-toggle')
+    expect(toggle).toBeInTheDocument()
+    const buttons = toggle ? Array.from(toggle.querySelectorAll('button')) : []
+    expect(buttons).toHaveLength(2)
+    const [cardsBtn, layoutBtn] = buttons
+    expect(cardsBtn.getAttribute('aria-label')).toBe('Новые Руны')
+    expect(layoutBtn.getAttribute('aria-label')).toBe('Рунная раскладка')
+    expect(cardsBtn.querySelector('img')?.getAttribute('src')).toContain('36_ЦЭРЭ.png')
+    expect(layoutBtn.querySelector('img')?.getAttribute('src')).toContain('icon-192.png')
+    // Видимого дублирующего текста внутри кнопок нет
+    expect(cardsBtn.textContent?.trim()).toBe('')
+    expect(layoutBtn.textContent?.trim()).toBe('')
+  })
+})
