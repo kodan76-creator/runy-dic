@@ -411,6 +411,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // Выбранные руны кэшируем всегда (их показываем прямо сейчас), а весь набор
   // из папки runy — один раз, чтобы оффлайн-выбор любых рун тоже отображался.
   const precacheLayoutImages = (names: string[]) => {
+    // 🌐 Оффлайн прогрев бессмысленен (скачать картинки нельзя), а ставить
+    // флаг «прогрето» нельзя — иначе полный набор не догреется даже при
+    // появлении сети и картинки рун навсегда пропадали бы в оффлайн.
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
     precacheUrls(collectRuneLayoutImageUrls(names))
     if (isRuneLayoutPrecached()) return
     // Отмечаем прогрев только если SW реально принял список (иначе повторим позже)
@@ -419,22 +423,15 @@ export default function RuneLayout({ user, onUserUpdate }) {
     }
   }
 
-  // 🔁 Если при загрузке SW ещё не контролировал страницу (первый визит или
-  // обновление SW), прогрев не срабатывает — повторяем, когда контроллер
-  // появится. Без этого картинки рун не попадали в кэш и пропадали оффлайн.
+  // 🔁 Догреваем полный набор картинок рун, когда SW-контроллер появился
+  // (первый визит / обновление SW: при загрузке страницы controller ещё был
+  // null, и прогрев не срабатывал — без этого картинки пропадали в оффлайн).
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
     let cancelled = false
-    navigator.serviceWorker.ready.then((reg) => {
-      if (cancelled || !reg.active || navigator.serviceWorker.controller) return
-      // Контроллер ещё не назначен (SW только что активировался) — после
-      // clients.claim() он появится; даём момент и догреваем кэш.
-      setTimeout(() => {
-        if (!cancelled && isRuneLayoutPrecached()) return
-        if (precacheUrls(collectRuneLayoutImageUrls(RUNES_LAYOUT_FALLBACK))) {
-          markRuneLayoutPrecached()
-        }
-      }, 1000)
+    navigator.serviceWorker.ready.then(() => {
+      if (cancelled) return
+      setTimeout(() => { if (!cancelled) precacheLayoutImages(RUNES_LAYOUT_FALLBACK) }, 1000)
     }).catch(() => { /* нет SW — оффлайн-прогрев недоступен */ })
     return () => { cancelled = true }
   }, [])
@@ -476,6 +473,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setSelectedLayoutChoice(type)
     setShowLayoutChoice(false)
     await handleSpread(type)
+    // 🌐 Оффлайн записывать в users.json нельзя: сервер недоступен, а попытка
+    // выдаёт бессмысленную «Пользователь не найден» (users.json отдаётся пустым).
+    // Тип сохранится на сервере при следующем онлайн-выборе раскладки.
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
     try {
       const updated = await saveRuneLayoutType(user.email, type)
       onUserUpdate(updated)
