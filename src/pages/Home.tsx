@@ -893,7 +893,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                 try { localStorage.setItem('home_runes_submode', 'cards') } catch { /* ignore */ }
               }}
             >
-              <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/36_ЦЭРЭ.png`} alt="" className="rune-tab-icon" />
+              <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/36_ЦЭРЭ.png`} alt="" className="rune-tab-icon" /> Новые Руны
             </button>
             <button
               type="button"
@@ -906,7 +906,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                 try { localStorage.setItem('home_runes_submode', 'layout') } catch { /* ignore */ }
               }}
             >
-              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" />
+              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" /> Рунная раскладка
             </button>
           </div>
           {runesSubMode === 'layout' ? (

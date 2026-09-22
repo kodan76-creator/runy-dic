@@ -92,8 +92,8 @@ describe('Шапка Home: логотип run_r', () => {
   })
 })
 
-describe('Подразделы «Новых Рун»: иконки без дублирующих подписей', () => {
-  it('переключатель — только иконки 36_ЦЭРЭ и голубя', async () => {
+describe('Подразделы «Новых Рун»: иконки с текстовыми подписями', () => {
+  it('переключатель — иконки 36_ЦЭРЭ и голубя с текстом', async () => {
     localStorage.setItem('home_view_mode', 'runes')
     localStorage.setItem('home_runes_submode', 'cards')
 
@@ -110,8 +110,8 @@ describe('Подразделы «Новых Рун»: иконки без дуб
     expect(layoutBtn.getAttribute('aria-label')).toBe('Рунная раскладка')
     expect(cardsBtn.querySelector('img')?.getAttribute('src')).toContain('36_ЦЭРЭ.png')
     expect(layoutBtn.querySelector('img')?.getAttribute('src')).toContain('icon-192.png')
-    // Видимого дублирующего текста внутри кнопок нет
-    expect(cardsBtn.textContent?.trim()).toBe('')
-    expect(layoutBtn.textContent?.trim()).toBe('')
+    // У каждой кнопки: иконка + видимая текстовая подпись
+    expect(cardsBtn.textContent?.trim()).toBe('Новые Руны')
+    expect(layoutBtn.textContent?.trim()).toBe('Рунная раскладка')
   })
 })

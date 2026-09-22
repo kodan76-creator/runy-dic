@@ -951,7 +951,7 @@ background: rgba(246, 240, 253, 0.2);
 .runes-sub-toggle-btn .rune-tab-icon {
   width: 30px;
   height: 30px;
-  margin-right: 0;
+  margin-right: 8px;
 }
 .runes-section-title {
   margin: 0 0 14px 0;
