@@ -1,6 +1,7 @@
 // src/components/admin/DictionaryTab.test.tsx
 // Тесты вкладки «Словарь»: строка добавления СВОЕЙ категории стоит в самом верху
-// блока категорий (выше основных), а удалять можно только личные категории.
+// блока категорий, свои личные категории идут выше основных (новая — первая),
+// а удалять можно только личные категории.
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import DictionaryTab from './DictionaryTab'
@@ -10,11 +11,12 @@ const EMPTY_FORM = {
   example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center',
 }
 
-// Основные категории + одна личная (её API помечает флагом __personal)
+// Порядок как из getCategories: личные категории (API помечает их __personal)
+// идут первыми — самая новая сверху, — затем основные.
 const CATEGORIES = [
+  { id: 'u9', name: 'Моя', __personal: true },
   { id: 'c1', name: 'устаревшая форма' },
   { id: 'c2', name: 'частица' },
-  { id: 'u9', name: 'Моя', __personal: true },
 ]
 
 function renderTab(overrides = {}) {
@@ -53,14 +55,22 @@ describe('DictionaryTab: своя категория', () => {
     expect(box.firstElementChild).toHaveClass('own-category-row')
     expect([...box.children].map(el => el.className)).toEqual([
       'own-category-row',
-      'cat-row',
-      'cat-row',
       'cat-row cat-row-own',
+      'cat-row',
+      'cat-row',
     ])
     // И в документе поле идёт раньше первого чекбокса
     const input = screen.getByLabelText('Название своей категории')
-    const firstCheckbox = screen.getByRole('checkbox', { name: 'устаревшая форма' })
+    const firstCheckbox = box.querySelector('input[type="checkbox"]') as HTMLElement
     expect(input.compareDocumentPosition(firstCheckbox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('своя (личная) категория стоит выше основных категорий', () => {
+    const { container } = renderTab()
+    const box = getOwnRow(container)
+    const ownRow = box.querySelector('.cat-row-own') as HTMLElement
+    const mainRow = [...box.querySelectorAll('.cat-row')].find(el => !el.classList.contains('cat-row-own')) as HTMLElement
+    expect(ownRow.compareDocumentPosition(mainRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('удалить можно только личную категорию (· моя)', async () => {

@@ -1,7 +1,8 @@
 // src/api/categories.js
 // Работа с категориями словаря: основные (categories.json) и личные категории
 // пользователя (public/users/<email_folder>/categories.json) — пользователь в
-// своей админке добавляет/удаляет только свои, они идут после основных.
+// своей админке добавляет/удаляет только свои; в объединённом списке личные идут
+// первыми, самая новая — в самом верху списка.
 import { CATEGORIES_FILE, USERS_DIR } from './constants'
 import { fetchGitHubFile, updateGitHubFile } from './client'
 import { emailToFolderName } from './audio'
@@ -15,8 +16,10 @@ export const getPersonalCategoriesFile = (userEmail) => {
 
 /**
  * Категории для показа в словаре.
- * Без email — только основные (админка). С email — основные + личные
- * категории пользователя (помечены __personal: true).
+ * Без email — только основные (админка). С email — личные категории
+ * пользователя (помечены __personal: true) + основные. Личные идут первыми,
+ * поэтому только что добавленная своя категория оказывается в самом верху
+ * списка (addPersonalCategory пишет её в начало личного файла).
  */
 export const getCategories = async (userEmail?: string | null) => {
   const main = await fetchGitHubFile(CATEGORIES_FILE)
@@ -27,7 +30,7 @@ export const getCategories = async (userEmail?: string | null) => {
     const personalArr = (Array.isArray(personal.data) ? personal.data : [])
       .map((c: any) => ({ ...c, __personal: true }))
     return {
-      data: [...mainArr, ...personalArr],
+      data: [...personalArr, ...mainArr],
       sha: main.sha,
       ok: main.ok !== false && personal.ok !== false,
       exists: main.exists ?? personal.exists ?? null,
@@ -89,7 +92,11 @@ export const moveCategoryToTop = async (id) => {
 // изменения пишутся в его файл public/users/<email_folder>/categories.json,
 // основной categories.json при этом не читается и не меняется.
 
-/** Добавить личную категорию. Возвращает созданную запись. */
+/**
+ * Добавить личную категорию. Возвращает созданную запись.
+ * Новая категория пишется в НАЧАЛО личного списка, поэтому в словаре она
+ * всегда оказывается самой первой (сверху списка).
+ */
 export const addPersonalCategory = async (categoryData, userEmail) => {
   const file = getPersonalCategoriesFile(userEmail)
   const { data: cats, sha } = await fetchGitHubFile(file)

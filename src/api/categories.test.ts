@@ -52,14 +52,28 @@ describe('getCategories', () => {
     expect(res.sha).toBe('sha-main')
   })
 
-  it('с email — основные + личные (помечены __personal) после основных', async () => {
+  it('с email — личные категории идут первыми (сверху списка), затем основные', async () => {
     const res = await getCategories('user@x.ru')
     expect(h.fetchGitHubFile).toHaveBeenCalledWith(PERSONAL)
     expect(res.data).toHaveLength(2)
-    expect(res.data[0]).toEqual(mainCats[0])
-    expect(res.data[1]).toMatchObject({ id: 'u1', name: 'Моя', __personal: true })
+    expect(res.data[0]).toMatchObject({ id: 'u1', name: 'Моя', __personal: true })
+    expect(res.data[1]).toEqual(mainCats[0])
     expect(res.sha).toBe('sha-main')
     expect(res.ok).toBe(true)
+  })
+
+  it('только что добавленная своя категория оказывается самой первой в списке', async () => {
+    const created = await addPersonalCategory({ name: 'Новейшая' }, 'user@x.ru')
+    // Так категории легли в личный файл (новая — в начало)
+    const personalAfterAdd = h.updateGitHubFile.mock.calls[0][1] as any[]
+    h.updateGitHubFile.mockClear()
+    h.fetchGitHubFile.mockImplementation(async (name: string) => name === MAIN
+      ? { data: mainCats, sha: 'sha-main', ok: true, exists: true }
+      : { data: personalAfterAdd, sha: 'sha-personal', ok: true, exists: true })
+
+    const res = await getCategories('user@x.ru')
+    expect(res.data[0].id).toBe(created.id)
+    expect(res.data.map(c => c.name)).toEqual(['Новейшая', 'Моя', 'Основная'])
   })
 
   it('личный файл не прочитался — ok:false, основные категории сохраняются', async () => {

@@ -365,7 +365,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
   const loadCategories = async () => {
     try {
-      // Restricted-пользователь видит основные + СВОИ личные категории;
+      // Restricted-пользователь видит СВОИ личные категории (они идут первыми,
+      // новая — в самом верху списка) + основные;
       // админ — только основные (личные чужие его не касаются).
       const { data, ok } = await getCategories(isRestrictedUser ? activeUser?.email : null)
       const arr = Array.isArray(data) ? data : []

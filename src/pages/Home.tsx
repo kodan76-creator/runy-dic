@@ -295,7 +295,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     }
 
     const loadCategories = async () => {
-      // Основные + свои личные категории: они идут после основных в фильтрах
+      // Свои личные категории + основные: личные идут первыми в фильтрах,
+      // самая новая (только что добавленная) — в самом верху списка
       const { data, ok } = await getCategories(user?.email || null)
       return { categories: Array.isArray(data) ? data : [], ok: ok !== false }
     }
