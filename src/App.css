@@ -1392,6 +1392,21 @@ background: rgba(246, 240, 253, 0.2);
     box-shadow: none;
     border: 1pt solid #000;
   }
+  /* 📖 Читаемость текста карточки на бумаге: экранные цвета («Ключевые
+     слова» — почти белый var(--on-accent), «Описание» — светлая лаванда
+     var(--plum-100), метки — золотой #FFD700) рассчитаны на фиолетовый фон
+     карточки. В печати фон карточки часто не печатается (в диалоге сняты
+     «Фоновые цвета и изображения»), и светлый текст тонул на белой бумаге.
+     Тёмно-фиолетовый читаем и на белой бумаге, и на залитой карточке;
+     text-shadow убираем — на бумаге он только размазывает буквы. */
+  .rune-layout-print-rune-card .rune-card-keywords,
+  .rune-layout-print-rune-card .rune-card-desc {
+    color: #2a1145;
+    text-shadow: none;
+  }
+  .rune-layout-print-rune-card .rune-card-label {
+    color: #6a1b9a;
+  }
   .rune-layout-print-rune-card img {
     max-width: 100%;
   }
