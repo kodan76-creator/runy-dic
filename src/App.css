@@ -1110,6 +1110,49 @@ background: rgba(246, 240, 253, 0.2);
   text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
 }
 
+/* 🧾 Строка «Фамилия Имя Отчество, возраст»: вводится на странице раскладки,
+   а её значение показывается под названием раскладки и печатается на 1-й
+   странице. Строка — своя, отдельная от панелей управления. */
+.rune-layout-person {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+.rune-layout-person-input {
+  width: 100%;
+  max-width: 420px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid rgba(255, 215, 0, 0.55);
+  border-radius: 10px;
+  background: rgba(255, 215, 0, 0.12);
+  color: #f3e9ff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+}
+.rune-layout-person-input::placeholder {
+  color: #c9b3e6;
+  font-weight: 500;
+}
+.rune-layout-person-input:focus {
+  border-color: #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.35);
+}
+
+/* Значение строки — сразу под названием выбранной раскладки (страница с крестом) */
+.rune-layout-person-value {
+  margin: -8px 0 0;
+  color: #f3e9ff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.5);
+}
+
 /* Сцена: всё поле, где лежит фото (накрывает весь экран раздела) */
 .rune-layout-stage {
   position: relative;
@@ -1330,6 +1373,15 @@ background: rgba(246, 240, 253, 0.2);
     font-weight: 700;
     text-align: center;
     /* Название выбранной раскладки — тёмно-фиолетовый, а не чёрный */
+    color: #2d1745;
+  }
+  /* 🧾 Строка «Фамилия Имя Отчество, возраст» — под названием раскладки,
+     на той же 1-й странице с эллипсом и крестом */
+  .rune-layout-print-person {
+    margin: 0 0 8mm 0;
+    font-size: 14pt;
+    font-weight: 600;
+    text-align: center;
     color: #2d1745;
   }
   .rune-layout-print-scene {
@@ -2111,11 +2163,22 @@ background: rgba(246, 240, 253, 0.2);
      viewports so the vertical 2:3 ellipse always fits. */
   /* Сцена — прямоугольник, под границы которого масштабируется эллипс:
      размеры самого эллипса заданы в cqw/cqh (см. .rune-layout-ellipse),
-     поэтому здесь достаточно задать высоту сцены. */
+     поэтому здесь достаточно задать высоту сцены. Сцена забирает всё свободное
+     место (flex: 1 1 auto), поэтому строка «Фамилия Имя Отчество, возраст»
+     просто делает эллипс чуть меньше. Минимум снижен 300px → 240px: на низких
+     экранах (где свободного места меньше минимума) панель управления иначе
+     уезжала бы за край — секция раскладки обрезает содержимое (overflow: hidden). */
   .rune-layout-stage {
-    min-height: 300px;
+    min-height: 240px;
     max-height: 60vh;
     height: min(60vh, 520px);
+  }
+
+  /* 🧾 Строка «Фамилия Имя Отчество, возраст»: тап-зона 44px сохраняется,
+     шрифт компактнее — подсказка помещается целиком на узких экранах */
+  .rune-layout-person-input {
+    font-size: 12px;
+    padding: 8px 10px;
   }
 
   /* 📱 Ряд «Вернуться к выбору раскладок» + «🖨️ Печать» — в одном ряду:

@@ -10,7 +10,12 @@ import { createPortal } from 'react-dom'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
-import { getPositionLabel, getLayoutName } from './runeLayoutTexts'
+import {
+  getPositionLabel,
+  getLayoutName,
+  PERSON_LINE_PLACEHOLDER,
+  PERSON_LINE_MAX_LENGTH,
+} from './runeLayoutTexts'
 import type { Rune } from '../types'
 import { getRunes } from '../api/runes'
 import { getCachedRunes, cacheRunesForOffline } from '../api/offline'
@@ -112,7 +117,8 @@ const RUNES_LAYOUT_FALLBACK = [
 
 // 🖨️ Данные для печати: та же картинка руны, что на плитке креста
 // (buildImageUrl), карточка из раздела «Новые Руны» (findLayoutRune) и та же
-// шапка позиции, что в модалке (getPositionLabel).
+// шапка позиции, что в модалке (getPositionLabel). На 1-й странице под
+// названием раскладки печатается строка «Фамилия Имя Отчество, возраст».
 function printLayout() {
   window.print()
 }
@@ -201,6 +207,36 @@ export default function RuneLayout({ user, onUserUpdate }) {
       ⚪ Белый фон
     </button>
   )
+  // 🧾 Строка «Фамилия Имя Отчество, возраст»: показывается под названием
+  // выбранной раскладки на странице с крестом и печатается на 1-й странице.
+  // Как и фото, строка хранится только локально (localStorage по email) и на
+  // сервер не отправляется. Пустая строка ничего не добавляет в раскладку.
+  const personKey = user?.email ? 'rune_layout_person:' + user.email : null
+  const [personLine, setPersonLine] = useState(() => {
+    try {
+      if (!user?.email) return ''
+      return localStorage.getItem('rune_layout_person:' + user.email) ?? ''
+    } catch { return '' }
+  })
+  // Если user подставился позже первого рендера — подтягиваем сохранённую строку
+  useEffect(() => {
+    if (!personKey) return
+    try {
+      setPersonLine(localStorage.getItem(personKey) ?? '')
+    } catch { /* ignore */ }
+  }, [personKey])
+  const handlePersonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setPersonLine(value)
+    try {
+      if (!personKey) return
+      // Пустая/пробельная строка — как отсутствие данных: чистим запись
+      if (value.trim()) localStorage.setItem(personKey, value)
+      else localStorage.removeItem(personKey)
+    } catch { /* ignore */ }
+  }
+  // Данные строки для показа под названием раскладки (пробелы по краям не нужны)
+  const personLineText = personLine.trim()
   // 🔧 Apply (фиксация фото)
   const [applying, setApplying] = useState(false)
   // 🎲 Раскладка Новых Рун: выбранные 7 рун вокруг эллипса.
@@ -600,9 +636,27 @@ export default function RuneLayout({ user, onUserUpdate }) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      {/* 🧾 Строка «Фамилия Имя Отчество, возраст»: набранное показываем под
+          названием выбранной раскладки (на экране с крестом) и на 1-й
+          печатной странице */}
+      <div className="rune-layout-person">
+        <input
+          type="text"
+          className="rune-layout-person-input"
+          placeholder={PERSON_LINE_PLACEHOLDER}
+          aria-label={PERSON_LINE_PLACEHOLDER}
+          maxLength={PERSON_LINE_MAX_LENGTH}
+          value={personLine}
+          onChange={handlePersonChange}
+        />
+      </div>
+
       {/* 📛 Название выбранной раскладки: показываем на странице с эллипсом и крестом */}
       {selectedLayoutChoice && (
-        <p className="rune-layout-active-name">{getLayoutName(selectedLayoutChoice)}</p>
+        <>
+          <p className="rune-layout-active-name">{getLayoutName(selectedLayoutChoice)}</p>
+          {personLineText && <p className="rune-layout-person-value">{personLineText}</p>}
+        </>
       )}
 
       {photoUrl || whiteBackground ? (
@@ -823,13 +877,15 @@ export default function RuneLayout({ user, onUserUpdate }) {
 
       {/* 🖨️ Печатная версия раскладки — порталом в body, чтобы на неё не влияли
           overflow/clip предков и её можно было изолировать в @media print.
-          Видна только при печати: 1-я страница — название + эллипс с крестом,
-          далее по одной странице на руну — та же шапка позиции и та же карточка,
-          что в модалке. */}
+          Видна только при печати: 1-я страница — название раскладки, строка
+          «Фамилия Имя Отчество, возраст» и эллипс с крестом, далее по одной
+          странице на руну — та же шапка позиции и та же карточка, что в модалке. */}
       {selectedLayoutChoice && spreadRunes.length === 7 && createPortal(
         <div className="rune-layout-print" aria-hidden="true">
           <section className="rune-layout-print-cover">
             <h1 className="rune-layout-print-name">{getLayoutName(selectedLayoutChoice)}</h1>
+            {/* 🧾 Строка «Фамилия Имя Отчество, возраст» — под названием раскладки */}
+            {personLineText && <p className="rune-layout-print-person">{personLineText}</p>}
             <div className="rune-layout-print-scene">
               <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`}>
                 {photoUrl && !whiteBackground && (

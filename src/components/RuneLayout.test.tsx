@@ -579,6 +579,58 @@ describe('RuneLayout — печать на А4', () => {
   })
 })
 
+// ── Строка «Фамилия Имя Отчество, возраст» ───────────────────────────────────
+describe('RuneLayout — строка «Фамилия Имя Отчество, возраст»', () => {
+  const PERSON_PLACEHOLDER = 'Фамилия Имя Отчество, возраст'
+
+  it('поле ввода есть на странице раскладки, а значение — под названием раскладки', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    const input = screen.getByPlaceholderText(PERSON_PLACEHOLDER)
+    fireEvent.change(input, { target: { value: 'Иванов Иван Иванович, 42' } })
+    const value = document.querySelector('.rune-layout-person-value')
+    expect(value).toHaveTextContent('Иванов Иван Иванович, 42')
+    // Значение идёт сразу под названием выбранной раскладки
+    const name = document.querySelector('.rune-layout-active-name')
+    expect(name).toHaveTextContent('Раскладка Новых Рун для исцеления')
+    expect(name?.nextElementSibling).toBe(value)
+  })
+
+  it('значение печатается на 1-й странице — под названием раскладки', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), {
+      target: { value: 'Петров Пётр Петрович, 30' },
+    })
+    const printRoot = document.querySelector('.rune-layout-print')
+    const printName = printRoot?.querySelector('.rune-layout-print-name')
+    expect(printName).toHaveTextContent('Раскладка Новых Рун для исцеления')
+    expect(printName?.nextElementSibling).toHaveTextContent('Петров Пётр Петрович, 30')
+  })
+
+  it('значение переживает перезагрузку: сохраняется в localStorage', async () => {
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), {
+      target: { value: 'Сидоров Сидор Сидорович, 55' },
+    })
+    expect(localStorage.getItem(`rune_layout_person:${TEST_USER.email}`)).toBe(
+      'Сидоров Сидор Сидорович, 55',
+    )
+    // «Перезагрузка»: чистый рендер только из localStorage
+    cleanup()
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    expect(screen.getByPlaceholderText(PERSON_PLACEHOLDER)).toHaveValue('Сидоров Сидор Сидорович, 55')
+  })
+
+  it('пустая строка не выводится под названием раскладки и не идёт в печать', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    expect(document.querySelector('.rune-layout-person-value')).toBeNull()
+    expect(document.querySelector('.rune-layout-print-person')).toBeNull()
+    // Пробелы — как отсутствие данных: строка не показывается, запись стирается
+    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), { target: { value: '   ' } })
+    expect(localStorage.getItem(`rune_layout_person:${TEST_USER.email}`)).toBeNull()
+    expect(document.querySelector('.rune-layout-person-value')).toBeNull()
+  })
+})
+
 // ── Фото хранится только локально и не отправляется на сервер ────────────────
 describe('RuneLayout — фото только локально', () => {
   it('выбранное фото показывается из blob-URL и не уходит на сервер', async () => {
