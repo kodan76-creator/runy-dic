@@ -20,11 +20,45 @@ export default function DictionaryTab({
   handleAudioDelete,
   loadWords,
   onImport,
+  canManageOwnCategories = false,
+  handleAddOwnCategory,
+  handleDeleteOwnCategory,
 }) {
   const [importPreview, setImportPreview] = useState<{ name: string; count: number; data: any[] } | null>(null)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
+  const [ownCategoryName, setOwnCategoryName] = useState('')
+  const [ownCategorySaving, setOwnCategorySaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // ➕ Добавить СВОЮ категорию прямо в карточке; новая сразу отмечается в ней
+  const handleAddOwnCategoryClick = async () => {
+    const name = ownCategoryName.trim()
+    if (!name || ownCategorySaving || !handleAddOwnCategory) return
+    setOwnCategorySaving(true)
+    try {
+      const newCat = await handleAddOwnCategory(name)
+      if (newCat) {
+        setOwnCategoryName('')
+        const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
+        if (!current.includes(newCat.id)) current.push(newCat.id)
+        setFormData({ ...formData, category: current })
+      }
+    } finally {
+      setOwnCategorySaving(false)
+    }
+  }
+
+  // 🗑 Удалить свою категорию: подтверждение и очистка отметки в карточке
+  const handleDeleteOwnCategoryClick = async (c) => {
+    if (ownCategorySaving || !handleDeleteOwnCategory) return
+    setOwnCategorySaving(true)
+    try {
+      await handleDeleteOwnCategory(c.id)
+    } finally {
+      setOwnCategorySaving(false)
+    }
+  }
 
   // Мягкий парсинг: некоторые файлы имеют пустые значения ("id": ,),
   // которые JSON.parse не разбирает. Исправляем и пробуем снова.
@@ -160,23 +194,57 @@ export default function DictionaryTab({
           <textarea rows={1} className="single-line-textarea" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
           <div className="category-checkboxes">
             {categories.map(c => (
-              <label key={c.id} className="cat-item">
-                <input type="checkbox" value={c.id} checked={(Array.isArray(formData.category) && (formData.category.includes(c.id) || formData.category.includes(c.name))) || (!Array.isArray(formData.category) && String(formData.category) === String(c.id))} onChange={e => {
-                  const checked = e.target.checked
-                  const val = e.target.value
-                  const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
-                  if (checked) {
-                    if (!current.includes(val)) current.push(val)
-                  } else {
-                    const idx = current.indexOf(val)
-                    if (idx !== -1) current.splice(idx, 1)
-                  }
-                  setFormData({ ...formData, category: current })
-                }} />
-                <span className="checkbox-box" />
-                <span className="cat-name">{c.name}</span>
-              </label>
+              <div key={c.id} className={`cat-row${c.__personal ? ' cat-row-own' : ''}`}>
+                <label className="cat-item">
+                  <input type="checkbox" value={c.id} checked={(Array.isArray(formData.category) && (formData.category.includes(c.id) || formData.category.includes(c.name))) || (!Array.isArray(formData.category) && String(formData.category) === String(c.id))} onChange={e => {
+                    const checked = e.target.checked
+                    const val = e.target.value
+                    const current = Array.isArray(formData.category) ? formData.category.slice() : (formData.category ? [formData.category] : [])
+                    if (checked) {
+                      if (!current.includes(val)) current.push(val)
+                    } else {
+                      const idx = current.indexOf(val)
+                      if (idx !== -1) current.splice(idx, 1)
+                    }
+                    setFormData({ ...formData, category: current })
+                  }} />
+                  <span className="checkbox-box" />
+                  <span className="cat-name">{c.name}{c.__personal ? ' · моя' : ''}</span>
+                </label>
+                {canManageOwnCategories && c.__personal && (
+                  <button
+                    type="button"
+                    className="cat-own-delete"
+                    title="Удалить мою категорию"
+                    aria-label={`Удалить мою категорию ${c.name}`}
+                    disabled={ownCategorySaving}
+                    onClick={() => handleDeleteOwnCategoryClick(c)}
+                  >🗑️</button>
+                )}
+              </div>
             ))}
+            {canManageOwnCategories && (
+              <div className="own-category-row">
+                <input
+                  type="text"
+                  className="own-category-input"
+                  placeholder="Своя категория..."
+                  aria-label="Название своей категории"
+                  value={ownCategoryName}
+                  onChange={e => setOwnCategoryName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddOwnCategoryClick() } }}
+                  disabled={ownCategorySaving}
+                />
+                <button
+                  type="button"
+                  className="own-category-add"
+                  title="Добавить свою категорию"
+                  aria-label="Добавить свою категорию"
+                  onClick={handleAddOwnCategoryClick}
+                  disabled={ownCategorySaving || !ownCategoryName.trim()}
+                >{ownCategorySaving ? '⏳' : '➕'}</button>
+              </div>
+            )}
           </div>
         </div>
         <div className="form-column form-column-right">

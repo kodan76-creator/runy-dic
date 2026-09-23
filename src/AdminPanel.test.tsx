@@ -38,6 +38,8 @@ vi.mock('./githubApi', () => {
     moveCategoryUp: vi.fn(async () => ({})),
     moveCategoryDown: vi.fn(async () => ({})),
     moveCategoryToTop: vi.fn(async () => ({})),
+    addPersonalCategory: vi.fn(async () => ({ id: 'u1', name: 'Моя' })),
+    deletePersonalCategory: vi.fn(async () => true),
     getRunes: vi.fn(dictResponse),
     addRune: vi.fn(async () => ({})),
     updateRune: vi.fn(async () => ({})),

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
@@ -365,7 +365,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }
   const loadCategories = async () => {
     try {
-      const { data, ok } = await getCategories()
+      // Restricted-пользователь видит основные + СВОИ личные категории;
+      // админ — только основные (личные чужие его не касаются).
+      const { data, ok } = await getCategories(isRestrictedUser ? activeUser?.email : null)
       const arr = Array.isArray(data) ? data : []
       const offlineNow = !isOnline()
       if ((offlineNow || ok === false) && arr.length === 0 && activeUser?.email) {
@@ -929,6 +931,48 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     try { await moveCategoryToTop(id); await loadCategories() } catch (err) { setError('Ошибка перемещения: ' + err.message) }
   }
 
+  // 🏷 Личные категории restricted-пользователя: добавляются и удаляются
+  // только в его собственном файле (см. src/api/categories.ts).
+  const handleAddOwnCategory = async (name) => {
+    const trimmed = String(name || '').trim()
+    if (!isRestrictedUser || !activeUser?.email) { setError('Действие доступно только пользователю'); return null }
+    if (!trimmed) { setError('Имя категории не может быть пустым'); return null }
+    if (categories.some(c => String(c.name || '').trim().toLowerCase() === trimmed.toLowerCase())) {
+      setError('Такая категория уже есть'); return null
+    }
+    try {
+      const newCat = await addPersonalCategory({ name: trimmed }, activeUser.email)
+      await loadCategories()
+      showMessage('✅ Своя категория добавлена')
+      return newCat
+    } catch (err) {
+      setError('Ошибка добавления категории: ' + err.message)
+      showMessage('❌ Ошибка добавления категории: ' + err.message, 'error')
+      return null
+    }
+  }
+
+  const handleDeleteOwnCategory = async (id) => {
+    if (!isRestrictedUser || !activeUser?.email) { setError('Действие доступно только пользователю'); return }
+    const cat = categories.find(c => c.id === id)
+    // Удалять можно только СВОИ личные категории — основные не трогаем
+    if (!cat?.__personal) { setError('Удалять можно только свои категории'); return }
+    if (!window.confirm(`Удалить свою категорию «${cat.name}»?`)) return
+    try {
+      await deletePersonalCategory(id, activeUser.email)
+      // Убираем категорию из черновика карточки, если она там отмечена
+      setFormData(prev => ({
+        ...prev,
+        category: Array.isArray(prev.category) ? prev.category.filter(x => x !== id && x !== cat.name) : prev.category,
+      }))
+      await loadCategories()
+      showMessage('✅ Своя категория удалена')
+    } catch (err) {
+      setError('Ошибка удаления категории: ' + err.message)
+      showMessage('❌ Ошибка удаления категории: ' + err.message, 'error')
+    }
+  }
+
   // 🧿 Новые Руны — обработчики
   const handleRuneSubmit = async (e) => {
     e.preventDefault()
@@ -1229,6 +1273,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             handleAudioDelete={handleAudioDelete}
             loadWords={loadWords}
             onImport={handleImport}
+            canManageOwnCategories={isRestrictedUser}
+            handleAddOwnCategory={handleAddOwnCategory}
+            handleDeleteOwnCategory={handleDeleteOwnCategory}
           />
         )}
 
