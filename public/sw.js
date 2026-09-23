@@ -5,7 +5,7 @@
  * - Статика: stale-while-revalidate (сначала кэш, фоном обновляется).
  * - API-запросы (api.github.com и другие домены) не перехватываются.
  */
-const CACHE_NAME = 'runy-dic-v18'
+const CACHE_NAME = 'runy-dic-v19'
 const APP_SHELL = ['./', './index.html']
 
 // 🧿 Все картинки рун для «Рунной раскладки» (креста) кэшируются сразу при
@@ -52,6 +52,16 @@ const RUNE_IMAGES = [
   './images/n_runy/runy/38_РУНА ТИШИНЫ.png',
 ]
 
+// 📦 Остальная статика разделов: логотип и картинка раздела «Новые Руны»
+// (n_runy/01.png используется карточками каталога). Картинки личных словарей
+// пользователей (public/images/<папка>/) — пользовательский контент, они
+// прогреваются отдельно при загрузке словаря (precacheUrls).
+const SECTION_IMAGES = [
+  './images/run_r.png',
+  './images/n_runy/01.png',
+  './fonts/Dao_Rus.ttf',
+]
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -60,7 +70,7 @@ self.addEventListener('install', (event) => {
         await cache.addAll(APP_SHELL)
         // Каждую картинку качаем отдельно: одна ошибка не должна ломать установку SW
         await Promise.all(
-          RUNE_IMAGES.map((u) =>
+          [...RUNE_IMAGES, ...SECTION_IMAGES].map((u) =>
             cache.add(u).catch((err) => console.error('RUNE image precache failed:', u, err))
           )
         )

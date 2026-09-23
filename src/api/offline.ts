@@ -177,7 +177,7 @@ export const getCachedRuneLayoutImageList = (): string[] | null => {
  *  Ключ привязан к версии кэша SW (CACHE_NAME в public/sw.js): при обновлении
  *  SW кэш вычищается, и прогрев нужно повторить — старый флаг «навсегда»
  *  блокировал его, из-за чего картинки рун пропадали в оффлайн. */
-const RUNE_LAYOUT_CACHE_VERSION = 'v18'
+const RUNE_LAYOUT_CACHE_VERSION = 'v19'
 const RUNE_LAYOUT_PRECACHE_KEY = `rune_layout_precached:${RUNE_LAYOUT_CACHE_VERSION}`
 
 export const isRuneLayoutPrecached = (): boolean => {

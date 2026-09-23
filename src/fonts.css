@@ -1,6 +1,9 @@
 @font-face {
   font-family: 'Dao Rus';
-  src: url('./fonts/Dao_Rus.ttf') format('truetype');
+  /* Файл в public/fonts (стабильный путь, без хэша сборки): Service Worker
+     запекает его в предзагрузку, поэтому рунический глиф (rune-card-glyph)
+     отображается шрифтом Dao Rus и в оффлайне. */
+  src: url('/fonts/Dao_Rus.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap; /* Улучшает производительность загрузки */
