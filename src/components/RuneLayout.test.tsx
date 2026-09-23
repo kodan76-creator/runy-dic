@@ -82,6 +82,8 @@ vi.mock('../api/offline', async (importOriginal) => {
 const TEST_USER = { email: 'test@example.com' }
 // Пользователь без локального фото: попадает в пустое состояние
 const NO_PHOTO_USER = { email: 'nophoto@example.com' }
+// Строка «Фамилия Имя Отчество, возраст» — плейсхолдер поля ввода на странице фото
+const PERSON_PLACEHOLDER = 'Фамилия Имя Отчество, возраст'
 
 beforeEach(() => {
   // jsdom не реализует blob-URL — подменяем, чтобы фиксация фото не падала
@@ -92,12 +94,17 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-// Пройти путь: фото (восстановленное из IndexedDB) → «Зафиксировать» →
-// выбор раскладки → нажать кнопку раскладки.
-async function chooseLayout(buttonText: string) {
+// Пройти путь: фото (восстановленное из IndexedDB) → [строка ФИО] →
+// «Зафиксировать» → выбор раскладки → нажать кнопку раскладки.
+async function chooseLayout(buttonText: string, personLine = '') {
   // Сохранённый крест от предыдущего рендера не должен влиять на этот прогон
   localStorage.removeItem(`rune_spread:${TEST_USER.email}`)
   render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+  // Строка «Фамилия Имя Отчество, возраст» вводится на странице фото — там же,
+  // где кнопка «Зафиксировать»: дальше поле ввода заменяется текстом
+  if (personLine) {
+    fireEvent.change(await screen.findByPlaceholderText(PERSON_PLACEHOLDER), { target: { value: personLine } })
+  }
   // Blob фото восстанавливается из IndexedDB асинхронно — ждём панель редактирования
   fireEvent.click(await screen.findByTitle('Зафиксировать текущую позицию и размер фото'))
   fireEvent.click(await screen.findByText(buttonText))
@@ -581,25 +588,43 @@ describe('RuneLayout — печать на А4', () => {
 
 // ── Строка «Фамилия Имя Отчество, возраст» ───────────────────────────────────
 describe('RuneLayout — строка «Фамилия Имя Отчество, возраст»', () => {
-  const PERSON_PLACEHOLDER = 'Фамилия Имя Отчество, возраст'
+  // Ввести строку можно только на странице фото — там, где кнопка «Зафиксировать»
+  async function typePerson(value: string) {
+    fireEvent.change(await screen.findByPlaceholderText(PERSON_PLACEHOLDER), { target: { value } })
+  }
 
-  it('поле ввода есть на странице раскладки, а значение — под названием раскладки', async () => {
-    await chooseLayout('Раскладка Новых Рун для исцеления')
-    const input = screen.getByPlaceholderText(PERSON_PLACEHOLDER)
-    fireEvent.change(input, { target: { value: 'Иванов Иван Иванович, 42' } })
-    const value = document.querySelector('.rune-layout-person-value')
-    expect(value).toHaveTextContent('Иванов Иван Иванович, 42')
-    // Значение идёт сразу под названием выбранной раскладки
+  it('поле ввода есть только на странице с кнопкой «Зафиксировать», а значение — под названием раскладки', async () => {
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    // Пока фото не зафиксировано — поле ввода доступно
+    await typePerson('Иванов Иван Иванович, 42')
+    expect(screen.getByPlaceholderText(PERSON_PLACEHOLDER)).toHaveValue('Иванов Иван Иванович, 42')
+    fireEvent.click(screen.getByTitle('Зафиксировать текущую позицию и размер фото'))
+    // Страница выбора раскладки: поля ввода уже нет, строка — только текст
+    const choiceBtn = await screen.findByText('Раскладка Новых Рун для исцеления')
+    expect(screen.queryByPlaceholderText(PERSON_PLACEHOLDER)).toBeNull()
+    expect(document.querySelector('.rune-layout-person-text')).toHaveTextContent('Иванов Иван Иванович, 42')
+    fireEvent.click(choiceBtn)
+    await screen.findByLabelText('Раскладка Новых Рун')
+    // Страница с крестом: значение идёт сразу под названием выбранной раскладки
     const name = document.querySelector('.rune-layout-active-name')
     expect(name).toHaveTextContent('Раскладка Новых Рун для исцеления')
+    const value = document.querySelector('.rune-layout-person-value')
+    expect(value).toHaveTextContent('Иванов Иван Иванович, 42')
     expect(name?.nextElementSibling).toBe(value)
+    // Сверху строку не дублируем, поля ввода на этой странице тоже нет
+    expect(document.querySelector('.rune-layout-person-text')).toBeNull()
+    expect(screen.queryByPlaceholderText(PERSON_PLACEHOLDER)).toBeNull()
+  })
+
+  it('без фото строка показывается только текстом — поля ввода нет', () => {
+    localStorage.setItem(`rune_layout_person:${NO_PHOTO_USER.email}`, 'Кузнецов Кузьма Кузьмич, 61')
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
+    expect(screen.queryByPlaceholderText(PERSON_PLACEHOLDER)).toBeNull()
+    expect(document.querySelector('.rune-layout-person-text')).toHaveTextContent('Кузнецов Кузьма Кузьмич, 61')
   })
 
   it('значение печатается на 1-й странице — под названием раскладки', async () => {
-    await chooseLayout('Раскладка Новых Рун для исцеления')
-    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), {
-      target: { value: 'Петров Пётр Петрович, 30' },
-    })
+    await chooseLayout('Раскладка Новых Рун для исцеления', 'Петров Пётр Петрович, 30')
     const printRoot = document.querySelector('.rune-layout-print')
     const printName = printRoot?.querySelector('.rune-layout-print-name')
     expect(printName).toHaveTextContent('Раскладка Новых Рун для исцеления')
@@ -608,26 +633,25 @@ describe('RuneLayout — строка «Фамилия Имя Отчество, 
 
   it('значение переживает перезагрузку: сохраняется в localStorage', async () => {
     render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
-    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), {
-      target: { value: 'Сидоров Сидор Сидорович, 55' },
-    })
+    await typePerson('Сидоров Сидор Сидорович, 55')
     expect(localStorage.getItem(`rune_layout_person:${TEST_USER.email}`)).toBe(
       'Сидоров Сидор Сидорович, 55',
     )
-    // «Перезагрузка»: чистый рендер только из localStorage
+    // «Перезагрузка»: чистый рендер только из localStorage (поле ввода
+    // появляется после того, как восстановится фото из IndexedDB)
     cleanup()
     render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
-    expect(screen.getByPlaceholderText(PERSON_PLACEHOLDER)).toHaveValue('Сидоров Сидор Сидорович, 55')
+    expect(await screen.findByPlaceholderText(PERSON_PLACEHOLDER)).toHaveValue('Сидоров Сидор Сидорович, 55')
   })
 
   it('пустая строка не выводится под названием раскладки и не идёт в печать', async () => {
-    await chooseLayout('Раскладка Новых Рун для исцеления')
+    // Пробелы — как отсутствие данных: строка не показывается и в localStorage
+    // ничего не пишется
+    await chooseLayout('Раскладка Новых Рун для исцеления', '   ')
     expect(document.querySelector('.rune-layout-person-value')).toBeNull()
+    expect(document.querySelector('.rune-layout-person-text')).toBeNull()
     expect(document.querySelector('.rune-layout-print-person')).toBeNull()
-    // Пробелы — как отсутствие данных: строка не показывается, запись стирается
-    fireEvent.change(screen.getByPlaceholderText(PERSON_PLACEHOLDER), { target: { value: '   ' } })
     expect(localStorage.getItem(`rune_layout_person:${TEST_USER.email}`)).toBeNull()
-    expect(document.querySelector('.rune-layout-person-value')).toBeNull()
   })
 })
 

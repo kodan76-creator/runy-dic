@@ -629,6 +629,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
     setDragging(false)
   }, [])
 
+  // 🧾 Поле ввода строки доступно только на странице фото — там же, где кнопка
+  // «Зафиксировать» (фото/белый фон уже выбран, но раскладка ещё не зафиксирована).
+  // На остальных страницах строка показывается простым текстом, а на странице с
+  // крестом — под названием раскладки, чтобы поле не «висело» над готовой
+  // раскладкой и не мешало печати.
+  const personEditable =
+    (Boolean(photoUrl) || whiteBackground) && !showLayoutChoice && !selectedLayoutChoice
+
   return (
     <div
       className={`rune-layout${dndOver ? ' dnd-over' : ''}`}
@@ -636,20 +644,28 @@ export default function RuneLayout({ user, onUserUpdate }) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* 🧾 Строка «Фамилия Имя Отчество, возраст»: набранное показываем под
-          названием выбранной раскладки (на экране с крестом) и на 1-й
-          печатной странице */}
-      <div className="rune-layout-person">
-        <input
-          type="text"
-          className="rune-layout-person-input"
-          placeholder={PERSON_LINE_PLACEHOLDER}
-          aria-label={PERSON_LINE_PLACEHOLDER}
-          maxLength={PERSON_LINE_MAX_LENGTH}
-          value={personLine}
-          onChange={handlePersonChange}
-        />
-      </div>
+      {/* 🧾 Строка «Фамилия Имя Отчество, возраст»: вводить можно только на
+          странице фото (там же, где «Зафиксировать»). Дальше — только текст:
+          на странице выбора раскладки сверху, на странице с крестом — под
+          названием выбранной раскладки (сверху не дублируем). На 1-ю печатную
+          страницу строка попадает под названием раскладки. */}
+      {personEditable ? (
+        <div className="rune-layout-person">
+          <input
+            type="text"
+            className="rune-layout-person-input"
+            placeholder={PERSON_LINE_PLACEHOLDER}
+            aria-label={PERSON_LINE_PLACEHOLDER}
+            maxLength={PERSON_LINE_MAX_LENGTH}
+            value={personLine}
+            onChange={handlePersonChange}
+          />
+        </div>
+      ) : (
+        !selectedLayoutChoice && personLineText && (
+          <p className="rune-layout-person-text">{personLineText}</p>
+        )
+      )}
 
       {/* 📛 Название выбранной раскладки: показываем на странице с эллипсом и крестом */}
       {selectedLayoutChoice && (
