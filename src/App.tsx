@@ -5,7 +5,7 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate
 import AdminPanel from './AdminPanel'
 import UserAuthForm from './components/UserAuthForm'
 import Home from './pages/Home'
-import { getUsers } from './githubApi'
+import { getUsersStatus } from './githubApi'
 import { removeCachedUser } from './api/offline'
 import './App.css'
 
@@ -86,10 +86,13 @@ function AppContent() {
 
   const navigate = useNavigate()
 
-  // 🔄 Контроль сессий: если администратор сменил любой статус оплаты
-  // пользователя на «не оплачено», на сервере увеличивается sessionVersion.
-  // Пока пользователь вошёл, периодически сверяем его локальную версию сессии
-  // с серверной; при расхождении разлогиниваем — на всех устройствах сразу.
+  // 🔄 Контроль сессий: разлогиниваем пользователя, если:
+  // 1) его записи больше нет в users.json — администратор удалил аккаунт;
+  // 2) на сервере увеличился sessionVersion (смена статуса оплаты,
+  //    кнопка «Разлогинить все устройства») — локальная версия разошлась.
+  // Пока пользователь вошёл, периодически сверяем локальную сессию с сервером;
+  // при расхождении разлогиниваем на этом устройстве — цикл опроса есть на каждом
+  // устройстве (раз в 60 с, а также при фокусе вкладки и восстановлении сети).
   useEffect(() => {
     const email = user?.email
     const role = user?.role
@@ -99,24 +102,32 @@ function AppContent() {
     let cancelled = false
     let timer: ReturnType<typeof setInterval> | null = null
 
-    const forceLogout = () => {
+    const forceLogout = (message: string) => {
       localStorage.removeItem('currentUser')
       if (email) removeCachedUser(email)
       setUser(null)
       navigate('/auth', { replace: true })
-      window.alert('Ваш доступ был отключён администратором. Войдите снова.')
+      window.alert(message)
     }
 
     const checkSession = async () => {
       try {
-        const users = await getUsers()
+        const { users, ok } = await getUsersStatus()
         if (cancelled) return
+        // Сбой чтения users.json (сеть/шифрование/парсинг) — не повод для
+        // разлогина: временная проблема, попробуем в следующем цикле опроса.
+        if (!ok) return
         const serverUser = users.find(u =>
           String(u?.email || '').toLowerCase() === String(email || '').toLowerCase()
         )
-        if (!serverUser) return
+        if (!serverUser) {
+          // Файл прочитан успешно, но записи пользователя в нём нет —
+          // Аккаунт удалён: чистим локальную сессию и офлайн-копию.
+          forceLogout('Ваша учётная запись была удалена администратором.')
+          return
+        }
         if (Number(serverUser.sessionVersion ?? 0) !== Number(sessionVersion ?? 0)) {
-          forceLogout()
+          forceLogout('Ваш доступ был отключён администратором. Войдите снова.')
           return
         }
         // Синхронизируем данные пользователя с сервера (фото, тип раскладки и т.д.),

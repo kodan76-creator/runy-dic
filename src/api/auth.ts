@@ -63,6 +63,15 @@ export const getUsers = async () => {
   return Array.isArray(data) ? data : []
 }
 
+// 👥 Чтение users.json со статусом чтения. ok:false — файл не прочитался
+// (сбой сети, шифрования или парсинга): контроль сессий обязан отличать
+// такой сбой от реального отсутствия пользователя в списке (удаление аккаунта),
+// иначе временный сбой API разлогинил бы всех подряд.
+export const getUsersStatus = async () => {
+  const { data, ok, exists } = await fetchGitHubFile(USERS_FILE)
+  return { users: Array.isArray(data) ? data : [], ok, exists }
+}
+
 export const registerUser = async (email, password) => {
   if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
     throw new Error('Введите корректный email, например: user@mail.ru')
