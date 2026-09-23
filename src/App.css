@@ -1323,7 +1323,8 @@ background: rgba(246, 240, 253, 0.2);
     font-size: 18pt;
     font-weight: 700;
     text-align: center;
-    color: #000;
+    /* Название выбранной раскладки — тёмно-фиолетовый, а не чёрный */
+    color: #2d1745;
   }
   .rune-layout-print-scene {
     width: 150mm;
@@ -1344,6 +1345,14 @@ background: rgba(246, 240, 253, 0.2);
   .rune-layout-print-scene .rune-layout-spread-item img {
     animation: none;
   }
+  /* Крест в печати — с полупрозрачным светло-лиловым фоном плиток: экранная
+      вуаль rgba(246,240,253,.12) на белой бумаге не видна, и крест сливался
+      с фоном. print-color-adjust: exact обязывает браузер напечатать фон. */
+  .rune-layout-print-scene .rune-layout-spread-item {
+    background: rgba(74, 42, 107, 0.15);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
   .rune-layout-print-rune {
     page-break-before: always;
     break-before: page;
@@ -1355,7 +1364,8 @@ background: rgba(246, 240, 253, 0.2);
     padding: 3mm 4mm;
     font-size: 12pt;
     font-weight: 700;
-    color: #000;
+    /* Шапки «Руна 1 … Руна 7» — тёмно-фиолетовые, как и название раскладки */
+    color: #2d1745;
     border: 1pt solid #000;
   }
   .rune-layout-print-rune-card .rune-card {
