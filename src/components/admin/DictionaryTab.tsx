@@ -193,6 +193,28 @@ export default function DictionaryTab({
           <textarea rows={1} className="single-line-textarea" placeholder="Транскрипция" value={formData.transcription} onChange={e => setFormData({ ...formData, transcription: e.target.value })} />
           <textarea rows={1} className="single-line-textarea" placeholder="Перевод (на русском языке)" value={formData.translation} onChange={e => setFormData({ ...formData, translation: e.target.value })} required />
           <div className="category-checkboxes">
+            {canManageOwnCategories && (
+              <div className="own-category-row">
+                <input
+                  type="text"
+                  className="own-category-input"
+                  placeholder="Своя категория..."
+                  aria-label="Название своей категории"
+                  value={ownCategoryName}
+                  onChange={e => setOwnCategoryName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddOwnCategoryClick() } }}
+                  disabled={ownCategorySaving}
+                />
+                <button
+                  type="button"
+                  className="own-category-add"
+                  title="Добавить свою категорию"
+                  aria-label="Добавить свою категорию"
+                  onClick={handleAddOwnCategoryClick}
+                  disabled={ownCategorySaving || !ownCategoryName.trim()}
+                >{ownCategorySaving ? '⏳' : '➕'}</button>
+              </div>
+            )}
             {categories.map(c => (
               <div key={c.id} className={`cat-row${c.__personal ? ' cat-row-own' : ''}`}>
                 <label className="cat-item">
@@ -223,28 +245,6 @@ export default function DictionaryTab({
                 )}
               </div>
             ))}
-            {canManageOwnCategories && (
-              <div className="own-category-row">
-                <input
-                  type="text"
-                  className="own-category-input"
-                  placeholder="Своя категория..."
-                  aria-label="Название своей категории"
-                  value={ownCategoryName}
-                  onChange={e => setOwnCategoryName(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddOwnCategoryClick() } }}
-                  disabled={ownCategorySaving}
-                />
-                <button
-                  type="button"
-                  className="own-category-add"
-                  title="Добавить свою категорию"
-                  aria-label="Добавить свою категорию"
-                  onClick={handleAddOwnCategoryClick}
-                  disabled={ownCategorySaving || !ownCategoryName.trim()}
-                >{ownCategorySaving ? '⏳' : '➕'}</button>
-              </div>
-            )}
           </div>
         </div>
         <div className="form-column form-column-right">
