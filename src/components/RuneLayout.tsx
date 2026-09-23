@@ -3,6 +3,8 @@
 // Показывает фото пользователя во весь рост, обрезанное эллипсом-«яйцом»,
 // с возможностью увеличивать/уменьшать фото, чтобы подогнать человека
 // под внутренний размер эллипса. Если фото нет — диалог загрузки.
+// Файл принимается двумя способами: через <input type="file"> и
+// drag-and-drop — перетаскиванием из проводника на зону загрузки.
 import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
@@ -151,6 +153,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const [showUpload, setShowUpload] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  // 📂 Файл перетаскивается из проводника — подсветка зоны дропа
+  const [dndOver, setDndOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   // 🖐️ Drag-to-pan state (восстанавливаем из кэша)
   const [panX, setPanX] = useState(savedState?.panX ?? 0)
@@ -282,8 +286,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
     saveLayoutState(user.email, { panX, panY, zoom })
   }, [panX, panY, zoom, user?.email])
 
-  const handleFileSelected = async (e) => {
-    const file = e.target.files?.[0]
+  // 📂 Единая загрузка фото: и из <input type="file">, и drag-and-drop из
+  // проводника идут одним и тем же путём — валидация, blob-URL, кэш IndexedDB.
+  const processPhotoFile = async (file) => {
     if (!file || !user?.email) return
     setUploading(true)
     setUploadError('')
@@ -331,6 +336,44 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  const handleFileSelected = (e) => processPhotoFile(e.target.files?.[0])
+
+  // 🖱️📂 Drag-and-drop: файл перетаскивается из проводника прямо на раскладку.
+  // Обработчики висят на корне .rune-layout — работают на пустом экране, на
+  // сцене с фото и под модалкой (drop всплывает от детей к корню).
+  // Drop разрешён, пока раскладка не выбрана (пусто / редактирование / выбор
+  // раскладки) и в открытой модалке загрузки — после сбора креста замена фото
+  // идёт только через «Заменить фото», чтобы дропом не затереть раскладку.
+  const canDropPhoto = () => showUpload || !selectedLayoutChoice
+
+  const dndHasFiles = (e: React.DragEvent) => {
+    const dt = e.dataTransfer
+    if (!dt) return false
+    if (dt.files && dt.files.length > 0) return true
+    return Array.from(dt.types || []).includes('Files')
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!dndHasFiles(e)) return
+    // Без preventDefault браузер откроет файл сам — drop не сработает
+    e.preventDefault()
+    if (!uploading && canDropPhoto()) setDndOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Уход курсора на дочерний элемент — не выход из зоны дропа
+    if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget as Node)) return
+    setDndOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDndOver(false)
+    if (uploading || !canDropPhoto()) return
+    const file = e.dataTransfer?.files?.[0]
+    if (file) processPhotoFile(file)
   }
 
   const changeZoom = (delta) => {
@@ -551,7 +594,12 @@ export default function RuneLayout({ user, onUserUpdate }) {
   }, [])
 
   return (
-    <div className="rune-layout">
+    <div
+      className={`rune-layout${dndOver ? ' dnd-over' : ''}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* 📛 Название выбранной раскладки: показываем на странице с эллипсом и крестом */}
       {selectedLayoutChoice && (
         <p className="rune-layout-active-name">{getLayoutName(selectedLayoutChoice)}</p>
@@ -720,10 +768,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
             Фото будет показано в эллипсе «Рунной раскладки». Человек должен быть виден целиком,
             по центру кадра.
           </p>
+          <p className="rune-layout-dnd-hint">
+            📂 Или просто перетащите файл фото из проводника прямо на эту страницу
+          </p>
           <button type="button" className="rune-layout-upload-btn" onClick={() => setShowUpload(true)}>
             Загрузить фото
           </button>
           {whiteBgToggle}
+          {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
         </div>
       )}
 
@@ -739,6 +791,9 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <h3>Загрузка фото во весь рост</h3>
             <p className="rune-layout-modal-hint">
               Выберите фотографию, где человек виден во весь рост. Фото будет обрезано эллипсом.
+            </p>
+            <p className="rune-layout-dnd-hint">
+              📂 Или перетащите файл из проводника прямо в это окно
             </p>
             <p className="rune-layout-modal-req">Требования: {PHOTO_REQUIREMENTS_TEXT}</p>
             <input

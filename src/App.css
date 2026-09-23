@@ -1561,6 +1561,31 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 13px;
   line-height: 1.4;
 }
+/* 📂 Drag-and-drop загрузка фото: подсказка о перетаскивании и подсветка
+   зоны дропа. Класс dnd-over вешается на корень .rune-layout, пока файл
+   из проводника тащится над раскладкой; подсвечиваем активную зону —
+   модалку загрузки, пустой экран или сцену с фото. */
+.rune-layout-dnd-hint {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.rune-layout-modal .rune-layout-dnd-hint {
+  color: var(--surface-muted);
+  text-align: center;
+}
+.rune-layout.dnd-over .rune-layout-modal,
+.rune-layout.dnd-over .rune-layout-empty,
+.rune-layout.dnd-over .rune-layout-stage {
+  outline: 3px dashed #FFD700;
+  outline-offset: -6px;
+}
+/* При открытой модалке подсвечиваем только её — сцена/пустой экран
+   находятся под бэкдропом и подсветка им не нужна */
+.rune-layout.dnd-over:has(.rune-layout-modal) .rune-layout-stage,
+.rune-layout.dnd-over:has(.rune-layout-modal) .rune-layout-empty {
+  outline: none;
+}
 .rune-layout-error {
   margin: 10px 0 0 0;
   color: #ff5252;

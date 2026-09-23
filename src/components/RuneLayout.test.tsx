@@ -596,4 +596,44 @@ describe('RuneLayout — фото только локально', () => {
     expect(uploadImageFile).not.toHaveBeenCalled()
     cleanup()
   })
+
+  it('фото можно загрузить перетаскиванием файла из проводника', async () => {
+    const { validateImageFile, uploadImageFile } = await import('../api/images')
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
+    const root = document.querySelector('.rune-layout') as HTMLElement
+    expect(root).not.toBeNull()
+    const file = new File(['x'], 'photo.jpg', { type: 'image/jpeg' })
+    const dataTransfer = { types: ['Files'], files: [file] }
+    // Наведение файла — зона дропа подсвечивается
+    fireEvent.dragOver(root, { dataTransfer })
+    expect(root).toHaveClass('dnd-over')
+    // Сброс — фото принимается тем же путём, что и выбор в <input type="file">
+    fireEvent.drop(root, { dataTransfer })
+    const img = await screen.findByAltText('Ваше фото во весь рост')
+    expect(img.getAttribute('src')).toBe('blob:mock')
+    // Валидация прошла теми же параметрами, что и при выборе через диалог
+    expect(validateImageFile).toHaveBeenCalledWith(
+      file,
+      expect.objectContaining({ allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'] })
+    )
+    expect(uploadImageFile).not.toHaveBeenCalled()
+    // После сброса подсветка гаснет
+    expect(root).not.toHaveClass('dnd-over')
+    cleanup()
+  })
+
+  it('ошибка валидации при дропе показывается на экране загрузки', async () => {
+    const { validateImageFile } = await import('../api/images')
+    vi.mocked(validateImageFile).mockRejectedValueOnce(
+      new Error('Допускаются только изображения (PNG, JPG, JPEG, WEBP)')
+    )
+    render(<RuneLayout user={NO_PHOTO_USER} onUserUpdate={vi.fn()} />)
+    const root = document.querySelector('.rune-layout') as HTMLElement
+    const file = new File(['x'], 'notes.txt', { type: 'text/plain' })
+    fireEvent.drop(root, { dataTransfer: { types: ['Files'], files: [file] } })
+    // Ошибка видна без открытой модалки — прямо на пустом экране загрузки
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('Допускаются только изображения')
+    cleanup()
+  })
 })
