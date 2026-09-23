@@ -2038,18 +2038,28 @@ background: rgba(246, 240, 253, 0.2);
     height: min(60vh, 520px);
   }
 
-  /* 📱 «Вернуться к выбору раскладок» + «🖨️ Печать на А4» — в одном ряду:
-     кнопки сжимаются и/или укорачиваются, а не переносятся на новую строку */
-  .rune-layout-controls {
+  /* 📱 Ряд «Вернуться к выбору раскладок» + «🖨️ Печать» — в одном ряду:
+     кнопки сжимаются, а не переносятся. Важно: только у этого ряда
+     (.rune-layout-controls-row) — панель управления фото (зум/замена/фон/
+     фиксация) должна переноситься, иначе она вылезает за экран. */
+  .rune-layout-controls-row {
     flex-wrap: nowrap;
   }
-  .rune-layout-controls .rune-layout-return-btn,
-  .rune-layout-controls .rune-layout-print-btn {
+  .rune-layout-controls-row .rune-layout-return-btn,
+  .rune-layout-controls-row .rune-layout-print-btn {
     flex: 1 1 auto;
     min-width: 0;
     white-space: nowrap;
     font-size: 12px;
     padding: 10px 8px;
+  }
+
+  /* 📱 Панель управления фото: компактные кнопки, перенос на 2 ряда */
+  .rune-layout-controls .rune-layout-replace-btn,
+  .rune-layout-controls .rune-layout-apply-btn,
+  .rune-layout-controls .rune-layout-bg-toggle {
+    font-size: 12px;
+    padding: 8px 10px;
   }
 
   /* On mobile header stays in flow (flex column), only side padding is needed */

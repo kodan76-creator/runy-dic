@@ -630,7 +630,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
               </button>
             </div>
           ) : selectedLayoutChoice ? (
-            <div className="rune-layout-controls">
+            <div className="rune-layout-controls rune-layout-controls-row">
               <button
                 type="button"
                 className="rune-layout-return-btn"
