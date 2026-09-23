@@ -31,6 +31,15 @@ const getSavedAdmin = () => {
   }
 }
 
+// 🗂 Вкладки админки, недоступные обычному пользователю (restricted-режим):
+// он видит только свой словарь. Ключ admin_active_tab общий для браузера —
+// без этой проверки пользователь увидел бы секцию, открытую раньше админом
+// (например, «Пользователи» с поиском и фильтрами).
+const ADMIN_ONLY_TABS = ['runes', 'categories', 'users', 'logs', 'security']
+function isTabAllowed(tab: string, restricted: boolean): boolean {
+  return !restricted || !ADMIN_ONLY_TABS.includes(tab)
+}
+
 function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [adminUser, setAdminUser] = useState(getSavedAdmin)
   const [email, setEmail] = useState('')
@@ -39,11 +48,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [users, setUsers] = useState<any[]>([])
   const [logs, setLogs] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState(() => {
+    let saved = 'dictionary'
     try {
-      return localStorage.getItem('admin_active_tab') || 'dictionary'
+      saved = localStorage.getItem('admin_active_tab') || 'dictionary'
     } catch {
-      return 'dictionary'
+      saved = 'dictionary'
     }
+    // Restricted-пользователю доступен только «Словарь»: если в хранилище
+    // осталась вкладка, открытую админом («Пользователи», «Логи»…), открываем словарь.
+    const restricted = adminUser?.role !== 'admin' && currentUser?.role === 'user'
+    return isTabAllowed(saved, restricted) ? saved : 'dictionary'
   })
 
   // 💾 Сохраняем активную вкладку, чтобы при обновлении страницы оставаться на ней же.
@@ -93,6 +107,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
   // A non-admin (regular) user is restricted and should not be treated as admin here
   const isRestrictedUser = activeUser?.role === 'user'
+
+  // 🛡 Страховка на случай смены активного пользователя без перезагрузки:
+  // если текущая вкладка недоступна restricted-пользователю — возвращаемся
+  // на «Словарь», чтобы не показывать остатки чужой секции (и не перезаписывать
+  // чужую вкладку в общем ключе хранилища).
+  useEffect(() => {
+    if (!isTabAllowed(activeTab, isRestrictedUser)) setActiveTab('dictionary')
+  }, [activeTab, isRestrictedUser])
 
   const getAudioSrc = useCallback((fileName, userFolder) => {
     if (!fileName) return ''
@@ -1210,7 +1232,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           />
         )}
 
-        {activeTab === 'categories' && (
+        {activeTab === 'categories' && !isRestrictedUser && (
           <CategoriesTab
             categories={categories}
             categoryForm={categoryForm}
@@ -1226,7 +1248,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           />
         )}
 
-        {activeTab === 'runes' && (
+        {activeTab === 'runes' && !isRestrictedUser && (
           <RunesTab
             runes={runes}
             runeFormData={runeFormData}
@@ -1247,7 +1269,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           />
         )}
 
-        {activeTab === 'users' && (
+        {activeTab === 'users' && !isRestrictedUser && (
           <UsersTab
             filteredUsers={filteredUsers}
             userSearchTerm={userSearchTerm}
@@ -1272,7 +1294,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           />
         )}
 
-        {activeTab === 'logs' && (
+        {activeTab === 'logs' && !isRestrictedUser && (
           <LogsTab
             logs={logs}
             loadLogs={loadLogs}
@@ -1281,7 +1303,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           />
         )}
 
-        {activeTab === 'security' && (
+        {activeTab === 'security' && !isRestrictedUser && (
           <SecurityTab
             filesStatus={filesStatus}
             filesStatusLoading={filesStatusLoading}
