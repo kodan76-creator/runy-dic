@@ -1317,6 +1317,12 @@ background: rgba(246, 240, 253, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* 📄 Первая страница целиком: блок «название + эллипс» отцентрован и по
+       горизонтали (align-items), и по вертикали — во всю высоту поля A4
+       (297mm − 2×12mm = 273mm), без пустого «хвоста» фона внизу. */
+    justify-content: center;
+    min-height: 273mm;
+    box-sizing: border-box;
   }
   .rune-layout-print-name {
     margin: 0 0 8mm 0;
@@ -1330,6 +1336,12 @@ background: rgba(246, 240, 253, 0.2);
     width: 150mm;
     height: 200mm;
     container-type: size;
+    /* ➕ Эллипс — обычный block-потомок сцены и прижимался к её левому
+       краю: центрируем сцену flex-ом, чтобы эллипс (и крест внутри него —
+       он позиционируется от центра эллипса) стоял по центру страницы. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .rune-layout-print-scene .rune-layout-ellipse {
     width: min(96cqw, 64cqh);
@@ -1367,6 +1379,14 @@ background: rgba(246, 240, 253, 0.2);
     /* Шапки «Руна 1 … Руна 7» — тёмно-фиолетовые, как и название раскладки */
     color: #2d1745;
     border: 1pt solid #000;
+    /* 📖 Светлая подложка + принудительная печать фона: тёмно-фиолетовый
+       текст тонул на фиолетовом фоне страницы (html, body { background }) —
+       заголовок на 2-й и следующих страницах был нечитаем. При отключённых
+       «фоновых цветах и изображениях» фон страницы печатается белым, и
+       тёмный текст читается и без подложки. */
+    background: #f6f0fd;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .rune-layout-print-rune-card .rune-card {
     box-shadow: none;
