@@ -830,12 +830,14 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           />
 
           {categoryCounts.length > 0 && (
-            <div className="category-stats" aria-label="Статистика по категориям">
-              <span className="category-stats-title">Категории:</span>
+            <div className="category-stats" aria-label="Статистика по категориям" role="region">
+              <span className="category-stats-title" aria-hidden="true">Категории:</span>
+              <div className="category-stats-scroll" role="list" aria-label="Фильтры по категориям">
               {categoryCounts.map(({ id, name, count }) => (
                 <button
                   key={id}
                   type="button"
+                  role="listitem"
                   className={`category-stat-chip ${selectedFilters.includes(id) ? 'active' : ''}`}
                   aria-pressed={selectedFilters.includes(id)}
                   title={selectedFilters.includes(id) ? 'Снять фильтр по категории' : 'Показать только эту категорию'}
@@ -844,6 +846,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                   {name} <b>{count}</b>
                 </button>
               ))}
+              </div>
             </div>
           )}
 

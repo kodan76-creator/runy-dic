@@ -595,6 +595,11 @@ background: rgba(246, 240, 253, 0.2);
   align-content: start;
   gap: 14px;
   overflow-y: auto;
+  /* 📱 Вертикальный свайп начинается и с полосы категорий: жест,
+     начавшийся на .category-stats, должен цепочкой уходить сюда. */
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   padding: 14px 8px 30px;
   box-sizing: border-box;
 }
@@ -2880,29 +2885,48 @@ background: rgba(246, 240, 253, 0.2);
 .state-retry-btn:hover,
 .state-reset-btn:hover { background: var(--rune-hover); transform: translateY(-2px); }
 
-/* 🏷️ Статистика по категориям — компактная строка с горизонтальным скроллом */
+/* 🏷️ Статистика по категориям — компактная строка с горизонтальным скроллом.
+   📱 Структура: внешняя обёртка .category-stats НЕ скроллится — она лишь
+   прижимается к шапке и пропускает вертикальный свайп дальше в .results.
+   Скроллится только внутренняя лента .category-stats-scroll (горизонтально). */
 .category-stats {
   display: flex;
-  flex-wrap: nowrap;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-start;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 0 8px 6px;
   box-sizing: border-box;
-  /* Не даём flex-колонке .container сжать строку (scroll-контейнер имеет
-     авто-минимум 0 → иначе схлопывается до 10px). */
   flex-shrink: 0;
+  overflow: visible;
+  /* 📱 touch-action пересекается по цепочке предков до скроллера:
+     здесь должен быть разрешён и pan-x, иначе он запретит
+     горизонтальный свайп внутренней ленты. */
+  touch-action: pan-x pan-y;
+}
+.category-stats-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+  /* Горизонтальный жест крутит ленту, вертикальный уходит в список слов. */
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(246, 240, 253, 0.35) transparent;
   -webkit-overflow-scrolling: touch;
 }
-.category-stats::-webkit-scrollbar { height: 6px; }
-.category-stats::-webkit-scrollbar-track { background: transparent; }
-.category-stats::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.3); border-radius: 3px; }
+.category-stats-scroll::-webkit-scrollbar { height: 6px; }
+.category-stats-scroll::-webkit-scrollbar-track { background: transparent; }
+.category-stats-scroll::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.3); border-radius: 3px; }
 .category-stats-title {
   color: var(--on-accent);
   font-size: 12px;
