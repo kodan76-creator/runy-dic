@@ -2917,8 +2917,14 @@ background: rgba(246, 240, 253, 0.2);
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  /* Горизонталь — нативный свайп ленты; вертикаль отдаём в .results. */
-  touch-action: pan-x;
+  /* Горизонталь ведём сами через Pointer Events (едино для мыши и тача,
+     включая Яндекс Браузер); touch-action: none запрещает браузеру
+     перехватывать жест под выделение/лупу. Вертикаль пробрасываем в .results. */
+  touch-action: none;
+  /* 📱 Чтобы палец не выделял текст чипов вместо скролла (Яндекс/тачскрины). */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   overscroll-behavior-x: contain;
   /* 🖥️ По умолчанию (браузер/десктоп) показываем тонкий скроллбар,
      чтобы ленту можно было двигать мышью. На тач-экранах он прячется
@@ -2964,6 +2970,11 @@ background: rgba(246, 240, 253, 0.2);
   flex-shrink: 0;
   font-family: inherit;
   cursor: pointer;
+  /* 📱 Палец должен скроллить ленту, а не выделять текст / вызывать лупу. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .category-stat-chip:hover { background: rgba(42, 17, 69, 0.4); border-color: rgba(246, 240, 253, 0.55); }
