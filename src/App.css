@@ -2920,19 +2920,31 @@ background: rgba(246, 240, 253, 0.2);
   /* Горизонтальный жест крутит ленту, вертикальный уходит в список слов. */
   touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
-  /* 📱 Скроллбар скрываем полностью — он и «наезжал» на чипы (см. скрин).
-     Лента при этом остаётся свайпабельной пальцем; намёк на продолжение —
-     маска-затухание справа. */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  /* 🖥️ По умолчанию (браузер/десктоп) показываем тонкий скроллбар,
+     чтобы ленту можно было двигать мышью. На тач-экранах он прячется
+     медиазапросом ниже — там работает свайп пальцем. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(246, 240, 253, 0.35) transparent;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 2px;
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
-  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
+  padding-bottom: 6px;
+  cursor: grab;
 }
-.category-stats-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
-.category-stats-scroll::-webkit-scrollbar-track { display: none; }
-.category-stats-scroll::-webkit-scrollbar-thumb { display: none; }
+.category-stats-scroll.dragging { cursor: grabbing; }
+.category-stats-scroll::-webkit-scrollbar { height: 6px; }
+.category-stats-scroll::-webkit-scrollbar-track { background: transparent; }
+.category-stats-scroll::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.3); border-radius: 3px; }
+/* 📱 Тач-экраны: системный скроллбар убираем полностью (именно он
+   «наезжал» на чипы на скрине). Лента остаётся свайпабельной пальцем. */
+@media (hover: none) and (pointer: coarse) {
+  .category-stats-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 2px;
+  }
+  .category-stats-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .category-stats-scroll::-webkit-scrollbar-track { display: none; }
+  .category-stats-scroll::-webkit-scrollbar-thumb { display: none; }
+}
 .category-stats-title {
   color: var(--on-accent);
   font-size: 12px;

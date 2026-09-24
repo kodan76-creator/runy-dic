@@ -147,6 +147,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
   const lastSyncedFavoritesRef = useRef<string | null>(null) // снимок последней записи — то же самое повторно не пишем
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const runesSectionRef = useRef<HTMLDivElement | null>(null)
+  const categoryScrollRef = useRef<HTMLDivElement | null>(null)
 
   // 💾 Сохраняем/восстанавливаем позицию прокрутки списков при обновлении страницы
   useScrollRestoration(resultsRef, 'scroll_home_results', [viewMode, words.length])
@@ -515,6 +516,50 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 🖱️ Десктоп: тянем ленту категорий мышью (drag-to-scroll), как свайп пальцем.
+  // Без этого в браузере ленту можно двигать только колёсиком/скроллбаром.
+  // Лента монтируется только при categoryCounts.length > 0, поэтому вешаем
+  // обработчики через ref-колбэк, а не через categoryScrollRef.current в useEffect.
+  const attachCategoryDrag = (el: HTMLDivElement | null) => {
+    categoryScrollRef.current = el
+    if (!el || (el as any).__catDragAttached) return
+    ;(el as any).__catDragAttached = true
+    let down = false
+    let startX = 0
+    let startLeft = 0
+    let moved = false
+    el.addEventListener('pointerdown', (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return
+      down = true
+      moved = false
+      startX = e.clientX
+      startLeft = el.scrollLeft
+    })
+    window.addEventListener('pointermove', (e: PointerEvent) => {
+      if (!down) return
+      const dx = e.clientX - startX
+      if (Math.abs(dx) > 4) {
+        moved = true
+        el.classList.add('dragging')
+        el.scrollLeft = startLeft - dx
+      }
+    })
+    const stop = () => {
+      down = false
+      el.classList.remove('dragging')
+    }
+    window.addEventListener('pointerup', stop)
+    window.addEventListener('pointercancel', stop)
+    // Клик после перетаскивания не должен переключать фильтр.
+    el.addEventListener('click', (e: MouseEvent) => {
+      if (moved) {
+        e.stopPropagation()
+        e.preventDefault()
+        moved = false
+      }
+    }, true)
+  }
+
   if (loading) {
     return (
       <div className="container">
@@ -832,7 +877,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           {categoryCounts.length > 0 && (
             <div className="category-stats" aria-label="Статистика по категориям" role="region">
               <span className="category-stats-title" aria-hidden="true">Категории:</span>
-              <div className="category-stats-scroll" role="list" aria-label="Фильтры по категориям">
+              <div className="category-stats-scroll" ref={attachCategoryDrag} role="list" aria-label="Фильтры по категориям">
               {categoryCounts.map(({ id, name, count }) => (
                 <button
                   key={id}
