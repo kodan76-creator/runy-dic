@@ -2901,10 +2901,10 @@ background: rgba(246, 240, 253, 0.2);
   box-sizing: border-box;
   flex-shrink: 0;
   overflow: visible;
-  /* 📱 touch-action пересекается по цепочке предков до скроллера:
-     здесь должен быть разрешён и pan-x, иначе он запретит
-     горизонтальный свайп внутренней ленты. */
-  touch-action: pan-x pan-y;
+  /* 📱 Только pan-x: горизонталь обрабатывает сама лента, а вертикальный
+     жест НЕ забирается полосой — его пробрасываем в .results через JS
+     (attachCategoryDrag), т.к. скролл-чейнинг к соседу не работает. */
+  touch-action: pan-x;
 }
 .category-stats-scroll {
   display: flex;
@@ -2917,8 +2917,8 @@ background: rgba(246, 240, 253, 0.2);
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  /* Горизонтальный жест крутит ленту, вертикальный уходит в список слов. */
-  touch-action: pan-x pan-y;
+  /* Горизонталь — нативный свайп ленты; вертикаль отдаём в .results. */
+  touch-action: pan-x;
   overscroll-behavior-x: contain;
   /* 🖥️ По умолчанию (браузер/десктоп) показываем тонкий скроллбар,
      чтобы ленту можно было двигать мышью. На тач-экранах он прячется

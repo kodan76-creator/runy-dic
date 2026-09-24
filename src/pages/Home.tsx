@@ -518,6 +518,9 @@ export default function Home({ user, onLogout, onUserUpdate }) {
 
   // 🖱️ Десктоп: тянем ленту категорий мышью (drag-to-scroll), как свайп пальцем.
   // Без этого в браузере ленту можно двигать только колёсиком/скроллбаром.
+  // 📱 Тач: лента имеет touch-action: pan-x, поэтому вертикальный жест тут
+  // не скроллит соседа (.results) сам — аккуратно пробрасываем вертикальную
+  // составляющую в .results, горизонталь остаётся нативной у ленты.
   // Лента монтируется только при categoryCounts.length > 0, поэтому вешаем
   // обработчики через ref-колбэк, а не через categoryScrollRef.current в useEffect.
   const attachCategoryDrag = (el: HTMLDivElement | null) => {
@@ -528,6 +531,13 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     let startX = 0
     let startLeft = 0
     let moved = false
+    let vActive = false // вертикальный свайп с полосы: крутим .results
+    let vStartX = 0
+    let vStartY = 0
+    let vMoves: Array<{ y: number; t: number }> = []
+    let vLastY = 0
+    let vVel = 0
+    let vScrollEl: HTMLElement | null = null
     el.addEventListener('pointerdown', (e: PointerEvent) => {
       if (e.pointerType !== 'mouse' || e.button !== 0) return
       down = true
@@ -558,6 +568,63 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         moved = false
       }
     }, true)
+    // Тач: решаем по первому движению — горизонталь отдаём ленте (не мешаем),
+    // вертикаль ведём сами: крутим .results с инерцией. passive: false нужен,
+    // чтобы отменить нативный захват жеста лентой при вертикальном свайпе.
+    el.addEventListener('touchstart', (e: TouchEvent) => {
+      if (e.touches.length !== 1) { vActive = false; return }
+      const t = e.touches[0]
+      vActive = true
+      vStartX = t.clientX
+      vStartY = t.clientY
+      vLastY = t.clientY
+      vVel = 0
+      vMoves = [{ y: t.clientY, t: performance.now() }]
+      vScrollEl = (resultsRef.current
+        || (document.querySelector('.results') as HTMLElement | null))
+    }, { passive: true })
+    el.addEventListener('touchmove', (e: TouchEvent) => {
+      if (!vActive || e.touches.length !== 1 || !vScrollEl) return
+      const t = e.touches[0]
+      const dx = t.clientX - vStartX
+      const dy = t.clientY - vStartY
+      // Пока жест похож на горизонтальный — не вмешиваемся, лента скроллится сама.
+      if (Math.abs(dx) > Math.abs(dy) + 6) { vActive = false; return }
+      // Вертикальный жест — ведём .results сами и гасим нативный скролл ленты.
+      if (Math.abs(dy) > 8) {
+        e.preventDefault()
+        const delta = vLastY - t.clientY
+        vLastY = t.clientY
+        vScrollEl.scrollTop += delta
+        const now = performance.now()
+        vMoves.push({ y: t.clientY, t: now })
+        if (vMoves.length > 6) vMoves.shift()
+        if (vMoves.length >= 2) {
+          const a = vMoves[0]
+          const b = vMoves[vMoves.length - 1]
+          const dt = Math.max(1, b.t - a.t)
+          vVel = (a.y - b.y) / dt // px за мс, > 0 при свайпе вверх
+        }
+      }
+    }, { passive: false })
+    const vEnd = () => {
+      if (!vActive) return
+      vActive = false
+      // Лёгкая инерция вертикального свайпа в .results (как нативный скролл).
+      const target = vScrollEl
+      let v = vVel
+      if (!target || !isFinite(v) || Math.abs(v) < 0.15) return
+      v = Math.max(-3, Math.min(3, v))
+      const step = () => {
+        if (!target.isConnected) return
+        target.scrollTop += v * 16
+        v *= 0.94
+        if (Math.abs(v) > 0.05) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    }
+    el.addEventListener('touchend', vEnd)
+    el.addEventListener('touchcancel', () => { vActive = false })
   }
 
   if (loading) {
