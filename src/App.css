@@ -2920,13 +2920,19 @@ background: rgba(246, 240, 253, 0.2);
   /* Горизонтальный жест крутит ленту, вертикальный уходит в список слов. */
   touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(246, 240, 253, 0.35) transparent;
+  /* 📱 Скроллбар скрываем полностью — он и «наезжал» на чипы (см. скрин).
+     Лента при этом остаётся свайпабельной пальцем; намёк на продолжение —
+     маска-затухание справа. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
 }
-.category-stats-scroll::-webkit-scrollbar { height: 6px; }
-.category-stats-scroll::-webkit-scrollbar-track { background: transparent; }
-.category-stats-scroll::-webkit-scrollbar-thumb { background: rgba(246, 240, 253, 0.3); border-radius: 3px; }
+.category-stats-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.category-stats-scroll::-webkit-scrollbar-track { display: none; }
+.category-stats-scroll::-webkit-scrollbar-thumb { display: none; }
 .category-stats-title {
   color: var(--on-accent);
   font-size: 12px;
