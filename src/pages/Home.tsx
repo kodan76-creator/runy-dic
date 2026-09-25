@@ -538,6 +538,18 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     let vScrollEl: HTMLElement | null = null
     let vMoves: Array<{ y: number; t: number }> = []
     let vVel = 0
+    // 🔒 Захват указателя берём ТОЛЬКО когда жест уже распознан как
+    // перетаскивание (см. pointermove ниже). Если захватить указатель сразу на
+    // pointerdown, браузер отправит pointerup в ленту, а click — в ближайшего
+    // общего предка целей pointerdown/pointerup (Chrome, Яндекс Браузер,
+    // Safari), т.е. в саму ленту вместо чипа. Тогда «нажатие на категорию»
+    // вообще не срабатывало — ни мышью, ни пальцем.
+    const capturePointer = (pointerId: number) => {
+      try { el.setPointerCapture(pointerId) } catch { /* ignore */ }
+    }
+    const releasePointer = (pointerId: number) => {
+      try { el.releasePointerCapture(pointerId) } catch { /* ignore */ }
+    }
     el.addEventListener('pointerdown', (e: PointerEvent) => {
       if (activeId !== null) return
       if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -552,7 +564,6 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         || (document.querySelector('.results') as HTMLElement | null))
       vVel = 0
       vMoves = [{ y: e.clientY, t: performance.now() }]
-      try { el.setPointerCapture(e.pointerId) } catch { /* ignore */ }
     })
     el.addEventListener('pointermove', (e: PointerEvent) => {
       if (activeId === null || e.pointerId !== activeId || !vScrollEl) return
@@ -564,6 +575,9 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         else if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) + 8) hDir = -1
         else return
         el.classList.add('dragging')
+        // Только теперь захватываем указатель: перетаскивание может уходить
+        // за пределы ленты, но обычные нажатия на чипы остаются «кликами».
+        capturePointer(e.pointerId)
       }
       moved = true
       if (hDir === 1) {
@@ -590,8 +604,12 @@ export default function Home({ user, onLogout, onUserUpdate }) {
       const wasVertical = hDir === -1
       const target = vScrollEl
       const v = vVel
+      const pointerId = activeId
       activeId = null
       hDir = 0
+      // Снимаем захват явно: pointerup его и так отпускает, но pointercancel —
+      // не всегда, а «залипший» захват снова ломает клики по чипам.
+      releasePointer(pointerId)
       el.classList.remove('dragging')
       if (!wasVertical) return
       // Лёгкая инерция вертикального свайпа в .results (как нативный скролл).
