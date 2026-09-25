@@ -1,3 +1,21 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    
+    // === Cline Configuration ===
+    "clionc.cline.maxContextWindow": 32768,
+    "clionc.models.defaultModel": "llava:latest",
+    "clionc.enableSearchInFiles": true,
+    "clionc.includeFullFilePaths": true,
+    "clionc.enableOllamaRemoteHost": "http://192.168.0.95:11434",
+    "clionc.ollama.remoteUrl": "http://192.168.0.95:11434",
+    
+    // === Model Configuration ===
+    "clionc.models.llava.maxContextTokens": 32768,
+    "clionc.models.llava.maxOutputTokens": 4096,
+    
+    // === Vision Capabilities ===
+    "clionc.vision.enabled": true,
+    "clionc.vision.imageSupport": ["png", "jpg", "jpeg", "webp"],
+    "clionc.vision.imageContext": true
+    
 }
