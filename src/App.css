@@ -1763,7 +1763,8 @@ background: rgba(246, 240, 253, 0.2);
   }
 }
 .rune-layout-spread-item img {
-  animation: rune-glow-pulse 2.6s ease-in-out infinite;
+  animation: rune-glow-fade-in 1.8s ease-out forwards,
+             rune-glow-pulse 2.6s ease-in-out infinite;
 }
 .rune-layout-spread-item.pos-2 img { animation-delay: 0.3s; }
 .rune-layout-spread-item.pos-3 img { animation-delay: 0.6s; }
