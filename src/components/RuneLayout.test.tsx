@@ -576,6 +576,19 @@ describe('RuneLayout — печать на А4', () => {
     cleanup()
   })
 
+  it('печатная версия: под строкой ФИО — дата и время генерации', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления', 'Петров Пётр Петрович, 30')
+    const printRoot = document.querySelector('.rune-layout-print')
+    const datetime = printRoot?.querySelector('.rune-layout-print-datetime')
+    expect(datetime).not.toBeNull()
+    // Формат «dd.mm.yyyy h24:mi»
+    expect(datetime?.textContent).toMatch(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/)
+    // Строка ФИО идёт перед датой генерации
+    const person = printRoot?.querySelector('.rune-layout-print-person')
+    expect(person?.nextElementSibling).toBe(datetime)
+    cleanup()
+  })
+
   it('клик по «Печать» вызывает window.print', async () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
     await chooseLayout('Раскладка Новых Рун для исцеления')

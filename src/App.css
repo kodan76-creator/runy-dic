@@ -1412,6 +1412,14 @@ background: rgba(246, 240, 253, 0.2);
     text-align: center;
     color: #2d1745;
   }
+  /* 📅 Дата и время генерации — под строкой ФИО, на той же 1-й странице */
+  .rune-layout-print-datetime {
+    margin: 0 0 8mm 0;
+    font-size: 12pt;
+    font-weight: 600;
+    text-align: center;
+    color: #2d1745;
+  }
   .rune-layout-print-scene {
     width: 150mm;
     height: 200mm;

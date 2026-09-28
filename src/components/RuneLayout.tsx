@@ -8,19 +8,6 @@
 import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
-/**
- * Форматирует текущую дату и время в строку формата "dd.mm.yyyy h24:mi".
- * @returns {string} Отформатированная дата и время.
- */
-const formatDateTime = (): string => {
-  const date = new Date();
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${day}.${month}.${year} ${hours}:${minutes}`;
-};
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
 import {
@@ -49,6 +36,21 @@ import {
   clearLayoutState,
 } from '../api/photoCache'
 import '../App.css'
+
+/**
+ * Форматирует текущую дату и время в строку формата "dd.mm.yyyy h24:mi".
+ * Используется в печатной версии раскладки — дата и время генерации.
+ * @returns {string} Отформатированная дата и время.
+ */
+const formatDateTime = (): string => {
+  const date = new Date()
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${day}.${month}.${year} ${hours}:${minutes}`
+}
 
 const MIN_ZOOM = 0.5
 const MAX_ZOOM = 3
@@ -902,7 +904,6 @@ export default function RuneLayout({ user, onUserUpdate }) {
             </div>
           </div>
         </div>
-            <p className=\"rune-layout-print-datetime\">{formatDateTime()}</p>
       )}
 
       {/* 🖨️ Печатная версия раскладки — порталом в body, чтобы на неё не влияли
@@ -916,6 +917,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <h1 className="rune-layout-print-name">{getLayoutName(selectedLayoutChoice)}</h1>
             {/* 🧾 Строка «Фамилия Имя Отчество, возраст» — под названием раскладки */}
             {personLineText && <p className="rune-layout-print-person">{personLineText}</p>}
+            {/* 📅 Дата и время генерации раскладки — под строкой ФИО */}
+            <p className="rune-layout-print-datetime">{formatDateTime()}</p>
             <div className="rune-layout-print-scene">
               <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`}>
                 {photoUrl && !whiteBackground && (
