@@ -51,11 +51,20 @@ export const getDeviceType = (): 'mobile' | 'desktop' => {
 // - Известное устройство всегда разрешено.
 // - Новое устройство того же типа, что уже привязано, — запрещено.
 // - Новое устройство нового типа — разрешено и добавляется в список.
+// 🚦 Устройство пользователя. Метки addedAt/lastLoginAt появляются при
+// привязке нового устройства (у старых записей их может не быть).
+export type UserDevice = {
+  id: string
+  type: string
+  addedAt?: string
+  lastLoginAt?: string | null
+}
+
 export const checkLoginDeviceLimit = (
-  user: { role?: string; devices?: Array<{ id: string; type: string }> },
+  user: { role?: string; devices?: UserDevice[] },
   deviceId: string,
   deviceType: 'mobile' | 'desktop',
-): { allowed: boolean; devices: Array<{ id: string; type: string; addedAt: string; lastLoginAt: string | null }>; message?: string; isNewDevice?: boolean } => {
+): { allowed: boolean; devices: UserDevice[]; message?: string; isNewDevice?: boolean } => {
   // Админы не ограничены
   if (user?.role === 'admin') {
     return { allowed: true, devices: Array.isArray(user.devices) ? user.devices : [] }

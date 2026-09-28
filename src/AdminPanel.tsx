@@ -332,7 +332,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
     }
-  }, [words, isRestrictedUser, activeUser, setWords, isOnline])
+  }, [words, isRestrictedUser, activeUser, setWords])
 
   // 🧿 Обновление списка рун после записи на GitHub — как refreshWordsAfterWrite,
   // но для рун: повторяем запросы, пока GitHub не отдаст актуальные данные
@@ -359,7 +359,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       } catch { /* пробуем ещё раз */ }
       await new Promise(res => setTimeout(res, 400))
     }
-  }, [runes, isOnline])
+  }, [runes])
 
   const loadUsers = async () => { try { setUsers(await getUsers()) } catch (err) { console.error(err) } }
   const loadLogs = async () => { try { setLogs(await getLogs()) } catch (err) { console.error(err) } }

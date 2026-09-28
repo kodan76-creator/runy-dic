@@ -83,7 +83,7 @@ const getPassphrase = async () => {
 /**
  * Получить или создать AES-ключ из парольной фразы через PBKDF2
  */
-const getKey = async () => {
+export const getKey = async () => {
   if (cachedKey) return cachedKey
   const passphrase = await getPassphrase()
   cachedKey = await deriveKey(passphrase)

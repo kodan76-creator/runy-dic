@@ -19,7 +19,7 @@ import { emailToFolderName } from './audio'
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg']
 
 // � Читает реальные размеры изображения (в пикселях) до загрузки.
-const readImageDimensions = (file) => {
+const readImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const img = new Image()
@@ -38,7 +38,17 @@ const readImageDimensions = (file) => {
 // 🖼️ Загрузка картинки в public/images/ (общий словарь — корень, личный — папка пользователя)
 // options (необязательно): { allowedExtensions, maxSize, minWidth, minHeight, maxWidth, maxHeight }
 // 📏 Проверка файла изображения (расширение, объём, размеры) без загрузки на сервер.
-export const validateImageFile = async (file, options = {}) => {
+// 📏 Необязательные опции проверки изображения (расширения, объём, размеры).
+export type ImageValidationOptions = {
+  allowedExtensions?: string[]
+  maxSize?: number
+  minWidth?: number
+  minHeight?: number
+  maxWidth?: number
+  maxHeight?: number
+}
+
+export const validateImageFile = async (file: File, options: ImageValidationOptions = {}) => {
   if (!file) throw new Error('Файл не указан')
   const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
   const allowed = options.allowedExtensions || IMAGE_EXTENSIONS
@@ -68,7 +78,7 @@ export const validateImageFile = async (file, options = {}) => {
   }
 }
 
-export const uploadImageFile = async (file, userEmail, rootUpload = false, options = {}, subFolder = '') => {
+export const uploadImageFile = async (file: File, userEmail: string, rootUpload = false, options: ImageValidationOptions = {}, subFolder = '') => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
   await validateImageFile(file, options)
 
