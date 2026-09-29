@@ -345,6 +345,9 @@ export const unbindDevice = async (userId, deviceId, adminEmail) => {
 export const deleteUser = async (userId, adminEmail) => {
   const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
   const user = users.find(u => u.id === userId)
+  // Без явной ошибки здесь архивация файлов (public/audio/<folder> и др.)
+  // молча пропускалась бы: UI показал бы «удалён» при нулевом результате.
+  if (!user) throw new Error('Пользователь не найден')
   const filtered = users.filter(u => u.id !== userId)
   await updateGitHubFile(USERS_FILE, filtered, sha)
   addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})

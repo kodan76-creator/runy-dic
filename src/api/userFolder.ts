@@ -24,16 +24,35 @@ interface DirEntry {
   sha: string
 }
 
-/** Список содержимого папки на GitHub (или null, если папки нет). */
-const listDir = async (path: string): Promise<DirEntry[] | null> => {
-  if (isBrowserOffline()) return null
+interface DirListing {
+  entries: DirEntry[] | null
+  /** Причина, по которой папку прочитать не удалось (null — папки просто нет). */
+  error?: string
+}
+
+/**
+ * Список содержимого папки на GitHub.
+ * 404 (папки нет — уже удалена или не создавалась) — не ошибка.
+ * Прочие сбои (rate limit, 5xx, обрыв сети, офлайн) возвращаем ЯВНО: иначе
+ * архивация молча пропускает папку и файлы пользователя (например,
+ * public/audio/<folder>/) остаются в репозитории без единой ошибки в UI.
+ */
+const listDir = async (path: string): Promise<DirListing> => {
+  if (isBrowserOffline()) {
+    return { entries: null, error: `нет связи — не удалось прочитать папку ${path}` }
+  }
   try {
     const resp = await githubFetch(`${API_ROOT}/${path}?ref=${GITHUB_BRANCH}`, { headers: getHeaders() })
-    if (!resp.ok) return null
-    const items = await resp.json()
-    return Array.isArray(items) ? items : null
-  } catch {
-    return null
+    if (resp.ok) {
+      const items = await resp.json()
+      if (Array.isArray(items)) return { entries: items }
+      return { entries: null, error: `неожиданный ответ GitHub при чтении папки ${path}` }
+    }
+    if (resp.status === 404) return { entries: null }
+    return { entries: null, error: `не удалось прочитать папку ${path}: HTTP ${resp.status}` }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return { entries: null, error: `не удалось прочитать папку ${path}: ${msg}` }
   }
 }
 
@@ -103,8 +122,10 @@ const moveFolderToTrash = async (
   dstDir: string
 ): Promise<{ moved: number; errors: string[] }> => {
   const result = { moved: 0, errors: [] as string[] }
-  const entries = await listDir(srcDir)
-  if (!entries) return result // папки нет — нечего архивировать
+  const listing = await listDir(srcDir)
+  if (listing.error) result.errors.push(listing.error)
+  const entries = listing.entries
+  if (!entries) return result // папки нет (или её не удалось прочитать — ошибка уже записана)
 
   for (const entry of entries) {
     if (entry.type === 'dir') {

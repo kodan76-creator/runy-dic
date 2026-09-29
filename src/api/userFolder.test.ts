@@ -24,6 +24,7 @@ import { archiveUserFolders, clearLocalUserData } from './userFolder'
 
 const API = 'https://api.github.com/repos/kodan76-creator/runy-dic/contents'
 const jsonResp = (body: unknown, ok = true) => ({ ok, status: ok ? 200 : 404, json: async () => body })
+const statusResp = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
 const fileResp = (content: string, sha: string) => jsonResp({ content, sha })
 
 interface Call { method: string; url: string; body?: any }
@@ -34,6 +35,8 @@ const installRouter = (opts: {
   files?: Record<string, { content: string; sha: string }>
   failPut?: (url: string) => boolean
   failDelete?: (url: string) => boolean
+  /** GET по этим путям отвечает не-404 ошибкой (например, rate limit 403). */
+  failList?: (path: string) => boolean
 }) => {
   const calls: Call[] = []
   h.githubFetch.mockImplementation(async (url: string, init?: any) => {
@@ -42,6 +45,7 @@ const installRouter = (opts: {
     calls.push({ method, url: path, body: init?.body ? JSON.parse(init.body) : undefined })
 
     if (method === 'GET') {
+      if (opts.failList?.(path)) return statusResp(403, { message: 'API rate limit exceeded' })
       if (opts.dirs && path in opts.dirs) return jsonResp(opts.dirs[path])
       if (opts.files && path in opts.files) {
         const f = opts.files[path]!
@@ -153,6 +157,60 @@ describe('archiveUserFolders: перенос файлов удалённого �
     expect(result.moved).toBe(0)
     expect(result.errors).toEqual([])
     expect(calls.some(c => c.method === 'PUT' || c.method === 'DELETE')).toBe(false)
+  })
+
+  it('переносит аудио и картинки пользователя в _deleted/<folder>/audio и /images', async () => {
+    const calls = installRouter({
+      dirs: {
+        'public/audio/test_2.ru': [
+          { name: 'hello.webm', path: 'public/audio/test_2.ru/hello.webm', type: 'file', sha: 'sha-a' },
+        ],
+        'public/images/test_2.ru': [
+          { name: 'pic.png', path: 'public/images/test_2.ru/pic.png', type: 'file', sha: 'sha-i' },
+        ],
+      },
+      files: {
+        'public/audio/test_2.ru/hello.webm': { content: 'YXVkaW8=', sha: 'sha-a' },
+        'public/images/test_2.ru/pic.png': { content: 'cG5n', sha: 'sha-i' },
+      },
+    })
+
+    const result = await archiveUserFolders('test@2.ru')
+
+    expect(result.errors).toEqual([])
+    expect(result.moved).toBe(2)
+    const putAudio = calls.find(c => c.method === 'PUT' && c.url === 'public/users/_deleted/test_2.ru/audio/hello.webm')
+    expect(putAudio?.body?.content).toBe('YXVkaW8=')
+    const delAudio = calls.find(c => c.method === 'DELETE' && c.url === 'public/audio/test_2.ru/hello.webm')
+    expect(delAudio?.body?.sha).toBe('sha-a')
+    expect(calls.some(c => c.method === 'PUT' && c.url === 'public/users/_deleted/test_2.ru/images/pic.png')).toBe(true)
+    expect(calls.some(c => c.method === 'DELETE' && c.url === 'public/images/test_2.ru/pic.png')).toBe(true)
+  })
+
+  it('ошибка листинга папки (не 404, например rate limit) попадает в errors, а не пропускается молча', async () => {
+    const calls = installRouter({
+      failList: (p) => p === 'public/audio/test_2.ru',
+      dirs: {
+        'public/audio/test_2.ru': [
+          { name: 'hello.webm', path: 'public/audio/test_2.ru/hello.webm', type: 'file', sha: 'sha-a' },
+        ],
+      },
+    })
+
+    const result = await archiveUserFolders('test@2.ru')
+
+    // Раньше такой сбой превращался в тихий null: moved=0, errors=[] —
+    // папка оставалась в репозитории, а UI показывал «успех».
+    expect(result.errors).toEqual(['не удалось прочитать папку public/audio/test_2.ru: HTTP 403'])
+    expect(result.moved).toBe(0)
+    expect(calls.some(c => c.method === 'PUT' || c.method === 'DELETE')).toBe(false)
+  })
+
+  it('офлайн: архивация не пропускается молча — каждая из трёх папок даёт ошибку', async () => {
+    h.isBrowserOffline.mockReturnValue(true)
+    const result = await archiveUserFolders('test@2.ru')
+    expect(result.errors).toHaveLength(3)
+    expect(result.errors.every(e => e.includes('нет связи'))).toBe(true)
   })
 })
 
