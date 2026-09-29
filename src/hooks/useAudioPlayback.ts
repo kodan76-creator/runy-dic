@@ -2,11 +2,15 @@
 // Хук воспроизведения аудио: одиночный файл и плейлист (подряд/случайно).
 import { useRef, useState } from 'react'
 import { logAudioPlay, emailToFolderName } from '../githubApi'
+import { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../api/constants'
 
 export function useAudioPlayback({ user, words, playMode }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
   const stopPlaylistRef = useRef(false)
+  // Номер текущей попытки воспроизведения: отменяет откат на raw для файла,
+  // который уже остановили или заменили другим.
+  const playTokenRef = useRef(0)
 
   const getAudioSrc = (fileName, userFolder) => {
     if (!fileName) return ''
@@ -19,8 +23,21 @@ export function useAudioPlayback({ user, words, playMode }) {
     return `${import.meta.env.BASE_URL}audio/${fileName}`
   }
 
+  // Резервный URL на raw.githubusercontent — для файлов, которые уже есть в
+  // репозитории (только что записаны/загружены в админке), но ещё не попали в
+  // собранный сайт. Иначе карточка молчит до следующего деплоя.
+  const getRawAudioSrc = (fileName, userFolder) => {
+    if (!fileName) return ''
+    if (/^https?:\/\//i.test(fileName)) return fileName
+    const base = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/public/audio/`
+    if (fileName.includes('/')) return `${base}${fileName}`
+    if (userFolder) return `${base}${userFolder}/${fileName}`
+    return `${base}${fileName}`
+  }
+
   const stopAudio = () => {
     stopPlaylistRef.current = true
+    playTokenRef.current++ // отменяем откат на raw для остановленного файла
     if (currentAudioRef.current) {
       currentAudioRef.current.pause()
       currentAudioRef.current.currentTime = 0
@@ -36,22 +53,51 @@ export function useAudioPlayback({ user, words, playMode }) {
         return
       }
 
+      // Новая попытка отменяет незавершённый откат на raw у предыдущего файла
+      const token = ++playTokenRef.current
+      const isCurrent = () => token === playTokenRef.current
+      const finish = () => resolve()
+
       if (currentAudioRef.current) {
         currentAudioRef.current.pause()
       }
 
-      const audio = new Audio(getAudioSrc(fileName, userFolder))
-      currentAudioRef.current = audio
+      const localSrc = getAudioSrc(fileName, userFolder)
+      const rawSrc = getRawAudioSrc(fileName, userFolder)
       logAudioPlay(fileName, user?.email)
 
-      const finish = () => {
-        if (currentAudioRef.current === audio) currentAudioRef.current = null
-        resolve()
+      const attempt = (src) => {
+        // Файл остановили или запустили другой — откат уже не нужен
+        if (!isCurrent()) { finish(); return }
+
+        const audio = new Audio(src)
+        currentAudioRef.current = audio
+        let settled = false
+
+        const release = () => {
+          if (currentAudioRef.current === audio) currentAudioRef.current = null
+        }
+        const done = () => {
+          if (settled) return
+          settled = true
+          release()
+          finish()
+        }
+        // Сбой локального URL (файл ещё не в сборке сайта) — пробуем raw.githubusercontent
+        const fail = () => {
+          if (settled) return
+          settled = true
+          release()
+          if (src === localSrc && rawSrc && rawSrc !== localSrc) attempt(rawSrc)
+          else finish()
+        }
+
+        audio.addEventListener('ended', done, { once: true })
+        audio.addEventListener('error', fail, { once: true })
+        audio.play().catch(fail)
       }
 
-      audio.addEventListener('ended', finish, { once: true })
-      audio.addEventListener('error', finish, { once: true })
-      audio.play().catch(finish)
+      attempt(localSrc)
     })
   }
 

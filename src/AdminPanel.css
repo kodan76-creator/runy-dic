@@ -94,11 +94,15 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .align-btn { padding: 2px 8px; border: 2px solid var(--surface-border); border-radius: 5px; background: var(--surface); color: var(--app-accent); cursor: pointer; font-size: 11px; font-weight: 600; line-height: 1.3; transition: all 0.2s; }
 .align-btn:hover { background: var(--app-accent-soft); }
 .align-btn.active { background: var(--app-bg); color: var(--on-accent); }
-.audio-upload-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: var(--app-accent-soft); border: 2px solid var(--surface-border); cursor: pointer; font-size: 18px; transition: all 0.3s; flex-shrink: 0; }
+.audio-upload-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; border-radius: 8px; background: var(--app-accent-soft); border: 2px solid var(--surface-border); cursor: pointer; font-size: 18px; transition: all 0.3s; flex-shrink: 0; }
 .audio-upload-btn:hover { background: var(--field-bg-hover); transform: scale(1.05); }
+.audio-upload-btn:disabled { background: var(--track); border-color: var(--disabled); cursor: not-allowed; transform: none; }
 .audio-delete-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: #ffe0e0; border: 2px solid #d32f2f; cursor: pointer; font-size: 16px; transition: all 0.3s; flex-shrink: 0; padding: 0; }
 .audio-delete-btn:hover { background: #ffcdd2; transform: scale(1.05); }
 .audio-delete-btn:disabled { background: var(--track); border-color: var(--disabled); cursor: not-allowed; transform: none; }
+.audio-play-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; border-radius: 8px; background: #e0f5e0; border: 2px solid #4caf50; cursor: pointer; font-size: 16px; transition: all 0.3s; flex-shrink: 0; }
+.audio-play-btn:hover { background: #c8ebc8; transform: scale(1.05); }
+.audio-play-btn:disabled { background: var(--track); border-color: var(--disabled); cursor: not-allowed; transform: none; }
 .upload-spinner { font-size: 16px; animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 

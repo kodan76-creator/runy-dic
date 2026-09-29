@@ -36,7 +36,9 @@ export const ensureUserAudioFolder = async (userEmail) => {
 // 🎵 Загрузка MP3-файла в папку пользователя
 export const uploadAudioFile = async (file, userEmail, rootUpload = false) => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
-  if (!file.name.toLowerCase().endsWith('.mp3')) throw new Error('Допускаются только MP3-файлы')
+  // MP3 — формат из словаря; WEBM отдаёт браузерная запись с микрофона
+  // (MediaRecorder не умеет MP3), поэтому оба формата принимаем.
+  if (!/\.(mp3|webm)$/i.test(file.name)) throw new Error('Допускаются только MP3- и WEBM-файлы')
 
   const folder = emailToFolderName(userEmail)
   const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')

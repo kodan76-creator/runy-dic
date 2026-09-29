@@ -52,10 +52,12 @@ jobs:
             for d in $DATA_FILES; do
               if [ "$f" = "$d" ]; then is_data=1; break; fi
             done
-            # Загруженные пользователями медиа-файлы и данные в папках
-            # пользователей (словари, избранное) тоже data (не влияют на сборку)
+            # Загруженные пользователями данные в папках пользователей
+            # (словари, избранное) — data (не влияют на сборку).
+            # ⚠️ public/audio/* НЕ исключаем: Vite копирует public/ в dist/, поэтому
+            # без пересборки свежее аудио не попадает на сайт, не кэшируется Service
+            # Worker'ом и не играет офлайн (см. collectAudioUrls/precacheUrls).
             case "$f" in
-              public/audio/*) is_data=1 ;;
               public/users/*/*.json) is_data=1 ;;
             esac
             if [ "$is_data" -eq 0 ]; then need_deploy=1; fi

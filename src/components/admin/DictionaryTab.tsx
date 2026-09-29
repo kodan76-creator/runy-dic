@@ -15,8 +15,11 @@ export default function DictionaryTab({
   loading,
   error,
   audioUploading,
+  isRecording,
   handleSubmit,
   handleAudioUpload,
+  handleAudioRecord,
+  handlePlayAudio,
   handleAudioDelete,
   loadWords,
   onImport,
@@ -257,6 +260,16 @@ export default function DictionaryTab({
               📎
               <input type="file" accept=".mp3" hidden aria-label="Загрузить аудиофайл" onChange={e => handleAudioUpload(e, 'audio')} disabled={audioUploading === 'audio'} />
             </label>
+            <button
+              type="button"
+              className="audio-upload-btn"
+              title={isRecording === 'audio' ? 'Остановить запись' : 'Записать с микрофона'}
+              aria-label={isRecording === 'audio' ? 'Остановить запись аудио' : 'Записать аудио с микрофона'}
+              aria-pressed={isRecording === 'audio'}
+              onClick={() => handleAudioRecord('audio')}
+              disabled={audioUploading === 'audio' || (isRecording !== null && isRecording !== 'audio')}
+            >{isRecording === 'audio' ? '⏹️' : '🎤'}</button>
+            {formData.audio && <button type="button" className="audio-play-btn" title="Прослушать запись" aria-label="Прослушать аудио" onClick={() => handlePlayAudio(formData.audio)}>▶️</button>}
             {formData.audio && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить аудиофайл" onClick={() => handleAudioDelete('audio')} disabled={audioUploading === 'audio'}>🗑️</button>}
             {audioUploading === 'audio' && <span className="upload-spinner">⏳</span>}
           </div>
@@ -266,6 +279,16 @@ export default function DictionaryTab({
               📎
               <input type="file" accept=".mp3" hidden aria-label="Загрузить второй аудиофайл" onChange={e => handleAudioUpload(e, 'audio2')} disabled={audioUploading === 'audio2'} />
             </label>
+            <button
+              type="button"
+              className="audio-upload-btn"
+              title={isRecording === 'audio2' ? 'Остановить запись' : 'Записать с микрофона'}
+              aria-label={isRecording === 'audio2' ? 'Остановить запись второго аудио' : 'Записать второе аудио с микрофона'}
+              aria-pressed={isRecording === 'audio2'}
+              onClick={() => handleAudioRecord('audio2')}
+              disabled={audioUploading === 'audio2' || (isRecording !== null && isRecording !== 'audio2')}
+            >{isRecording === 'audio2' ? '⏹️' : '🎤'}</button>
+            {formData.audio2 && <button type="button" className="audio-play-btn" title="Прослушать запись" aria-label="Прослушать второе аудио" onClick={() => handlePlayAudio(formData.audio2)}>▶️</button>}
             {formData.audio2 && <button type="button" className="audio-delete-btn" title="Удалить файл" aria-label="Удалить второй аудиофайл" onClick={() => handleAudioDelete('audio2')} disabled={audioUploading === 'audio2'}>🗑️</button>}
             {audioUploading === 'audio2' && <span className="upload-spinner">⏳</span>}
           </div>

@@ -32,8 +32,11 @@ function renderTab(overrides = {}) {
     loading: false,
     error: '',
     audioUploading: null,
+    isRecording: null,
     handleSubmit: vi.fn(e => e.preventDefault()),
     handleAudioUpload: vi.fn(),
+    handleAudioRecord: vi.fn(),
+    handlePlayAudio: vi.fn(),
     handleAudioDelete: vi.fn(),
     loadWords: vi.fn(),
     onImport: vi.fn(),
@@ -115,3 +118,57 @@ describe('DictionaryTab: своя категория', () => {
     expect(container.querySelectorAll('.cat-row')).toHaveLength(3)
   })
 })
+// 🎤 Запись аудио слова с микрофона: кнопка стоит рядом с 📎-загрузкой MP3
+describe('DictionaryTab: запись аудио с микрофона', () => {
+  it('кнопка 🎤 запускает запись для поля «Аудио»', () => {
+    const handleAudioRecord = vi.fn()
+    renderTab({ handleAudioRecord })
+    fireEvent.click(screen.getByRole('button', { name: 'Записать аудио с микрофона' }))
+    expect(handleAudioRecord).toHaveBeenCalledWith('audio')
+  })
+
+  it('во время записи кнопка останавливает её, а вторая кнопка заблокирована', () => {
+    const handleAudioRecord = vi.fn()
+    renderTab({ handleAudioRecord, isRecording: 'audio' })
+    fireEvent.click(screen.getByRole('button', { name: 'Остановить запись аудио' }))
+    expect(handleAudioRecord).toHaveBeenCalledWith('audio')
+    expect(screen.getByRole('button', { name: 'Записать второе аудио с микрофона' })).toBeDisabled()
+  })
+
+  it('пользователю с ограниченными правами кнопка записи тоже доступна', () => {
+    renderTab({ canManageOwnCategories: false })
+    expect(screen.getByRole('button', { name: 'Записать аудио с микрофона' })).toBeEnabled()
+  })
+})
+
+// ▶️ Прослушивание уже загруженного/записанного аудио
+describe('DictionaryTab: прослушивание аудио', () => {
+  it('▶️ проигрывает файл из поля «Аудио»', () => {
+    const handlePlayAudio = vi.fn()
+    renderTab({ handlePlayAudio, formData: { ...EMPTY_FORM, audio: 'sun_runy.webm' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Прослушать аудио' }))
+
+    expect(handlePlayAudio).toHaveBeenCalledWith('sun_runy.webm')
+  })
+
+  it('▶️ второго аудио проигрывает свой файл', () => {
+    const handlePlayAudio = vi.fn()
+    renderTab({
+      handlePlayAudio,
+      formData: { ...EMPTY_FORM, audio: 'sun_runy.webm', audio2: 'sun_r_prim.webm' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Прослушать второе аудио' }))
+
+    expect(handlePlayAudio).toHaveBeenCalledWith('sun_r_prim.webm')
+  })
+
+  it('без файла кнопки прослушивания не показываются', () => {
+    renderTab()
+
+    expect(screen.queryByRole('button', { name: 'Прослушать аудио' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Прослушать второе аудио' })).toBeNull()
+  })
+})
+

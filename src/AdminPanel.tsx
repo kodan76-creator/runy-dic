@@ -11,6 +11,7 @@ import WordItem from './components/admin/WordItem'
 import ThemeToggle from './components/ThemeToggle'
 import { RUNES_IMAGE_DIR } from './api/constants'
 import { useScrollRestoration } from './hooks/useScrollRestoration'
+import { useAudioRecorder, type RecordTarget } from './hooks/useAudioRecorder'
 import './AdminPanel.css'
 
 const getSavedAdmin = () => {
@@ -71,6 +72,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [userFormData, setUserFormData] = useState({ email: '', role: 'user', paid: false, runesPaid: false })
   const [userSaving, setUserSaving] = useState(false)
   const [audioUploading, setAudioUploading] = useState('')
+  // 🎤 Запись аудио с микрофона (вкладка «Словарь»): после остановки Blob загружается в public/audio/
+  const { isRecording, handleStartRecording } = useAudioRecorder()
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
   const msgTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [message, setMessage] = useState<{ text: string; type?: string } | ''>('')
@@ -698,6 +701,42 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('')
   }
 
+  // 🎤 Запись аудио слова с микрофона: первый клик запускает запись, второй —
+  // завершает её и сразу загружает файл (админ — корень public/audio/,
+  // пользователь — своя папка, как и при загрузке MP3 через 📎).
+  const handleAudioRecord = async (field: RecordTarget) => {
+    const key = field === 'audio2' ? 'audio2' : 'audio'
+    if (!activeUser?.email) { setError('Не удалось определить пользователя'); return }
+    setError('')
+    try {
+      const blob = await handleStartRecording(key)
+      if (!blob) return // запись только началась — ждём повторного клика
+
+      // Имя файла: <слово>_runy.webm | <слово>_r_prim.webm.
+      // MediaRecorder не умеет MP3, поэтому сохраняем родной формат браузера.
+      const cleaned = String(formData.word || '').trim().toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, '_').replace(/^_+|_+$/g, '')
+      const prefix = /[a-z0-9]/.test(cleaned) ? cleaned : `word_${Date.now()}`
+      const fileName = `${prefix}${key === 'audio2' ? '_r_prim' : '_runy'}.webm`
+
+      setAudioUploading(key)
+      const file = new File([blob], fileName, { type: blob.type || 'audio/webm' })
+      const oldName = formData[key]
+      const result = await uploadAudioFile(file, activeUser.email, !isRestrictedUser)
+      setFormData(prev => (key === 'audio2' ? { ...prev, audio2: result.path } : { ...prev, audio: result.path }))
+      showMessage(`✅ Аудио «${result.path}» записано и загружено`)
+      // Если был старый файл и он не совпадает с новым — удаляем старый
+      if (oldName && oldName !== result.path) {
+        try { await deleteAudioFile(oldName, activeUser.email, !isRestrictedUser) } catch { /* файла могло уже не быть — не критично */ }
+      }
+    } catch (err) {
+      const errMsg = err.message || 'Неизвестная ошибка'
+      setError('❌ Ошибка записи аудио: ' + errMsg)
+      showMessage('❌ Ошибка записи аудио: ' + errMsg, 'error')
+    }
+    setAudioUploading('')
+  }
+
   const handleRuneImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -1269,8 +1308,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             loading={loading}
             error={error}
             audioUploading={audioUploading}
+            isRecording={isRecording}
             handleSubmit={handleSubmit}
             handleAudioUpload={handleAudioUpload}
+            handleAudioRecord={handleAudioRecord}
+            handlePlayAudio={playAudioFile}
             handleAudioDelete={handleAudioDelete}
             loadWords={loadWords}
             onImport={handleImport}
