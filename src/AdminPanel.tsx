@@ -75,6 +75,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // 🎤 Запись аудио с микрофона (вкладка «Словарь»): после остановки Blob загружается в public/audio/
   const { isRecording, handleStartRecording } = useAudioRecorder()
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  // Номер текущей попытки воспроизведения: запоздавший сбой (error/отклонённый
+  // play) у уже остановленного или заменённого файла не поднимает второй плеер —
+  // иначе при повторном ▶️ слышно задвоенный звук
+  const playTokenRef = useRef(0)
   const msgTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [message, setMessage] = useState<{ text: string; type?: string } | ''>('')
 
@@ -149,6 +153,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }, [isRestrictedUser, activeUser])
 
   const stopAudio = useCallback(() => {
+    // Отменяет запоздавшую ошибку/откат на raw для остановленного файла
+    playTokenRef.current++
     if (currentAudioRef.current) {
       currentAudioRef.current.pause()
       currentAudioRef.current.currentTime = 0
@@ -165,21 +171,28 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     const fail = () => showMessage(`❌ Файл «${fileName}» не найден на сервере`, 'error')
     // Пробуем локальный URL (кэшируется SW и играет оффлайн); если файл ещё
     // не в сборке сайта — откатываемся на raw.githubusercontent.
+    // Новая попытка отменяет запоздавший откат на raw у предыдущей
+    const token = ++playTokenRef.current
+    const isCurrent = () => token === playTokenRef.current
     const attempt = (src) => {
+      // Файл остановили или запустили заново — эта попытка уже неактуальна
+      if (!isCurrent()) return
       const audio = new Audio(src)
       currentAudioRef.current = audio
+      let settled = false
       const finish = () => { if (currentAudioRef.current === audio) currentAudioRef.current = null }
-      audio.addEventListener('ended', finish, { once: true })
-      audio.addEventListener('error', () => {
+      // error и отклонённый play() приходят вместе — откат на raw ровно один раз
+      const onError = () => {
+        if (settled || !isCurrent()) return
+        settled = true
         finish()
         if (src === localSrc && rawSrc && src !== rawSrc) attempt(rawSrc)
         else fail()
-      }, { once: true })
-      audio.play().catch(() => {
-        finish()
-        if (src === localSrc && rawSrc && src !== rawSrc) attempt(rawSrc)
-        else fail()
-      })
+      }
+      const onEnded = () => { if (settled) return; settled = true; finish() }
+      audio.addEventListener('ended', onEnded, { once: true })
+      audio.addEventListener('error', onError, { once: true })
+      audio.play().catch(onError)
     }
     attempt(localSrc)
   }, [stopAudio, getAudioSrc, getRawAudioSrc, isRestrictedUser, activeUser, showMessage])
