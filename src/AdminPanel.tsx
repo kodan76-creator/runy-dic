@@ -712,12 +712,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       const blob = await handleStartRecording(key)
       if (!blob) return // запись только началась — ждём повторного клика
 
-      // Имя файла: <слово>_runy.webm | <слово>_r_prim.webm.
+      // Имя файла: <слово>_runy_<время>.webm | <слово>_r_prim_<время>.webm.
       // MediaRecorder не умеет MP3, поэтому сохраняем родной формат браузера.
+      // Отметка времени обязательна: Service Worker кэширует /audio/ «кэш-первым»,
+      // поэтому при повторной записи под тем же именем играла бы старая версия.
       const cleaned = String(formData.word || '').trim().toLowerCase()
         .replace(/[^a-z0-9._-]+/g, '_').replace(/^_+|_+$/g, '')
-      const prefix = /[a-z0-9]/.test(cleaned) ? cleaned : `word_${Date.now()}`
-      const fileName = `${prefix}${key === 'audio2' ? '_r_prim' : '_runy'}.webm`
+      const prefix = /[a-z0-9]/.test(cleaned) ? cleaned : 'word'
+      const fileName = `${prefix}${key === 'audio2' ? '_r_prim' : '_runy'}_${Date.now()}.webm`
 
       setAudioUploading(key)
       const file = new File([blob], fileName, { type: blob.type || 'audio/webm' })
