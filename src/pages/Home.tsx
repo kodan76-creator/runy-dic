@@ -145,6 +145,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
   const writeQueueRef = useRef(Promise.resolve()) // serialize favorites writes
   const favoritesLoadedRef = useRef(false) // избранное загружено хотя бы раз — до этого на сервер не пишем
   const lastSyncedFavoritesRef = useRef<string | null>(null) // снимок последней записи — то же самое повторно не пишем
+  const favoritesRef = useRef(favorites) // зеркало favorites для async-проверок «не изменилось, пока читали сервер»
+  favoritesRef.current = favorites
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const runesSectionRef = useRef<HTMLDivElement | null>(null)
   const categoryScrollRef = useRef<HTMLDivElement | null>(null)
@@ -180,12 +182,44 @@ export default function Home({ user, onLogout, onUserUpdate }) {
       favoritesLoadedRef.current = true
     }
     const load = async () => {
-      // Если есть несохранённые локальные изменения — не перезаписываем их серверными
+      // 📥 Есть локальная копия несохранённых изменений — отправляем её на сервер.
+      // Раньше копия применялась «вслепую» и навсегда блокировала чтение с сервера:
+      // устройство показывало устаревший список и не видело избранное, отмеченное
+      // на другом устройстве/в другом браузере.
       try {
         const pending = localStorage.getItem(`favorites:${user.email}`)
         if (pending) {
-          applyLoaded(JSON.parse(pending))
-          return
+          let parsed: unknown
+          try {
+            parsed = JSON.parse(pending)
+          } catch {
+            // Повреждённая копия — убираем, чтобы не блокировала чтение с сервера
+            localStorage.removeItem(`favorites:${user.email}`)
+            parsed = null
+          }
+          if (Array.isArray(parsed)) {
+            const localFavs = parsed.map(String)
+            const browserOffline = typeof navigator !== 'undefined' && navigator.onLine === false
+            if (!browserOffline) {
+              try {
+                const pushed = await updateFavoritesForUser(user.email, localFavs, new Date().toISOString())
+                if (pushed) {
+                  // после успешной отправки локальная копия больше не нужна
+                  localStorage.removeItem(`favorites:${user.email}`)
+                  applyLoaded(localFavs)
+                  return
+                }
+              } catch (e) {
+                console.warn('Failed to push pending favorites to server:', e)
+              }
+            }
+            // Сервер недоступен — работаем с локальной копией, повторим отправку
+            // при следующей загрузке страницы
+            applyLoaded(localFavs)
+            return
+          }
+          // Повреждённая копия — убираем, чтобы не блокировала чтение с сервера
+          localStorage.removeItem(`favorites:${user.email}`)
         }
       } catch { /* ignore */ }
       try {
@@ -213,6 +247,46 @@ export default function Home({ user, onLogout, onUserUpdate }) {
 
   const [favoritesSyncStatus, setFavoritesSyncStatus] = useState('idle') // 'idle' | 'saving' | 'error'
 
+  // 🔄 Подтягиваем избранное с сервера, когда вкладка снова становится активной
+  // (и периодически): изменения, сделанные на другом устройстве/в другом браузере,
+  // должны появляться без перезагрузки страницы.
+  useEffect(() => {
+    if (!user || !user.email) return
+    if (viewMode !== 'dictionary') return
+    const snapOf = (set: typeof favorites) => JSON.stringify(Array.from(set).map(String).sort())
+    const refresh = async () => {
+      if (typeof document !== 'undefined' && document.hidden) return
+      if (!favoritesLoadedRef.current) return
+      // Есть несохранённые локальные изменения — их отправит эффект сохранения
+      if (snapOf(favoritesRef.current) !== lastSyncedFavoritesRef.current) return
+      const before = snapOf(favoritesRef.current)
+      try {
+        // Локальная копия «ждёт» отправки — сервер сознательно не читаем
+        if (localStorage.getItem(`favorites:${user.email}`)) return
+        const server = await getFavoritesForUser(user.email)
+        if (!Array.isArray(server)) return
+        // Пока читали сервер, пользователь мог изменить избранное — не затираем
+        if (snapOf(favoritesRef.current) !== before) return
+        const normalized = server.map(String)
+        const snap = JSON.stringify([...normalized].sort())
+        if (snap === before) return
+        setFavorites(new Set(normalized))
+        lastSyncedFavoritesRef.current = snap
+        setFavoritesSyncStatus('idle')
+      } catch { /* тихо: повторим при следующем срабатывании */ }
+    }
+    const handleFocus = () => { void refresh() }
+    const handleVisibility = () => { if (!document.hidden) void refresh() }
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibility)
+    const timer = setInterval(() => { void refresh() }, 45_000)
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      clearInterval(timer)
+    }
+  }, [user, viewMode, favorites])
+
   // persist favorites on change (enqueue write to server, fallback to localStorage)
   // Пишем только в разделе «Словарь» и только после первой загрузки: в «Рунной
   // раскладке» избранное не загружается (остаётся пустой Set с монтирования) —
@@ -235,6 +309,11 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         if (ok) {
           setFavoritesSyncStatus('idle')
           lastSyncedFavoritesRef.current = snapshot
+          // Удачное сохранение — локальная копия-«страховка» больше не нужна.
+          // Если оставить её, при следующей загрузке она применится вместо данных
+          // с сервера и «заморозит» избранное этого устройства (не будет видно
+          // изменений, сделанных на другом устройстве).
+          try { localStorage.removeItem(`favorites:${user.email}`) } catch { /* ignore */ }
         }
         else {
           setFavoritesSyncStatus('error')
@@ -916,6 +995,10 @@ export default function Home({ user, onLogout, onUserUpdate }) {
                       const now = new Date().toISOString()
                       const ok = await updateFavoritesForUser(user.email, Array.from(favorites), now)
                       setFavoritesSyncStatus(ok ? 'idle' : 'error')
+                      if (ok) {
+                        // удачное сохранение — снимаем локальную копию, чтобы она не блокировала чтение с сервера
+                        try { localStorage.removeItem(`favorites:${user.email}`) } catch { /* ignore */ }
+                      }
                     } catch (e) {
                       console.error('Manual sync failed', e)
                       setFavoritesSyncStatus('error')

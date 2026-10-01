@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import Home from './Home'
-import { getCategories, getDictionary } from '../githubApi'
+import { getCategories, getDictionary, getFavoritesForUser, updateFavoritesForUser } from '../githubApi'
 
 // ── Моки: компонент не должен ходить в сеть, к аудио и в IndexedDB ──────────
 vi.mock('../githubApi', () => ({
@@ -180,5 +180,92 @@ describe('Лента категорий под шапкой: клик по чи�
     const results = document.querySelector('.results') as HTMLElement
     expect(results.textContent).toContain('Ас')
     expect(results.textContent).toContain('Берёза')
+  })
+})
+
+// ── Синхронизация избранного между устройствами ─────────────────────────────
+// Регресс: несохранённая локальная копия (favorites:<email>) раньше применялась
+// «вслепую» при загрузке и навсегда блокировала чтение с сервера — второе
+// устройство/браузер не видело изменений, сделанных на первом. Теперь копия
+// отправляется на сервер при загрузке, удачное сохранение её очищает, а фокус
+// вкладки подтягивает свежий список с сервера.
+describe('Синхронизация избранного между устройствами', () => {
+  const WORDS: any[] = [
+    { id: 1, word: 'Ас', translation: 'бог', category: [], __dictionarySource: 'shared' },
+  ]
+  const KEY = `favorites:${PAID_USER.email}`
+
+  async function renderWithWords() {
+    vi.mocked(getDictionary).mockResolvedValueOnce({ data: WORDS, sha: null, ok: true, exists: true } as any)
+    render(<Home user={PAID_USER} onLogout={vi.fn()} onUserUpdate={vi.fn()} />)
+    await waitFor(() => expect(document.querySelector('.results')).toBeTruthy())
+  }
+
+  it('локальная копия несохранённых изменений отправляется на сервер при загрузке и очищается', async () => {
+    vi.mocked(getFavoritesForUser).mockClear()
+    vi.mocked(updateFavoritesForUser).mockClear()
+    vi.mocked(updateFavoritesForUser).mockResolvedValueOnce(true)
+    localStorage.setItem(KEY, JSON.stringify(['7']))
+
+    await renderWithWords()
+
+    await waitFor(() => expect(vi.mocked(updateFavoritesForUser)).toHaveBeenCalledWith(
+      PAID_USER.email,
+      ['7'],
+      expect.any(String),
+    ))
+    await waitFor(() => expect(localStorage.getItem(KEY)).toBeNull())
+    // пока локальная копия не отправлена — сервер не читаем (иначе затёрли бы изменения)
+    expect(vi.mocked(getFavoritesForUser)).not.toHaveBeenCalled()
+  })
+
+  it('если сервер недоступен, локальная копия сохраняется до следующей попытки', async () => {
+    vi.mocked(updateFavoritesForUser).mockClear()
+    vi.mocked(updateFavoritesForUser).mockResolvedValueOnce(false)
+    localStorage.setItem(KEY, JSON.stringify(['7']))
+
+    await renderWithWords()
+
+    await waitFor(() => expect(vi.mocked(updateFavoritesForUser)).toHaveBeenCalled())
+    await waitFor(() => expect(localStorage.getItem(KEY)).toBe(JSON.stringify(['7'])))
+  })
+
+  it('фокус вкладки подтягивает избранное с сервера (изменения другого устройства)', async () => {
+    vi.mocked(getFavoritesForUser).mockClear()
+    vi.mocked(updateFavoritesForUser).mockClear()
+
+    await renderWithWords()
+    await waitFor(() => expect(vi.mocked(getFavoritesForUser)).toHaveBeenCalledTimes(1))
+
+    // на сервере пока пусто — карточка не в избранном
+    expect(screen.getByLabelText('Добавить в избранное')).toBeInTheDocument()
+
+    // другое устройство добавило слово 1 в избранное
+    vi.mocked(getFavoritesForUser).mockResolvedValueOnce(['1'])
+    fireEvent(window, new Event('focus'))
+
+    await waitFor(() => expect(screen.getByLabelText('Убрать из избранного')).toBeInTheDocument())
+    // применение серверного списка не является изменением — на сервер ничего не пишем
+    expect(vi.mocked(updateFavoritesForUser)).not.toHaveBeenCalled()
+    expect(localStorage.getItem(KEY)).toBeNull()
+  })
+
+  it('удачное сохранение очищает локальную копию, чтобы она не «заморозила» избранное', async () => {
+    vi.mocked(updateFavoritesForUser).mockClear()
+    vi.mocked(updateFavoritesForUser).mockResolvedValueOnce(true)
+
+    await renderWithWords()
+    const star = await screen.findByLabelText('Добавить в избранное')
+
+    // копия от предыдущей неудачной попытки сохранения
+    localStorage.setItem(KEY, JSON.stringify(['7']))
+    fireEvent.click(star)
+
+    await waitFor(() => expect(vi.mocked(updateFavoritesForUser)).toHaveBeenCalledWith(
+      PAID_USER.email,
+      ['1'],
+      expect.any(String),
+    ))
+    await waitFor(() => expect(localStorage.getItem(KEY)).toBeNull())
   })
 })
