@@ -43,6 +43,7 @@ function renderTab(overrides = {}) {
     canManageOwnCategories: true,
     handleAddOwnCategory: vi.fn(async (name: string) => ({ id: 'u10', name })),
     handleDeleteOwnCategory: vi.fn(async () => true),
+    onDismissError: vi.fn(),
     ...overrides,
   }
   return { props, ...render(<DictionaryTab {...props} />) }
@@ -116,6 +117,22 @@ describe('DictionaryTab: своя категория', () => {
     expect(container.querySelector('.cat-own-delete')).toBeNull()
     // Личная категория остаётся в списке как обычная
     expect(container.querySelectorAll('.cat-row')).toHaveLength(3)
+  })
+
+  it('ошибка формы гаснет при вводе нового названия и по «Отмена»', () => {
+    const onDismissError = vi.fn()
+    renderTab({ editingId: 7, error: 'Такая категория уже есть', onDismissError })
+
+    // Пока ошибку показывает форма
+    expect(screen.getByText('Такая категория уже есть')).toBeInTheDocument()
+
+    // Начали вводить новое название — прежнее предупреждение больше не актуально
+    fireEvent.change(screen.getByLabelText('Название своей категории'), { target: { value: 'Новая' } })
+    expect(onDismissError).toHaveBeenCalledTimes(1)
+
+    // «Отмена» тоже сбрасывает предупреждение
+    fireEvent.click(screen.getByRole('button', { name: 'Отмена' }))
+    expect(onDismissError).toHaveBeenCalledTimes(2)
   })
 })
 // 🎤 Запись аудио слова с микрофона: кнопка стоит рядом с 📎-загрузкой MP3

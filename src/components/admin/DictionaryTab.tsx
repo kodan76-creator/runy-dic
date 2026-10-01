@@ -26,6 +26,7 @@ export default function DictionaryTab({
   canManageOwnCategories = false,
   handleAddOwnCategory,
   handleDeleteOwnCategory,
+  onDismissError,
 }) {
   const [importPreview, setImportPreview] = useState<{ name: string; count: number; data: any[] } | null>(null)
   const [importing, setImporting] = useState(false)
@@ -204,7 +205,7 @@ export default function DictionaryTab({
                   placeholder="Своя категория..."
                   aria-label="Название своей категории"
                   value={ownCategoryName}
-                  onChange={e => setOwnCategoryName(e.target.value)}
+                  onChange={e => { setOwnCategoryName(e.target.value); onDismissError?.() }}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddOwnCategoryClick() } }}
                   disabled={ownCategorySaving}
                 />
@@ -324,7 +325,7 @@ export default function DictionaryTab({
         </div>
         <div className="form-buttons">
           <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Сохранение...' : (editingId ? 'Обновить' : 'Добавить')}</button>
-          {editingId && <button type="button" className="cancel-btn" onClick={() => { setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' }) }}>Отмена</button>}
+          {editingId && <button type="button" className="cancel-btn" onClick={() => { onDismissError?.(); setEditingId(null); setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' }) }}>Отмена</button>}
           <button
             type="button"
             className="refresh-logs-btn dictionary-refresh-btn"

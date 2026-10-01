@@ -99,6 +99,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  // 🕐 Ошибка/предупреждение в форме не должно висеть вечно: раньше баннер
+  // (например, «Такая категория уже есть») оставался навсегда до submit или
+  // перезагрузки. Снимаем автоматически через 10 секунд.
+  useEffect(() => {
+    if (!error) return
+    const timer = setTimeout(() => setError(''), 10_000)
+    return () => clearTimeout(timer)
+  }, [error])
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [searchTerm, setSearchTerm] = useState('')
   const [positionInputs, setPositionInputs] = useState({})
@@ -822,6 +830,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         return
       }
 
+      // Открытие карточки гасит предыдущую ошибку формы — она относилась
+      // к прошлому действию и не должна висеть над новой карточкой.
+      setError('')
       setEditingId(word.id)
       // Normalize existing category values to ids when possible
       const raw = word.category ? (Array.isArray(word.category) ? word.category : [word.category]) : []
@@ -990,28 +1001,30 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // только в его собственном файле (см. src/api/categories.ts).
   const handleAddOwnCategory = async (name) => {
     const trimmed = String(name || '').trim()
-    if (!isRestrictedUser || !activeUser?.email) { setError('Действие доступно только пользователю'); return null }
-    if (!trimmed) { setError('Имя категории не может быть пустым'); return null }
+    // Проверки ввода — через временный тост showMessage (гаснет сам), а не через
+    // постоянный баннер error: тот залипал внизу формы и не исчезал.
+    if (!isRestrictedUser || !activeUser?.email) { showMessage('⚠️ Действие доступно только пользователю', 'error'); return null }
+    if (!trimmed) { showMessage('⚠️ Имя категории не может быть пустым', 'error'); return null }
     if (categories.some(c => String(c.name || '').trim().toLowerCase() === trimmed.toLowerCase())) {
-      setError('Такая категория уже есть'); return null
+      showMessage('⚠️ Такая категория уже есть', 'error'); return null
     }
     try {
       const newCat = await addPersonalCategory({ name: trimmed }, activeUser.email)
       await loadCategories()
+      setError('') // успешное действие гасит возможную залипшую ошибку формы
       showMessage('✅ Своя категория добавлена')
       return newCat
     } catch (err) {
-      setError('Ошибка добавления категории: ' + err.message)
       showMessage('❌ Ошибка добавления категории: ' + err.message, 'error')
       return null
     }
   }
 
   const handleDeleteOwnCategory = async (id) => {
-    if (!isRestrictedUser || !activeUser?.email) { setError('Действие доступно только пользователю'); return }
+    if (!isRestrictedUser || !activeUser?.email) { showMessage('⚠️ Действие доступно только пользователю', 'error'); return }
     const cat = categories.find(c => c.id === id)
     // Удалять можно только СВОИ личные категории — основные не трогаем
-    if (!cat?.__personal) { setError('Удалять можно только свои категории'); return }
+    if (!cat?.__personal) { showMessage('⚠️ Удалять можно только свои категории', 'error'); return }
     if (!window.confirm(`Удалить свою категорию «${cat.name}»?`)) return
     try {
       await deletePersonalCategory(id, activeUser.email)
@@ -1021,9 +1034,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         category: Array.isArray(prev.category) ? prev.category.filter(x => x !== id && x !== cat.name) : prev.category,
       }))
       await loadCategories()
+      setError('') // успешное действие гасит возможную залипшую ошибку формы
       showMessage('✅ Своя категория удалена')
     } catch (err) {
-      setError('Ошибка удаления категории: ' + err.message)
       showMessage('❌ Ошибка удаления категории: ' + err.message, 'error')
     }
   }
@@ -1334,6 +1347,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             canManageOwnCategories={isRestrictedUser}
             handleAddOwnCategory={handleAddOwnCategory}
             handleDeleteOwnCategory={handleDeleteOwnCategory}
+            onDismissError={() => setError('')}
           />
         )}
 

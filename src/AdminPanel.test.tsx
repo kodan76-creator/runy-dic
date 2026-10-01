@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import AdminPanel from './AdminPanel'
-import { getDictionary } from './githubApi'
+import { getDictionary, getCategories, addWord } from './githubApi'
 
 // ── Моки: панель не должна ходить в сеть и в кэши ────────────────────────────
 vi.mock('./githubApi', () => {
@@ -222,5 +222,67 @@ describe('AdminPanel: повторное нажатие ▶️ не задваи
     // Второй сигнал той же попытки: в браузере error и play() падают вместе
     act(() => { MockAudio.instances[0].emit('error') })
     expect(MockAudio.instances).toHaveLength(2)
+  })
+})
+
+// ── Предупреждения формы словаря не должны залипать ─────────────────────────
+// Регресс: «Такая категория уже есть» из проверки своей категории попадала в
+// постоянный баннер error внизу формы и не гасла — ни при вводе нового текста,
+// ни при «Отмене», ни при открытии другой карточки (только submit/перезагрузка).
+// Теперь дубликат показывается временным тостом, а баннер формы самоустраняется.
+describe('AdminPanel: предупреждения формы не висят вечно', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('дубликат своей категории — временный тост, постоянный баннер не появляется', async () => {
+    vi.mocked(getCategories).mockResolvedValueOnce({ data: [{ id: 'c1', name: 'Молитва' }], sha: null, ok: true, exists: true } as any)
+
+    render(
+      <AdminPanel
+        currentUser={{ email: 'user@example.com', role: 'user' }}
+        onAdminLogin={vi.fn()}
+        onAdminLogout={vi.fn()}
+      />,
+    )
+
+    const input = await screen.findByLabelText('Название своей категории')
+    fireEvent.change(input, { target: { value: 'молитва' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Добавить свою категорию' }))
+
+    await waitFor(() => expect(screen.getByText(/Такая категория уже есть/)).toBeInTheDocument())
+    // Постоянный баннер внизу формы не использовался — он и «залипал» раньше
+    expect(document.querySelector('.word-form .error')).toBeNull()
+  })
+
+  it('ошибка формы гаснет автоматически, а не висит до перезагрузки', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.mocked(addWord).mockRejectedValueOnce(new Error('boom'))
+      render(
+        <AdminPanel
+          currentUser={{ email: 'user@example.com', role: 'user' }}
+          onAdminLogin={vi.fn()}
+          onAdminLogout={vi.fn()}
+        />,
+      )
+      await act(async () => { await vi.advanceTimersByTimeAsync(50) })
+
+      const form = document.querySelector('form.word-form') as HTMLFormElement
+      expect(form).toBeTruthy()
+      await act(async () => {
+        fireEvent.submit(form)
+        await vi.advanceTimersByTimeAsync(1)
+      })
+
+      // Ошибка сохранения показана в баннере формы
+      expect(screen.getByText('boom')).toBeInTheDocument()
+
+      // …но не висит вечно: через 10 секунд баннер убирается сам
+      await act(async () => { await vi.advanceTimersByTimeAsync(10_001) })
+      expect(document.querySelector('.word-form .error')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
