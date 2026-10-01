@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, removeCategoryFromAllWords, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
@@ -984,7 +984,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const handleDeleteCategory = async (id) => {
     if (window.confirm('Удалить эту категорию?')) {
-      try { await deleteCategory(id); await loadCategories() } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
+      try {
+        await deleteCategory(id)
+        // 🧹 Убираем id из всех словарей (общего и личных): иначе в карточках
+        // остаётся «висячий» id удалённой категории и он виден цифрами
+        try { await removeCategoryFromAllWords(id) } catch (e) { console.error('Failed to remove deleted category from words:', e) }
+        await loadCategories()
+        await refreshWordsAfterWrite()
+      } catch (err) { setError('Ошибка удаления категории: ' + err.message) }
     }
   }
   const handleMoveCategoryUp = async (id) => {
@@ -1028,12 +1035,16 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (!window.confirm(`Удалить свою категорию «${cat.name}»?`)) return
     try {
       await deletePersonalCategory(id, activeUser.email)
+      // 🧹 Убираем id из СВОЕГО словаря — иначе в карточках останутся
+      // «висячие» цифры удалённой категории
+      try { await removeCategoryFromAllWords(id, activeUser.email) } catch (e) { console.error('Failed to remove deleted own category from words:', e) }
       // Убираем категорию из черновика карточки, если она там отмечена
       setFormData(prev => ({
         ...prev,
         category: Array.isArray(prev.category) ? prev.category.filter(x => x !== id && x !== cat.name) : prev.category,
       }))
       await loadCategories()
+      await refreshWordsAfterWrite()
       setError('') // успешное действие гасит возможную залипшую ошибку формы
       showMessage('✅ Своя категория удалена')
     } catch (err) {

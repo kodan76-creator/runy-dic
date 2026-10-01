@@ -1,6 +1,7 @@
 // src/components/WordCard.jsx
 // Карточка слова на главном экране пользователя
 import '../App.css'
+import { categoryLabel } from '../api/categories'
 
 const getDictionarySourceLabel = (item) => (
   item.__dictionarySource === 'shared' ? 'Общий словарь' : 'Личный словарь'
@@ -23,8 +24,7 @@ export default function WordCard({ item, categories, isFavorite, onToggleFavorit
   const renderCategory = (category) => {
     const values = Array.isArray(category) ? category : [category]
     const label = values
-      .filter(value => (typeof value === 'string' ? value.trim().length > 0 : Boolean(value)))
-      .map(id => categories.find(c => c.id === id)?.name || (typeof id === 'string' ? id.trim() : id))
+      .map(v => categoryLabel(v, categories))
       .filter(Boolean)
       .join('; ')
 

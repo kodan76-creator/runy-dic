@@ -16,7 +16,7 @@ vi.mock('./audio', () => ({
   emailToFolderName: (e: string) => String(e || '').toLowerCase().replace(/[^a-z0-9._-]/g, '_'),
 }))
 
-import { getCategories, getPersonalCategoriesFile, addPersonalCategory, deletePersonalCategory } from './categories'
+import { getCategories, getPersonalCategoriesFile, addPersonalCategory, deletePersonalCategory, categoryLabel } from './categories'
 
 const MAIN = 'categories.json'
 const PERSONAL = 'public/users/user_x.ru/categories.json'
@@ -121,5 +121,41 @@ describe('deletePersonalCategory', () => {
   it('чужой (основной) id не удаляется и файл не перезаписывается', async () => {
     await expect(deletePersonalCategory('1', 'user@x.ru')).resolves.toBe(false)
     expect(h.updateGitHubFile).not.toHaveBeenCalled()
+  })
+})
+
+// ── Подпись категории в карточке: удалённая категория не показывается цифрами ─
+describe('categoryLabel', () => {
+  const CATS = [
+    { id: '1778594679982', name: 'имя существования' },
+    { id: 'u1781437361727', name: 'молитва' },
+  ]
+
+  it('резолвит id по справочнику', () => {
+    expect(categoryLabel('1778594679982', CATS)).toBe('имя существования')
+    expect(categoryLabel('u1781437361727', CATS)).toBe('молитва')
+  })
+
+  it('резолвит и по имени (слово хранит имя категории)', () => {
+    expect(categoryLabel('молитва', CATS)).toBe('молитва')
+  })
+
+  it('висячий id удалённой основной категории скрыт — цифры не показываются', () => {
+    expect(categoryLabel('1781437361727', CATS)).toBe('')
+    expect(categoryLabel(1781437361727, CATS)).toBe('')
+  })
+
+  it('висячий id удалённой личной категории (u…) скрыт', () => {
+    expect(categoryLabel('u999999', CATS)).toBe('')
+  })
+
+  it('легальное имя категории из старых данных показывается как есть', () => {
+    expect(categoryLabel('частица', CATS)).toBe('частица')
+  })
+
+  it('пустые значения и пустой справочник', () => {
+    expect(categoryLabel('', CATS)).toBe('')
+    expect(categoryLabel(null, CATS)).toBe('')
+    expect(categoryLabel('1781437361727', [])).toBe('')
   })
 })

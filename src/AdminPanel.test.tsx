@@ -63,6 +63,7 @@ vi.mock('./githubApi', () => {
     importDictionary: vi.fn(async () => 0),
     humanizeImportError: vi.fn((e: unknown) => String((e as Error)?.message ?? e)),
     normalizeImportIds: vi.fn((arr: unknown) => arr),
+    removeCategoryFromAllWords: vi.fn(async () => 0),
     flushOfflineChanges: vi.fn(async () => 0),
     collectAudioUrls: vi.fn(() => []),
     precacheUrls: vi.fn(),

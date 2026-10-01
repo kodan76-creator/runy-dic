@@ -1,5 +1,6 @@
 // src/components/admin/WordItem.jsx
 // Карточка слова в админ-панели (сетка слов).
+import { categoryLabel } from '../../api/categories'
 export default function WordItem({
   word,
   idx,
@@ -20,7 +21,11 @@ export default function WordItem({
   onPlayAudio,
   onScrollTop,
 }) {
-  const catName = (id) => (categories.find(c => c.id === id) || { name: id }).name
+  // Подписи категорий: значения резолвятся по справочнику, id удалённой
+  // категории скрывается — он не должен отображаться цифрами
+  const categoryLabels = (Array.isArray(word.category) ? word.category : [word.category])
+    .map(v => categoryLabel(v, categories))
+    .filter(Boolean)
 
   return (
     <div key={word.id} className={`word-item align-${word.textAlign || 'center'}`}>
@@ -31,8 +36,8 @@ export default function WordItem({
           {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
         </div>
         <p className="word-translation">{word.translation}</p>
-        {(Array.isArray(word.category) ? word.category.length > 0 : !!word.category) && (
-          <div className="word-category">({Array.isArray(word.category) ? word.category.map(catName).join('; ') : catName(word.category)})</div>
+        {categoryLabels.length > 0 && (
+          <div className="word-category">({categoryLabels.join('; ')})</div>
         )}
         <div className="examples">
           {word.example && <span className="word-example">{word.example}</span>}

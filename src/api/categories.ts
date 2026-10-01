@@ -59,6 +59,25 @@ export const deleteCategory = async (id) => {
   await updateGitHubFile(CATEGORIES_FILE, filtered, sha)
 }
 
+/**
+ * Подпись категории для карточки слова.
+ * Значение в слове — это id из справочника или (в старых данных) имя категории.
+ * Если категория удалена, её id больше не находится в справочнике: числовые
+ * id (Date.now(), «u…» + цифры) НЕ показываем цифрами — возвращаем пустую
+ * строку; легальные имена из старых данных показываем как есть.
+ */
+export const categoryLabel = (value: unknown, categories): string => {
+  if (value == null) return ''
+  const v = typeof value === 'string' ? value.trim() : value
+  if (v === '' || v === undefined) return ''
+  const str = String(v)
+  const list = Array.isArray(categories) ? categories : []
+  const found = list.find(c => c && (String(c.id) === str || String(c.name) === str))
+  if (found) return String(found.name)
+  // Висячий id удалённой категории (чистые цифры или «u» + цифры) — скрываем
+  return /^u?\d+$/.test(str) ? '' : str
+}
+
 export const moveCategoryUp = async (id) => {
   const { data: cats, sha } = await getCategories()
   const idx = cats.findIndex(c => c.id === id)

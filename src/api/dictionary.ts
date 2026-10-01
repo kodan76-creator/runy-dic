@@ -1,10 +1,11 @@
 // src/api/dictionary.js
 // Работа со словарём: общий (dictionary.json) и личные словари пользователей
-import { DATA_FILE, USERS_FILE } from './constants'
+import { DATA_FILE, USERS_FILE, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from './constants'
 import {
   fetchGitHubFile,
   updateGitHubFile,
   isRetryableGitHubError,
+  getHeaders,
 } from './client'
 import { getDictionaryFileNameForEmail, resolveDictionaryFile } from '../dictionaryAccess'
 import {
@@ -270,6 +271,68 @@ export const deleteWord = async (id, user = null) => {
   }
 
   return removed[0]
+}
+
+// 🏷 Убрать id категории из словарей после её удаления из справочника.
+// Иначе в карточках остаётся «висячая» ссылка на несуществующую категорию:
+// числовые id отображаются цифрами вместо названия (см. categoryLabel).
+//  - без userEmail: общий словарь + все личные словари пользователей
+//    (админ удалил основную категорию);
+//  - с userEmail: только словарь этого пользователя (удаление своей категории).
+// Возвращает количество обновлённых файлов.
+export const removeCategoryFromAllWords = async (categoryId: string | number, userEmail: string | null = null) => {
+  const idStr = String(categoryId)
+  const stripWord = (word) => {
+    const cat = word?.category
+    if (cat == null || cat === '') return word
+    if (Array.isArray(cat)) {
+      const next = cat.filter(v => String(v) !== idStr)
+      return next.length === cat.length ? word : { ...word, category: next }
+    }
+    return String(cat) === idStr ? { ...word, category: [] } : word
+  }
+
+  const files: string[] = []
+  if (userEmail) {
+    const ownFile = getDictionaryFileNameForEmail(userEmail)
+    if (!ownFile) return 0
+    files.push(ownFile)
+  } else {
+    files.push(DATA_FILE)
+    // Личные словари пользователей (шаблон не захватывает архив public/users/_deleted/)
+    try {
+      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`
+      const resp = await fetch(url, { headers: getHeaders(), cache: 'no-cache' })
+      if (resp.ok) {
+        const data = await resp.json()
+        if (Array.isArray(data.tree)) {
+          for (const item of data.tree) {
+            if (item.type === 'blob' && /^public\/users\/[^/]+\/dictionary\.json$/.test(item.path)) {
+              files.push(item.path)
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('removeCategoryFromAllWords: не удалось получить список словарей:', e)
+    }
+  }
+
+  let updated = 0
+  for (const fileName of files) {
+    try {
+      const { data, sha } = await fetchGitHubFile(fileName)
+      if (!sha || !Array.isArray(data)) continue
+      const next = data.map(stripWord)
+      if (next.some((w, i) => w !== data[i])) {
+        await updateGitHubFile(fileName, next, sha)
+        updated++
+      }
+    } catch (e) {
+      console.error(`removeCategoryFromAllWords: не удалось обновить ${fileName}:`, e)
+    }
+  }
+  return updated
 }
 
 // 🌐 Оффлайн-перемещение: применяем к кэшу и ставим в очередь как
