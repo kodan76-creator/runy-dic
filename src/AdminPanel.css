@@ -59,6 +59,12 @@ html, body { height: 100%; background-color: var(--app-accent); }
 /* Двухколоночная форма */
 .word-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
 .form-column { display: flex; flex-direction: column; gap: 10px; }
+
+/* Форма словаря: поля формы прокручиваются, а блок кнопок «Добавить/Обновить/Отмена»
+   всегда остаётся внизу формы и не уезжает за нижнюю границу экрана */
+.form-section .word-form { display: flex; flex-direction: column; gap: 15px; min-height: 0; }
+.form-section .form-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; min-height: 0; }
+.form-section .form-buttons { flex: 0 0 auto; }
 .word-form input, .word-form textarea.single-line-textarea { width: 100%; padding: 10px; border: 2px solid var(--surface-border); border-radius: 8px; font-size: 14px; box-sizing: border-box; background-color: var(--surface); color: var(--surface-text); outline: none; font-family: inherit; }
 .word-form input:focus, .word-form textarea.single-line-textarea:focus { border: 2px solid var(--app-accent); box-shadow: 0 0 12px var(--input-shadow); }
 .word-form input::placeholder, .word-form textarea.single-line-textarea::placeholder { color: var(--surface-muted); opacity: 1; font-family: inherit; font-size: 14px; line-height: 1.2; }
@@ -447,6 +453,24 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .no-results { text-align: center; padding: 40px; color: var(--surface-muted); font-size: 18px; }
 .word-audio { margin: 8px 0 0 0; color: #e9d5ff; font-size: 14px; font-style: italic; }
 
+/* 🖥️ Ширина > 768px: панель админки закреплена сверху (position: fixed) и не прокручивается,
+   поэтому её содержимое не должно выходить за нижнюю границу экрана — иначе кнопки
+   «Добавить/Обновить/Отмена» оказываются под экраном и до них нельзя добраться.
+   Прокручиваются только сами поля формы, кнопки остаются внизу и всегда на виду. */
+@media (min-width: 769px) {
+  .admin-fixed-container { max-height: var(--admin-viewport-height); }
+
+  .form-section { display: flex; flex-direction: column; overflow: hidden; }
+
+  .form-section .word-form { flex: 1 1 auto; min-height: 0; }
+  .form-section .form-fields { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+
+  .form-section .form-fields::-webkit-scrollbar { width: 12px; }
+  .form-section .form-fields::-webkit-scrollbar-track { background: var(--track); border-radius: 6px; }
+  .form-section .form-fields::-webkit-scrollbar-thumb { background: #4a2a6b; border-radius: 6px; border: 3px solid var(--track); }
+  .form-section .form-fields { scrollbar-width: thin; scrollbar-color: #4a2a6b var(--track); }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   :root {
@@ -535,7 +559,8 @@ html, body { height: 100%; background-color: var(--app-accent); }
   }
   
   /* Двухколоночная форма - одна колонка на мобильных */
-  .word-form {
+  .word-form,
+  .form-section .form-fields {
     grid-template-columns: 1fr;
   }
   

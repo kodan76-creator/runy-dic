@@ -6,6 +6,10 @@ dist/
 build/
 *.js.map
 
+# Playwright (e2e-проверки в корне проекта)
+test-results/
+playwright-report/
+
 # Environment variables
 .env
 .env.local

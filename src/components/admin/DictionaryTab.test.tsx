@@ -189,3 +189,39 @@ describe('DictionaryTab: прослушивание аудио', () => {
   })
 })
 
+// 📌 Нижние кнопки формы не должны уезжать за экран окна: поля формы лежат в отдельной
+// прокручиваемой обёртке .form-fields, а блок кнопок — её сосед внутри <form>, поэтому
+// при увеличении полей прокручиваются только поля, а кнопки остаются внизу и на виду.
+describe('DictionaryTab: поля прокручиваются, кнопки остаются на виду', () => {
+  it('обе колонки полей лежат внутри прокручиваемой обёртки .form-fields', () => {
+    const { container } = renderTab()
+    const form = container.querySelector('form.word-form') as HTMLFormElement
+    const fields = form.querySelector(':scope > .form-fields') as HTMLElement
+
+    expect(fields).not.toBeNull()
+    expect([...fields.children].map(el => el.className)).toEqual([
+      'form-column form-column-left',
+      'form-column form-column-right',
+    ])
+  })
+
+  it('кнопки «Обновить/Отмена» — сосед полей, а не часть прокручиваемой области', () => {
+    const { container } = renderTab({ editingId: 7 })
+    const form = container.querySelector('form.word-form') as HTMLFormElement
+    const fields = form.querySelector(':scope > .form-fields') as HTMLElement
+    const buttons = form.querySelector(':scope > .form-buttons') as HTMLElement
+
+    expect(buttons).not.toBeNull()
+    expect(fields.contains(buttons)).toBe(false)
+
+    const saveBtn = screen.getByRole('button', { name: 'Обновить' })
+    const cancelBtn = screen.getByRole('button', { name: 'Отмена' })
+    expect(buttons.contains(saveBtn)).toBe(true)
+    expect(buttons.contains(cancelBtn)).toBe(true)
+    expect(fields.contains(saveBtn)).toBe(false)
+    expect(fields.contains(cancelBtn)).toBe(false)
+    // Кнопки идут после полей — значит визуально остаются внизу формы
+    expect(buttons.compareDocumentPosition(fields) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+  })
+})
+
