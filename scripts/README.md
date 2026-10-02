@@ -30,3 +30,28 @@ Required repository secrets:
 
 Trigger the workflow manually from the Actions tab. The workflow creates a branch with changes
 so you can review before merging.
+
+cleanup-orphan-category-ids
+---------------------------
+One-time cleanup of orphaned category ids in dictionaries (`dictionary.json`,
+`dictionary.json2`, `public/users/<folder>/dictionary.json`).
+
+A category id is orphaned when it looks like an id (`<digits>` or `u<digits>`)
+but is absent from every live catalog (main `categories.json` + personal
+`public/users/<folder>/categories.json`). Such ids render as bare digits in the
+«Категории:» chips row under the header. Legacy category *names* are never
+touched; the `public/users/_deleted/` archive is skipped (same convention as
+`removeCategoryFromAllWords`).
+
+```bash
+# Dry run (default): report files and orphan ids, write nothing
+node scripts/cleanup-orphan-category-ids.cjs
+
+# Apply changes (files are re-encrypted in place with the same key)
+node scripts/cleanup-orphan-category-ids.cjs --apply
+```
+
+The encryption key is taken from `ENCRYPTION_KEY` env or from `.env`
+(`VITE_ENCRYPTION_KEY` / `VITE_ENCRYPTION_KEY_B64`). The script aborts without
+writes if any catalog cannot be decrypted. Re-running after `--apply` reports
+no orphans (idempotent).
