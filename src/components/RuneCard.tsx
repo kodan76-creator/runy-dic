@@ -1,6 +1,7 @@
 // src/components/RuneCard.tsx
 // Карточка руны на главном экране (раздел «Новые Руны»)
-import { type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { type Rune } from '../types'
 import { buildImageUrl } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import { renderRichText } from '../utils/richText'
@@ -26,7 +27,21 @@ function highlightText(text, term) {
   return nodes
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false }) {
+type RuneCardProps = {
+  rune?: Rune | null
+  /** Готовый URL картинки (админка); если не передан — строится из rune.image */
+  imageSrc?: string
+  highlight?: string
+  runicMode?: boolean
+  hidePower?: boolean
+}
+
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false }: RuneCardProps) {
+  // 🙈 URL картинки, которая не загрузилась (404 во время деплоя Pages и т.п.).
+  // Без этого в карточке рядом с битой иконкой вылезал alt-текст с названием
+  // руны — выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому
+  // при смене картинки (новый URL) попытка загрузки повторяется автоматически.
+  const [failedUrl, setFailedUrl] = useState('')
   if (!rune) return null
   const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
   // В рунном режиме подсвечиваем только графическое изображение
@@ -42,11 +57,18 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
           </div>
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
-        {/* hidePower: в модалке раскладки не показываем ни «Отображение Силы Руны», ни «Описание Силы Руны» */}
-        {imgUrl && !hidePower && (
+        {/* hidePower: в модалке раскладки не показываем ни «Отображение Силы Руны», ни «Описание Силы Руны».
+            failedUrl === imgUrl: картинка не загрузилась — прячем весь блок, чтобы не показывать alt-текст */}
+        {imgUrl && !hidePower && failedUrl !== imgUrl && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
-            <img className="rune-image" src={imgUrl} alt={rune.name || 'Руна'} loading="lazy" />
+            <img
+              className="rune-image"
+              src={imgUrl}
+              alt={rune.name || 'Руна'}
+              loading="lazy"
+              onError={() => setFailedUrl(imgUrl)}
+            />
           </div>
         )}
         {rune.power && !hidePower && (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, removeCategoryFromAllWords, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
+import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, invalidateImageCache, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, removeCategoryFromAllWords, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
 import { isOnline, cacheDictionaryForOffline, getCachedDictionary, getCachedCategories, getCachedRunes, cacheRunesForOffline } from './api/offline'
@@ -780,11 +780,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // Руны — картинка в public/images/n_runy/
       const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
-      showMessage(`✅ Картинка «${result.path}» загружена`)
+      // 🧿 Выкидываем старую версию из кэша SW, чтобы новая картинка появилась
+      // сразу после деплоя Pages, а не после фонового обновления кэша.
+      invalidateImageCache(buildImageUrl(result.path, RUNES_IMAGE_DIR))
+      // ⏳ Важно: данные (runes.json) обновляются мгновенно через GitHub API,
+      // а сама картинка живёт на GitHub Pages — тот деплоится с задержкой.
+      // До деплоя карточка показывает битую картинку (404).
+      showMessage(
+        `✅ Картинка «${result.path}» загружена. На сайте она появится после деплоя (≈2–5 минут) — до этого в карточке может быть битая картинка`,
+        'success',
+        10000
+      )
       // Если был старый файл и он не совпадает с новым — удаляем старый
       if (oldName && oldName !== result.path) {
         try {
           await deleteImageFile(oldName, activeUser.email, true, RUNES_IMAGE_DIR)
+          invalidateImageCache(buildImageUrl(oldName, RUNES_IMAGE_DIR))
         } catch { /* файл мог быть уже удалён — не критично */ }
       }
     } catch (err) {
@@ -805,6 +816,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setError('')
     try {
       await deleteImageFile(fileName, activeUser.email, true, RUNES_IMAGE_DIR)
+      // 🧿 Убираем файл из кэша SW: иначе удалённая картинка продолжала бы
+      // отдаваться из кэша до фонового обновления.
+      invalidateImageCache(buildImageUrl(fileName, RUNES_IMAGE_DIR))
       setRuneFormData(prev => ({ ...prev, image: '' }))
       showMessage(`✅ Картинка «${fileName}» удалена`)
     } catch (err) {

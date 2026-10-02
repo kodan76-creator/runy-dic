@@ -245,6 +245,24 @@ export const buildImageUrl = (fileName, userFolder) => {
   return `${import.meta.env.BASE_URL}images/${fileName}`
 }
 
+// 🧿 Удаляет картинку из кэша Service Worker.
+// SW отдаёт статику stale-while-revalidate: при замене файла тем же именем
+// (перезаливка картинки руны) браузер показал бы старую версию до фонового
+// обновления. Админка шлёт INVALIDATE_URL сразу после загрузки/удаления,
+// чтобы новая картинка появилась без перезагрузки страницы.
+export const invalidateImageCache = (url) => {
+  if (!url || typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return false
+  const controller = navigator.serviceWorker?.controller
+  if (!controller) return false
+  try {
+    if (new URL(url, location.href).origin !== location.origin) return false
+  } catch {
+    return false
+  }
+  controller.postMessage({ type: 'INVALIDATE_URL', url })
+  return true
+}
+
 // Собирает URL всех картинок словаря для прекэша (оффлайн).
 // resolveFolder: функция (word) => папка пользователя или ''/null, либо сама папка.
 export const collectImageUrls = (words, resolveFolder) => {

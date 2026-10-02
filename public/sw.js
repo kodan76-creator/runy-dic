@@ -93,6 +93,18 @@ self.addEventListener('activate', (event) => {
 const PRECACHE_CHUNK_SIZE = 6
 
 self.addEventListener('message', (event) => {
+  // 🧿 Админка загрузила/удалила картинку — выкидываем её из кэша, чтобы сразу
+  // показать новую версию (stale-while-revalidate иначе отдаёт старую до
+  // фонового обновления; удалённый файл перестанет отдаваться из кэша).
+  if (event.data && event.data.type === 'INVALIDATE_URL' && typeof event.data.url === 'string') {
+    event.waitUntil(
+      caches
+        .open(CACHE_NAME)
+        .then((cache) => cache.delete(event.data.url))
+        .catch(() => { /* нет кэша — не критично */ })
+    )
+    return
+  }
   if (event.data && event.data.type === 'PRECACHE_URLS' && Array.isArray(event.data.urls)) {
     const urls = event.data.urls.filter((u) => {
       try { return new URL(u).origin === self.location.origin } catch { return false }
