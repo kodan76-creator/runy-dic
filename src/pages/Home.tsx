@@ -2,6 +2,7 @@
 // Главный экран для ПОЛЬЗОВАТЕЛЕЙ
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline, flushOfflineChanges } from '../githubApi'
+import { categoryLabel } from '../api/categories'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import { useScrollRestoration } from '../hooks/useScrollRestoration'
@@ -488,7 +489,12 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         if (m) ids = [m.id]
       }
       for (const id of ids) {
-        const entry = map.get(id) || { id, name: categories.find((c: any) => c.id === id)?.name || String(id), count: 0 }
+        // Подпись чипа — как в карточках (categoryLabel): висячий id удалённой
+        // категории не должен отображаться цифрами под шапкой, поэтому такой
+        // chip вообще не строим. Легальные имена из старых данных остаются.
+        const name = categoryLabel(id, categories)
+        if (!name) continue
+        const entry = map.get(id) || { id, name, count: 0 }
         entry.count += 1
         map.set(id, entry)
       }

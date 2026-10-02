@@ -269,3 +269,30 @@ describe('Синхронизация избранного между устро�
     await waitFor(() => expect(localStorage.getItem(KEY)).toBeNull())
   })
 })
+
+// 🏷 Чипы «Категории:» под шапкой: висячий id удалённой категории не показывается
+// цифрами (та же логика categoryLabel, что в карточках слов)
+describe('Чипы «Категории:» и осиротевшие id категорий', () => {
+  const CATS = [{ id: '1778594679982', name: 'имя существования' }]
+  const WORDS: any[] = [
+    // живая категория — чип с названием
+    { id: 1, word: 'Ас', translation: 'бог', category: ['1778594679982'], __dictionarySource: 'shared' },
+    // осиротевший числовой id удалённой категории — чипа с цифрами быть не должно
+    { id: 2, word: 'Велес', translation: 'бог', category: ['1785027725930'], __dictionarySource: 'shared' },
+    // легальное имя категории из старых данных — чип с именем остаётся
+    { id: 3, word: 'Гром', translation: 'звук', category: ['частица'], __dictionarySource: 'shared' },
+  ]
+
+  it('показывает живую категорию и легальное имя, но скрывает осиротевший числовой id', async () => {
+    vi.mocked(getDictionary).mockResolvedValueOnce({ data: WORDS, sha: null, ok: true, exists: true } as any)
+    vi.mocked(getCategories).mockResolvedValueOnce({ data: CATS, sha: null, ok: true, exists: true } as any)
+
+    render(<Home user={PAID_USER} onLogout={vi.fn()} onUserUpdate={vi.fn()} />)
+    await waitFor(() => expect(document.querySelector('.category-stats')).toBeTruthy())
+
+    const stats = document.querySelector('.category-stats') as HTMLElement
+    expect(stats.textContent).toContain('имя существования')
+    expect(stats.textContent).toContain('частица')
+    expect(stats.textContent).not.toContain('1785027725930')
+  })
+})
