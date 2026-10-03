@@ -1,7 +1,9 @@
 // src/components/RuneCard.test.tsx
-// Карточка руны: при ошибке загрузки картинки (404 во время деплоя GitHub Pages)
-// блок «Отображение Силы Руны» скрывается целиком — alt-текст с названием руны
-// не должен вылезать в карточку как «лишняя надпись».
+// Карточка руны: свежезагруженная картинка живёт в репозитории сразу, но сборка
+// GitHub Pages обновляется с задержкой — до деплоя локальный URL даёт 404, и
+// карточка берёт картинку с raw.githubusercontent. Если не загрузилась и она —
+// блок «Отображение Силы Руны» скрывается целиком: alt-текст с названием руны не
+// должен вылезать в карточку как «лишняя надпись».
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import RuneCard from './RuneCard'
@@ -15,6 +17,9 @@ const rune = {
   keywords: 'Состояние, состоятельность',
 }
 
+// Файл уже в репозитории, но ещё не в собранном сайте — резервный источник
+const RAW_SRC = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images/n_runy/01_FAIS-SU.png'
+
 afterEach(cleanup)
 
 describe('RuneCard — блок «Отображение Силы Руны»', () => {
@@ -26,9 +31,18 @@ describe('RuneCard — блок «Отображение Силы Руны»', (
     expect(screen.getByText('Отображение Силы Руны:')).toBeInTheDocument()
   })
 
-  it('после ошибки загрузки прячет блок вместе с alt-текстом', () => {
+  it('если картинки ещё нет в сборке сайта — берёт её с raw.githubusercontent', () => {
     render(<RuneCard rune={rune} />)
     fireEvent.error(screen.getByAltText('ФАИС-СУ'))
+    // Картинка не пропала: подставлен raw-URL — видно сразу после загрузки файла
+    expect(screen.getByAltText('ФАИС-СУ').getAttribute('src')).toBe(RAW_SRC)
+    expect(screen.getByText('Отображение Силы Руны:')).toBeInTheDocument()
+  })
+
+  it('если не загрузилась ни с сайта, ни с raw — прячет блок вместе с alt-текстом', () => {
+    render(<RuneCard rune={rune} />)
+    fireEvent.error(screen.getByAltText('ФАИС-СУ')) // локальный URL (404)
+    fireEvent.error(screen.getByAltText('ФАИС-СУ')) // raw тоже недоступен
     // alt-текст («лишняя надпись») и подпись больше не показываются
     expect(screen.queryByAltText('ФАИС-СУ')).toBeNull()
     expect(screen.queryByText('Отображение Силы Руны:')).toBeNull()
@@ -37,13 +51,13 @@ describe('RuneCard — блок «Отображение Силы Руны»', (
     expect(screen.getByText('Ключевые слова:')).toBeInTheDocument()
   })
 
-  it('при смене картинки (новый URL) показывает её снова', () => {
+  it('при смене картинки (новый URL) снова начинает с URL сайта', () => {
     const { rerender } = render(<RuneCard rune={rune} imageSrc="/images/n_runy/01_FAIS-SU.png" />)
     fireEvent.error(screen.getByAltText('ФАИС-СУ'))
-    expect(screen.queryByAltText('ФАИС-СУ')).toBeNull()
-    // Новая картинка после перезаливки — другой URL, попытка загрузки повторяется
+    expect(screen.getByAltText('ФАИС-СУ').getAttribute('src')).toBe(RAW_SRC)
+    // Новая картинка после перезаливки — другой URL, попытки повторяются с начала
     rerender(<RuneCard rune={rune} imageSrc="/images/n_runy/01_FAIS-SU_new.png" />)
-    expect(screen.getByAltText('ФАИС-СУ')).toBeInTheDocument()
+    expect(screen.getByAltText('ФАИС-СУ').getAttribute('src')).toBe('/images/n_runy/01_FAIS-SU_new.png')
     expect(screen.getByText('Отображение Силы Руны:')).toBeInTheDocument()
   })
 

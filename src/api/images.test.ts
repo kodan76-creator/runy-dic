@@ -1,7 +1,7 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls } from './images'
+import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls, buildRawImageUrl } from './images'
 import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
@@ -181,6 +181,31 @@ describe('cleanupUserPhotos', () => {
 
     const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
     expect(deleted).toBe(1)
+  })
+})
+
+describe('buildRawImageUrl', () => {
+  const RAW = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images'
+
+  it('строит raw-URL картинки руны в подпапке', () => {
+    expect(buildRawImageUrl('01_FAIS-SU.png', 'n_runy')).toBe(`${RAW}/n_runy/01_FAIS-SU.png`)
+  })
+
+  it('имя с «/» трактуется как готовый путь', () => {
+    expect(buildRawImageUrl('n_runy/runy/1_ФАИС-СУ.png')).toBe(`${RAW}/n_runy/runy/1_ФАИС-СУ.png`)
+  })
+
+  it('без папки файл берётся из корня public/images/', () => {
+    expect(buildRawImageUrl('run_r.png')).toBe(`${RAW}/run_r.png`)
+  })
+
+  it('готовый http-URL возвращается как есть', () => {
+    expect(buildRawImageUrl('https://example.com/a.png')).toBe('https://example.com/a.png')
+  })
+
+  it('пустое имя — пустая строка', () => {
+    expect(buildRawImageUrl('')).toBe('')
+    expect(buildRawImageUrl(undefined)).toBe('')
   })
 })
 

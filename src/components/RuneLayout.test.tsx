@@ -14,6 +14,9 @@ import { EVALUATION_POSITION_LABELS, HEALING_POSITION_LABELS, getPositionLabel }
 vi.mock('../api/images', () => ({
   validateImageFile: vi.fn(async () => {}),
   buildImageUrl: (fileName: string, userFolder: string) => `/images/${userFolder}/${fileName}`,
+  // Резервный raw-URL: карточка руны берёт его, если картинки ещё нет в сборке сайта
+  buildRawImageUrl: (fileName: string, userFolder = '') =>
+    `https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images/${userFolder ? userFolder + '/' : ''}${fileName}`,
   collectRuneLayoutImageUrls: (names: string[]) =>
     names.map(name => `/images/n_runy/runy/${name}`),
   listRuneLayoutImages: vi.fn(async () => [

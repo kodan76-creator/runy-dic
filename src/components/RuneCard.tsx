@@ -2,7 +2,7 @@
 // Карточка руны на главном экране (раздел «Новые Руны»)
 import { useState, type ReactNode } from 'react'
 import { type Rune } from '../types'
-import { buildImageUrl } from '../api/images'
+import { buildImageUrl, buildRawImageUrl } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import { renderRichText } from '../utils/richText'
 import '../App.css'
@@ -37,13 +37,22 @@ type RuneCardProps = {
 }
 
 export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false }: RuneCardProps) {
-  // 🙈 URL картинки, которая не загрузилась (404 во время деплоя Pages и т.п.).
-  // Без этого в карточке рядом с битой иконкой вылезал alt-текст с названием
-  // руны — выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому
-  // при смене картинки (новый URL) попытка загрузки повторяется автоматически.
+  // 🙈 URL картинки, которая не загрузилась уже и с raw-фолбэка. Без этого в
+  // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
+  // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
+  // смене картинки (новый URL) попытка загрузки повторяется автоматически.
   const [failedUrl, setFailedUrl] = useState('')
+  // 🖼️ Локальный URL, для которого показываем raw-фолбэк (см. rawSrc ниже).
+  const [rawFallbackFor, setRawFallbackFor] = useState('')
   if (!rune) return null
-  const imgUrl = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
+  const localSrc = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
+  // 🛡️ Файл уже в репозитории (его только что загрузили в админке), но сборка
+  // сайта на GitHub Pages ещё не обновилась — до деплоя локальный URL даёт 404.
+  // Показываем картинку с raw.githubusercontent: она доступна сразу после
+  // коммита (тот же приём, что для аудио в useAudioPlayback).
+  const rawSrc = buildRawImageUrl(rune.image || '', RUNES_IMAGE_DIR)
+  const usingRaw = !!rawSrc && rawSrc !== localSrc && rawFallbackFor === localSrc
+  const imgUrl = usingRaw ? rawSrc : localSrc
   // В рунном режиме подсвечиваем только графическое изображение
   const textHighlight = runicMode ? '' : highlight
 
@@ -58,7 +67,8 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
         {/* hidePower: в модалке раскладки не показываем ни «Отображение Силы Руны», ни «Описание Силы Руны».
-            failedUrl === imgUrl: картинка не загрузилась — прячем весь блок, чтобы не показывать alt-текст */}
+            failedUrl === imgUrl: картинка не загрузилась ни с сайта, ни с raw — прячем весь
+            блок, чтобы вместо иконки не показывался alt-текст */}
         {imgUrl && !hidePower && failedUrl !== imgUrl && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
@@ -67,7 +77,12 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
               src={imgUrl}
               alt={rune.name || 'Руна'}
               loading="lazy"
-              onError={() => setFailedUrl(imgUrl)}
+              onError={() => {
+                // Локальный URL ещё не в сборке сайта — пробуем raw; если и он не
+                // загрузился, прячем блок целиком, чтобы не показывать alt-текст
+                if (!usingRaw && rawSrc && rawSrc !== localSrc) setRawFallbackFor(localSrc)
+                else setFailedUrl(imgUrl)
+              }}
             />
           </div>
         )}

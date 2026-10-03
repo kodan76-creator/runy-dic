@@ -94,6 +94,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   })
   const [runes, setRunes] = useState<any[]>([])
   const [runeEditingId, setRuneEditingId] = useState(null)
+  // 🖼️ Картинка руны, только что загруженная в этой сессии: путь + метка времени.
+  // По ней превью берёт raw-URL с кэш-бастером (см. RunesTab) — иначе под тем же
+  // именем файла и Pages, и Service Worker ещё отдают старую версию.
+  const [runeImageFresh, setRuneImageFresh] = useState<{ path: string, ts: number } | null>(null)
   const [runeFormData, setRuneFormData] = useState({
     name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center'
   })
@@ -780,17 +784,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // Руны — картинка в public/images/n_runy/
       const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
+      // 💡 Превью в форме показываем с raw-URL (файл уже в репозитории, но ещё не
+      // в сборке сайта) — картинка видна сразу, без ожидания деплоя Pages
+      setRuneImageFresh({ path: result.path, ts: Date.now() })
       // 🧿 Выкидываем старую версию из кэша SW, чтобы новая картинка появилась
-      // сразу после деплоя Pages, а не после фонового обновления кэша.
+      // без перезагрузки страницы (stale-while-revalidate иначе отдаёт старую)
       invalidateImageCache(buildImageUrl(result.path, RUNES_IMAGE_DIR))
-      // ⏳ Важно: данные (runes.json) обновляются мгновенно через GitHub API,
-      // а сама картинка живёт на GitHub Pages — тот деплоится с задержкой.
-      // До деплоя карточка показывает битую картинку (404).
-      showMessage(
-        `✅ Картинка «${result.path}» загружена. На сайте она появится после деплоя (≈2–5 минут) — до этого в карточке может быть битая картинка`,
-        'success',
-        10000
-      )
+      showMessage(`✅ Картинка «${result.path}» загружена`)
       // Если был старый файл и он не совпадает с новым — удаляем старый
       if (oldName && oldName !== result.path) {
         try {
@@ -820,6 +820,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // отдаваться из кэша до фонового обновления.
       invalidateImageCache(buildImageUrl(fileName, RUNES_IMAGE_DIR))
       setRuneFormData(prev => ({ ...prev, image: '' }))
+      setRuneImageFresh(null)
       showMessage(`✅ Картинка «${fileName}» удалена`)
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
@@ -1401,6 +1402,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             setRuneEditingId={setRuneEditingId}
             audioUploading={audioUploading}
             getImageSrc={getImageSrc}
+            runeImageFresh={runeImageFresh}
             handleRuneSubmit={handleRuneSubmit}
             handleEditRune={handleEditRune}
             handleDeleteRune={handleDeleteRune}

@@ -1,8 +1,9 @@
 // src/components/admin/RunesTab.jsx
 // Вкладка «Новые Руны»: форма добавления/редактирования руны и список рун.
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useScrollRestoration } from '../../hooks/useScrollRestoration'
 import { RUNES_IMAGE_DIR } from '../../api/constants'
+import { buildRawImageUrl } from '../../api/images'
 import RuneCard from '../RuneCard'
 
 export default function RunesTab({
@@ -13,6 +14,7 @@ export default function RunesTab({
   setRuneEditingId,
   audioUploading,
   getImageSrc,
+  runeImageFresh,
   handleRuneSubmit,
   handleEditRune,
   handleDeleteRune,
@@ -24,12 +26,42 @@ export default function RunesTab({
   handleRuneImageDelete,
 }) {
   const runesListRef = useRef(null)
+  // 🖼️ Номер попытки загрузки превью картинки: локальный URL сайта → raw-фолбэк
+  // → скрыть (см. previewCandidates ниже). Привязан к текущей картинке, поэтому
+  // после смены файла попытки начинаются заново.
+  const [previewAttempt, setPreviewAttempt] = useState({ key: '', index: 0, failed: false })
   // 💾 Сохраняем/восстанавливаем позицию прокрутки списка рун при обновлении страницы
   useScrollRestoration(runesListRef, 'scroll_admin_runes', [runes.length])
 
   const resetForm = () => {
     setRuneEditingId(null)
     setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
+  }
+
+  // 🖼️ URL превью картинки руны. Основной — локальный (сайт кэширует его
+  // Service Worker'ом), резервный — raw.githubusercontent: файл уже в
+  // репозитории, но ещё не попал в сборку GitHub Pages (деплой идёт с задержкой).
+  const previewLocal = runeFormData.image && getImageSrc ? getImageSrc(runeFormData.image, RUNES_IMAGE_DIR) : ''
+  const previewRaw = runeFormData.image ? buildRawImageUrl(runeFormData.image, RUNES_IMAGE_DIR) : ''
+  // 💡 Сразу после загрузки смотрим raw с меткой времени: под тем же именем и
+  // Pages, и Service Worker ещё отдают старую версию файла.
+  const previewFreshTs = runeImageFresh && runeImageFresh.path === runeFormData.image ? runeImageFresh.ts : 0
+  const previewCandidates = [
+    previewFreshTs && previewRaw ? `${previewRaw}?v=${previewFreshTs}` : '',
+    previewLocal,
+    previewRaw,
+  ].filter(Boolean)
+  const previewKey = `${runeFormData.image}|${previewFreshTs}`
+  const attempt = previewAttempt.key === previewKey ? previewAttempt : { key: previewKey, index: 0, failed: false }
+  const previewSrc = attempt.failed ? '' : (previewCandidates[attempt.index] || '')
+  // Следующий URL; когда варианты кончились — прячем превью целиком
+  const handlePreviewError = () => {
+    const next = attempt.index + 1
+    setPreviewAttempt(
+      next < previewCandidates.length
+        ? { key: previewKey, index: next, failed: false }
+        : { key: previewKey, index: attempt.index, failed: true }
+    )
   }
 
   return (
@@ -91,9 +123,9 @@ export default function RunesTab({
             )}
             {audioUploading === 'runeImage' && <span className="upload-spinner">⏳</span>}
           </div>
-          {runeFormData.image && getImageSrc && (
+          {previewSrc && (
             <div className="image-preview-row">
-              <img src={getImageSrc(runeFormData.image, RUNES_IMAGE_DIR)} alt="Превью картинки руны" className="image-preview" onError={e => { e.currentTarget.style.display = 'none' }} />
+              <img src={previewSrc} alt="Превью картинки руны" className="image-preview" onError={handlePreviewError} />
             </div>
           )}
           <input

@@ -245,6 +245,20 @@ export const buildImageUrl = (fileName, userFolder) => {
   return `${import.meta.env.BASE_URL}images/${fileName}`
 }
 
+// 🖼️ Резервный URL картинки на raw.githubusercontent — для файлов, которые уже
+// есть в репозитории (только что загружены в админке), но ещё не попали в
+// собранный сайт: GitHub Pages деплоится с задержкой, и до этого обычный URL
+// отдаёт 404 (в карточке вместо иконки вылезал alt-текст). Тот же приём, что
+// для аудио (getRawAudioSrc в useAudioPlayback).
+export const buildRawImageUrl = (fileName, userFolder = '') => {
+  if (!fileName) return ''
+  if (/^https?:\/\//i.test(fileName)) return fileName
+  const base = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/public/images/`
+  if (fileName.includes('/')) return `${base}${fileName}`
+  if (userFolder) return `${base}${userFolder}/${fileName}`
+  return `${base}${fileName}`
+}
+
 // 🧿 Удаляет картинку из кэша Service Worker.
 // SW отдаёт статику stale-while-revalidate: при замене файла тем же именем
 // (перезаливка картинки руны) браузер показал бы старую версию до фонового
