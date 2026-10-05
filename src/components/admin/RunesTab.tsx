@@ -199,7 +199,7 @@ export default function RunesTab({
               <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
               <button onClick={() => handleMoveRuneToEnd(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="В конец">⏬</button>
             </div>
-            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image, RUNES_IMAGE_DIR) : undefined} />
+            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image, RUNES_IMAGE_DIR) : undefined} showMissingImageHint />
             <div className="category-actions">
               <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>
               <button onClick={() => handleDeleteRune(r.id)} className="delete-btn">🗑️</button>

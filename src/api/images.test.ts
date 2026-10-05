@@ -189,10 +189,22 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
   beforeEach(() => {
     // jsdom не реализует crypto.subtle — подставляем Node WebCrypto (как в браузере)
     vi.stubGlobal('crypto', webcrypto)
+    vi.mocked(getGitHubFileSha).mockResolvedValue(null)
   })
 
-  // Гоняет uploadImageFile с мокнутым fetch и возвращает путь + URL загрузки
-  const upload = async (content: string, name: string, uniqueName = true) => {
+  afterEach(() => {
+    vi.mocked(getGitHubFileSha).mockResolvedValue(null)
+  })
+
+  // Гоняет uploadImageFile с мокнутым fetch. baseExists=true имитирует замену
+  // уже существующего файла — только тогда и добавляется суффикс.
+  const upload = async (
+    content: string,
+    name: string,
+    opts: { uniqueName?: boolean, baseExists?: boolean } = {},
+  ) => {
+    const { uniqueName = true, baseExists = true } = opts
+    vi.mocked(getGitHubFileSha).mockResolvedValue(baseExists ? 'sha-base-exists' : null)
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({}) }))
     vi.stubGlobal('fetch', fetchMock)
     const file = new File([content], name, { type: 'image/png' })
@@ -201,7 +213,7 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
     return { res, url: String(calls[0]) }
   }
 
-  it('другое содержимое под тем же именем файла даёт другое уникальное имя', async () => {
+  it('замена: другое содержимое под тем же именем даёт другое уникальное имя', async () => {
     const old = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png')
     const fresh = await upload('NEW-PICTURE-BYTES', '01_FAIS-SU.png')
     expect(old.res.path).toMatch(/^01_FAIS-SU_[0-9a-f]{6}\.png$/)
@@ -209,7 +221,13 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
     expect(fresh.res.path).not.toBe(old.res.path)
   })
 
-  it('то же содержимое даёт то же имя — повторная загрузка ничего не меняет', async () => {
+  it('первичная загрузка (файла ещё нет) оставляет обычное имя файла', async () => {
+    const a = await upload('BRAND-NEW-PICTURE', '10_HEBO.png', { baseExists: false })
+    expect(a.res.path).toBe('10_HEBO.png')
+    expect(a.url).toContain('/n_runy/10_HEBO.png')
+  })
+
+  it('замена: то же содержимое даёт то же имя — повторная загрузка идемпотентна', async () => {
     const a = await upload('SAME-BYTES', '01_FAIS-SU.png')
     const b = await upload('SAME-BYTES', '01_FAIS-SU.png')
     expect(a.res.path).toBe(b.res.path)
@@ -230,7 +248,7 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
   })
 
   it('без uniqueName имя файла остаётся исходным (поведение по умолчанию)', async () => {
-    const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', false)
+    const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', { uniqueName: false })
     expect(a.res.path).toBe('01_FAIS-SU.png')
   })
 })

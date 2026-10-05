@@ -34,9 +34,15 @@ type RuneCardProps = {
   highlight?: string
   runicMode?: boolean
   hidePower?: boolean
+  /**
+   * ⚠️ Админка: показывать подсказку, если картинка не найдена ни на сайте, ни
+   * на raw.githubusercontent (например, файл удалили из репозитория, а ссылка
+   * осталась в runes.json). На главной остаётся тихое скрытие блока.
+   */
+  showMissingImageHint?: boolean
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false }: RuneCardProps) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false, showMissingImageHint = false }: RuneCardProps) {
   // 🙈 URL картинки, которая не загрузилась уже и с raw-фолбэка. Без этого в
   // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
   // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
@@ -84,6 +90,14 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
                 else setFailedUrl(imgUrl)
               }}
             />
+          </div>
+        )}
+        {/* ⚠️ Админка: обе ссылки не ответили — показываем, что файла нет на
+            сервере (иначе блок просто исчезал бы без объяснений) */}
+        {showMissingImageHint && !hidePower && !!localSrc && failedUrl === imgUrl && (
+          <div className="rune-card-missing-image">
+            ⚠️ Картинка не найдена ни на сайте, ни на raw.githubusercontent:{' '}
+            <code>{rune.image || localSrc}</code>
           </div>
         )}
         {rune.power && !hidePower && (

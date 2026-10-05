@@ -1054,6 +1054,24 @@ background: rgba(246, 240, 253, 0.2);
   font-weight: 700;
   margin-right: 6px;
 }
+/* ⚠️ Админка: картинка руны не найдена ни на сайте, ни на raw.githubusercontent
+   (например, файл удалили из репозитория, но ссылка осталась в runes.json) */
+.rune-card-missing-image {
+  color: #ff9c9c;
+  background: rgba(255, 80, 80, 0.14);
+  border: 1px dashed rgba(255, 120, 120, 0.55);
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 13px;
+  line-height: 1.35;
+  word-break: break-all;
+  text-align: left;
+}
+.rune-card-missing-image code {
+  font-family: inherit;
+  font-weight: 700;
+  color: #ffd9d9;
+}
 .rune-card-desc {
   margin: 4px 0 0 0;
   color: var(--plum-100);

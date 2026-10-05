@@ -70,4 +70,29 @@ describe('RuneCard — блок «Отображение Силы Руны»', (
     render(<RuneCard rune={rune} hidePower />)
     expect(screen.queryByText('Отображение Силы Руны:')).toBeNull()
   })
+
+  // ⚠️ Подсказка админке: файл отсутствует и на сайте, и на raw — раньше блок
+  // просто молча исчезал, и было непонятно, куда делась картинка.
+  it('админ видит подсказку, если картинки нет ни на сайте, ни на raw', () => {
+    render(<RuneCard rune={rune} showMissingImageHint />)
+    fireEvent.error(screen.getByAltText('ФАИС-СУ'))
+    fireEvent.error(screen.getByAltText('ФАИС-СУ'))
+    expect(screen.queryByText('Отображение Силы Руны:')).toBeNull()
+    expect(screen.getByText(/Картинка не найдена ни на сайте/)).toBeInTheDocument()
+    expect(screen.getByText('01_FAIS-SU.png')).toBeInTheDocument()
+  })
+
+  it('на главной страницы подсказки нет — блок просто скрыт', () => {
+    render(<RuneCard rune={rune} />)
+    fireEvent.error(screen.getByAltText('ФАИС-СУ'))
+    fireEvent.error(screen.getByAltText('ФАИС-СУ'))
+    expect(screen.queryByText(/Картинка не найдена/)).toBeNull()
+  })
+
+  it('подсказка не показывается, пока картинка грузится или её нет у руны', () => {
+    const { rerender } = render(<RuneCard rune={rune} showMissingImageHint />)
+    expect(screen.queryByText(/Картинка не найдена/)).toBeNull()
+    rerender(<RuneCard rune={{ ...rune, image: '' }} showMissingImageHint />)
+    expect(screen.queryByText(/Картинка не найдена/)).toBeNull()
+  })
 })
