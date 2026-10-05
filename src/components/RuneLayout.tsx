@@ -953,10 +953,11 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   {getPositionLabel(selectedLayoutChoice, i + 1)}
                 </h2>
                 <div className="rune-layout-print-rune-card">
+                  {/* 🖨️ Печатная карточка — полная, как в модалке и в «Новых Рунах»:
+                      с «Отображением Силы Руны» (картинка) и «Описанием Силы Руны». */}
                   <RuneCard
                     rune={rune
                       ?? { name: name.replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
-                    hidePower
                   />
                 </div>
               </section>

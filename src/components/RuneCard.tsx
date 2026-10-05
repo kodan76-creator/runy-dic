@@ -33,7 +33,6 @@ type RuneCardProps = {
   imageSrc?: string
   highlight?: string
   runicMode?: boolean
-  hidePower?: boolean
   /**
    * ⚠️ Админка: показывать подсказку, если картинка не найдена ни на сайте, ни
    * на raw.githubusercontent (например, файл удалили из репозитория, а ссылка
@@ -42,7 +41,7 @@ type RuneCardProps = {
   showMissingImageHint?: boolean
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false, showMissingImageHint = false }: RuneCardProps) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, showMissingImageHint = false }: RuneCardProps) {
   // 🙈 URL картинки, которая не загрузилась уже и с резерва. Без этого в
   // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
   // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
@@ -75,11 +74,9 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
           </div>
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
-        {/* hidePower: скрыть блоки «Отображение/Описание Силы Руны»
-            (печатная версия раскладки). failedUrl === imgUrl: картинка не загрузилась
-            ни с сайта, ни с raw — прячем весь блок, чтобы вместо иконки
-            не показывался alt-текст */}
-        {imgUrl && !hidePower && failedUrl !== imgUrl && (
+        {/* failedUrl === imgUrl: картинка не загрузилась ни с сайта, ни с raw —
+            прячем весь блок, чтобы вместо иконки не показывался alt-текст */}
+        {imgUrl && failedUrl !== imgUrl && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
             <img
@@ -99,13 +96,13 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
         )}
         {/* ⚠️ Админка: обе ссылки не ответили — показываем, что файла нет на
             сервере (иначе блок просто исчезал бы без объяснений) */}
-        {showMissingImageHint && !hidePower && !!localSrc && failedUrl === imgUrl && (
+        {showMissingImageHint && !!localSrc && failedUrl === imgUrl && (
           <div className="rune-card-missing-image">
             ⚠️ Картинка не найдена ни на сайте, ни на raw.githubusercontent:{' '}
             <code>{rune.image || localSrc}</code>
           </div>
         )}
-        {rune.power && !hidePower && (
+        {rune.power && (
           <div className="rune-card-power">
             <span className="rune-card-label">Описание Силы Руны:</span>
             <span>{highlightText(rune.power, textHighlight)}</span>

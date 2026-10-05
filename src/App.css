@@ -1515,6 +1515,8 @@ background: rgba(246, 240, 253, 0.2);
      «Фоновые цвета и изображения»), и светлый текст тонул на белой бумаге.
      Тёмно-фиолетовый читаем и на белой бумаге, и на залитой карточке;
      text-shadow убираем — на бумаге он только размазывает буквы. */
+  .rune-layout-print-rune-card .rune-card-power,
+  .rune-layout-print-rune-card .rune-card-power-image,
   .rune-layout-print-rune-card .rune-card-keywords,
   .rune-layout-print-rune-card .rune-card-desc {
     color: #2a1145;

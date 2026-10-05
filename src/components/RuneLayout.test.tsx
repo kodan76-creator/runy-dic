@@ -587,6 +587,10 @@ describe('RuneLayout — печать на А4', () => {
     expect(runePages?.[0].querySelector('.rune-layout-print-rune-position')).toHaveTextContent(
       HEALING_POSITION_LABELS[0]
     )
+    // Карточка полная, как в «Новых Рунах»: сила с картинкой и описанием
+    expect(runePages?.[0].textContent).toContain('Отображение Силы Руны:')
+    expect(runePages?.[0].textContent).toContain('Описание Силы Руны:')
+    expect(runePages?.[0].querySelector('.rune-card-power-image img')).not.toBeNull()
     cleanup()
   })
 
