@@ -84,7 +84,7 @@ vi.mock('../api/offline', async (importOriginal) => {
       },
       {
         name: 'ФАИС-СУ (перевернутое положение)',
-        image: '',
+        image: '02.png',
         power: 'Росток пробивается из опыта',
         keywords: 'Росток, опыт',
         description: '<p>Перевёрнутое положение показывает необходимость обращения к опыту.</p>',
@@ -212,11 +212,11 @@ describe('RuneLayout — модалка руны по клику', () => {
     fireEvent.click(tile)
     const dialog = await screen.findByRole('dialog')
     expect(dialog.textContent).toContain('ФАИС-СУ')
-    // «Описание Силы Руны» из модалки убрано (hidePower у RuneCard)
-    expect(dialog.textContent).not.toContain('Гармония стихий в человеке использует духовную энергию')
-    // «Отображение Силы Руны» тоже убрано — картинок в диалоге нет вовсе
-    expect(dialog.textContent).not.toContain('Отображение Силы Руны')
-    expect(dialog.querySelector('img')).toBeNull()
+    // Модалка показывает карточку «Новых Рун» целиком: «Описание Силы Руны»…
+    expect(dialog.textContent).toContain('Гармония стихий в человеке использует духовную энергию')
+    // …и «Отображение Силы Руны» с картинкой из карточки
+    expect(dialog.textContent).toContain('Отображение Силы Руны')
+    expect(dialog.querySelector('img')).not.toBeNull()
     // Шапка: смысл позиции 1 раскладки «для исцеления»
     expect(dialog.textContent).toContain('Руна 1 - ПРЕДЕЛ или ПОТОЛОК вашего сознания.')
     expect(dialog.textContent).toContain('Состояние, состоятельность')
@@ -238,10 +238,10 @@ describe('RuneLayout — модалка руны по клику', () => {
     const dialog = await screen.findByRole('dialog')
     // Карточка именно перевёрнутого положения, а не прямой руны
     expect(dialog.textContent).toContain('перевернутое положение')
-    // «Описание Силы Руны» скрыто и для перевёрнутой руны (hidePower)
-    expect(dialog.textContent).not.toContain('Росток пробивается из опыта')
-    expect(dialog.textContent).not.toContain('Отображение Силы Руны')
-    expect(dialog.querySelector('img')).toBeNull()
+    // Карточка показывается целиком: «Описание Силы Руны»…
+    expect(dialog.textContent).toContain('Росток пробивается из опыта')
+    expect(dialog.textContent).toContain('Отображение Силы Руны')
+    expect(dialog.querySelector('img')).not.toBeNull()
     expect(dialog.textContent).toContain('Перевёрнутое положение показывает необходимость обращения к опыту.')
     // Кнопка закрытия — в шапке модалки (внутри .rune-layout-rune-header)
     const header = dialog.querySelector('.rune-layout-rune-header')

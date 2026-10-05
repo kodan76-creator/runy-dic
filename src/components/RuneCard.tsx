@@ -75,9 +75,10 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
           </div>
         )}
         {rune.letter && <div className="rune-card-letter">Буква: {highlightText(rune.letter, textHighlight)}</div>}
-        {/* hidePower: в модалке раскладки не показываем ни «Отображение Силы Руны», ни «Описание Силы Руны».
-            failedUrl === imgUrl: картинка не загрузилась ни с сайта, ни с raw — прячем весь
-            блок, чтобы вместо иконки не показывался alt-текст */}
+        {/* hidePower: скрыть блоки «Отображение/Описание Силы Руны»
+            (печатная версия раскладки). failedUrl === imgUrl: картинка не загрузилась
+            ни с сайта, ни с raw — прячем весь блок, чтобы вместо иконки
+            не показывался alt-текст */}
         {imgUrl && !hidePower && failedUrl !== imgUrl && (
           <div className="rune-card-power-image">
             <span className="rune-card-label">Отображение Силы Руны:</span>
