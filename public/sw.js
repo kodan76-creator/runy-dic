@@ -5,7 +5,7 @@
  * - Статика: stale-while-revalidate (сначала кэш, фоном обновляется).
  * - API-запросы (api.github.com и другие домены) не перехватываются.
  */
-const CACHE_NAME = 'runy-dic-v19'
+const CACHE_NAME = 'runy-dic-v20'
 const APP_SHELL = ['./', './index.html']
 
 // 🧿 Все картинки рун для «Рунной раскладки» (креста) кэшируются сразу при

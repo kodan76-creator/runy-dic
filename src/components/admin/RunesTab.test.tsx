@@ -1,9 +1,9 @@
 // src/components/admin/RunesTab.test.tsx
-// Превью картинки руны после загрузки: файл уже в репозитории, но сборка
-// GitHub Pages обновится позже. Поэтому сразу после загрузки превью берётся с
-// raw.githubusercontent — с меткой времени, т.к. под тем же именем файла и
-// Pages, и Service Worker ещё отдают старую версию (иначе админ видел бы старую
-// картинку). Затем резерв — URL сайта, затем превью скрывается.
+// Превью картинки руны — raw-first с версией: файл уже в репозитории сразу
+// после коммита, а сборка GitHub Pages обновляется позже. Поэтому превью
+// начинается с raw.githubusercontent (с ?v=метка: под тем же именем файла
+// браузер/CDN иначе отдали бы старую версию). Резерв — URL сайта, затем
+// превью скрывается.
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import RunesTab from './RunesTab'
@@ -24,16 +24,20 @@ afterEach(cleanup)
 
 function renderTab({
   image = IMAGE,
+  imageUpdatedAt = 0,
   runeImageFresh = null,
-}: { image?: string, runeImageFresh?: { path: string, ts: number } | null } = {}) {
+}: {
+  image?: string,
+  imageUpdatedAt?: number,
+  runeImageFresh?: { path: string, ts: number } | null
+} = {}) {
   const props = {
     runes: [],
-    runeFormData: { ...EMPTY_FORM, name: 'ФАИС-СУ', image },
+    runeFormData: { ...EMPTY_FORM, name: 'ФАИС-СУ', image, imageUpdatedAt },
     setRuneFormData: vi.fn(),
     runeEditingId: null,
     setRuneEditingId: vi.fn(),
     audioUploading: '',
-    getImageSrc: (fileName: string, folder: string) => `/images/${folder}/${fileName}`,
     runeImageFresh,
     handleRuneSubmit: vi.fn(e => e.preventDefault()),
     handleEditRune: vi.fn(),
@@ -51,20 +55,25 @@ function renderTab({
 const preview = () => screen.getByAltText('Превью картинки руны')
 const noPreview = () => screen.queryByAltText('Превью картинки руны')
 
-describe('RunesTab — превью картинки руны', () => {
-  it('свежая загрузка: показывает raw с меткой времени (обход кэшей Pages и SW)', () => {
-    renderTab({ runeImageFresh: { path: IMAGE, ts: 1234567890 } })
+describe('RunesTab — превью картинки руны (raw-first)', () => {
+  it('начинает с raw, резерв — URL сайта', () => {
+    renderTab()
+    expect(preview().getAttribute('src')).toBe(RAW)
+    fireEvent.error(preview())              // raw недоступен (оффлайн)
+    expect(preview().getAttribute('src')).toBe(LOCAL)
+  })
+
+  it('сохранённая версия подставляется как ?v=метка в raw-URL', () => {
+    renderTab({ imageUpdatedAt: 1234567890 })
     expect(preview().getAttribute('src')).toBe(`${RAW}?v=1234567890`)
   })
 
-  it('без свежей загрузки начинает с URL сайта, raw — только резерв', () => {
-    renderTab()
-    expect(preview().getAttribute('src')).toBe(LOCAL)
-    fireEvent.error(preview())
-    expect(preview().getAttribute('src')).toBe(RAW)
+  it('свежая загрузка в сессии: метка сессии вместо записанной версии', () => {
+    renderTab({ imageUpdatedAt: 111, runeImageFresh: { path: IMAGE, ts: 1234567890 } })
+    expect(preview().getAttribute('src')).toBe(`${RAW}?v=1234567890`)
   })
 
-  it('если не загрузилось ни с сайта, ни с raw — превью скрывается', () => {
+  it('если не загрузилось ни с raw, ни с сайта — превью скрывается', () => {
     renderTab()
     fireEvent.error(preview())
     fireEvent.error(preview())
@@ -74,16 +83,14 @@ describe('RunesTab — превью картинки руны', () => {
   it('свежая загрузка: резервные варианты — URL сайта, затем скрытие', () => {
     renderTab({ runeImageFresh: { path: IMAGE, ts: 42 } })
     fireEvent.error(preview())              // raw?=42 не отдался
-    expect(preview().getAttribute('src')).toBe(LOCAL)
-    fireEvent.error(preview())              // фото с сайта ещё не задеплоено
-    expect(preview().getAttribute('src')).toBe(RAW)
-    fireEvent.error(preview())              // и raw недоступен — прячем
+    expect(preview().getAttribute('src')).toContain(`${LOCAL}?v=42`)
+    fireEvent.error(preview())              // и сайт недоступен — прячем
     expect(noPreview()).toBeNull()
   })
 
-  it('картинка другой руны: метка свежести не подходит, начинаем с URL сайта', () => {
-    renderTab({ runeImageFresh: { path: '02_OTHER.png', ts: 42 } })
-    expect(preview().getAttribute('src')).toBe(LOCAL)
+  it('картинка другой руны: метка свежести не подходит, берём записанную версию', () => {
+    renderTab({ imageUpdatedAt: 777, runeImageFresh: { path: '02_OTHER.png', ts: 42 } })
+    expect(preview().getAttribute('src')).toBe(`${RAW}?v=777`)
   })
 
   it('без картинки превью не показывается', () => {

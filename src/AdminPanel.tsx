@@ -99,7 +99,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // именем файла и Pages, и Service Worker ещё отдают старую версию.
   const [runeImageFresh, setRuneImageFresh] = useState<{ path: string, ts: number } | null>(null)
   const [runeFormData, setRuneFormData] = useState({
-    name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center'
+    name: '', graphic: '', letter: '', image: '', imageUpdatedAt: 0, power: '', keywords: '', description: '', textAlign: 'center'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -153,16 +153,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (userFolder) return `${base}${userFolder}/${fileName}`
     return `${base}${fileName}`
   }, [])
-
-  // URL картинки (same-origin public/images/) для превью в админке:
-  // админ — общий словарь (корень), обычный пользователь — личный (images/{emailFolder}/)
-  const getImageSrc = useCallback((fileName, folder?: string) => {
-    if (!fileName) return ''
-    if (/^https?:\/\//i.test(fileName)) return fileName
-    if (folder !== undefined) return buildImageUrl(fileName, folder)
-    const userFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-    return buildImageUrl(fileName, userFolder)
-  }, [isRestrictedUser, activeUser])
 
   const stopAudio = useCallback(() => {
     // Отменяет запоздавшую ошибку/откат на raw для остановленного файла
@@ -781,17 +771,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setError('')
     try {
       // Руны — картинка в public/images/n_runy/. Перезапись идёт под тем же
-      // именем файла (без суффиксов): свежая версия появится на сайте после
-      // деплоя GitHub Pages (несколько минут), до этого видна прежняя.
+      // именем файла (без суффиксов), а мгновенное обновление даёт версия
+      // картинки: rune.imageUpdatedAt пишется в runes.json при сохранении
+      // (см. handleRuneSubmit) и подставляется в URL как ?v=… — иначе
+      // браузер/CDN/SW отдали бы старую копию с кодом 200.
       const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
-      // 💡 Превью в форме показываем с raw-URL (файл уже в репозитории, но ещё не
-      // в сборке сайта) — картинка видна сразу, без ожидания деплоя Pages
+      // 💡 Превью в форме: raw-first с raw-URL (файл уже в репозитории, но ещё
+      // не в сборке сайта) — картинка видна сразу, без ожидания деплоя Pages
       setRuneImageFresh({ path: result.path, ts: Date.now() })
       // 🧿 Убираем URL из кэша SW (на случай перезаливки под тем же именем):
       // иначе stale-while-revalidate отдал бы старую версию
       invalidateImageCache(buildImageUrl(result.path, RUNES_IMAGE_DIR))
-      showMessage(`✅ Картинка «${result.path}» загружена. На сайте она обновится после деплоя (несколько минут) — до этого видна прежняя версия`)
+      showMessage(`✅ Картинка «${result.path}» загружена. Она уже видна в превью — на сайте появится сразу после сохранения руны`)
       // Заменённый файл здесь НЕ удаляем: карточка показывает сохранённое
       // состояние и до «Обновить» должна продолжать показывать прежнюю
       // картинку (иначе при «Отмене» ссылка в runes.json осталась бы на
@@ -818,14 +810,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // 🧿 Убираем файл из кэша SW: иначе удалённая картинка продолжала бы
       // отдаваться из кэша до фонового обновления.
       invalidateImageCache(buildImageUrl(fileName, RUNES_IMAGE_DIR))
-      setRuneFormData(prev => ({ ...prev, image: '' }))
+      setRuneFormData(prev => ({ ...prev, image: '', imageUpdatedAt: 0 }))
       setRuneImageFresh(null)
       showMessage(`✅ Картинка «${fileName}» удалена`)
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
       // Если файл не найден — всё равно очищаем поле, т.к. файла уже нет
       if (errMsg.includes('не найден')) {
-        setRuneFormData(prev => ({ ...prev, image: '' }))
+        setRuneFormData(prev => ({ ...prev, image: '', imageUpdatedAt: 0 }))
         showMessage(`⚠️ Файл «${fileName}» не найден на сервере — поле очищено`)
       } else {
         setError('❌ Ошибка удаления картинки: ' + errMsg)
@@ -1072,13 +1064,19 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setError('')
     if (!runeFormData.name?.trim()) { setError('Название руны не может быть пустым'); return }
     try {
+      // 🖼️ Метка версии картинки: если файл только что перезалит в этой сессии
+      // (runeImageFresh), штампуем rune.imageUpdatedAt. Карточка подставит её в
+      // URL как ?v=… — браузер/CDN/SW увидят новый URL и возьмут свежую картинку
+      // с raw.githubusercontent сразу, не дожидаясь деплоя Pages.
+      const freshTs = runeImageFresh && runeImageFresh.path === runeFormData.image ? runeImageFresh.ts : 0
+      const formWithVersion = freshTs ? { ...runeFormData, imageUpdatedAt: freshTs } : { ...runeFormData }
       if (runeEditingId) {
         // Картинка, сохранённая в runes.json до правки. Если она заменена —
         // удаляем прежний файл только ПОСЛЕ успешной записи (в handleRuneImageUpload
         // старый файл намеренно остаётся: карточка показывает сохранённое
         // состояние, а при «Отмене» ссылка не должна остаться на удалённый файл)
         const savedImage = runes.find(r => r.id === runeEditingId)?.image || ''
-        await updateRune(runeEditingId, runeFormData)
+        await updateRune(runeEditingId, formWithVersion)
         if (activeUser?.email && savedImage && savedImage !== runeFormData.image) {
           try {
             await deleteImageFile(savedImage, activeUser.email, true, RUNES_IMAGE_DIR)
@@ -1087,11 +1085,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         }
         showMessage('✅ Руна обновлена')
       } else {
-        await addRune(runeFormData, adminUser?.email || activeUser?.email)
+        await addRune(formWithVersion, adminUser?.email || activeUser?.email)
         showMessage('✅ Руна добавлена')
       }
       setRuneEditingId(null)
-      setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
+      // Метка свежести погашена: версия уже записана в runes.json, повторный
+      // штамп при следующем сохранении не нужен
+      setRuneImageFresh(null)
+      setRuneFormData({ name: '', graphic: '', letter: '', image: '', imageUpdatedAt: 0, power: '', keywords: '', description: '', textAlign: 'center' })
       await refreshRunesAfterWrite()
     } catch (err) { setError('Ошибка рун: ' + err.message) }
   }
@@ -1099,11 +1100,15 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const handleEditRune = (r) => {
     setError('')
     setRuneEditingId(r.id)
+    // Правка чужой свежести не наследует: версия уже сидит в r.imageUpdatedAt,
+    // а runeImageFresh относится только к файлу, залитому в этой сессии
+    setRuneImageFresh(null)
     setRuneFormData({
       name: r.name || '',
       graphic: r.graphic || '',
       letter: r.letter || '',
       image: r.image || '',
+      imageUpdatedAt: r.imageUpdatedAt || 0,
       power: r.power || '',
       keywords: r.keywords || '',
       description: r.description || '',
@@ -1411,7 +1416,6 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             runeEditingId={runeEditingId}
             setRuneEditingId={setRuneEditingId}
             audioUploading={audioUploading}
-            getImageSrc={getImageSrc}
             runeImageFresh={runeImageFresh}
             handleRuneSubmit={handleRuneSubmit}
             handleEditRune={handleEditRune}

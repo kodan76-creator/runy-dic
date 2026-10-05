@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { useScrollRestoration } from '../../hooks/useScrollRestoration'
 import { RUNES_IMAGE_DIR } from '../../api/constants'
-import { buildRawImageUrl } from '../../api/images'
+import { buildRuneImageUrls } from '../../api/images'
 import RuneCard from '../RuneCard'
 
 export default function RunesTab({
@@ -13,7 +13,6 @@ export default function RunesTab({
   runeEditingId,
   setRuneEditingId,
   audioUploading,
-  getImageSrc,
   runeImageFresh,
   handleRuneSubmit,
   handleEditRune,
@@ -35,22 +34,21 @@ export default function RunesTab({
 
   const resetForm = () => {
     setRuneEditingId(null)
-    setRuneFormData({ name: '', graphic: '', letter: '', image: '', power: '', keywords: '', description: '', textAlign: 'center' })
+    setRuneFormData({ name: '', graphic: '', letter: '', image: '', imageUpdatedAt: 0, power: '', keywords: '', description: '', textAlign: 'center' })
   }
 
-  // 🖼️ URL превью картинки руны. Основной — локальный (сайт кэширует его
-  // Service Worker'ом), резервный — raw.githubusercontent: файл уже в
-  // репозитории, но ещё не попал в сборку GitHub Pages (деплой идёт с задержкой).
-  const previewLocal = runeFormData.image && getImageSrc ? getImageSrc(runeFormData.image, RUNES_IMAGE_DIR) : ''
-  const previewRaw = runeFormData.image ? buildRawImageUrl(runeFormData.image, RUNES_IMAGE_DIR) : ''
-  // 💡 Сразу после загрузки смотрим raw с меткой времени: под тем же именем и
-  // Pages, и Service Worker ещё отдают старую версию файла.
+  // 🖼️ URL превью картинки руны — raw-first с версией (см. buildRuneImageUrls):
+  // файл уже в репозитории сразу после коммита, а сборка GitHub Pages идёт с
+  // задержкой. Сразу после загрузки в этой сессии (runeImageFresh) версия ещё
+  // не записана в runes.json — подставляем метку сессии. Резерв — URL сайта
+  // (оффлайн / raw недоступен), затем превью скрывается.
   const previewFreshTs = runeImageFresh && runeImageFresh.path === runeFormData.image ? runeImageFresh.ts : 0
-  const previewCandidates = [
-    previewFreshTs && previewRaw ? `${previewRaw}?v=${previewFreshTs}` : '',
-    previewLocal,
-    previewRaw,
-  ].filter(Boolean)
+  const { primary: previewRaw, fallback: previewLocal } = buildRuneImageUrls(
+    previewFreshTs
+      ? { image: runeFormData.image, imageUpdatedAt: previewFreshTs }
+      : { image: runeFormData.image, imageUpdatedAt: runeFormData.imageUpdatedAt },
+  )
+  const previewCandidates = [previewRaw, previewLocal].filter(Boolean)
   const previewKey = `${runeFormData.image}|${previewFreshTs}`
   const attempt = previewAttempt.key === previewKey ? previewAttempt : { key: previewKey, index: 0, failed: false }
   const previewSrc = attempt.failed ? '' : (previewCandidates[attempt.index] || '')
@@ -199,7 +197,7 @@ export default function RunesTab({
               <button onClick={() => handleMoveRuneDown(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="Переместить вниз">⬇️</button>
               <button onClick={() => handleMoveRuneToEnd(r.id)} className="move-btn" disabled={idx === runes.length - 1} title="В конец">⏬</button>
             </div>
-            <RuneCard rune={r} imageSrc={r.image && getImageSrc ? getImageSrc(r.image, RUNES_IMAGE_DIR) : undefined} showMissingImageHint />
+            <RuneCard rune={r} showMissingImageHint />
             <div className="category-actions">
               <button onClick={() => handleEditRune(r)} className="edit-btn">✏️</button>
               <button onClick={() => handleDeleteRune(r.id)} className="delete-btn">🗑️</button>

@@ -2,7 +2,7 @@
 // Карточка руны на главном экране (раздел «Новые Руны»)
 import { useState, type ReactNode } from 'react'
 import { type Rune } from '../types'
-import { buildImageUrl, buildRawImageUrl } from '../api/images'
+import { buildImageUrl, buildRuneImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import { renderRichText } from '../utils/richText'
 import '../App.css'
@@ -43,22 +43,25 @@ type RuneCardProps = {
 }
 
 export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, hidePower = false, showMissingImageHint = false }: RuneCardProps) {
-  // 🙈 URL картинки, которая не загрузилась уже и с raw-фолбэка. Без этого в
+  // 🙈 URL картинки, которая не загрузилась уже и с резерва. Без этого в
   // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
   // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
   // смене картинки (новый URL) попытка загрузки повторяется автоматически.
   const [failedUrl, setFailedUrl] = useState('')
-  // 🖼️ Локальный URL, для которого показываем raw-фолбэк (см. rawSrc ниже).
-  const [rawFallbackFor, setRawFallbackFor] = useState('')
+  // 🖼️ Локальный URL, для которого показываем резерв (см. fallbackSrc ниже).
+  const [localFallbackFor, setLocalFallbackFor] = useState('')
   if (!rune) return null
-  const localSrc = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
-  // 🛡️ Файл уже в репозитории (его только что загрузили в админке), но сборка
-  // сайта на GitHub Pages ещё не обновилась — до деплоя локальный URL даёт 404.
-  // Показываем картинку с raw.githubusercontent: она доступна сразу после
-  // коммита (тот же приём, что для аудио в useAudioPlayback).
-  const rawSrc = buildRawImageUrl(rune.image || '', RUNES_IMAGE_DIR)
-  const usingRaw = !!rawSrc && rawSrc !== localSrc && rawFallbackFor === localSrc
-  const imgUrl = usingRaw ? rawSrc : localSrc
+  const fallbackBase = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
+  // 🖼️ Raw-first: файл уже в репозитории сразу после коммита, а сборка сайта
+  // на GitHub Pages обновляется с задержкой. Метка rune.imageUpdatedAt
+  // подставляется как ?v=… — при замене картинки под тем же именем иначе
+  // браузер/CDN/SW отдали бы старую копию с 200 (ошибки нет — фолбэк бы
+  // не сработал). Тот же приём, что для аудио в useAudioPlayback.
+  const { primary: rawSrc, fallback: localSrc } = imageSrc
+    ? { primary: fallbackBase, fallback: '' }
+    : buildRuneImageUrls(rune)
+  const usingLocal = !!localSrc && localSrc !== rawSrc && localFallbackFor === rawSrc
+  const imgUrl = usingLocal ? localSrc : rawSrc
   // В рунном режиме подсвечиваем только графическое изображение
   const textHighlight = runicMode ? '' : highlight
 
@@ -84,9 +87,10 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
               alt={rune.name || 'Руна'}
               loading="lazy"
               onError={() => {
-                // Локальный URL ещё не в сборке сайта — пробуем raw; если и он не
-                // загрузился, прячем блок целиком, чтобы не показывать alt-текст
-                if (!usingRaw && rawSrc && rawSrc !== localSrc) setRawFallbackFor(localSrc)
+                // Raw недоступен (оффлайн / raw лёг) — пробуем локальный URL
+                // сайта; если и он не загрузился, прячем блок целиком, чтобы
+                // не показывать alt-текст
+                if (!usingLocal && localSrc && localSrc !== rawSrc) setLocalFallbackFor(rawSrc)
                 else setFailedUrl(imgUrl)
               }}
             />

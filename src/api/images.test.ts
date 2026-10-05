@@ -1,7 +1,7 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls, buildRawImageUrl } from './images'
+import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls, collectImageUrls, buildRawImageUrl, buildRuneImageUrls } from './images'
 import { getGitHubFileSha } from './client'
 
 // Мокаем сетевые вызовы GitHub — тестируем только валидацию до загрузки.
@@ -240,6 +240,67 @@ describe('uploadImageFile: замена картинки перезаписыв�
   it('опция uniqueName игнорируется: имя файла остаётся исходным', async () => {
     const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', { uniqueName: true })
     expect(a.res.path).toBe('01_FAIS-SU.png')
+  })
+})
+
+describe('buildRuneImageUrls — raw-first с версией картинки', () => {
+  const RAW = 'https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images/n_runy/01_FAIS-SU.png'
+
+  it('без версии: primary — raw, fallback — URL сайта', () => {
+    const { primary, fallback } = buildRuneImageUrls({ image: '01_FAIS-SU.png' })
+    expect(primary).toBe(RAW)
+    expect(fallback).toContain('/images/n_runy/01_FAIS-SU.png')
+    expect(primary).not.toBe(fallback)
+  })
+
+  it('с версией: оба URL с ?v=метка (обход кэшей браузера/CDN/SW)', () => {
+    const { primary, fallback } = buildRuneImageUrls({ image: '01_FAIS-SU.png', imageUpdatedAt: 1234567890 })
+    expect(primary).toBe(`${RAW}?v=1234567890`)
+    expect(fallback).toContain('/images/n_runy/01_FAIS-SU.png?v=1234567890')
+  })
+
+  it('принимает строку (имя файла) — версия 0', () => {
+    const { primary, fallback } = buildRuneImageUrls('01_FAIS-SU.png')
+    expect(primary).toBe(RAW)
+    expect(fallback).not.toContain('?v=')
+  })
+
+  it('готовый http-URL возвращается как primary без резерва', () => {
+    const { primary, fallback } = buildRuneImageUrls({ image: 'https://example.com/a.png' })
+    expect(primary).toBe('https://example.com/a.png')
+    expect(fallback).toBe('')
+  })
+
+  it('без картинки — пустые URL', () => {
+    expect(buildRuneImageUrls({ image: '' })).toEqual({ primary: '', fallback: '' })
+    expect(buildRuneImageUrls(null)).toEqual({ primary: '', fallback: '' })
+  })
+})
+
+// 🧿 Прекэш офлайна: для рун греем локальный URL с ?v=версия (raw — cross-origin,
+// precacheUrls/SW его всё равно отфильтровывают). После замены картинки под тем
+// же именем SW прогреет именно новый URL, а не отдаст старую копию из кэша.
+describe('collectImageUrls — руны с версией картинки', () => {
+  const FOLDER = 'n_runy'
+
+  it('руна без версии: локальный URL без ?v=', () => {
+    expect(collectImageUrls([{ image: '01_FAIS-SU.png' }], FOLDER)).toEqual([
+      `${import.meta.env.BASE_URL}images/${FOLDER}/01_FAIS-SU.png`,
+    ])
+  })
+
+  it('руна с версией: локальный URL с ?v=метка', () => {
+    expect(
+      collectImageUrls([{ image: '01_FAIS-SU.png', imageUpdatedAt: 1234567890 }], FOLDER),
+    ).toEqual([
+      `${import.meta.env.BASE_URL}images/${FOLDER}/01_FAIS-SU.png?v=1234567890`,
+    ])
+  })
+
+  it('руна без картинки пропускается', () => {
+    expect(collectImageUrls([{ image: '' }, { image: '02_X.png', imageUpdatedAt: 7 }], FOLDER)).toEqual([
+      `${import.meta.env.BASE_URL}images/${FOLDER}/02_X.png?v=7`,
+    ])
   })
 })
 

@@ -14,9 +14,20 @@ import { EVALUATION_POSITION_LABELS, HEALING_POSITION_LABELS, getPositionLabel }
 vi.mock('../api/images', () => ({
   validateImageFile: vi.fn(async () => {}),
   buildImageUrl: (fileName: string, userFolder: string) => `/images/${userFolder}/${fileName}`,
-  // Резервный raw-URL: карточка руны берёт его, если картинки ещё нет в сборке сайта
+  // Резервный raw-URL: карточка руны берёт его первой (файл в репозитории
+  // доступен сразу после коммита), URL сайта — резерв
   buildRawImageUrl: (fileName: string, userFolder = '') =>
     `https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images/${userFolder ? userFolder + '/' : ''}${fileName}`,
+  buildRuneImageUrls: (rune: { image?: string, imageUpdatedAt?: number } | string) => {
+    const fileName = typeof rune === 'string' ? rune : rune?.image || ''
+    const version = typeof rune === 'object' && rune && Number.isFinite(Number(rune.imageUpdatedAt))
+      ? Number(rune.imageUpdatedAt)
+      : 0
+    return {
+      primary: `https://raw.githubusercontent.com/kodan76-creator/runy-dic/main/public/images/n_runy/${fileName}${version > 0 ? `?v=${version}` : ''}`,
+      fallback: `/images/n_runy/${fileName}${version > 0 ? `?v=${version}` : ''}`,
+    }
+  },
   collectRuneLayoutImageUrls: (names: string[]) =>
     names.map(name => `/images/n_runy/runy/${name}`),
   listRuneLayoutImages: vi.fn(async () => [

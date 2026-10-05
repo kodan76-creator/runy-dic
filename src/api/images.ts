@@ -263,6 +263,28 @@ export const buildImageUrl = (fileName, userFolder) => {
   return `${import.meta.env.BASE_URL}images/${fileName}`
 }
 
+// 🖼️ URL картинки «Отображения Силы Руны» — raw-first.
+// Файл уже в репозитории сразу после коммита (raw отдаёт его мгновенно), а
+// собранный сайт на GitHub Pages обновляется с задержкой. raw при этом —
+// cross-origin, поэтому Service Worker его не перехватывает, CDN-кэш на
+// raw.githubusercontent для свежих коммитов короткий, а локальный URL остаётся
+// резервом (оффлайн + случай недоступности raw).
+// `rune.imageUpdatedAt` (метка перезаливки) подставляется как `?v=…`: без неё
+// при замене картинки под тем же именем браузер/CDN/SW отдали бы старую копию
+// с кодом 200 — ошибки нет, и raw-фолбэк бы не сработал.
+export const buildRuneImageUrls = (rune) => {
+  const fileName = typeof rune === 'string' ? rune : rune?.image || ''
+  const version = typeof rune === 'object' && rune && Number.isFinite(Number(rune.imageUpdatedAt))
+    ? Number(rune.imageUpdatedAt)
+    : 0
+  if (!fileName) return { primary: '', fallback: '' }
+  if (/^https?:\/\//i.test(fileName)) return { primary: fileName, fallback: '' }
+  const local = buildImageUrl(fileName, RUNES_IMAGE_DIR)
+  const raw = buildRawImageUrl(fileName, RUNES_IMAGE_DIR)
+  const withVersion = (url) => (version > 0 && url && !url.includes('?') ? `${url}?v=${version}` : url)
+  return { primary: withVersion(raw) || raw, fallback: withVersion(local) || local }
+}
+
 // 🖼️ Резервный URL картинки на raw.githubusercontent — для файлов, которые уже
 // есть в репозитории (только что загружены в админке), но ещё не попали в
 // собранный сайт: GitHub Pages деплоится с задержкой, и до этого обычный URL
@@ -297,10 +319,21 @@ export const invalidateImageCache = (url) => {
 
 // Собирает URL всех картинок словаря для прекэша (оффлайн).
 // resolveFolder: функция (word) => папка пользователя или ''/null, либо сама папка.
+// Руны (resolveFolder === RUNES_IMAGE_DIR): к локальному URL добавляем ?v=версия
+// (rune.imageUpdatedAt) — после замены картинки под тем же именем SW прогреет
+// именно новый URL, а не отдаст старую копию из кэша.
 export const collectImageUrls = (words, resolveFolder) => {
   const urls: string[] = []
   for (const w of (Array.isArray(words) ? words : [])) {
     if (!w?.image) continue
+    // 🧿 Руны: локальный URL с ?v=версия. Raw-first в карточке даёт свежесть
+    // сразу после коммита, а сюда raw не добавляем: precacheUrls и SW принимают
+    // только same-origin URL (cross-origin raw всё равно отфильтруется).
+    if (resolveFolder === RUNES_IMAGE_DIR || (typeof resolveFolder === 'function' && resolveFolder(w) === RUNES_IMAGE_DIR)) {
+      const { fallback } = buildRuneImageUrls(w)
+      if (fallback && fallback.startsWith(import.meta.env.BASE_URL)) urls.push(fallback)
+      continue
+    }
     const folder = typeof resolveFolder === 'function' ? resolveFolder(w) : resolveFolder
     const u = buildImageUrl(w.image, folder)
     if (u && u.startsWith(import.meta.env.BASE_URL)) urls.push(u)
