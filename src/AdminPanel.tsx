@@ -780,12 +780,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     setAudioUploading('runeImage')
     setError('')
     try {
-      // Руны — картинка в public/images/n_runy/. uniqueName: новая картинка
-      // получает НОВЫЙ URL (суффикс — хеш содержимого), иначе при перезаливке под
-      // тем же именем Pages и кэши браузера/SW продолжают отдавать старую
-      // картинку (HTTP 200 — ошибки нет, фолбэк на raw не срабатывает), и в
-      // карточке до деплоя видна старая версия.
-      const result = await uploadImageFile(file, activeUser.email, true, { uniqueName: true }, RUNES_IMAGE_DIR)
+      // Руны — картинка в public/images/n_runy/. Перезапись идёт под тем же
+      // именем файла (без суффиксов): свежая версия появится на сайте после
+      // деплоя GitHub Pages (несколько минут), до этого видна прежняя.
+      const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
       // 💡 Превью в форме показываем с raw-URL (файл уже в репозитории, но ещё не
       // в сборке сайта) — картинка видна сразу, без ожидания деплоя Pages
@@ -793,7 +791,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // 🧿 Убираем URL из кэша SW (на случай перезаливки под тем же именем):
       // иначе stale-while-revalidate отдал бы старую версию
       invalidateImageCache(buildImageUrl(result.path, RUNES_IMAGE_DIR))
-      showMessage(`✅ Картинка «${result.path}» загружена`)
+      showMessage(`✅ Картинка «${result.path}» загружена. На сайте она обновится после деплоя (несколько минут) — до этого видна прежняя версия`)
       // Заменённый файл здесь НЕ удаляем: карточка показывает сохранённое
       // состояние и до «Обновить» должна продолжать показывать прежнюю
       // картинку (иначе при «Отмене» ссылка в runes.json осталась бы на

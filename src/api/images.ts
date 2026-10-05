@@ -50,27 +50,11 @@ export type ImageValidationOptions = {
 
 export type ImageUploadOptions = ImageValidationOptions & {
   /**
-   * 🏷 Уникальное имя файла по хешу содержимого — ТОЛЬКО при замене уже
-   * существующего файла: новая картинка получает НОВЫЙ URL, которого ещё нет ни
-   * в сборке GitHub Pages, ни в кэшах браузера и Service Worker'а. Без этого при
-   * перезаливке под тем же именем сервер и кэши продолжают отдавать старую
-   * картинку (HTTP 200 — ошибки нет, поэтому фолбэк на raw.githubusercontent не
-   * срабатывает и в карточке видна старая картинка).
-   * Первичная загрузка оставляет обычное имя файла; повторная загрузка тех же
-   * байт даёт то же имя (идемпотентно).
+   * ⚠️ Deprecated: игнорируется, оставлено для совместимости вызовов.
+   * Имена файлов больше не меняются — замена картинки идёт перезаписью
+   * под тем же именем (без суффиксов).
    */
   uniqueName?: boolean
-}
-
-// 🏷 Суффикс имени файла: первые 6 hex SHA-256 содержимого.
-// Если WebCrypto недоступен (не secure context) — откат на метку времени.
-const contentNameSuffix = async (buffer: ArrayBuffer): Promise<string> => {
-  try {
-    const digest = await crypto.subtle.digest('SHA-256', buffer)
-    return [...new Uint8Array(digest)].slice(0, 3).map(b => b.toString(16).padStart(2, '0')).join('')
-  } catch {
-    return Date.now().toString(36)
-  }
 }
 
 export const validateImageFile = async (file: File, options: ImageValidationOptions = {}) => {
@@ -109,35 +93,21 @@ export const uploadImageFile = async (file: File, userEmail: string, rootUpload 
 
   const folder = emailToFolderName(userEmail)
 
-  // Читаем файл один раз — и для base64, и для хеша содержимого
+  // Читаем файл для base64-кодирования перед отправкой в GitHub Contents API
   const arrayBuffer = await file.arrayBuffer()
   const bytes = new Uint8Array(arrayBuffer)
 
   const buildPath = (name: string) =>
     rootUpload ? `public/images/${subFolder ? subFolder + '/' : ''}${name}` : `public/images/${folder}/${name}`
 
-  let safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
-  // 🏷 Суффикс из хеша содержимого — только при ЗАМЕНЕ существующего файла:
-  // новый URL, которого ещё нет ни на Pages, ни в кэшах (иначе перезаливка под
-  // тем же именем отдаёт старую картинку). Первичная загрузка — обычное имя.
-  let knownSha: string | null = null
-  if (options.uniqueName) {
-    const baseSha = await getGitHubFileSha(buildPath(safeName))
-    if (baseSha) {
-      const suffix = await contentNameSuffix(arrayBuffer)
-      const dot = safeName.lastIndexOf('.')
-      const base = dot > 0 ? safeName.slice(0, dot) : safeName
-      const ext = dot > 0 ? safeName.slice(dot) : ''
-      // Файл уже с этим суффиксом — sha известен, второй запрос не нужен
-      if (base.endsWith(`_${suffix}`)) knownSha = baseSha
-      else safeName = `${base}_${suffix}${ext}`
-    }
-  }
+  // Имя файла не меняем: замена картинки идёт перезаписью под тем же именем.
+  // (опция options.uniqueName игнорируется — оставлена для совместимости)
+  const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
 
   const filePath = buildPath(safeName)
 
   // Получаем SHA, если файл уже существует (для перезаписи)
-  const existingSha = knownSha ?? (await getGitHubFileSha(filePath))
+  const existingSha = await getGitHubFileSha(filePath)
 
   // Кодируем прочитанные байты как base64
   let binary = ''

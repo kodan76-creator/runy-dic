@@ -1,7 +1,6 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { webcrypto } from 'node:crypto'
 import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls, buildRawImageUrl } from './images'
 import { getGitHubFileSha } from './client'
 
@@ -185,10 +184,8 @@ describe('cleanupUserPhotos', () => {
   })
 })
 
-describe('uploadImageFile: uniqueName (замена картинки получает новый URL)', () => {
+describe('uploadImageFile: замена картинки перезаписывает тот же файл', () => {
   beforeEach(() => {
-    // jsdom не реализует crypto.subtle — подставляем Node WebCrypto (как в браузере)
-    vi.stubGlobal('crypto', webcrypto)
     vi.mocked(getGitHubFileSha).mockResolvedValue(null)
   })
 
@@ -197,13 +194,13 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
   })
 
   // Гоняет uploadImageFile с мокнутым fetch. baseExists=true имитирует замену
-  // уже существующего файла — только тогда и добавляется суффикс.
+  // уже существующего файла — имя при этом НЕ меняется (перезапись).
   const upload = async (
     content: string,
     name: string,
     opts: { uniqueName?: boolean, baseExists?: boolean } = {},
   ) => {
-    const { uniqueName = true, baseExists = true } = opts
+    const { uniqueName, baseExists = true } = opts
     vi.mocked(getGitHubFileSha).mockResolvedValue(baseExists ? 'sha-base-exists' : null)
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({}) }))
     vi.stubGlobal('fetch', fetchMock)
@@ -213,12 +210,11 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
     return { res, url: String(calls[0]) }
   }
 
-  it('замена: другое содержимое под тем же именем даёт другое уникальное имя', async () => {
+  it('замена: другое содержимое под тем же именем перезаписывает файл', async () => {
     const old = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png')
     const fresh = await upload('NEW-PICTURE-BYTES', '01_FAIS-SU.png')
-    expect(old.res.path).toMatch(/^01_FAIS-SU_[0-9a-f]{6}\.png$/)
-    expect(fresh.res.path).toMatch(/^01_FAIS-SU_[0-9a-f]{6}\.png$/)
-    expect(fresh.res.path).not.toBe(old.res.path)
+    expect(old.res.path).toBe('01_FAIS-SU.png')
+    expect(fresh.res.path).toBe('01_FAIS-SU.png')
   })
 
   it('первичная загрузка (файла ещё нет) оставляет обычное имя файла', async () => {
@@ -230,25 +226,19 @@ describe('uploadImageFile: uniqueName (замена картинки получ�
   it('замена: то же содержимое даёт то же имя — повторная загрузка идемпотентна', async () => {
     const a = await upload('SAME-BYTES', '01_FAIS-SU.png')
     const b = await upload('SAME-BYTES', '01_FAIS-SU.png')
-    expect(a.res.path).toBe(b.res.path)
+    expect(a.res.path).toBe('01_FAIS-SU.png')
+    expect(b.res.path).toBe('01_FAIS-SU.png')
   })
 
-  it('суффикс не удваивается при загрузке уже именованного файла', async () => {
-    const a = await upload('SAME-BYTES', '01_FAIS-SU.png')
-    const b = await upload('SAME-BYTES', a.res.path)
-    expect(b.res.path).toBe(a.res.path)
-  })
-
-  it('PUT уходит на новый URL, а не на старое имя файла', async () => {
+  it('PUT уходит на тот же URL файла (перезапись, без суффиксов)', async () => {
     const fresh = await upload('NEW-PICTURE-BYTES', '01_FAIS-SU.png')
     expect(fresh.url).toBe(
-      `https://api.github.com/repos/kodan76-creator/runy-dic/contents/public/images/n_runy/${fresh.res.path}`,
+      `https://api.github.com/repos/kodan76-creator/runy-dic/contents/public/images/n_runy/01_FAIS-SU.png`,
     )
-    expect(fresh.url).not.toContain('/n_runy/01_FAIS-SU.png')
   })
 
-  it('без uniqueName имя файла остаётся исходным (поведение по умолчанию)', async () => {
-    const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', { uniqueName: false })
+  it('опция uniqueName игнорируется: имя файла остаётся исходным', async () => {
+    const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', { uniqueName: true })
     expect(a.res.path).toBe('01_FAIS-SU.png')
   })
 })
