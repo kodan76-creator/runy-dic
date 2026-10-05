@@ -48,6 +48,29 @@ export type ImageValidationOptions = {
   maxHeight?: number
 }
 
+export type ImageUploadOptions = ImageValidationOptions & {
+  /**
+   * 🏷 Уникальное имя файла по хешу содержимого: замена картинки получает НОВЫЙ
+   * URL, которого ещё нет ни в сборке GitHub Pages, ни в кэшах браузера и Service
+   * Worker'а. Без этого при перезаливке под тем же именем сервер и кэши продолжают
+   * отдавать старую картинку (HTTP 200 — ошибки нет, поэтому фолбэк на
+   * raw.githubusercontent не срабатывает и в карточке видна старая картинка).
+   * Та же картинка, загруженная повторно, даёт то же имя — операция идемпотентна.
+   */
+  uniqueName?: boolean
+}
+
+// 🏷 Суффикс имени файла: первые 6 hex SHA-256 содержимого.
+// Если WebCrypto недоступен (не secure context) — откат на метку времени.
+const contentNameSuffix = async (buffer: ArrayBuffer): Promise<string> => {
+  try {
+    const digest = await crypto.subtle.digest('SHA-256', buffer)
+    return [...new Uint8Array(digest)].slice(0, 3).map(b => b.toString(16).padStart(2, '0')).join('')
+  } catch {
+    return Date.now().toString(36)
+  }
+}
+
 export const validateImageFile = async (file: File, options: ImageValidationOptions = {}) => {
   if (!file) throw new Error('Файл не указан')
   const ext = String((file.name || '').split('.').pop() || '').toLowerCase()
@@ -78,20 +101,30 @@ export const validateImageFile = async (file: File, options: ImageValidationOpti
   }
 }
 
-export const uploadImageFile = async (file: File, userEmail: string, rootUpload = false, options: ImageValidationOptions = {}, subFolder = '') => {
+export const uploadImageFile = async (file: File, userEmail: string, rootUpload = false, options: ImageUploadOptions = {}, subFolder = '') => {
   if (!file || !userEmail) throw new Error('Файл или пользователь не указаны')
   await validateImageFile(file, options)
 
   const folder = emailToFolderName(userEmail)
-  const safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
+
+  // Читаем файл один раз — и для base64, и для хеша содержимого
+  const arrayBuffer = await file.arrayBuffer()
+  const bytes = new Uint8Array(arrayBuffer)
+
+  let safeName = file.name.replace(/[^a-z0-9._-]/gi, '_')
+  if (options.uniqueName) {
+    const suffix = await contentNameSuffix(arrayBuffer)
+    const dot = safeName.lastIndexOf('.')
+    const base = dot > 0 ? safeName.slice(0, dot) : safeName
+    const ext = dot > 0 ? safeName.slice(dot) : ''
+    if (!base.endsWith(`_${suffix}`)) safeName = `${base}_${suffix}${ext}`
+  }
   const filePath = rootUpload ? `public/images/${subFolder ? subFolder + '/' : ''}${safeName}` : `public/images/${folder}/${safeName}`
 
   // Получаем SHA, если файл уже существует (для перезаписи)
   const existingSha = await getGitHubFileSha(filePath)
 
-  // Читаем файл как base64
-  const arrayBuffer = await file.arrayBuffer()
-  const bytes = new Uint8Array(arrayBuffer)
+  // Кодируем прочитанные байты как base64
   let binary = ''
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i])

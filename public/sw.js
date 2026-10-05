@@ -174,6 +174,18 @@ self.addEventListener('fetch', (event) => {
           if (response && response.ok) {
             const copy = response.clone()
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy))
+            return response
+          }
+          // Файл удалён или заменён картинкой с новым именем — старую копию
+          // выкидываем. Иначе stale-while-revalidate отдавал бы её вечно:
+          // при 404 запись не обновляется (response.ok = false), а cached
+          // остаётся в кэше навсегда.
+          if (response && response.status === 404 && cached) {
+            return caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.delete(event.request))
+              .then(() => response)
+              .catch(() => response)
           }
           return response
         })

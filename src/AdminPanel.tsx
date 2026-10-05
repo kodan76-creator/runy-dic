@@ -779,25 +779,26 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     setAudioUploading('runeImage')
     setError('')
-    const oldName = runeFormData.image
     try {
-      // Руны — картинка в public/images/n_runy/
-      const result = await uploadImageFile(file, activeUser.email, true, {}, RUNES_IMAGE_DIR)
+      // Руны — картинка в public/images/n_runy/. uniqueName: новая картинка
+      // получает НОВЫЙ URL (суффикс — хеш содержимого), иначе при перезаливке под
+      // тем же именем Pages и кэши браузера/SW продолжают отдавать старую
+      // картинку (HTTP 200 — ошибки нет, фолбэк на raw не срабатывает), и в
+      // карточке до деплоя видна старая версия.
+      const result = await uploadImageFile(file, activeUser.email, true, { uniqueName: true }, RUNES_IMAGE_DIR)
       setRuneFormData(prev => ({ ...prev, image: result.path }))
       // 💡 Превью в форме показываем с raw-URL (файл уже в репозитории, но ещё не
       // в сборке сайта) — картинка видна сразу, без ожидания деплоя Pages
       setRuneImageFresh({ path: result.path, ts: Date.now() })
-      // 🧿 Выкидываем старую версию из кэша SW, чтобы новая картинка появилась
-      // без перезагрузки страницы (stale-while-revalidate иначе отдаёт старую)
+      // 🧿 Убираем URL из кэша SW (на случай перезаливки под тем же именем):
+      // иначе stale-while-revalidate отдал бы старую версию
       invalidateImageCache(buildImageUrl(result.path, RUNES_IMAGE_DIR))
       showMessage(`✅ Картинка «${result.path}» загружена`)
-      // Если был старый файл и он не совпадает с новым — удаляем старый
-      if (oldName && oldName !== result.path) {
-        try {
-          await deleteImageFile(oldName, activeUser.email, true, RUNES_IMAGE_DIR)
-          invalidateImageCache(buildImageUrl(oldName, RUNES_IMAGE_DIR))
-        } catch { /* файл мог быть уже удалён — не критично */ }
-      }
+      // Заменённый файл здесь НЕ удаляем: карточка показывает сохранённое
+      // состояние и до «Обновить» должна продолжать показывать прежнюю
+      // картинку (иначе при «Отмене» ссылка в runes.json осталась бы на
+      // удалённый файл). Удаление прежней картинки — в handleRuneSubmit
+      // после успешного updateRune.
     } catch (err) {
       const errMsg = err.message || 'Неизвестная ошибка'
       setError('❌ Ошибка загрузки картинки: ' + errMsg)
@@ -1074,7 +1075,18 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (!runeFormData.name?.trim()) { setError('Название руны не может быть пустым'); return }
     try {
       if (runeEditingId) {
+        // Картинка, сохранённая в runes.json до правки. Если она заменена —
+        // удаляем прежний файл только ПОСЛЕ успешной записи (в handleRuneImageUpload
+        // старый файл намеренно остаётся: карточка показывает сохранённое
+        // состояние, а при «Отмене» ссылка не должна остаться на удалённый файл)
+        const savedImage = runes.find(r => r.id === runeEditingId)?.image || ''
         await updateRune(runeEditingId, runeFormData)
+        if (activeUser?.email && savedImage && savedImage !== runeFormData.image) {
+          try {
+            await deleteImageFile(savedImage, activeUser.email, true, RUNES_IMAGE_DIR)
+            invalidateImageCache(buildImageUrl(savedImage, RUNES_IMAGE_DIR))
+          } catch { /* файл мог быть уже удалён — не критично */ }
+        }
         showMessage('✅ Руна обновлена')
       } else {
         await addRune(runeFormData, adminUser?.email || activeUser?.email)

@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import AdminPanel from './AdminPanel'
-import { getDictionary, getCategories, addWord } from './githubApi'
+import { getDictionary, getCategories, addWord, getRunes, updateRune, deleteImageFile } from './githubApi'
 
 // ── Моки: панель не должна ходить в сеть и в кэши ────────────────────────────
 vi.mock('./githubApi', () => {
@@ -67,6 +67,7 @@ vi.mock('./githubApi', () => {
     flushOfflineChanges: vi.fn(async () => 0),
     collectAudioUrls: vi.fn(() => []),
     precacheUrls: vi.fn(),
+    invalidateImageCache: vi.fn(() => false),
   }
 })
 
@@ -126,6 +127,65 @@ describe('AdminPanel: активная вкладка и restricted-пользо
     expect(await screen.findByRole('button', { name: /Пользователи/ })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: /Пользователи \(/ })).toBeInTheDocument()
     expect(localStorage.getItem('admin_active_tab')).toBe('users')
+  })
+})
+
+// 🖼 Замена картинки руны: прежний файл удаляется только ПОСЛЕ успешного
+// сохранения. Пока не нажато «Обновить», карточка показывает сохранённое
+// состояние (старая картинка остаётся рабочей), а при «Отмене» ссылка в
+// runes.json не остаётся на удалённый файл.
+describe('AdminPanel: замена картинки руны', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    localStorage.setItem('admin_active_tab', 'runes')
+    localStorage.setItem('adminUser', JSON.stringify({ email: 'admin@example.com', role: 'admin' }))
+    vi.mocked(getRunes).mockResolvedValue({
+      data: [{ id: 'r1', name: 'ФАИС-СУ', image: '01_FAIS-SU.png', power: '', keywords: '' }],
+      ok: true,
+    } as never)
+    vi.mocked(updateRune).mockClear()
+    vi.mocked(deleteImageFile).mockClear()
+  })
+
+  afterEach(() => {
+    vi.mocked(getRunes).mockResolvedValue({ data: [], ok: true } as never)
+  })
+
+  const renderRunesTab = () =>
+    render(<AdminPanel currentUser={null} onAdminLogin={vi.fn()} onAdminLogout={vi.fn()} />)
+
+  it('картинка заменена и нажато «Обновить» — прежний файл удалён', async () => {
+    const { container } = renderRunesTab()
+
+    // Руна подгрузилась, открываем её на редактирование
+    await screen.findByText('ФАИС-СУ')
+    fireEvent.click(container.querySelector('.rune-item .edit-btn') as HTMLElement)
+
+    // В поле картинки — сохранённое имя; подставляем новое (как после загрузки)
+    const imageInput = await screen.findByLabelText('Имя файла картинки руны')
+    expect((imageInput as HTMLInputElement).value).toBe('01_FAIS-SU.png')
+    fireEvent.change(imageInput, { target: { value: '01_FAIS-SU_a1b2c3.png' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    await waitFor(() =>
+      expect(deleteImageFile).toHaveBeenCalledWith('01_FAIS-SU.png', 'admin@example.com', true, 'n_runy'),
+    )
+    expect(updateRune).toHaveBeenCalledWith(
+      'r1',
+      expect.objectContaining({ image: '01_FAIS-SU_a1b2c3.png' }),
+    )
+  })
+
+  it('картинка не менялась — прежний файл не удаляется', async () => {
+    const { container } = renderRunesTab()
+
+    await screen.findByText('ФАИС-СУ')
+    fireEvent.click(container.querySelector('.rune-item .edit-btn') as HTMLElement)
+    fireEvent.click(await screen.findByRole('button', { name: 'Обновить' }))
+
+    await waitFor(() => expect(updateRune).toHaveBeenCalledTimes(1))
+    expect(deleteImageFile).not.toHaveBeenCalled()
   })
 })
 

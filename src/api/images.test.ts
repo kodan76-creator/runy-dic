@@ -1,6 +1,7 @@
 // src/api/images.test.ts
 // Юнит-тесты валидации загрузки изображений (расширения, объём, размеры).
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { webcrypto } from 'node:crypto'
 import { uploadImageFile, listUserImages, cleanupUserPhotos, selectRandomRunes, collectRuneLayoutImageUrls, buildRawImageUrl } from './images'
 import { getGitHubFileSha } from './client'
 
@@ -181,6 +182,56 @@ describe('cleanupUserPhotos', () => {
 
     const deleted = await cleanupUserPhotos('test@test.ru', 'keep.png')
     expect(deleted).toBe(1)
+  })
+})
+
+describe('uploadImageFile: uniqueName (замена картинки получает новый URL)', () => {
+  beforeEach(() => {
+    // jsdom не реализует crypto.subtle — подставляем Node WebCrypto (как в браузере)
+    vi.stubGlobal('crypto', webcrypto)
+  })
+
+  // Гоняет uploadImageFile с мокнутым fetch и возвращает путь + URL загрузки
+  const upload = async (content: string, name: string, uniqueName = true) => {
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({}) }))
+    vi.stubGlobal('fetch', fetchMock)
+    const file = new File([content], name, { type: 'image/png' })
+    const res = await uploadImageFile(file, 'test@test.ru', true, { uniqueName }, 'n_runy')
+    const calls: unknown[] = fetchMock.mock.calls[0]
+    return { res, url: String(calls[0]) }
+  }
+
+  it('другое содержимое под тем же именем файла даёт другое уникальное имя', async () => {
+    const old = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png')
+    const fresh = await upload('NEW-PICTURE-BYTES', '01_FAIS-SU.png')
+    expect(old.res.path).toMatch(/^01_FAIS-SU_[0-9a-f]{6}\.png$/)
+    expect(fresh.res.path).toMatch(/^01_FAIS-SU_[0-9a-f]{6}\.png$/)
+    expect(fresh.res.path).not.toBe(old.res.path)
+  })
+
+  it('то же содержимое даёт то же имя — повторная загрузка ничего не меняет', async () => {
+    const a = await upload('SAME-BYTES', '01_FAIS-SU.png')
+    const b = await upload('SAME-BYTES', '01_FAIS-SU.png')
+    expect(a.res.path).toBe(b.res.path)
+  })
+
+  it('суффикс не удваивается при загрузке уже именованного файла', async () => {
+    const a = await upload('SAME-BYTES', '01_FAIS-SU.png')
+    const b = await upload('SAME-BYTES', a.res.path)
+    expect(b.res.path).toBe(a.res.path)
+  })
+
+  it('PUT уходит на новый URL, а не на старое имя файла', async () => {
+    const fresh = await upload('NEW-PICTURE-BYTES', '01_FAIS-SU.png')
+    expect(fresh.url).toBe(
+      `https://api.github.com/repos/kodan76-creator/runy-dic/contents/public/images/n_runy/${fresh.res.path}`,
+    )
+    expect(fresh.url).not.toContain('/n_runy/01_FAIS-SU.png')
+  })
+
+  it('без uniqueName имя файла остаётся исходным (поведение по умолчанию)', async () => {
+    const a = await upload('OLD-PICTURE-BYTES', '01_FAIS-SU.png', false)
+    expect(a.res.path).toBe('01_FAIS-SU.png')
   })
 })
 
