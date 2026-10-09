@@ -106,6 +106,21 @@ const SECTION_IMAGES = [
   './fonts/Dao_Rus.ttf',
 ]
 
+// 📥 Кладём один URL в кэш устойчиво: cache.add падает с TypeError на
+// редиректах, 404 и 206 Partial Content (аудио с Range-запросами).
+// Поэтому качаем fetch'ем и сохраняем только полноценный ответ 200,
+// не-редирект и same-origin. Ошибки глушим — прекеш не должен ронять SW.
+const cacheOne = async (cache, url) => {
+  try {
+    const res = await fetch(url, { credentials: 'same-origin' })
+    if (!res || !res.ok || res.status !== 200 || res.redirected) return false
+    await cache.put(url, res.clone())
+    return true
+  } catch {
+    return false
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -114,9 +129,7 @@ self.addEventListener('install', (event) => {
         await cache.addAll(APP_SHELL)
         // Каждую картинку качаем отдельно: одна ошибка не должна ломать установку SW
         await Promise.all(
-          [...RUNE_IMAGES, ...RUNE_CARD_IMAGES, ...SECTION_IMAGES].map((u) =>
-            cache.add(u).catch((err) => console.error('RUNE image precache failed:', u, err))
-          )
+          [...RUNE_IMAGES, ...RUNE_CARD_IMAGES, ...SECTION_IMAGES].map((u) => cacheOne(cache, u))
         )
       })
       .then(() => self.skipWaiting())
@@ -157,10 +170,12 @@ self.addEventListener('message', (event) => {
       event.waitUntil(
         caches.open(CACHE_NAME)
           .then(async (cache) => {
-            // Грузим пачками: сразу 38 картинок рун «забивают» канал на телефоне
+            // Грузим пачками: сразу 38 картинок рун «забивают» канал на телефоне.
+            // cacheOne глушит 404/редиректы/206 — устаревший assets-хеш из
+            // списка прогрева больше не сыплет ошибками в консоль.
             for (let i = 0; i < urls.length; i += PRECACHE_CHUNK_SIZE) {
               const part = urls.slice(i, i + PRECACHE_CHUNK_SIZE)
-              await Promise.all(part.map((u) => cache.add(u).catch((err) => console.error('PRECACHE one failed:', u, err))))
+              await Promise.all(part.map((u) => cacheOne(cache, u)))
             }
           })
           .catch((err) => console.error('PRECACHE failed:', err))

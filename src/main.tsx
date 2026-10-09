@@ -5,6 +5,9 @@ import App from './App.tsx'
 import ErrorBoundary from './components/ErrorBoundary.tsx'
 import { initTheme } from './theme.ts'
 import './fonts.css'
+// 🔍 Диагностика оффлайн-хранилища: вешает window.__offlineContentDiag().
+// Функция вызывается вручную из консоли браузера, на работу приложения не влияет.
+import './api/offlineContentDebug'
 
 initTheme()
 
