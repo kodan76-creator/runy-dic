@@ -29,6 +29,7 @@ import {
 } from '../api/offline'
 import { prefetchOfflineContent } from '../api/offlineContent'
 import { RUNES_LAYOUT_FALLBACK } from '../api/runeLayoutList'
+import OfflineImage from './OfflineImage'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
@@ -734,7 +735,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                         aria-label={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
                         title={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
                       >
-                        <img
+                        <OfflineImage
                           src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
                           alt={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
                           draggable={false}
@@ -944,9 +945,10 @@ export default function RuneLayout({ user, onUserUpdate }) {
                 >
                   {spreadRunes.map((name, i) => (
                     <div key={name} className={`rune-layout-spread-item pos-${i + 1}`}>
-                      <img
+                      <OfflineImage
                         src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
                         alt=""
+                        draggable={false}
                       />
                       <span className="rune-layout-spread-num" aria-hidden="true">{i + 1}</span>
                     </div>
