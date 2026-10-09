@@ -35,6 +35,12 @@ type RuneCardProps = {
   highlight?: string
   runicMode?: boolean
   /**
+   * 🖨️ Печать: карточка рендерится в скрытом контейнере (display: none),
+   * поэтому loading="lazy" не даёт браузеру загрузить картинку до печати.
+   * Для печатных страниц грузим изображение сразу (loading="eager").
+   */
+  eagerImage?: boolean
+  /**
    * ⚠️ Админка: показывать подсказку, если картинка не найдена ни на сайте, ни
    * на raw.githubusercontent (например, файл удалили из репозитория, а ссылка
    * осталась в runes.json). На главной остаётся тихое скрытие блока.
@@ -42,7 +48,7 @@ type RuneCardProps = {
   showMissingImageHint?: boolean
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, showMissingImageHint = false }: RuneCardProps) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, showMissingImageHint = false, eagerImage = false }: RuneCardProps) {
   // 🙈 URL картинки, которая не загрузилась уже и с резерва. Без этого в
   // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
   // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
@@ -116,7 +122,7 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
               className="rune-image"
               src={imgUrl}
               alt={rune.name || 'Руна'}
-              loading="lazy"
+              loading={eagerImage ? 'eager' : 'lazy'}
               onError={() => {
                 // Raw недоступен (оффлайн / raw лёг) — пробуем локальный URL
                 // сайта; если и он не загрузился, прячем блок целиком, чтобы

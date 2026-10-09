@@ -949,6 +949,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                         src={buildImageUrl(name, `${RUNES_IMAGE_DIR}/runy`)}
                         alt=""
                         draggable={false}
+                        loading="eager"
                       />
                       <span className="rune-layout-spread-num" aria-hidden="true">{i + 1}</span>
                     </div>
@@ -968,6 +969,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
                   {/* 🖨️ Печатная карточка — полная, как в модалке и в «Новых Рунах»:
                       с «Отображением Силы Руны» (картинка) и «Описанием Силы Руны». */}
                   <RuneCard
+                    eagerImage
                     rune={rune
                       ?? { name: name.replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
                   />
