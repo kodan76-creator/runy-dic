@@ -1000,6 +1000,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <RuneCard
               rune={findLayoutRune(spreadRunes[selectedRuneIndex], runesCatalog)
                 ?? { name: spreadRunes[selectedRuneIndex].replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_П$/i, ' (перевернутое положение)') }}
+              imageSrc={buildImageUrl(spreadRunes[selectedRuneIndex], `${RUNES_IMAGE_DIR}/runy`)}
             />
           </div>
         </div>
