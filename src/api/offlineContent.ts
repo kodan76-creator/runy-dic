@@ -111,17 +111,33 @@ const saveMeta = async (meta: OfflineContentMeta): Promise<void> => {
  * @returns true, если файл сохранён (или уже был)
  */
 export const downloadAndStore = async (url: string): Promise<boolean> => {
-  if (!url || !/^https?:/i.test(url)) return false
+  if (!url) return false
+  // Приложение отдаёт относительные URL сайта (/images/...). Приводим их к
+  // абсолютным: fetch в браузере требует абсолютный URL, а ключ оставляем
+  // исходный — именно его ищут RuneCard и useAudioPlayback.
+  const absoluteUrl = toAbsoluteUrl(url)
   if (await hasOfflineBlob(url)) return true
   try {
-    const res = await fetch(url)
+    const res = await fetch(absoluteUrl, { credentials: 'same-origin' })
     if (!res.ok) return false
     const blob = await res.blob()
     if (!blob || blob.size === 0) return false
+    // Ключ — исходный (относительный) URL: именно его ищут RuneCard/useAudioPlayback.
     await idbPut(STORE, blob, url)
     return true
   } catch {
     return false
+  }
+}
+
+// Относительный URL сайта → абсолютный (для fetch). Уже абсолютный возвращаем как есть.
+const toAbsoluteUrl = (url: string): string => {
+  if (/^https?:/i.test(url)) return url
+  try {
+    const base = typeof self !== 'undefined' && self.location ? self.location.origin : window.location.origin
+    return new URL(url, base).href
+  } catch {
+    return url
   }
 }
 
