@@ -402,7 +402,13 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         precacheUrls(collectAudioUrls(cache.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
         // Руны из кэша
         const cachedRunes = getCachedRunes()
-        if (Array.isArray(cachedRunes)) setRunes(cachedRunes)
+        if (Array.isArray(cachedRunes)) {
+          setRunes(cachedRunes)
+          // 🧿 Прогреваем картинки рун из кэша: без этого оффлайн-карточка
+          // «Отображение Силы Руны» в модалке раскладки остаётся без картинки
+          // (raw недоступен, а локальный резерв не в кэше SW).
+          if (cachedRunes.length > 0) precacheUrls(collectImageUrls(cachedRunes, RUNES_IMAGE_DIR))
+        }
       } else {
         setLoadError(true)
       }

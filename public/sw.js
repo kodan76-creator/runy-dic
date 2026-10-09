@@ -5,7 +5,7 @@
  * - Статика: stale-while-revalidate (сначала кэш, фоном обновляется).
  * - API-запросы (api.github.com и другие домены) не перехватываются.
  */
-const CACHE_NAME = 'runy-dic-v20'
+const CACHE_NAME = 'runy-dic-v21'
 const APP_SHELL = ['./', './index.html']
 
 // 🧿 Все картинки рун для «Рунной раскладки» (креста) кэшируются сразу при
@@ -52,6 +52,52 @@ const RUNE_IMAGES = [
   './images/n_runy/runy/38_РУНА ТИШИНЫ.png',
 ]
 
+// 🖼️ Картинки рун для карточки «Отображение Силы Руны» (модалка раскладки):
+// runes.json ссылается на латинские имена в public/images/n_runy/. Раньше этот
+// набор не кэшировался при установке SW — оффлайн карточка оставалась без
+// картинки (raw недоступен, а локальный резерв не в кэше).
+const RUNE_CARD_IMAGES = [
+  './images/n_runy/01_FAIS-SU.png',
+  './images/n_runy/02_FAIS-SU_p.png',
+  './images/n_runy/02_FAIS-SU_p_69b813.png',
+  './images/n_runy/03_ORS_74e7c2.png',
+  './images/n_runy/04_ORS_p.png',
+  './images/n_runy/05_TURZ.png',
+  './images/n_runy/06_AZ.png',
+  './images/n_runy/07_RADO.png',
+  './images/n_runy/08_RADO_p.png',
+  './images/n_runy/09_ALU.png',
+  './images/n_runy/10_KHEBO.png',
+  './images/n_runy/11_KHEBO_p.png',
+  './images/n_runy/12_VINYO.png',
+  './images/n_runy/13_VINYO_p.png',
+  './images/n_runy/14_PUSTAYA.png',
+  './images/n_runy/15_TAK.png',
+  './images/n_runy/16_TAK_p.png',
+  './images/n_runy/17_YEH.png',
+  './images/n_runy/18_YEH_p.png',
+  './images/n_runy/19_AYYA.png',
+  './images/n_runy/20_EYSA.png',
+  './images/n_runy/21_YRD.png',
+  './images/n_runy/22_AL-GO.png',
+  './images/n_runy/23_EL.png',
+  './images/n_runy/24_AMAYUN.png',
+  './images/n_runy/25_AMAYUN_p.png',
+  './images/n_runy/26_BERKUT.png',
+  './images/n_runy/27_BERKUT_p.png',
+  './images/n_runy/28_VOZ.png',
+  './images/n_runy/29_METR.png',
+  './images/n_runy/30_METR_p.png',
+  './images/n_runy/31_LATKHU.png',
+  './images/n_runy/32_LAUKAR.png',
+  './images/n_runy/33_SHA.png',
+  './images/n_runy/34_SHCHA.png',
+  './images/n_runy/35_KIYG.png',
+  './images/n_runy/36_TCERE.png',
+  './images/n_runy/37_TCERE_p.png',
+  './images/n_runy/38_RUNA_TISHINY.png',
+]
+
 // 📦 Остальная статика разделов: логотип и шрифт рун. Картинки личных словарей
 // пользователей (public/images/<папка>/) — пользовательский контент, они
 // прогреваются отдельно при загрузке словаря (precacheUrls).
@@ -68,7 +114,7 @@ self.addEventListener('install', (event) => {
         await cache.addAll(APP_SHELL)
         // Каждую картинку качаем отдельно: одна ошибка не должна ломать установку SW
         await Promise.all(
-          [...RUNE_IMAGES, ...SECTION_IMAGES].map((u) =>
+          [...RUNE_IMAGES, ...RUNE_CARD_IMAGES, ...SECTION_IMAGES].map((u) =>
             cache.add(u).catch((err) => console.error('RUNE image precache failed:', u, err))
           )
         )
