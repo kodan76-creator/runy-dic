@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { logAudioPlay, emailToFolderName } from '../githubApi'
 import { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../api/constants'
+import { getOfflineBlob } from '../api/offlineContent'
 
 export function useAudioPlayback({ user, words, playMode }) {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -66,9 +67,19 @@ export function useAudioPlayback({ user, words, playMode }) {
       const rawSrc = getRawAudioSrc(fileName, userFolder)
       logAudioPlay(fileName, user?.email)
 
+      // Оффлайн-приоритет: если файл уже сохранён в IndexedDB — играем из
+      // локального blob-URL, не дожидаясь сети. Blob-URL живёт до revokeBlob.
+      let blobUrl = ''
+      const revokeBlob = () => {
+        if (blobUrl) {
+          URL.revokeObjectURL(blobUrl)
+          blobUrl = ''
+        }
+      }
+
       const attempt = (src) => {
         // Файл остановили или запустили другой — откат уже не нужен
-        if (!isCurrent()) { finish(); return }
+        if (!isCurrent()) { revokeBlob(); finish(); return }
 
         const audio = new Audio(src)
         currentAudioRef.current = audio
@@ -81,6 +92,7 @@ export function useAudioPlayback({ user, words, playMode }) {
           if (settled) return
           settled = true
           release()
+          revokeBlob()
           finish()
         }
         // Сбой локального URL (файл ещё не в сборке сайта) — пробуем raw.githubusercontent
@@ -88,8 +100,9 @@ export function useAudioPlayback({ user, words, playMode }) {
           if (settled) return
           settled = true
           release()
+          // Откат на raw только для сетевого localSrc; blob-URL — сразу finish
           if (src === localSrc && rawSrc && rawSrc !== localSrc) attempt(rawSrc)
-          else finish()
+          else { revokeBlob(); finish() }
         }
 
         audio.addEventListener('ended', done, { once: true })
@@ -97,7 +110,22 @@ export function useAudioPlayback({ user, words, playMode }) {
         audio.play().catch(fail)
       }
 
-      attempt(localSrc)
+      // Сначала пробуем локальный blob из IndexedDB (гарантированный оффлайн).
+      // Если хранилища нет (jsdom, приватный режим) — сразу обычная цепочка,
+      // чтобы не задерживать воспроизведение лишней микротаской.
+      const playFromBlobOrNetwork = async () => {
+        const blob = await getOfflineBlob(localSrc)
+        if (!isCurrent()) { finish(); return }
+        if (blob) {
+          blobUrl = URL.createObjectURL(blob)
+          attempt(blobUrl)
+        } else {
+          attempt(localSrc)
+        }
+      }
+
+      if (typeof indexedDB === 'undefined') attempt(localSrc)
+      else playFromBlobOrNetwork()
     })
   }
 

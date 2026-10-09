@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { logoutUser, getDictionary, logSearch, getCategories, getFavoritesForUser, updateFavoritesForUser, collectAudioUrls, collectImageUrls, getRunes, precacheUrls, emailToFolderName, getCachedCategories, getCachedRunes, cacheRunesForOffline, flushOfflineChanges } from '../githubApi'
 import { categoryLabel } from '../api/categories'
 import { RUNES_IMAGE_DIR } from '../api/constants'
+import { prefetchOfflineContent } from '../api/offlineContent'
 import { useAudioPlayback } from '../hooks/useAudioPlayback'
 import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
@@ -450,9 +451,19 @@ export default function Home({ user, onLogout, onUserUpdate }) {
         cacheRunesForOffline(runeRes.runes)
         // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
         const userFolder = user?.email ? emailToFolderName(user.email) : null
-        precacheUrls(collectAudioUrls(wordRes.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null))
+        const personalAudioUrls = collectAudioUrls(wordRes.words, (w) => w.__dictionarySource === 'personal' ? userFolder : null)
+        precacheUrls(personalAudioUrls)
         // 🧿 Прогреваем картинки рун для оффлайн-режима
-        if (runeRes.runes.length > 0) precacheUrls(collectImageUrls(runeRes.runes, RUNES_IMAGE_DIR))
+        const runeImageUrls = runeRes.runes.length > 0 ? collectImageUrls(runeRes.runes, RUNES_IMAGE_DIR) : []
+        if (runeImageUrls.length > 0) precacheUrls(runeImageUrls)
+        // 💾 Гарантированно складываем весь оффлайн-контент локально (IndexedDB):
+        // картинки рун + аудио личного словаря. В отличие от HTTP-кэша SW,
+        // IndexedDB не вытесняется браузером — контент доступен оффлайн всегда.
+        prefetchOfflineContent({
+          imageUrls: runeImageUrls,
+          audioUrls: personalAudioUrls,
+          version: 'v21',
+        }).catch(() => { /* фоновый прогрев — ошибки не критичны */ })
       })
       .catch((err) => {
         console.error('Ошибка загрузки:', err)

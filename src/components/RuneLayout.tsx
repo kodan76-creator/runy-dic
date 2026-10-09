@@ -7,7 +7,7 @@
 // drag-and-drop — перетаскиванием из проводника на зону загрузки.
 import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls } from '../api/images'
+import { validateImageFile, buildImageUrl, listRuneLayoutImages, selectRandomRunes, collectRuneLayoutImageUrls, collectImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import RuneCard from './RuneCard'
 import {
@@ -27,6 +27,7 @@ import {
   isRuneLayoutPrecached,
   markRuneLayoutPrecached,
 } from '../api/offline'
+import { prefetchOfflineContent } from '../api/offlineContent'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
@@ -528,6 +529,27 @@ export default function RuneLayout({ user, onUserUpdate }) {
       setTimeout(() => { if (!cancelled) precacheLayoutImages(RUNES_LAYOUT_FALLBACK) }, 1000)
     }).catch(() => { /* нет SW — оффлайн-прогрев недоступен */ })
     return () => { cancelled = true }
+  }, [])
+
+  // 💾 Гарантированная локальная загрузка ВСЕГО оффлайн-контента (IndexedDB).
+  // Один раз в фоне скачиваем оба набора картинок рун (карточки n_runy +
+  // крест n_runy/runy) и складываем Blob локально. В отличие от прогрева SW,
+  // IndexedDB не вытесняется браузером — картинки остаются доступны оффлайн
+  // всегда, даже если HTTP-кэш Service Worker очистился.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.onLine) return
+    let cancelled = false
+    const timer = setTimeout(() => {
+      if (cancelled) return
+      prefetchOfflineContent({
+        imageUrls: [
+          ...collectRuneLayoutImageUrls(RUNES_LAYOUT_FALLBACK),
+          ...collectImageUrls(getCachedRunes() || [], RUNES_IMAGE_DIR),
+        ],
+        version: 'v21',
+      }).catch(() => { /* фоновый прогрев — ошибки не критичны */ })
+    }, 3000)
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [])
 
   // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy

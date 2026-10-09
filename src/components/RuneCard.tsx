@@ -1,9 +1,10 @@
 // src/components/RuneCard.tsx
 // Карточка руны на главном экране (раздел «Новые Руны»)
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { type Rune } from '../types'
 import { buildImageUrl, buildRuneImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
+import { getOfflineBlob } from '../api/offlineContent'
 import { renderRichText } from '../utils/richText'
 import '../App.css'
 
@@ -49,6 +50,10 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
   const [failedUrl, setFailedUrl] = useState('')
   // 🖼️ Локальный URL, для которого показываем резерв (см. fallbackSrc ниже).
   const [localFallbackFor, setLocalFallbackFor] = useState('')
+  // 💾 URL, отданный из локального хранилища (IndexedDB) — оффлайн-копия,
+  // сохранённая фоновой загрузкой (offlineContent). Приоритетнее сети: если
+  // файл уже скачан, не ждём сеть/raw и не зависим от кэша Service Worker.
+  const [offlineSrc, setOfflineSrc] = useState('')
   if (!rune) return null
   const fallbackBase = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
   // 🖼️ Raw-first: файл уже в репозитории сразу после коммита, а сборка сайта
@@ -60,9 +65,37 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
     ? { primary: fallbackBase, fallback: '' }
     : buildRuneImageUrls(rune)
   const usingLocal = !!localSrc && localSrc !== rawSrc && localFallbackFor === rawSrc
-  const imgUrl = usingLocal ? localSrc : rawSrc
+  // Локальная копия (offlineContent) важнее сети: отдаём её, если есть.
+  const imgUrl = offlineSrc || (usingLocal ? localSrc : rawSrc)
   // В рунном режиме подсвечиваем только графическое изображение
   const textHighlight = runicMode ? '' : highlight
+
+  // 💾 Проверяем локальное хранилище оффлайн-контента: если картинка уже
+  // скачана фоновой загрузкой — показываем её без обращения к сети.
+  // Ищем по обоим вариантам URL (raw и локальный): фоновая загрузка могла
+  // сохранить любой из них в зависимости от того, что было доступно.
+  useEffect(() => {
+    if (!rawSrc && !localSrc) return
+    let cancelled = false
+    ;(async () => {
+      for (const candidate of [localSrc, rawSrc]) {
+        if (!candidate) continue
+        const blob = await getOfflineBlob(candidate)
+        if (blob && !cancelled) {
+          const objectUrl = URL.createObjectURL(blob)
+          setOfflineSrc(objectUrl)
+          return
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [rawSrc, localSrc])
+
+  // 🧹 Освобождаем blob-URL при размонтировании/смене картинки.
+  useEffect(() => {
+    if (!offlineSrc) return
+    return () => URL.revokeObjectURL(offlineSrc)
+  }, [offlineSrc])
 
   return (
     <div className={`rune-card align-${rune.textAlign || 'center'}`}>
