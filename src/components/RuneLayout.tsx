@@ -28,6 +28,7 @@ import {
   markRuneLayoutPrecached,
 } from '../api/offline'
 import { prefetchOfflineContent } from '../api/offlineContent'
+import { RUNES_LAYOUT_FALLBACK } from '../api/runeLayoutList'
 import {
   cachePhotoBlob,
   getCachedPhotoBlob,
@@ -117,19 +118,6 @@ function findLayoutRune(fileName, runes) {
     return n === base || n.startsWith(`${base} `) || n.startsWith(`${base}(`)
   }) ?? (inverted ? invertedHit ?? directHit : directHit ?? invertedHit) ?? null
 }
-
-// 🎲 Резервный список файлов рун раскладки (если GitHub API недоступен)
-const RUNES_LAYOUT_FALLBACK = [
-  '1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png',
-  '5_ТУРЗ.png', '6_АЗ.png', '7_РАДО.png', '8_РАДО_П.png', '9_АЛУ.png',
-  '10_ХЕБО.png', '11_ХЕБО_П.png', '12_ВИНЬО.png', '13_ВИНЬО_П.png',
-  '14_ПУСТАЯ.png', '15_ТАК.png', '16_ТАК_П.png', '17_ЙЕХ.png', '18_ЙЕХ_П.png',
-  '19_АЙЯ.png', '20_ЭЙСА.png', '21_ЫРД.png', '22_АЛЬ-ГО.png', '23_ЭЛЬ.png',
-  '24_АМАЮН.png', '25_АМАЮН_П.png', '26_БЕРКУТ.png', '27_БЕРКУТ_П.png',
-  '28_ВОЗ.png', '29_МЭТР.png', '30_МЭТР_П.png', '31_ЛАТХУ.png', '32_ЛАУКАР.png',
-  '33_ША.png', '34_ША_П.png', '35_КИЙГ.png', '36_ЦЭРЭ.png', '37_ЦЭРЭ_П.png',
-  '38_РУНА ТИШИНЫ.png',
-]
 
 // 🖨️ Данные для печати: та же картинка руны, что на плитке креста
 // (buildImageUrl), карточка из раздела «Новые Руны» (findLayoutRune) и та же

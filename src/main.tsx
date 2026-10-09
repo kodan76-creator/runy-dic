@@ -8,8 +8,11 @@ import './fonts.css'
 // 🔍 Диагностика оффлайн-хранилища: вешает window.__offlineContentDiag().
 // Функция вызывается вручную из консоли браузера, на работу приложения не влияет.
 import './api/offlineContentDebug'
+// 🚀 Гарантированный фоновый прогрев оффлайн-контента (картинки рун в IndexedDB).
+import { startOfflinePrefetch } from './api/offlinePrefetch'
 
 initTheme()
+startOfflinePrefetch()
 
 // 🌐 PWA: регистрируем Service Worker для оффлайн-режима.
 // В dev-режиме не регистрируем, чтобы не мешать HMR.
