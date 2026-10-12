@@ -26,24 +26,24 @@ export default function OfflineImage({
   loading = 'lazy',
   onError,
 }: OfflineImageProps) {
-  // Локальный objectURL (из IndexedDB) — приоритетнее сети.
-  const [offlineSrc, setOfflineSrc] = useState('')
-  // Сеть: пробуем только если локальной копии нет (или пока её ищем).
-  const [useNetwork, setUseNetwork] = useState(false)
+  // 💾 Локальный objectURL (из IndexedDB) — приоритетнее сети. Храним вместе
+  // с src, для которого он был получен: при смене src старая копия «гасится»
+  // сравнением в рендере, без синхронного сброса состояния в эффекте.
+  const [offline, setOffline] = useState<{ forSrc: string; url: string } | null>(null)
+  // Сеть: пробуем только если локальной копии для этого src нет.
+  const [networkFor, setNetworkFor] = useState('')
 
   useEffect(() => {
     if (!src) return
     let cancelled = false
-    setOfflineSrc('')
-    setUseNetwork(false)
     ;(async () => {
       const blob = await getOfflineBlob(src).catch(() => null)
       if (cancelled) return
       if (blob) {
-        setOfflineSrc(URL.createObjectURL(blob))
+        setOffline({ forSrc: src, url: URL.createObjectURL(blob) })
       } else {
         // Локальной копии нет — грузим из сети
-        setUseNetwork(true)
+        setNetworkFor(src)
       }
     })()
     return () => { cancelled = true }
@@ -51,13 +51,15 @@ export default function OfflineImage({
 
   // 🧹 Освобождаем blob-URL при размонтировании/смене картинки.
   useEffect(() => {
-    if (!offlineSrc) return
-    return () => URL.revokeObjectURL(offlineSrc)
-  }, [offlineSrc])
+    if (!offline) return
+    return () => URL.revokeObjectURL(offline.url)
+  }, [offline])
 
+  // Копия от другого src не должна подставляться в новый <img>.
+  const offlineSrc = offline && offline.forSrc === src ? offline.url : ''
   // Пока ищем в хранилище — src не выставляем, чтобы не улетал сетевой запрос
   // (иначе оффлайн он падает с ERR_INTERNET_DISCONNECTED в консоль).
-  const finalSrc = offlineSrc || (useNetwork ? src : '')
+  const finalSrc = offlineSrc || (networkFor === src ? src : '')
   if (!finalSrc) return null
 
   return (

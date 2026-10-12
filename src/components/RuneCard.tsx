@@ -60,21 +60,19 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
   // сохранённая фоновой загрузкой (offlineContent). Приоритетнее сети: если
   // файл уже скачан, не ждём сеть/raw и не зависим от кэша Service Worker.
   const [offlineSrc, setOfflineSrc] = useState('')
-  if (!rune) return null
-  const fallbackBase = imageSrc ?? buildImageUrl(rune.image || '', RUNES_IMAGE_DIR)
+  // ⚠️ Ранний выход «if (!rune) return null» — ТОЛЬКО после всех хуков ниже
+  // (правило rules-of-hooks: хуки вызываются в одном порядке на каждый рендер).
+  const fallbackBase = imageSrc ?? buildImageUrl(rune?.image || '', RUNES_IMAGE_DIR)
   // 🖼️ Raw-first: файл уже в репозитории сразу после коммита, а сборка сайта
   // на GitHub Pages обновляется с задержкой. Метка rune.imageUpdatedAt
   // подставляется как ?v=… — при замене картинки под тем же именем иначе
   // браузер/CDN/SW отдали бы старую копию с 200 (ошибки нет — фолбэк бы
   // не сработал). Тот же приём, что для аудио в useAudioPlayback.
-  const { primary: rawSrc, fallback: localSrc } = imageSrc
-    ? { primary: fallbackBase, fallback: '' }
-    : buildRuneImageUrls(rune)
-  const usingLocal = !!localSrc && localSrc !== rawSrc && localFallbackFor === rawSrc
-  // Локальная копия (offlineContent) важнее сети: отдаём её, если есть.
-  const imgUrl = offlineSrc || (usingLocal ? localSrc : rawSrc)
-  // В рунном режиме подсвечиваем только графическое изображение
-  const textHighlight = runicMode ? '' : highlight
+  const { primary: rawSrc, fallback: localSrc } = !rune
+    ? { primary: '', fallback: '' }
+    : imageSrc
+      ? { primary: fallbackBase, fallback: '' }
+      : buildRuneImageUrls(rune)
 
   // 💾 Проверяем локальное хранилище оффлайн-контента: если картинка уже
   // скачана фоновой загрузкой — показываем её без обращения к сети.
@@ -102,6 +100,13 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
     if (!offlineSrc) return
     return () => URL.revokeObjectURL(offlineSrc)
   }, [offlineSrc])
+
+  if (!rune) return null
+  const usingLocal = !!localSrc && localSrc !== rawSrc && localFallbackFor === rawSrc
+  // Локальная копия (offlineContent) важнее сети: отдаём её, если есть.
+  const imgUrl = offlineSrc || (usingLocal ? localSrc : rawSrc)
+  // В рунном режиме подсвечиваем только графическое изображение
+  const textHighlight = runicMode ? '' : highlight
 
   return (
     <div className={`rune-card align-${rune.textAlign || 'center'}`}>

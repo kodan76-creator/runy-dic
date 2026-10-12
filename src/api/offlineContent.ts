@@ -193,7 +193,7 @@ export const prefetchOfflineContent = async ({
 
   if (images.length) {
     imagesDone = await downloadAll(force ? images : await filterMissing(images), {
-      onProgress: (done, total) =>
+      onProgress: (done) =>
         onProgress?.({ images: done, audio: audioDone, total: images.length + audio.length, done: done + audioDone }),
     })
   }

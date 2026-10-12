@@ -142,7 +142,6 @@ export const offlineContentDiag = async (runes?: any[]) => {
     lines.push('', '✅ Все проверенные руны есть в IndexedDB')
   }
 
-  // eslint-disable-next-line no-console
   console.log(lines.join('\n'))
   return out
 }
