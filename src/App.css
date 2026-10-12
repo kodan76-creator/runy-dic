@@ -3107,6 +3107,16 @@ background: rgba(246, 240, 253, 0.2);
   box-shadow: 0 2px 8px rgba(28, 10, 46, 0.35);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   animation: rune-alphabet-in 0.5s ease backwards;
+  /* Карточка — это <button>: сбрасываем UA-стили, тянём на всю ширину колонки */
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.rune-alphabet-card:focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
 }
 .rune-alphabet-card:hover {
   transform: translateY(-4px) scale(1.03);
@@ -3144,6 +3154,54 @@ background: rgba(246, 240, 253, 0.2);
 @media (prefers-reduced-motion: reduce) {
   .rune-alphabet-card { animation: none; transition: none; }
   .rune-alphabet-card:hover { transform: none; }
+}
+/* 🔮 Модалка описания руны из алфавита — та же, что в «Рунной раскладке»
+   (бэкдроп .modal-backdrop + панель .filter-modal), но БЕЗ шапки: только
+   кнопка «Закрыть» (sticky сверху справа, не прячется при прокрутке) и
+   карточка RuneCard. */
+.rune-alphabet-rune-modal {
+  position: relative;
+  max-height: 88vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.rune-alphabet-rune-modal .rune-card {
+  flex: 1 1 auto;
+}
+/* Кнопка «Закрыть» — та же визуальная, что в шапке модалки раскладки */
+.rune-alphabet-rune-close {
+  position: sticky;
+  top: 0;
+  align-self: flex-end;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  margin: -5px 0 4px;
+  border-radius: 50%;
+  border: 2px solid var(--on-accent);
+  background: #d81b1b;
+  color: var(--on-accent);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(42, 17, 69, 0.5);
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.rune-alphabet-rune-close:hover {
+  background: #ff2e2e;
+  transform: scale(1.08);
+}
+/* Заглушка, если каталог рун ещё не содержит описание этого знака */
+.rune-alphabet-rune-missing {
+  margin: 0;
+  padding: 8px 0;
+  text-align: center;
+  color: var(--surface-muted);
 }
 /* 📜 Тексты с листа + дата */
 .rune-alphabet-texts {

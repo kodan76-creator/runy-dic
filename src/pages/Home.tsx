@@ -1158,7 +1158,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           {runesSubMode === 'layout' ? (
             <RuneLayout user={user} onUserUpdate={onUserUpdate} />
           ) : runesSubMode === 'alphabet' ? (
-            <RuneAlphabet />
+            <RuneAlphabet runes={runes} />
           ) : Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
               <div className="runes-list-cards">

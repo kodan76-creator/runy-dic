@@ -4,8 +4,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import RuneAlphabet from './RuneAlphabet'
+import { type Rune } from '../types'
 import { RUNE_ALPHABET, RUNE_ALPHABET_TEXTS, RUNE_ALPHABET_TITLE } from '../data/runeAlphabet'
 
 describe('Рунный алфавит: данные', () => {
@@ -85,6 +86,49 @@ describe('Рунный алфавит: разметка', () => {
     expect(document.querySelector('.rune-alphabet-translator')).toBeNull()
     expect(document.querySelector('.rune-alphabet-input')).toBeNull()
     expect(document.querySelector('.rune-alphabet-preview')).toBeNull()
+  })
+})
+
+describe('Рунный алфавит: модалка описания руны', () => {
+  // Руна каталога (runes.json) для знака «Эль»: те же имя и файл картинки
+  const EL_RUNE: Rune = {
+    id: '1',
+    name: 'ЭЛЬ',
+    image: '23_ЭЛЬ.png',
+    graphic: 'Є',
+    letter: 'ЭЛЬ',
+    description: '<p>Сила Эля</p>',
+    textAlign: 'center',
+  }
+
+  it('клик по карточке открывает описание (без шапки, с кнопкой «Закрыть»)', async () => {
+    render(<RuneAlphabet runes={[EL_RUNE]} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Описание руны Эль' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(dialog).toHaveAttribute('aria-label', 'Описание руны Эль')
+    // Как в «Рунной раскладке», только без шапки с текстом позиции:
+    expect(document.querySelector('.rune-layout-rune-header')).toBeNull()
+    // Описание рендерится карточкой RuneCard (имя + текст описания)
+    expect(screen.getByText('ЭЛЬ')).toBeInTheDocument()
+    expect(screen.getByText('Сила Эля')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('клик по подложке закрывает модалку; без руны в каталоге — заглушка', async () => {
+    render(<RuneAlphabet runes={[]} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Описание руны Эль' }))
+    const dialog = await screen.findByRole('dialog')
+    expect(screen.getByText(/пока не добавлено/)).toBeInTheDocument()
+
+    // Клик по бэкдропу (не по панели) закрывает окно
+    fireEvent.click(dialog)
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
 
