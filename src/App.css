@@ -3079,67 +3079,14 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 15px;
   margin-bottom: 14px;
 }
-/* ✍️ Переводчик: кириллица → руны (шрифт Dao Rus, как в рунном вводе) */
-.rune-alphabet-translator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-.rune-alphabet-translator-label {
-  font-size: 14px;
-  color: #e8dcff;
-}
-.rune-alphabet-input {
-  width: min(420px, 100%);
-  box-sizing: border-box;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 215, 0, 0.65);
-  background: rgba(246, 240, 253, 0.95);
-  color: #3d0a5f;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.rune-alphabet-input:focus {
-  border-color: #FFD700;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
-}
-.rune-alphabet-input::placeholder {
-  color: #7d19b9;
-  opacity: 0.8;
-}
-.rune-alphabet-preview {
-  min-height: 52px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-family: 'Dao Rus', serif;
-  font-size: 34px;
-  line-height: 1.25;
-  color: #FFD700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-  word-break: break-word;
-  padding: 0 8px;
-  box-sizing: border-box;
-}
-.rune-alphabet-preview.is-empty {
-  font-family: var(--sans);
-  font-size: 14px;
-  color: #cbb6e8;
-  text-shadow: none;
-}
-/* 🔷 Сетка знаков: 32 карточки со stagger-появлением */
+/* 🔷 Сетка знаков: 32 карточки тремя вертикальными рядами (как на листе),
+   со stagger-появлением — и на десктопе, и на мобильном */
 .rune-alphabet-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 .rune-alphabet-card {
@@ -3218,6 +3165,8 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 15px;
   line-height: 1.55;
   color: #efe6fb;
+  /* Пункты текстов — по левому краю (как на оригинальном листе) */
+  text-align: left;
 }
 .rune-alphabet-texts-list li::marker {
   color: #FFD700;
@@ -3232,8 +3181,9 @@ background: rgba(246, 240, 253, 0.2);
 }
 @media (max-width: 520px) {
   .rune-alphabet-title { font-size: 20px; }
-  .rune-alphabet-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .rune-alphabet-grid { gap: 8px; }
   .rune-alphabet-glyph { width: 54px; height: 72px; }
-  .rune-alphabet-preview { font-size: 28px; }
+  .rune-alphabet-card { padding: 12px 4px 8px; }
+  .rune-alphabet-name { font-size: 14px; }
 }
 

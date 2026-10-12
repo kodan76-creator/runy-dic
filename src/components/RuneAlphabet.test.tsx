@@ -4,9 +4,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import RuneAlphabet from './RuneAlphabet'
-import { RUNE_ALPHABET, RUNE_ALPHABET_TEXTS } from '../data/runeAlphabet'
+import { RUNE_ALPHABET, RUNE_ALPHABET_TEXTS, RUNE_ALPHABET_TITLE } from '../data/runeAlphabet'
 
 describe('Рунный алфавит: данные', () => {
   it('32 знака с уникальными названиями', () => {
@@ -29,10 +29,11 @@ describe('Рунный алфавит: данные', () => {
 })
 
 describe('Рунный алфавит: разметка', () => {
-  it('заголовок листа и 32 карточки с названием и звуком', async () => {
+  it('заголовок листа (® после «ч» в «Гоч») и 32 карточки с названием и звуком', async () => {
     render(<RuneAlphabet />)
 
-    expect(screen.getByRole('heading', { name: /Рунный алфавит Гоча а Эльборсибо/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: RUNE_ALPHABET_TITLE })).toBeInTheDocument()
+    expect(RUNE_ALPHABET_TITLE).toBe('Рунный алфавит Гоч®а Эльборсибо')
     const cards = document.querySelectorAll('.rune-alphabet-card')
     expect(cards).toHaveLength(32)
 
@@ -56,16 +57,25 @@ describe('Рунный алфавит: разметка', () => {
     expect(screen.getByText('31 января – 31 мая 1999 года')).toBeInTheDocument()
   })
 
-  it('переводчик: введённая кириллица выводится рунами (шрифт Dao Rus)', () => {
+  it('строка ввода (переводчик) отсутствует', () => {
     render(<RuneAlphabet />)
 
-    const preview = document.querySelector('.rune-alphabet-preview') as HTMLElement
-    expect(preview).toHaveClass('is-empty')
+    expect(document.querySelector('.rune-alphabet-translator')).toBeNull()
+    expect(document.querySelector('.rune-alphabet-input')).toBeNull()
+    expect(document.querySelector('.rune-alphabet-preview')).toBeNull()
+  })
+})
 
-    const input = screen.getByLabelText(/Напишите по-русски/)
-    fireEvent.change(input, { target: { value: 'Свет' } })
+describe('Рунный алфавит: вёрстка (App.css)', () => {
+  const css = fs.readFileSync(path.resolve(process.cwd(), 'src/App.css'), 'utf8')
 
-    expect(preview).toHaveTextContent('Свет')
-    expect(preview).not.toHaveClass('is-empty')
+  it('карточки выложены тремя колонками и на десктопе, и на мобильном', () => {
+    const gridBlock = css.match(/\.rune-alphabet-grid\s*\{[^}]*/)?.[0] || ''
+    expect(gridBlock).toContain('grid-template-columns: repeat(3, 1fr)')
+  })
+
+  it('пункты нижнего текста выровнены по левому краю', () => {
+    const liBlock = css.match(/\.rune-alphabet-texts-list li\s*\{[^}]*/)?.[0] || ''
+    expect(liBlock).toContain('text-align: left')
   })
 })

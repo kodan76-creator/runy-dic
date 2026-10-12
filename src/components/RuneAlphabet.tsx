@@ -1,11 +1,11 @@
 // src/components/RuneAlphabet.tsx
-// 🅰 Подраздел «Алфавит» раздела «Новые Руны»: «Рунный алфавит Гоча а
-// Эльборсибо» — 32 знака с названиями и звуками, «переводчик» кириллицы в
-// руны (шрифт Dao Rus) и три текста с оригинального листа.
+// 🅰 Подраздел «Алфавит» раздела «Новые Руны»: «Рунный алфавит Гоч®а а
+// Эльборсибо» — 32 знака с названиями и звуками и три текста с оригинального
+// листа. Карточки выложены тремя вертикальными рядами — как на листе.
 //
 // Знаки показываем картинками через OfflineImage (IndexedDB → сеть → кэш SW),
 // поэтому раздел одинаково работает онлайн и оффлайн.
-import { useId, useState, type CSSProperties } from 'react'
+import { type CSSProperties } from 'react'
 import { buildImageUrl } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
 import OfflineImage from './OfflineImage'
@@ -19,36 +19,10 @@ import {
 import '../App.css'
 
 export default function RuneAlphabet() {
-  // ✍️ Поле «напишите по-русски»: вывод рунами делает шрифт Dao Rus —
-  // он отображает кириллицу рунными знаками (как в рунном вводе поиска).
-  const [typed, setTyped] = useState('')
-  const inputId = useId()
-
   return (
     <div className="rune-alphabet">
       <h2 className="rune-alphabet-title">{RUNE_ALPHABET_TITLE}</h2>
       <div className="rune-alphabet-ornament" aria-hidden="true">⬦ ✦ ⬦</div>
-
-      <div className="rune-alphabet-translator">
-        <label className="rune-alphabet-translator-label" htmlFor={inputId}>
-          Напишите по-русски — прочтёте рунами:
-        </label>
-        <input
-          id={inputId}
-          type="text"
-          className="rune-alphabet-input"
-          value={typed}
-          maxLength={80}
-          placeholder="например, Свет"
-          onChange={(e) => setTyped(e.target.value)}
-        />
-        <div
-          className={`rune-alphabet-preview${typed ? '' : ' is-empty'}`}
-          aria-live="polite"
-        >
-          {typed ? typed : 'Руны появятся здесь'}
-        </div>
-      </div>
 
       <ol className="rune-alphabet-grid">
         {RUNE_ALPHABET.map((letter, i) => (
