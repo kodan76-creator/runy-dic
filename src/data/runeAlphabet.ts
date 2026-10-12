@@ -21,7 +21,7 @@ export type RuneAlphabetLetter = {
 }
 
 /** Заголовок листа (знак ® стоит после «ч» в слове «Гоч» — как на оригинале) */
-export const RUNE_ALPHABET_TITLE = 'Рунный алфавит Гоч®а а Эльборсибо'
+export const RUNE_ALPHABET_TITLE = 'Рунный алфавит Гоч®а Эльборсибо'
 
 /** Заголовок блока текстов под алфавитом */
 export const RUNE_ALPHABET_TEXTS_TITLE = 'Текст, который проявляет Рунный алфавит'
