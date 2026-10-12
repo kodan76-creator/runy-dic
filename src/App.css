@@ -3158,26 +3158,27 @@ background: rgba(246, 240, 253, 0.2);
 /* 🔮 Модалка описания руны из алфавита — та же, что в «Рунной раскладке»
    (бэкдроп .modal-backdrop + панель .filter-modal), но БЕЗ шапки: только
    кнопка «Закрыть» (sticky сверху справа, не прячется при прокрутке) и
-   карточка RuneCard. */
+   карточка RuneCard.
+   ⚠️ Панель — display: block (НЕ flex-колонка): кнопка обязана оставаться
+   кругом 40px при описании любой высоты, а flex-сжатие её «плющило». */
 .rune-alphabet-rune-modal {
   position: relative;
   max-height: 88vh;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
-.rune-alphabet-rune-modal .rune-card {
-  flex: 1 1 auto;
-}
-/* Кнопка «Закрыть» — та же визуальная, что в шапке модалки раскладки */
+/* Кнопка «Закрыть» — та же визуальная, что в шапке модалки раскладки.
+   Вне flex-потока: вправо её прижимает margin-left: auto, размер держат
+   width/height + min-width/min-height (не схлопывается на мобильном). */
 .rune-alphabet-rune-close {
   position: sticky;
   top: 0;
-  align-self: flex-end;
+  margin: -5px 0 4px auto;
   z-index: 5;
   width: 40px;
+  min-width: 40px;
   height: 40px;
-  margin: -5px 0 4px;
+  min-height: 40px;
   border-radius: 50%;
   border: 2px solid var(--on-accent);
   background: #d81b1b;

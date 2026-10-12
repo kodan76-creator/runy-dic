@@ -168,4 +168,16 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     const liBlock = css.match(/\.rune-alphabet-texts-list li\s*\{[^}]*/)?.[0] || ''
     expect(liBlock).toContain('text-align: left')
   })
+
+  it('панель модалки — не flex-колонка, кнопка «Закрыть» — круг 40px (не плющится)', () => {
+    // Регресс: кнопка была прямым flex-элементом прокручиваемой колонки —
+    // высокое описание сдавливало её («плющило» на мобильном).
+    const modalBlock = css.match(/\.rune-alphabet-rune-modal\s*\{[^}]*/)?.[0] || ''
+    expect(modalBlock).not.toMatch(/display:\s*flex/)
+    const closeBlock = css.match(/\.rune-alphabet-rune-close\s*\{[^}]*/)?.[0] || ''
+    expect(closeBlock).toContain('width: 40px')
+    expect(closeBlock).toContain('min-width: 40px')
+    expect(closeBlock).toContain('height: 40px')
+    expect(closeBlock).toContain('min-height: 40px')
+  })
 })
