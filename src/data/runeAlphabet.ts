@@ -41,7 +41,7 @@ export const RUNE_ALPHABET: RuneAlphabetLetter[] = [
   // ── Колонка 1 ────────────────────────────────────────────────────────────
   { name: 'Эль', sound: 'эль', image: '23_ЭЛЬ.png' },
   { name: 'Аз', sound: 'a', image: '6_АЗ.png' },
-  { name: 'Алу', sound: 'эк', image: '9_АЛУ.png' },
+  { name: 'Алу', sound: 'ж', image: '9_АЛУ.png' },
   { name: 'Айя', sound: 'ай', image: '19_АЙЯ.png' },
   { name: 'Аль-Го', sound: 'е, ер', image: '22_АЛЬ-ГО.png' },
   { name: 'Амаюн', sound: 'ю', image: '24_АМАЮН.png' },
@@ -63,8 +63,8 @@ export const RUNE_ALPHABET: RuneAlphabetLetter[] = [
   { name: 'Кийг', sound: 'к, кийг', image: '35_КИЙГ.png' },
   { name: 'Лаукар', sound: 'л, ла', image: '32_ЛАУКАР.png' },
   { name: 'Мэтр', sound: 'м', image: '29_МЭТР.png' },
-  // «Яйц» — знак перевёрнутого Йех (глиф «Я» в Dao Rus)
-  { name: 'Яйц', sound: 'я', image: '18_ЙЕХ_П.png' },
+  // «Яй» — знак перевёрнутого Йех (глиф «Я» в Dao Rus)
+  { name: 'Яй', sound: 'я', image: '18_ЙЕХ_П.png' },
   { name: 'Цэрэ', sound: 'ц', image: '36_ЦЭРЭ.png' },
   // ── Колонка 3 ────────────────────────────────────────────────────────────
   // «Ибо» — знак перевёрнутого Хебо (глиф «И» в Dao Rus)
