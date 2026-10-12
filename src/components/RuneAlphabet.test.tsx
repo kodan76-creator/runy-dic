@@ -175,6 +175,10 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     const barBlock = css.match(/\.rune-alphabet-rune-bar\s*\{[^}]*/)?.[0] || ''
     expect(barBlock).toMatch(/position:\s*sticky/)
     expect(barBlock).toContain('justify-content: flex-end')
+    // top = −верхний отступ полосы (−15px на поля панели): sticky держит
+    // margin-край у верха скролл-порта — иначе border встаёт ниже и в щель
+    // над полосой заезжает прокручиваемый контент (второй скриншот).
+    expect(barBlock).toMatch(/top:\s*-15px/)
     expect(barBlock).toContain('margin: -15px -15px 12px -15px')
     expect(barBlock).toContain('background: var(--surface)')
     const darkBarBlock = css.match(/:root\[data-theme="dark"\]\s*\.rune-alphabet-rune-bar\s*\{[^}]*/)?.[0] || ''

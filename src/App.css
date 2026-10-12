@@ -3172,7 +3172,10 @@ background: rgba(246, 240, 253, 0.2);
    с зазором 12px до карточки — рамок не касается. */
 .rune-alphabet-rune-bar {
   position: sticky;
-  top: 0;
+  /* top = −верхний отступ полосы (−15px на поля панели): sticky держит
+     margin-край у верха скролл-порта, поэтому при top: 0 border полосы вставал
+     на 15px ниже — в щель заезжал прокручиваемый контент (см. скриншот). */
+  top: -15px;
   z-index: 5;
   display: flex;
   justify-content: flex-end;

@@ -771,11 +771,13 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     )
   }
 
-  // «Рунная раскладка» — единственный экран, где шапка компактная и логотип
-  // скрыт. Подрежим «Новых Рун» хранится в localStorage и остаётся 'layout'
-  // даже после возврата в «Словарь», поэтому смотрим на оба состояния вместе:
-  // иначе логотип run_r пропадал бы в Словаре после посещения раскладки.
-  const isRuneLayoutView = viewMode === 'runes' && runesSubMode === 'layout'
+  // «Рунная раскладка» и «Рунный алфавит» — экраны, где шапка компактная
+  // и логотип скрыт. Подрежим «Новых Рун» хранится в localStorage и остаётся
+  // 'layout'/'alphabet' даже после возврата в «Словарь», поэтому смотрим
+  // на оба состояния вместе: иначе логотип run_r пропадал бы в Словаре
+  // после посещения этих подразделов.
+  const isCompactRuneView =
+    viewMode === 'runes' && (runesSubMode === 'layout' || runesSubMode === 'alphabet')
 
   return (
     <div className="container">
@@ -784,7 +786,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           ⚠️ Нет интернета или слабое соединение !
         </div>
       )}
-      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${isRuneLayoutView ? ' header-layout-mode' : ''}`}>
+      <div className={`header${headerCollapsed ? ' header-collapsed' : ''}${isCompactRuneView ? ' header-layout-mode' : ''}`}>
         <button
           type="button"
           className="header-collapse-btn"
@@ -834,7 +836,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </div>
           </>
         )}
-        {!isRuneLayoutView && (
+        {!isCompactRuneView && (
           <img
             src={`${import.meta.env.BASE_URL}images/run_r.png`}
             alt="Логотип"

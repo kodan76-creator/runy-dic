@@ -1,7 +1,8 @@
 // src/pages/Home.test.tsx
 // Тесты шапки главного экрана: логотип run_r виден везде, кроме «Рунной
-// раскладки». Подрежим «Новых Рун» хранится в localStorage и остаётся 'layout'
-// после возврата в «Словарь» — из-за этого логотип раньше пропадал в Словаре.
+// раскладки» и «Рунного алфавита». Подрежим «Новых Рун» хранится в localStorage
+// и остаётся 'layout'/'alphabet' после возврата в «Словарь» — из-за этого
+// логотип раньше пропадал в Словаре.
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import Home from './Home'
@@ -37,9 +38,13 @@ vi.mock('../hooks/useAudioPlayback', () => ({
 
 vi.mock('../hooks/useScrollRestoration', () => ({ useScrollRestoration: vi.fn() }))
 
-// Рунная раскладка в этих тестах не нужна — достаточно заглушки.
+// Рунная раскладка и алфавит в этих тестах не нужны — достаточно заглушек.
 vi.mock('../components/RuneLayout', () => ({
   default: () => <div data-testid="rune-layout-stub">Рунная раскладка</div>,
+}))
+
+vi.mock('../components/RuneAlphabet', () => ({
+  default: () => <div className="rune-alphabet">Рунный алфавит</div>,
 }))
 
 const PAID_USER = { email: 'test8@ya.ru', role: 'user', runesPaid: true }
@@ -79,6 +84,17 @@ describe('Шапка Home: логотип run_r', () => {
     const header = await renderHome()
 
     await waitFor(() => expect(screen.getByTestId('rune-layout-stub')).toBeInTheDocument())
+    expect(screen.queryByAltText('Логотип')).toBeNull()
+    expect(header.className).toContain('header-layout-mode')
+  })
+
+  it('скрыт в «Новых Рунах» → «Рунный алфавит»', async () => {
+    localStorage.setItem('home_view_mode', 'runes')
+    localStorage.setItem('home_runes_submode', 'alphabet')
+
+    const header = await renderHome()
+
+    await waitFor(() => expect(document.querySelector('.rune-alphabet')).toBeTruthy())
     expect(screen.queryByAltText('Логотип')).toBeNull()
     expect(header.className).toContain('header-layout-mode')
   })
