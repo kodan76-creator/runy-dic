@@ -3,11 +3,11 @@
 // кириллицы в руны (шрифт Dao Rus), три текста и дата с оригинала.
 import fs from 'node:fs'
 import path from 'node:path'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import RuneAlphabet from './RuneAlphabet'
 import { type Rune } from '../types'
-import { RUNE_ALPHABET, RUNE_ALPHABET_TEXTS, RUNE_ALPHABET_TITLE } from '../data/runeAlphabet'
+import { RUNE_ALPHABET, RUNE_ALPHABET_TEXTS, RUNE_ALPHABET_TITLE, RUNE_ALPHABET_VERSES } from '../data/runeAlphabet'
 
 describe('Рунный алфавит: данные', () => {
   it('32 знака с уникальными названиями', () => {
@@ -25,6 +25,20 @@ describe('Рунный алфавит: данные', () => {
         fs.existsSync(path.join(dir, letter.image)),
         `нет файла картинки: ${letter.image}`,
       ).toBe(true)
+    }
+  })
+
+  it('32 строки «проявления» — по одной на знак, в порядке нумерации', () => {
+    expect(RUNE_ALPHABET_VERSES).toHaveLength(32)
+    expect(RUNE_ALPHABET_VERSES[0]).toBe('Божественный')
+    expect(RUNE_ALPHABET_VERSES[9]).toBe('Материю.')
+    expect(RUNE_ALPHABET_VERSES[10]).toBe('Единство')
+    expect(RUNE_ALPHABET_VERSES[21]).toBe('Света.')
+    expect(RUNE_ALPHABET_VERSES[22]).toBe('Ибо')
+    expect(RUNE_ALPHABET_VERSES[31]).toBe('возвращается к Отцу.')
+    // Все строки непустые — у каждой карточки есть своё «проявление»
+    for (const verse of RUNE_ALPHABET_VERSES) {
+      expect(verse.trim().length).toBeGreaterThan(0)
     }
   })
 })
@@ -86,6 +100,74 @@ describe('Рунный алфавит: разметка', () => {
     expect(document.querySelector('.rune-alphabet-translator')).toBeNull()
     expect(document.querySelector('.rune-alphabet-input')).toBeNull()
     expect(document.querySelector('.rune-alphabet-preview')).toBeNull()
+  })
+})
+
+describe('Рунный алфавит: «Сияние проявления»', () => {
+  it('у каждой карточки есть оверлей со строкой знака (по нумерации 1–32)', () => {
+    render(<RuneAlphabet />)
+
+    const verses = document.querySelectorAll('.rune-alphabet-verse-text')
+    expect(verses).toHaveLength(32)
+    // Первая карточка (Эль) — «Божественный», 11-я (Орс) — «Единство»,
+    // 23-я (Ибо) — «Ибо», последняя (Нуль) — «возвращается к Отцу.»
+    expect(verses[0].textContent).toBe('Божественный')
+    expect(verses[10].textContent).toBe('Единство')
+    expect(verses[22].textContent).toBe('Ибо')
+    expect(verses[31].textContent).toBe('возвращается к Отцу.')
+  })
+
+  it('первый тап на тач-экране зажигает сияние, второй — открывает описание', async () => {
+    // Эмулируем мобильный: matchMedia говорит, что указатель грубый (тач).
+    // В jsdom matchMedia может отсутствовать — задаём мок напрямую.
+    const originalMatchMedia = window.matchMedia
+    window.matchMedia = ((query: string) => ({
+      matches: query === '(pointer: coarse)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })) as unknown as typeof window.matchMedia
+    try {
+      render(<RuneAlphabet runes={[]} />)
+      const card = screen.getByRole('button', { name: 'Описание руны Эль' })
+
+      // Первый тап — сияние, модалки нет
+      fireEvent.click(card)
+      expect(card.className).toContain('rune-alphabet-card-touched')
+      expect(screen.queryByRole('dialog')).toBeNull()
+
+      // Второй тап — открывается описание (заглушка, каталог пуст)
+      fireEvent.click(card)
+      expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    } finally {
+      window.matchMedia = originalMatchMedia
+    }
+  })
+
+  it('на десктопе клик сразу открывает описание (без промежуточного тапа)', async () => {
+    // matchMedia по умолчанию в jsdom: '(pointer: coarse)' не совпадает
+    render(<RuneAlphabet runes={[]} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Описание руны Эль' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('сияние скрыто по умолчанию, вспыхивает при hover/тапе, не ловит клики — по App.css', () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), 'src/App.css'), 'utf8')
+    const verseBlock = css.match(/\.rune-alphabet-verse\s*\{[^}]*/)?.[0] || ''
+    expect(verseBlock).toContain('opacity: 0')
+    expect(verseBlock).toContain('pointer-events: none')
+    expect(verseBlock).toContain('position: absolute')
+    // hover + клавиатура + тап включают сияние
+    expect(css).toContain('.rune-alphabet-card:hover .rune-alphabet-verse')
+    expect(css).toContain('.rune-alphabet-card-touched .rune-alphabet-verse')
+    // Текст золотой со свечением
+    const textBlock = css.match(/\.rune-alphabet-verse-text\s*\{[^}]*/)?.[0] || ''
+    expect(textBlock).toContain('color: #FFD700')
+    expect(textBlock).toMatch(/text-shadow:[^}]*255, 215, 0/)
   })
 })
 

@@ -19,6 +19,7 @@ import {
   RUNE_ALPHABET_TEXTS,
   RUNE_ALPHABET_TEXTS_TITLE,
   RUNE_ALPHABET_TITLE,
+  RUNE_ALPHABET_VERSES,
   type RuneAlphabetLetter,
 } from '../data/runeAlphabet'
 import '../App.css'
@@ -34,6 +35,23 @@ type RuneAlphabetProps = {
 export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
   // 🔮 Знак, по карточке которого открыта модалка описания
   const [selected, setSelected] = useState<RuneAlphabetLetter | null>(null)
+  // ✨ Знак, чьё «проявление» показано на тач-экране: на мобильном нет hover,
+  // поэтому первый тап по карточке зажигает сияние со строкой, а второй —
+  // открывает описание. Сбрасываем в null при выборе другой карточки.
+  const [touched, setTouched] = useState<string | null>(null)
+
+  // Первый тап на тач-экране — зажечь «проявление», второй — открыть описание.
+  // На десктопе с мышью hover показывает сияние сам (через :hover в CSS),
+  // а клик сразу открывает модалку — проверяем тип указателя.
+  const handleCardClick = (letter: RuneAlphabetLetter) => {
+    const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false
+    if (coarsePointer && touched !== letter.name) {
+      setTouched(letter.name)
+      return
+    }
+    setTouched(null)
+    setSelected(letter)
+  }
 
   // Знак алфавита ↔ руна каталога:
   // 1) точное имя из поля `rune` (у знаков-перевёртышей — запись
@@ -62,13 +80,14 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
             {column.map((letter, li) => {
               // Сквозная нумерация 1–32 — в порядке колонок листа
               const n = COLUMN_OFFSETS[ci] + li + 1
+              const verse = RUNE_ALPHABET_VERSES[n - 1]
               return (
                 <li key={letter.name}>
                   <button
                     type="button"
-                    className="rune-alphabet-card"
+                    className={`rune-alphabet-card${touched === letter.name ? ' rune-alphabet-card-touched' : ''}`}
                     style={{ animationDelay: `${Math.min(n - 1, 31) * 35}ms` } as CSSProperties}
-                    onClick={() => setSelected(letter)}
+                    onClick={() => handleCardClick(letter)}
                     aria-haspopup="dialog"
                     aria-label={`Описание руны ${letter.name}`}
                   >
@@ -80,6 +99,14 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
                     />
                     <span className="rune-alphabet-name">{letter.name}</span>
                     <span className="rune-alphabet-sound">[{letter.sound}]</span>
+                    {/* ✨ «Сияние проявления»: строка текста, который проявляет
+                       рунный алфавит. На десктопе вспыхивает при :hover, на
+                       тач-экране — при первом тапе (класс -touched). */}
+                    {verse && (
+                      <span className="rune-alphabet-verse" aria-hidden="true">
+                        <span className="rune-alphabet-verse-text">{verse}</span>
+                      </span>
+                    )}
                   </button>
                 </li>
               )
