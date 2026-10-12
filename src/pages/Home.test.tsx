@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import Home from './Home'
-import { getCategories, getDictionary, getFavoritesForUser, updateFavoritesForUser } from '../githubApi'
+import { getCategories, getDictionary, getFavoritesForUser, getRunes, updateFavoritesForUser } from '../githubApi'
 
 // ── Моки: компонент не должен ходить в сеть, к аудио и в IndexedDB ──────────
 vi.mock('../githubApi', () => ({
@@ -150,6 +150,21 @@ describe('Подразделы «Новых Рун»: иконки с текст
 
     expect(document.querySelector('.rune-alphabet')).toBeTruthy()
     expect(localStorage.getItem('home_runes_submode')).toBe('alphabet')
+  })
+
+  it('внизу списка «Новые Руны» — кнопка «Наверх»', async () => {
+    localStorage.setItem('home_view_mode', 'runes')
+    localStorage.setItem('home_runes_submode', 'cards')
+    vi.mocked(getRunes).mockResolvedValueOnce({
+      data: [{ id: 'r1', name: 'ЭЛЬ', image: '23_ЭЛЬ.png' }],
+      ok: true,
+    } as never)
+
+    await renderHome()
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Вернуться наверх страницы' })).toBeInTheDocument(),
+    )
   })
 })
 

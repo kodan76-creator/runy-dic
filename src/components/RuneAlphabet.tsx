@@ -13,6 +13,7 @@ import { RUNES_IMAGE_DIR } from '../api/constants'
 import { type Rune } from '../types'
 import OfflineImage from './OfflineImage'
 import RuneCard from './RuneCard'
+import ScrollTopButton from './ScrollTopButton'
 import {
   RUNE_ALPHABET_COLUMNS,
   RUNE_ALPHABET_DATE,
@@ -124,6 +125,8 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
         </ol>
         <p className="rune-alphabet-date">{RUNE_ALPHABET_DATE}</p>
       </section>
+
+      <ScrollTopButton />
 
       {/* 🔮 Модалка описания — как в «Рунной раскладке», но без шапки:
          липкая полоса с кнопкой «Закрыть» справа + карточка RuneCard.

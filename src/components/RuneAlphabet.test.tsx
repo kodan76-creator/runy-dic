@@ -94,6 +94,12 @@ describe('Рунный алфавит: разметка', () => {
     expect(screen.getByText('31 января – 31 мая 1999 года')).toBeInTheDocument()
   })
 
+  it('внизу — кнопка «Наверх» для возврата к началу', () => {
+    render(<RuneAlphabet />)
+
+    expect(screen.getByRole('button', { name: 'Вернуться наверх страницы' })).toBeInTheDocument()
+  })
+
   it('строка ввода (переводчик) отсутствует', () => {
     render(<RuneAlphabet />)
 

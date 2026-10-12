@@ -11,6 +11,7 @@ import WordCard from '../components/WordCard'
 import RuneCard from '../components/RuneCard'
 import RuneLayout from '../components/RuneLayout'
 import RuneAlphabet from '../components/RuneAlphabet'
+import ScrollTopButton from '../components/ScrollTopButton'
 import FilterModal from '../components/FilterModal'
 import ThemeToggle from '../components/ThemeToggle'
 import '../App.css'
@@ -1163,11 +1164,14 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             <RuneAlphabet runes={runes} />
           ) : Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
-              <div className="runes-list-cards">
+              <>
+                <div className="runes-list-cards">
                   {filteredRunes.map(r => (
                     <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} runicMode={runicSearchMode} />
                   ))}
                 </div>
+                <ScrollTopButton />
+              </>
             ) : (
               <div className="state-block empty-state">
                 <div className="state-icon" aria-hidden="true">🔍</div>
