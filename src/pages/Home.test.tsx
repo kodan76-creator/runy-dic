@@ -152,7 +152,7 @@ describe('Подразделы «Новых Рун»: иконки с текст
     expect(localStorage.getItem('home_runes_submode')).toBe('alphabet')
   })
 
-  it('внизу списка «Новые Руны» — кнопка «Наверх»', async () => {
+  it('внизу списка «Новые Руны» — кнопка «Наверх» (появляется при прокрутке)', async () => {
     localStorage.setItem('home_view_mode', 'runes')
     localStorage.setItem('home_runes_submode', 'cards')
     vi.mocked(getRunes).mockResolvedValueOnce({
@@ -161,6 +161,14 @@ describe('Подразделы «Новых Рун»: иконки с текст
     } as never)
 
     await renderHome()
+    await waitFor(() =>
+      expect(document.querySelector('.runes-dictionary-section')).not.toBeNull(),
+    )
+
+    // Плавающая кнопка скрыта вверху — показываем её прокруткой раздела
+    const section = document.querySelector('.runes-dictionary-section') as HTMLElement
+    Object.defineProperty(section, 'scrollTop', { value: 400, configurable: true })
+    fireEvent.scroll(section)
 
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Вернуться наверх страницы' })).toBeInTheDocument(),

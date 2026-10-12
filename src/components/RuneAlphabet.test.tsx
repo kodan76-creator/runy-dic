@@ -95,7 +95,14 @@ describe('Рунный алфавит: разметка', () => {
   })
 
   it('внизу — кнопка «Наверх» для возврата к началу', () => {
+    const section = document.createElement('div')
+    section.className = 'runes-dictionary-section'
+    document.body.appendChild(section)
     render(<RuneAlphabet />)
+
+    // Плавающая кнопка скрыта вверху — показываем её прокруткой раздела
+    Object.defineProperty(section, 'scrollTop', { value: 400, configurable: true })
+    fireEvent.scroll(section)
 
     expect(screen.getByRole('button', { name: 'Вернуться наверх страницы' })).toBeInTheDocument()
   })

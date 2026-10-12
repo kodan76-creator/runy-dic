@@ -3304,12 +3304,24 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 13px;
   color: #cbb6e8;
 }
-/* ⬆ Кнопка «Наверх» внизу длинных разделов («Новые Руны», «Рунный алфавит»).
-   Золотая пилюля в стиле секции — возвращает к началу прокручиваемой области. */
-.scroll-top-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 22px;
+/* ⬆ Плавающая кнопка «Наверх» для длинных разделов («Новые Руны»,
+   «Рунный алфавит»). Скрыта, пока страницу не прокрутили; появляется справа
+   внизу через портал в body, поверх контента. */
+.scroll-top-wrap.scroll-top-float {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 1500;
+  pointer-events: none;
+  animation: scroll-top-appear 0.25s ease;
+}
+.scroll-top-float .scroll-top-btn {
+  pointer-events: auto;
+  box-shadow: 0 4px 18px rgba(42, 17, 69, 0.45);
+}
+@keyframes scroll-top-appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .scroll-top-btn {
   display: inline-flex;
