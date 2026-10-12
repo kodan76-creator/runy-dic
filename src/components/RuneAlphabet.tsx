@@ -35,11 +35,18 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
   // 🔮 Знак, по карточке которого открыта модалка описания
   const [selected, setSelected] = useState<RuneAlphabetLetter | null>(null)
 
-  // Знак алфавита ↔ руна каталога: в runes.json те же файлы картинок;
-  // запасной вариант — совпадение названия (регистронезависимо).
-  const findRune = (letter: RuneAlphabetLetter): Rune | undefined =>
-    runes.find(r => r.image === letter.image)
-    || runes.find(r => (r.name || '').trim().toLowerCase() === letter.name.toLowerCase())
+  // Знак алфавита ↔ руна каталога:
+  // 1) точное имя из поля `rune` (у знаков-перевёртышей — запись
+  //    «НАЗВАНИЕ (перевернутое положение)» в runes.json);
+  // 2) запасной вариант — совпадение названия (регистронезависимо).
+  const findRune = (letter: RuneAlphabetLetter): Rune | undefined => {
+    if (letter.rune) {
+      const target = letter.rune.trim().toLowerCase()
+      const exact = runes.find(r => (r.name || '').trim().toLowerCase() === target)
+      if (exact) return exact
+    }
+    return runes.find(r => (r.name || '').trim().toLowerCase() === letter.name.toLowerCase())
+  }
 
   const selectedRune = selected ? findRune(selected) : undefined
   const closeModal = () => setSelected(null)

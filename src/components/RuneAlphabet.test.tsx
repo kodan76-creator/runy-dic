@@ -119,6 +119,30 @@ describe('Рунный алфавит: модалка описания руны'
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
+  it('клик по знаку-перевёртышу открывает описание перевёрнутого положения', async () => {
+    // Знак «Ва» — перевёрнутое Радо: в каталоге только «РАДО (перевернутое
+    // положение)», прямого совпадения по имени «Ва» нет.
+    const V_RUNES: Rune[] = [
+      {
+        id: '2',
+        name: 'РАДО (перевернутое положение)',
+        image: '08_RADO_p.png',
+        graphic: 'В',
+        letter: 'В',
+        description: '<p>Основание, фундамент.</p>',
+        textAlign: 'left',
+      },
+    ]
+    render(<RuneAlphabet runes={V_RUNES} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Описание руны Ва' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveAttribute('aria-label', 'Описание руны Ва')
+    expect(screen.getByText('РАДО (перевернутое положение)')).toBeInTheDocument()
+    expect(screen.getByText('Основание, фундамент.')).toBeInTheDocument()
+  })
+
   it('клик по подложке закрывает модалку; без руны в каталоге — заглушка', async () => {
     render(<RuneAlphabet runes={[]} />)
 
