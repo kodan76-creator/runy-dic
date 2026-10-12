@@ -46,7 +46,7 @@ export const RUNE_ALPHABET: RuneAlphabetLetter[] = [
   { name: 'Аль-Го', sound: 'е, ер', image: '22_АЛЬ-ГО.png' },
   { name: 'Амаюн', sound: 'ю', image: '24_АМАЮН.png' },
   { name: 'Беркут', sound: 'б', image: '26_БЕРКУТ.png' },
-  { name: 'Виньо', sound: 'ньо, ньо', image: '12_ВИНЬО.png' },
+  { name: 'Виньо', sound: 'ньо, иньо', image: '12_ВИНЬО.png' },
   { name: 'Воз', sound: 'воз, ы', image: '28_ВОЗ.png' },
   // «Ва» — знак перевёрнутого Радо (тот же глиф, что «В» в шрифте Dao Rus)
   { name: 'Ва', sound: 'в', image: '8_РАДО_П.png' },
