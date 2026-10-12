@@ -169,9 +169,16 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     expect(liBlock).toContain('text-align: left')
   })
 
-  it('панель модалки — не flex-колонка, кнопка «Закрыть» — круг 40px справа с зазором', () => {
-    // Регресс: кнопка была прямым flex-элементом прокручиваемой колонки —
-    // высокое описание сдавливало её («плющило» на мобильном).
+  it('полоса кнопки «Закрыть» — липкая, непрозрачная, кнопка справа кругом 40px', () => {
+    // Регресс по скриншоту: карточка заезжала под прозрачную кнопку и казалось,
+    // что кнопка лежит на рамке. Теперь кнопка сидит в непрозрачной полосе.
+    const barBlock = css.match(/\.rune-alphabet-rune-bar\s*\{[^}]*/)?.[0] || ''
+    expect(barBlock).toMatch(/position:\s*sticky/)
+    expect(barBlock).toContain('justify-content: flex-end')
+    expect(barBlock).toContain('margin: -15px -15px 12px -15px')
+    expect(barBlock).toContain('background: var(--surface)')
+    const darkBarBlock = css.match(/:root\[data-theme="dark"\]\s*\.rune-alphabet-rune-bar\s*\{[^}]*/)?.[0] || ''
+    expect(darkBarBlock).toContain('background: var(--modal-bg)')
     const modalBlock = css.match(/\.rune-alphabet-rune-modal\s*\{[^}]*/)?.[0] || ''
     expect(modalBlock).not.toMatch(/display:\s*flex/)
     const closeBlock = css.match(/\.rune-alphabet-rune-close\s*\{[^}]*/)?.[0] || ''
@@ -179,8 +186,6 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     expect(closeBlock).toContain('min-width: 40px')
     expect(closeBlock).toContain('height: 40px')
     expect(closeBlock).toContain('min-height: 40px')
-    // Кнопка справа (margin-left: auto) и не касается рамки карточки снизу
-    expect(closeBlock).toMatch(/margin:[^;]*auto/)
-    expect(closeBlock).toContain('margin: -5px 0 12px auto')
+    expect(closeBlock).not.toMatch(/display:\s*inline-flex/)
   })
 })

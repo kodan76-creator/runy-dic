@@ -99,7 +99,9 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
       </section>
 
       {/* 🔮 Модалка описания — как в «Рунной раскладке», но без шапки:
-         только кнопка «Закрыть» (sticky сверху справа) и карточка RuneCard */}
+         липкая полоса с кнопкой «Закрыть» справа + карточка RuneCard.
+         ⚠️ Полоса непрозрачная (фон модалки): иначе при прокрутке рамка
+         карточки заезжает под кнопку и кажется, что кнопка лежит на рамке. */}
       {selected && (
         <div
           className="modal-backdrop"
@@ -112,15 +114,17 @@ export default function RuneAlphabet({ runes = [] }: RuneAlphabetProps) {
             className="filter-modal rune-alphabet-rune-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              className="rune-alphabet-rune-close"
-              onClick={closeModal}
-              aria-label="Закрыть"
-              title="Закрыть"
-            >
-              ✕
-            </button>
+            <div className="rune-alphabet-rune-bar">
+              <button
+                type="button"
+                className="rune-alphabet-rune-close"
+                onClick={closeModal}
+                aria-label="Закрыть"
+                title="Закрыть"
+              >
+                ✕
+              </button>
+            </div>
             {selectedRune ? (
               <RuneCard rune={selectedRune} />
             ) : (

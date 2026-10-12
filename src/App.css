@@ -3156,9 +3156,8 @@ background: rgba(246, 240, 253, 0.2);
   .rune-alphabet-card:hover { transform: none; }
 }
 /* 🔮 Модалка описания руны из алфавита — та же, что в «Рунной раскладке»
-   (бэкдроп .modal-backdrop + панель .filter-modal), но БЕЗ шапки: только
-   кнопка «Закрыть» (sticky сверху справа, не прячется при прокрутке) и
-   карточка RuneCard.
+   (бэкдроп .modal-backdrop + панель .filter-modal), но БЕЗ шапки с текстом:
+   липкая полоса с кнопкой «Закрыть» справа + карточка RuneCard.
    ⚠️ Панель — display: block (НЕ flex-колонка): кнопка обязана оставаться
    кругом 40px при описании любой высоты, а flex-сжатие её «плющило». */
 .rune-alphabet-rune-modal {
@@ -3167,14 +3166,32 @@ background: rgba(246, 240, 253, 0.2);
   overflow-y: auto;
   display: block;
 }
-/* Кнопка «Закрыть» — та же визуальная, что в шапке модалки раскладки.
-   Вне flex-потока: справа (margin-left: auto), размер держат width/height +
-   min-width/min-height (не схлопывается на мобильном). Зазоры: 8px сверху
-   при залипании и 12px снизу — кнопка не касается рамок панели и карточки. */
-.rune-alphabet-rune-close {
+/* Липкая полоса кнопки: непрозрачная (фон модалки во всех темах), тянется на
+   поля панели, чтобы при прокрутке рамка карточки не заезжала под кнопку —
+   иначе кажется, что кнопка лежит на рамке (см. скриншот). Кнопка справа,
+   с зазором 12px до карточки — рамок не касается. */
+.rune-alphabet-rune-bar {
   position: sticky;
-  top: 8px;
-  margin: -5px 0 12px auto;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: flex-end;
+  margin: -15px -15px 12px -15px;
+  padding: 10px 10px 10px 12px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--surface-border);
+  box-shadow: 0 3px 12px rgba(42, 17, 69, 0.45);
+}
+/* Тёмная тема: панель модалки красится в --modal-bg — полоса совпадает с ней */
+:root[data-theme="dark"] .rune-alphabet-rune-bar {
+  background: var(--modal-bg);
+}
+/* Кнопка «Закрыть» — та же визуальная, что в шапке модалки раскладки:
+   круг 40px, размер держат width/height + min-width/min-height
+   (не схлопывается на мобильном). */
+.rune-alphabet-rune-close {
+  margin: 0;
+  display: flex;
   z-index: 5;
   width: 40px;
   min-width: 40px;
@@ -3188,7 +3205,6 @@ background: rgba(246, 240, 253, 0.2);
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(42, 17, 69, 0.5);
