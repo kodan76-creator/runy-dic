@@ -94,7 +94,7 @@ describe('Шапка Home: логотип run_r', () => {
 })
 
 describe('Подразделы «Новых Рун»: иконки с текстовыми подписями', () => {
-  it('переключатель — иконки 36_ЦЭРЭ, голубя и Аза с текстовыми подписями', async () => {
+  it('переключатель — иконки 36_ЦЭРЭ, Аза и голубя с текстовыми подписями', async () => {
     localStorage.setItem('home_view_mode', 'runes')
     localStorage.setItem('home_runes_submode', 'cards')
 
@@ -106,13 +106,13 @@ describe('Подразделы «Новых Рун»: иконки с текст
     expect(toggle).toBeInTheDocument()
     const buttons = toggle ? Array.from(toggle.querySelectorAll('button')) : []
     expect(buttons).toHaveLength(3)
-    const [cardsBtn, layoutBtn, alphabetBtn] = buttons
+    const [cardsBtn, alphabetBtn, layoutBtn] = buttons
     expect(cardsBtn.getAttribute('aria-label')).toBe('Новые Руны')
-    expect(layoutBtn.getAttribute('aria-label')).toBe('Рунная раскладка')
     expect(alphabetBtn.getAttribute('aria-label')).toBe('Рунный алфавит')
+    expect(layoutBtn.getAttribute('aria-label')).toBe('Рунная раскладка')
     expect(cardsBtn.querySelector('img')?.getAttribute('src')).toContain('36_ЦЭРЭ.png')
-    expect(layoutBtn.querySelector('img')?.getAttribute('src')).toContain('icon-192.png')
     expect(alphabetBtn.querySelector('img')?.getAttribute('src')).toContain('6_АЗ.png')
+    expect(layoutBtn.querySelector('img')?.getAttribute('src')).toContain('icon-192.png')
     // У каждой кнопки: иконка + видимая текстовая подпись
     expect(cardsBtn.textContent?.trim()).toBe('Новые Руны')
     expect(layoutBtn.textContent?.trim()).toBe('Рунная раскладка')

@@ -1130,19 +1130,6 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </button>
             <button
               type="button"
-              className={`runes-sub-toggle-btn ${runesSubMode === 'layout' ? 'active' : ''}`}
-              aria-pressed={runesSubMode === 'layout'}
-              aria-label="Рунная раскладка"
-              title="Рунная раскладка"
-              onClick={() => {
-                setRunesSubMode('layout')
-                try { localStorage.setItem('home_runes_submode', 'layout') } catch { /* ignore */ }
-              }}
-            >
-              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" /> Рунная раскладка
-            </button>
-            <button
-              type="button"
               className={`runes-sub-toggle-btn ${runesSubMode === 'alphabet' ? 'active' : ''}`}
               aria-pressed={runesSubMode === 'alphabet'}
               aria-label="Рунный алфавит"
@@ -1153,6 +1140,19 @@ export default function Home({ user, onLogout, onUserUpdate }) {
               }}
             >
               <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/6_АЗ.png`} alt="" className="rune-tab-icon" /> Алфавит
+            </button>
+            <button
+              type="button"
+              className={`runes-sub-toggle-btn ${runesSubMode === 'layout' ? 'active' : ''}`}
+              aria-pressed={runesSubMode === 'layout'}
+              aria-label="Рунная раскладка"
+              title="Рунная раскладка"
+              onClick={() => {
+                setRunesSubMode('layout')
+                try { localStorage.setItem('home_runes_submode', 'layout') } catch { /* ignore */ }
+              }}
+            >
+              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" /> Рунная раскладка
             </button>
           </div>
           {runesSubMode === 'layout' ? (
