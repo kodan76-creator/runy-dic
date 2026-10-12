@@ -169,7 +169,7 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     expect(liBlock).toContain('text-align: left')
   })
 
-  it('панель модалки — не flex-колонка, кнопка «Закрыть» — круг 40px (не плющится)', () => {
+  it('панель модалки — не flex-колонка, кнопка «Закрыть» — круг 40px справа с зазором', () => {
     // Регресс: кнопка была прямым flex-элементом прокручиваемой колонки —
     // высокое описание сдавливало её («плющило» на мобильном).
     const modalBlock = css.match(/\.rune-alphabet-rune-modal\s*\{[^}]*/)?.[0] || ''
@@ -179,5 +179,8 @@ describe('Рунный алфавит: вёрстка (App.css)', () => {
     expect(closeBlock).toContain('min-width: 40px')
     expect(closeBlock).toContain('height: 40px')
     expect(closeBlock).toContain('min-height: 40px')
+    // Кнопка справа (margin-left: auto) и не касается рамки карточки снизу
+    expect(closeBlock).toMatch(/margin:[^;]*auto/)
+    expect(closeBlock).toContain('margin: -5px 0 12px auto')
   })
 })
