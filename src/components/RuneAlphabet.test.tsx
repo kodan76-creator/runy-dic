@@ -48,6 +48,28 @@ describe('Рунный алфавит: разметка', () => {
     expect(imgs[0].getAttribute('src')).toContain('images/n_runy/runy/')
   })
 
+  it('колонки листа: Эль→Ва, Орс→Цэрэ, Ибо→Нуль (10/12/10)', () => {
+    render(<RuneAlphabet />)
+
+    const columns = Array.from(document.querySelectorAll('.rune-alphabet-column'))
+    expect(columns).toHaveLength(3)
+    const namesIn = (col: Element) =>
+      Array.from(col.querySelectorAll('.rune-alphabet-name')).map(n => n.textContent)
+    const [first, second, third] = columns.map(namesIn)
+
+    expect(first).toHaveLength(10)
+    expect(first[0]).toBe('Эль')
+    expect(first[9]).toBe('Ва')
+
+    expect(second).toHaveLength(12)
+    expect(second[0]).toBe('Орс')
+    expect(second[11]).toBe('Цэрэ')
+
+    expect(third).toHaveLength(10)
+    expect(third[0]).toBe('Ибо')
+    expect(third[9]).toBe('Нуль')
+  })
+
   it('три текста с листа и дата внизу', () => {
     render(<RuneAlphabet />)
 

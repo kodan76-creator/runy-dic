@@ -3079,14 +3079,19 @@ background: rgba(246, 240, 253, 0.2);
   font-size: 15px;
   margin-bottom: 14px;
 }
-/* 🔷 Сетка знаков: 32 карточки тремя вертикальными рядами (как на листе),
-   со stagger-появлением — и на десктопе, и на мобильном */
+/* 🔷 Сетка знаков: три вертикальные колонки листа (Эль→Ва, Орс→Цэрэ,
+   Ибо→Нуль) — и на десктопе, и на мобильном; карточки со stagger-появлением */
 .rune-alphabet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.rune-alphabet-column {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 .rune-alphabet-card {

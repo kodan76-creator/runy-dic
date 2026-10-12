@@ -82,3 +82,15 @@ export const RUNE_ALPHABET: RuneAlphabetLetter[] = [
   // «Нуль» — знак перевёрнутого Амаюн (глиф «Н» в Dao Rus)
   { name: 'Нуль', sound: 'н', image: '25_АМАЮН_П.png' },
 ]
+
+/**
+ * Три вертикальные колонки листа — как в оригинале:
+ * 1-я: Эль → Ва (10 знаков), 2-я: Орс → Цэрэ (12), 3-я: Ибо → Нуль (10).
+ * Экспортируются отдельно, чтобы сетка рендерила колонки явно, а не
+ * полагалась на автовыравнивание (оно расределило бы знаки иначе — 11/11/10).
+ */
+export const RUNE_ALPHABET_COLUMNS: RuneAlphabetLetter[][] = [
+  RUNE_ALPHABET.slice(0, 10),
+  RUNE_ALPHABET.slice(10, 22),
+  RUNE_ALPHABET.slice(22, 32),
+]
