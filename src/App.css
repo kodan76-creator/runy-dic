@@ -919,10 +919,12 @@ background: rgba(246, 240, 253, 0.2);
   overflow: hidden;
   padding: 20px 8px 20px;
 }
-/* Переключатель подразделов «Новых Рун»: иконки Руны / Рунная раскладка */
+/* Переключатель подразделов «Новых Рун»: иконки Руны / Рунная раскладка /
+   Алфавит. На узких экранах три кнопки переносятся на вторую строку. */
 .runes-sub-toggle {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 14px;
   flex-shrink: 0;
@@ -3052,4 +3054,186 @@ background: rgba(246, 240, 253, 0.2);
   }
 }
 
+
+/* 🅰 Рунный алфавит (подраздел «Новых Рун»): 32 знака, переводчик и тексты
+   с оригинального листа. Секция «Новых Рун» имеет фиксированный тёмно-
+   фиолетовый фон (#4a2a6b) в обеих темах, поэтому цвета здесь константные. */
+.rune-alphabet {
+  width: 100%;
+  padding-bottom: 8px;
+}
+.rune-alphabet-title {
+  margin: 2px 0 4px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow: 1px 1px 2px rgba(42, 17, 69, 0.6);
+  letter-spacing: 0.4px;
+}
+.rune-alphabet-ornament {
+  text-align: center;
+  color: #FFD700;
+  opacity: 0.75;
+  letter-spacing: 12px;
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+/* ✍️ Переводчик: кириллица → руны (шрифт Dao Rus, как в рунном вводе) */
+.rune-alphabet-translator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.rune-alphabet-translator-label {
+  font-size: 14px;
+  color: #e8dcff;
+}
+.rune-alphabet-input {
+  width: min(420px, 100%);
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 215, 0, 0.65);
+  background: rgba(246, 240, 253, 0.95);
+  color: #3d0a5f;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.rune-alphabet-input:focus {
+  border-color: #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
+}
+.rune-alphabet-input::placeholder {
+  color: #7d19b9;
+  opacity: 0.8;
+}
+.rune-alphabet-preview {
+  min-height: 52px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Dao Rus', serif;
+  font-size: 34px;
+  line-height: 1.25;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  word-break: break-word;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+.rune-alphabet-preview.is-empty {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: #cbb6e8;
+  text-shadow: none;
+}
+/* 🔷 Сетка знаков: 32 карточки со stagger-появлением */
+.rune-alphabet-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 12px;
+}
+.rune-alphabet-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px 10px;
+  border-radius: 12px;
+  background: rgba(246, 240, 253, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  box-shadow: 0 2px 8px rgba(28, 10, 46, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  animation: rune-alphabet-in 0.5s ease backwards;
+}
+.rune-alphabet-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  border-color: #FFD700;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.45);
+}
+.rune-alphabet-index {
+  position: absolute;
+  top: 6px;
+  left: 9px;
+  font-size: 11px;
+  color: rgba(239, 230, 251, 0.55);
+}
+.rune-alphabet-glyph {
+  width: 64px;
+  height: 84px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.35));
+}
+.rune-alphabet-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFD700;
+  text-align: center;
+}
+.rune-alphabet-sound {
+  font-size: 13px;
+  font-style: italic;
+  color: #5ad1e6;
+}
+@keyframes rune-alphabet-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rune-alphabet-card { animation: none; transition: none; }
+  .rune-alphabet-card:hover { transform: none; }
+}
+/* 📜 Тексты с листа + дата */
+.rune-alphabet-texts {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(28, 10, 46, 0.4);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+.rune-alphabet-texts-title {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 18px;
+  color: #FFD700;
+}
+.rune-alphabet-texts-list {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rune-alphabet-texts-list li {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #efe6fb;
+}
+.rune-alphabet-texts-list li::marker {
+  color: #FFD700;
+  font-weight: 700;
+}
+.rune-alphabet-date {
+  margin: 12px 0 0;
+  text-align: center;
+  font-style: italic;
+  font-size: 13px;
+  color: #cbb6e8;
+}
+@media (max-width: 520px) {
+  .rune-alphabet-title { font-size: 20px; }
+  .rune-alphabet-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .rune-alphabet-glyph { width: 54px; height: 72px; }
+  .rune-alphabet-preview { font-size: 28px; }
+}
 

@@ -94,7 +94,7 @@ describe('Шапка Home: логотип run_r', () => {
 })
 
 describe('Подразделы «Новых Рун»: иконки с текстовыми подписями', () => {
-  it('переключатель — иконки 36_ЦЭРЭ и голубя с текстом', async () => {
+  it('переключатель — иконки 36_ЦЭРЭ, голубя и Аза с текстовыми подписями', async () => {
     localStorage.setItem('home_view_mode', 'runes')
     localStorage.setItem('home_runes_submode', 'cards')
 
@@ -105,15 +105,35 @@ describe('Подразделы «Новых Рун»: иконки с текст
     const toggle = document.querySelector('.runes-sub-toggle')
     expect(toggle).toBeInTheDocument()
     const buttons = toggle ? Array.from(toggle.querySelectorAll('button')) : []
-    expect(buttons).toHaveLength(2)
-    const [cardsBtn, layoutBtn] = buttons
+    expect(buttons).toHaveLength(3)
+    const [cardsBtn, layoutBtn, alphabetBtn] = buttons
     expect(cardsBtn.getAttribute('aria-label')).toBe('Новые Руны')
     expect(layoutBtn.getAttribute('aria-label')).toBe('Рунная раскладка')
+    expect(alphabetBtn.getAttribute('aria-label')).toBe('Рунный алфавит')
     expect(cardsBtn.querySelector('img')?.getAttribute('src')).toContain('36_ЦЭРЭ.png')
     expect(layoutBtn.querySelector('img')?.getAttribute('src')).toContain('icon-192.png')
+    expect(alphabetBtn.querySelector('img')?.getAttribute('src')).toContain('6_АЗ.png')
     // У каждой кнопки: иконка + видимая текстовая подпись
     expect(cardsBtn.textContent?.trim()).toBe('Новые Руны')
     expect(layoutBtn.textContent?.trim()).toBe('Рунная раскладка')
+    expect(alphabetBtn.textContent?.trim()).toBe('Алфавит')
+  })
+
+  it('клик по «Алфавит» открывает «Рунный алфавит» и запоминает выбор', async () => {
+    localStorage.setItem('home_view_mode', 'runes')
+    localStorage.setItem('home_runes_submode', 'cards')
+
+    await renderHome()
+
+    const toggle = document.querySelector('.runes-sub-toggle')
+    const alphabetBtn = toggle
+      ? Array.from(toggle.querySelectorAll('button')).find(b => b.getAttribute('aria-label') === 'Рунный алфавит')
+      : null
+    expect(alphabetBtn).toBeTruthy()
+    fireEvent.click(alphabetBtn as HTMLElement)
+
+    expect(document.querySelector('.rune-alphabet')).toBeTruthy()
+    expect(localStorage.getItem('home_runes_submode')).toBe('alphabet')
   })
 })
 

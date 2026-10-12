@@ -10,6 +10,7 @@ import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import WordCard from '../components/WordCard'
 import RuneCard from '../components/RuneCard'
 import RuneLayout from '../components/RuneLayout'
+import RuneAlphabet from '../components/RuneAlphabet'
 import FilterModal from '../components/FilterModal'
 import ThemeToggle from '../components/ThemeToggle'
 import '../App.css'
@@ -31,11 +32,12 @@ export default function Home({ user, onLogout, onUserUpdate }) {
     } catch { /* ignore */ }
     return 'dictionary'
   })
-  // 🥚 Подраздел «Новых Рун»: список рун или «Рунная раскладка» (фото в эллипсе)
-  const [runesSubMode, setRunesSubMode] = useState<'cards' | 'layout'>(() => {
+  // 🥚 Подраздел «Новых Рун»: список рун, «Рунная раскладка» (фото в эллипсе)
+  // или «Рунный алфавит» (32 знака с листа)
+  const [runesSubMode, setRunesSubMode] = useState<'cards' | 'layout' | 'alphabet'>(() => {
     try {
       const saved = localStorage.getItem('home_runes_submode')
-      if (saved === 'layout') return 'layout'
+      if (saved === 'layout' || saved === 'alphabet') return saved
     } catch { /* ignore */ }
     return 'cards'
   })
@@ -866,7 +868,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             </button>
           </div>
         )}
-        {viewMode === 'runes' && runesSubMode !== 'layout' && (
+        {/* Поиск по рунам нужен только в режиме списка карточек */}
+        {viewMode === 'runes' && runesSubMode === 'cards' && (
           <div className="search-row runes-search">
             <div className="search-wrapper" style={{flex: 1}}>
               <input
@@ -1138,9 +1141,24 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             >
               <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="rune-tab-icon" /> Рунная раскладка
             </button>
+            <button
+              type="button"
+              className={`runes-sub-toggle-btn ${runesSubMode === 'alphabet' ? 'active' : ''}`}
+              aria-pressed={runesSubMode === 'alphabet'}
+              aria-label="Рунный алфавит"
+              title="Рунный алфавит"
+              onClick={() => {
+                setRunesSubMode('alphabet')
+                try { localStorage.setItem('home_runes_submode', 'alphabet') } catch { /* ignore */ }
+              }}
+            >
+              <img src={`${import.meta.env.BASE_URL}images/n_runy/runy/6_АЗ.png`} alt="" className="rune-tab-icon" /> Алфавит
+            </button>
           </div>
           {runesSubMode === 'layout' ? (
             <RuneLayout user={user} onUserUpdate={onUserUpdate} />
+          ) : runesSubMode === 'alphabet' ? (
+            <RuneAlphabet />
           ) : Array.isArray(runes) && runes.length > 0 ? (
             filteredRunes.length > 0 ? (
               <div className="runes-list-cards">
