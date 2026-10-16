@@ -257,7 +257,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
       if (parsed?.type !== 'evaluation' && parsed?.type !== 'healing') return null
       if (!Array.isArray(parsed?.runes) || parsed.runes.length !== 7) return null
       if (!parsed.runes.every((name) => typeof name === 'string' && name.length > 0)) return null
-      return { type: parsed.type, runes: parsed.runes }
+      return {
+        type: parsed.type,
+        runes: parsed.runes,
+        // 📅 Дата и время нажатия кнопки выбора (сохраняем вместе с крестом,
+        // чтобы показывать её под названием раскладки и после перезагрузки)
+        chosenAt: typeof parsed.chosenAt === 'string' ? parsed.chosenAt : '',
+      }
     } catch { return null }
   })()
   const [spreadRunes, setSpreadRunes] = useState(() => savedSpread?.runes ?? [])
@@ -266,13 +272,16 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // (оценка / исцеление). После выбора — крест с рунами + кнопка возврата.
   // Начальное значение — из localStorage, чтобы страница с крестом переживала F5.
   const [selectedLayoutChoice, setSelectedLayoutChoice] = useState(() => savedSpread?.type ?? '')
+  // 📅 Дата и время нажатия кнопки выбора раскладки («dd.mm.yyyy hh:mm») —
+  // показывается под названием раскладки на странице с крестом.
+  const [layoutChosenAt, setLayoutChosenAt] = useState(() => savedSpread?.chosenAt ?? '')
   const [showLayoutChoice, setShowLayoutChoice] = useState(false)
   // Ключ localStorage для запомненной страницы с крестом (по email).
   const spreadKey = user?.email ? 'rune_spread:' + user.email : null
-  const persistSpread = (type, runes) => {
+  const persistSpread = (type, runes, chosenAt) => {
     try {
       if (!spreadKey) return
-      localStorage.setItem(spreadKey, JSON.stringify({ type, runes }))
+      localStorage.setItem(spreadKey, JSON.stringify({ type, runes, chosenAt }))
     } catch { /* ignore */ }
   }
   const clearPersistedSpread = () => {
@@ -293,6 +302,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
       if (!Array.isArray(parsed?.runes) || parsed.runes.length !== 7) return
       setSpreadRunes(parsed.runes)
       setSelectedLayoutChoice(parsed.type)
+      if (typeof parsed.chosenAt === 'string') setLayoutChosenAt(parsed.chosenAt)
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email])
@@ -448,6 +458,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
       // После фиксации фото — показываем выбор раскладки (2 кнопки)
       setShowLayoutChoice(true)
       setSelectedLayoutChoice('')
+      setLayoutChosenAt('')
       setSpreadRunes([])
       // 🖼️ Фото хранится только локально — кэшируем обработанное фото,
       // чтобы оно пережило перезагрузку страницы и переключение подразделов
@@ -485,6 +496,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
     try {
       setShowLayoutChoice(true)
       setSelectedLayoutChoice('')
+      setLayoutChosenAt('')
       setSpreadRunes([])
     } finally {
       setApplying(false)
@@ -544,7 +556,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // 🎲 Раскладка Новых Рун: случайный выбор 7 рун из папки runy
   // layoutType передаём параметром: setState асинхронен, и чтение
   // selectedLayoutChoice сразу после setSelectedLayoutChoice дало бы старое значение.
-  const handleSpread = async (layoutType = selectedLayoutChoice) => {
+  const handleSpread = async (layoutType = selectedLayoutChoice, chosenAt = '') => {
     setSpreadLoading(true)
     try {
       let files = await listRuneLayoutImages()
@@ -560,13 +572,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
       }
       const chosen = selectRandomRunes(files, 7)
       setSpreadRunes(chosen)
-      persistSpread(layoutType, chosen)
+      persistSpread(layoutType, chosen, chosenAt)
       precacheLayoutImages(chosen)
     } catch (e) {
       console.warn('handleSpread error:', e)
       const chosen = selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7)
       setSpreadRunes(chosen)
-      persistSpread(layoutType, chosen)
+      persistSpread(layoutType, chosen, chosenAt)
       precacheLayoutImages(chosen)
     } finally {
       setSpreadLoading(false)
@@ -575,9 +587,13 @@ export default function RuneLayout({ user, onUserUpdate }) {
 
   // 🎛️ Выбор типа раскладки (оценка / исцеление): генерируем руны и сохраняем тип
   const handleChooseLayout = async (type) => {
+    // 📅 Запоминаем момент нажатия кнопки — покажем его под названием раскладки
+    // (и в печатной версии) вместо текущего времени печати/рендера.
+    const chosenAt = formatDateTime()
     setSelectedLayoutChoice(type)
+    setLayoutChosenAt(chosenAt)
     setShowLayoutChoice(false)
-    await handleSpread(type)
+    await handleSpread(type, chosenAt)
     // 🌐 Оффлайн записывать в users.json нельзя: сервер недоступен, а попытка
     // выдаёт бессмысленную «Пользователь не найден» (users.json отдаётся пустым).
     // Тип сохранится на сервере при следующем онлайн-выборе раскладки.
@@ -594,6 +610,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
   // Запомненный крест тоже стираем — страница выбора после F5 покажет выбор, а не крест.
   const handleReturnToChoice = () => {
     setSelectedLayoutChoice('')
+    setLayoutChosenAt('')
     setShowLayoutChoice(true)
     setSpreadRunes([])
     clearPersistedSpread()
@@ -603,6 +620,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
   const handleReturnToPhoto = () => {
     setShowLayoutChoice(false)
     setSelectedLayoutChoice('')
+    setLayoutChosenAt('')
     setSpreadRunes([])
     clearPersistedSpread()
     setZoom(1)
@@ -697,6 +715,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
       {selectedLayoutChoice && (
         <>
           <p className="rune-layout-active-name">{getLayoutName(selectedLayoutChoice)}</p>
+          {/* 📅 Дата и время нажатия кнопки выбора раскладки — под названием */}
+          {layoutChosenAt && <p className="rune-layout-active-datetime">{layoutChosenAt}</p>}
           {personLineText && <p className="rune-layout-person-value">{personLineText}</p>}
         </>
       )}
@@ -928,8 +948,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
             <h1 className="rune-layout-print-name">{getLayoutName(selectedLayoutChoice)}</h1>
             {/* 🧾 Строка «Фамилия Имя Отчество, возраст» — под названием раскладки */}
             {personLineText && <p className="rune-layout-print-person">{personLineText}</p>}
-            {/* 📅 Дата и время генерации раскладки — под строкой ФИО */}
-            <p className="rune-layout-print-datetime">{formatDateTime()}</p>
+            {/* 📅 Дата и время нажатия кнопки выбора раскладки — под строкой ФИО */}
+            <p className="rune-layout-print-datetime">{layoutChosenAt || formatDateTime()}</p>
             <div className="rune-layout-print-scene">
               <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`}>
                 {photoUrl && !whiteBackground && (

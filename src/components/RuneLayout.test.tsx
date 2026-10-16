@@ -560,6 +560,43 @@ describe('RuneLayout — название выбранной раскладки'
     )
     cleanup()
   })
+
+  it('под названием показана дата и время нажатия кнопки выбора раскладки', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    const name = document.querySelector('.rune-layout-active-name')
+    const datetime = document.querySelector('.rune-layout-active-datetime')
+    expect(datetime).not.toBeNull()
+    // Формат «dd.mm.yyyy h24:mi» — как в печатной версии
+    expect(datetime?.textContent).toMatch(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/)
+    expect(datetime?.previousElementSibling).toBe(name)
+    cleanup()
+  })
+
+  it('дата и время выбора переживает перезагрузку вместе с крестом', async () => {
+    await chooseLayout('Раскладка Новых Рун для исцеления')
+    // «Перезагрузка»: чистый рендер только из localStorage (прошлый размонтирован)
+    cleanup()
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    await screen.findByLabelText('Раскладка Новых Рун')
+    expect(document.querySelector('.rune-layout-active-datetime')?.textContent).toMatch(
+      /^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/
+    )
+    cleanup()
+  })
+
+  it('без chosenAt в localStorage дата под названием не показывается', async () => {
+    localStorage.setItem(
+      `rune_spread:${TEST_USER.email}`,
+      JSON.stringify({
+        type: 'healing',
+        runes: ['1_ФАИС-СУ.png', '2_ФАИС-СУ_П.png', '3_ОРС.png', '4_ОРС_П.png', '5_ТУРЗ.png', '6_АЗ.png', '7_РАДО.png'],
+      }),
+    )
+    render(<RuneLayout user={TEST_USER} onUserUpdate={vi.fn()} />)
+    await screen.findByLabelText('Раскладка Новых Рун')
+    expect(document.querySelector('.rune-layout-active-datetime')).toBeNull()
+    cleanup()
+  })
 })
 
 // ── Печать раскладки на А4 ───────────────────────────────────────────────────
@@ -636,12 +673,16 @@ describe('RuneLayout — строка «Фамилия Имя Отчество, 
     expect(document.querySelector('.rune-layout-person-text')).toHaveTextContent('Иванов Иван Иванович, 42')
     fireEvent.click(choiceBtn)
     await screen.findByLabelText('Раскладка Новых Рун')
-    // Страница с крестом: значение идёт сразу под названием выбранной раскладки
+    // Страница с крестом: под названием — дата и время нажатия кнопки выбора,
+    // затем значение строки ФИО
     const name = document.querySelector('.rune-layout-active-name')
     expect(name).toHaveTextContent('Раскладка Новых Рун для исцеления')
+    const datetime = document.querySelector('.rune-layout-active-datetime')
+    expect(datetime?.textContent).toMatch(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/)
+    expect(datetime?.previousElementSibling).toBe(name)
     const value = document.querySelector('.rune-layout-person-value')
     expect(value).toHaveTextContent('Иванов Иван Иванович, 42')
-    expect(name?.nextElementSibling).toBe(value)
+    expect(value?.previousElementSibling).toBe(datetime)
     // Сверху строку не дублируем, поля ввода на этой странице тоже нет
     expect(document.querySelector('.rune-layout-person-text')).toBeNull()
     expect(screen.queryByPlaceholderText(PERSON_PLACEHOLDER)).toBeNull()
