@@ -1166,8 +1166,8 @@ export default function Home({ user, onLogout, onUserUpdate }) {
             filteredRunes.length > 0 ? (
               <>
                 <div className="runes-list-cards">
-                  {filteredRunes.map(r => (
-                    <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} runicMode={runicSearchMode} />
+                  {filteredRunes.map((r, i) => (
+                    <RuneCard key={r.id || r.name} rune={r} highlight={runesSearchTerm} runicMode={runicSearchMode} animationIndex={i} />
                   ))}
                 </div>
                 <ScrollTopButton />

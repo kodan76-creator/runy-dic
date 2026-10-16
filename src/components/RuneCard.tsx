@@ -1,6 +1,6 @@
 // src/components/RuneCard.tsx
 // Карточка руны на главном экране (раздел «Новые Руны»)
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState, useEffect, type CSSProperties, type ReactNode } from 'react'
 import { type Rune } from '../types'
 import { buildImageUrl, buildRuneImageUrls } from '../api/images'
 import { RUNES_IMAGE_DIR } from '../api/constants'
@@ -46,9 +46,16 @@ type RuneCardProps = {
    * осталась в runes.json). На главной остаётся тихое скрытие блока.
    */
   showMissingImageHint?: boolean
+  /**
+   * ✨ Порядковый индекс карточки в списке «Новых Рун»: задаёт stagger-эффект
+   * появления (всплытие из прозрачности, как в «Рунном алфавите») — карточка
+   * получает класс .rune-enter и задержку по индексу. Без пропа карточка
+   * отображается без анимации (модалки, админка, печать).
+   */
+  animationIndex?: number
 }
 
-export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, showMissingImageHint = false, eagerImage = false }: RuneCardProps) {
+export default function RuneCard({ rune, imageSrc = undefined, highlight = '', runicMode = false, showMissingImageHint = false, eagerImage = false, animationIndex }: RuneCardProps) {
   // 🙈 URL картинки, которая не загрузилась уже и с резерва. Без этого в
   // карточке рядом с битой иконкой вылезал alt-текст с названием руны —
   // выглядело как «лишняя надпись». Сравниваем с текущим imgUrl, поэтому при
@@ -108,8 +115,18 @@ export default function RuneCard({ rune, imageSrc = undefined, highlight = '', r
   // В рунном режиме подсвечиваем только графическое изображение
   const textHighlight = runicMode ? '' : highlight
 
+  // ✨ Stagger-появление в списке «Новых Рун»: чем позже карточка в списке,
+  // тем позже она проявляется (задержка каплется, чтобы хвост списка не ждал).
+  const enterStyle: CSSProperties | undefined =
+    animationIndex !== undefined
+      ? { animationDelay: `${Math.min(animationIndex, 11) * 60}ms` }
+      : undefined
+
   return (
-    <div className={`rune-card align-${rune.textAlign || 'center'}`}>
+    <div
+      className={`rune-card align-${rune.textAlign || 'center'}${animationIndex !== undefined ? ' rune-enter' : ''}`}
+      style={enterStyle}
+    >
       <div className="rune-card-body">
         {rune.name && <h3 className="rune-card-name">{highlightText(rune.name, textHighlight)}</h3>}
         {rune.graphic && (

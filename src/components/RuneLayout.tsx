@@ -268,6 +268,30 @@ export default function RuneLayout({ user, onUserUpdate }) {
   })()
   const [spreadRunes, setSpreadRunes] = useState(() => savedSpread?.runes ?? [])
   const [spreadLoading, setSpreadLoading] = useState(false)
+  // 🎬 Волна появления креста (плитки + свечение) играет ТОЛЬКО при реальном
+  // появлении раскладки: класс .enter включается при генерации/восстановлении
+  // и выключается по таймеру, когда волна доиграла. Без этого window.print()
+  // «перезапускал» бы CSS-анимации после закрытия диалога печати (при печати
+  // #root скрывается через display:none, а после — возвращается), и крест
+  // проявлялся бы заново при каждой печати.
+  const [spreadEnter, setSpreadEnter] = useState(() => Boolean(savedSpread))
+  // ⏱ Длительность волны: последняя плитка стартует на 0.9 s и играет 0.45 s,
+  // последнее свечение — старт 1.8 s + 1.8 s. Класс .enter снимаем после
+  // 3.8 s — вся волна успела доиграть, дальше крест показывается статично.
+  useEffect(() => {
+    if (!spreadEnter) return
+    const timer = window.setTimeout(() => setSpreadEnter(false), 3800)
+    return () => window.clearTimeout(timer)
+  }, [spreadEnter])
+  // 🎬 То же для входа сцены с эллипсом (и пустого экрана загрузки фото):
+  // анимация играет один раз при открытии подраздела, затем класс .enter
+  // снимается — иначе после закрытия диалога печати сцена «перепоявлялась» бы.
+  const [stageEnter, setStageEnter] = useState(true)
+  useEffect(() => {
+    if (!stageEnter) return
+    const timer = window.setTimeout(() => setStageEnter(false), 700)
+    return () => window.clearTimeout(timer)
+  }, [stageEnter])
   // 🎛️ Выбор раскладки: после фиксации фото показываем 2 кнопки
   // (оценка / исцеление). После выбора — крест с рунами + кнопка возврата.
   // Начальное значение — из localStorage, чтобы страница с крестом переживала F5.
@@ -302,6 +326,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
       if (!Array.isArray(parsed?.runes) || parsed.runes.length !== 7) return
       setSpreadRunes(parsed.runes)
       setSelectedLayoutChoice(parsed.type)
+      setSpreadEnter(true) // 🎬 волна появления креста (например, после F5)
       if (typeof parsed.chosenAt === 'string') setLayoutChosenAt(parsed.chosenAt)
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -572,12 +597,14 @@ export default function RuneLayout({ user, onUserUpdate }) {
       }
       const chosen = selectRandomRunes(files, 7)
       setSpreadRunes(chosen)
+      setSpreadEnter(true) // 🎬 волна появления креста
       persistSpread(layoutType, chosen, chosenAt)
       precacheLayoutImages(chosen)
     } catch (e) {
       console.warn('handleSpread error:', e)
       const chosen = selectRandomRunes(RUNES_LAYOUT_FALLBACK, 7)
       setSpreadRunes(chosen)
+      setSpreadEnter(true) // 🎬 волна появления креста
       persistSpread(layoutType, chosen, chosenAt)
       precacheLayoutImages(chosen)
     } finally {
@@ -723,7 +750,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
 
       {photoUrl || whiteBackground ? (
         <>
-          <div className="rune-layout-stage">
+          <div className={`rune-layout-stage${stageEnter ? ' enter' : ''}`}>
             <div className={`rune-layout-ellipse${whiteBackground ? ' white-bg' : ''}`} ref={ellipseRef}>
               {photoUrl && !whiteBackground && (
                 <img
@@ -741,7 +768,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
               )}
               {spreadRunes.length > 0 && (
                 <div
-                  className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}`}
+                  className={`rune-layout-spread${selectedLayoutChoice === 'healing' ? ' healing' : ''}${spreadEnter ? ' enter' : ''}`}
                   aria-label="Раскладка Новых Рун"
                 >
                   {spreadRunes.map((name, i) => {
@@ -751,6 +778,8 @@ export default function RuneLayout({ user, onUserUpdate }) {
                         key={name}
                         type="button"
                         className={`rune-layout-spread-item pos-${i + 1}`}
+                        /* 🎬 Stagger-появление плиток: волна от руны 1 к 7 (шаг 0.15s) */
+                        style={{ animationDelay: `${i * 150}ms` }}
                         onClick={() => setSelectedRuneIndex(i)}
                         aria-label={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
                         title={rune?.name ? `Руна ${i + 1}: ${rune.name}` : `Руна ${i + 1}`}
@@ -877,7 +906,7 @@ export default function RuneLayout({ user, onUserUpdate }) {
           {uploadError && <p className="rune-layout-error" role="alert">{uploadError}</p>}
         </>
       ) : (
-        <div className="rune-layout-empty">
+        <div className={`rune-layout-empty${stageEnter ? ' enter' : ''}`}>
           <div className="state-icon" aria-hidden="true">📷</div>
           <h3>Загрузите фото во весь рост</h3>
           <p>

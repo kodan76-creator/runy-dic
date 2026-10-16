@@ -701,6 +701,24 @@ background: rgba(246, 240, 253, 0.2);
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  /* 🎬 Плавное появление модалки: бэкдроп мягко проявляется… */
+  animation: modal-backdrop-in 0.25s ease;
+}
+/* …а панель всплывает из лёгкого смещения и подрастает — как в «Рунном
+   алфавите», только мягче. Обе анимации стартуют вместе, поэтому окно
+   кажется «выплывшим» из точки клика. */
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-panel-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+/* Уважаем настройку «меньше анимации» в системе. */
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .filter-modal { animation: none; }
 }
 
 /* Modal styled to match admin (.categories-section) */
@@ -715,6 +733,9 @@ background: rgba(246, 240, 253, 0.2);
   border: 3px solid var(--surface-border);
   scrollbar-width: thin;
   scrollbar-color: #7b1fa2 var(--track);
+  /* 🎬 Панель всплывает при открытии (fill backwards — до старта уже
+     «приглушена», без мигания на первом кадре) */
+  animation: modal-panel-in 0.3s ease backwards;
 }
 
 .filter-modal h3 {
@@ -1000,6 +1021,21 @@ background: rgba(246, 240, 253, 0.2);
   text-align: center;
   gap: 8px;
 }
+/* ✨ Stagger-появление карточек «Новых Рун»: каждая карточка всплывает из
+   прозрачности с индивидуальной задержкой (задаётся inline через
+   animationDelay в RuneCard, проп animationIndex) — как в «Рунном алфавите».
+   Класс .rune-enter вешается только при переданном индексе, поэтому модалки,
+   админка и печать отображаются без анимации. */
+@keyframes rune-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.rune-card.rune-enter {
+  animation: rune-fade-up 0.5s ease backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rune-card.rune-enter { animation: none; }
+}
 .rune-card.align-left .rune-card-power,
 .rune-card.align-left .rune-card-keywords,
 .rune-card.align-left .rune-card-desc { text-align: left; width: 100%; }
@@ -1228,6 +1264,14 @@ background: rgba(246, 240, 253, 0.2);
   /* Контейнер для раскладки: cqh/cqw позволяют подгонять размер рун
      под высоту/ширину сцены, чтобы раскладка всегда помещалась */
   container-type: size;
+}
+/* 🎬 Сцена с эллипсом (и пустой экран загрузки фото) проявляется при открытии
+   подраздела — один раз, пока включён класс .enter (снимается по таймеру в
+   компоненте). Без этого после закрытия диалога печати (#root возвращается
+   из display:none) сцена «перепоявлялась» бы при каждой печати. */
+.rune-layout-stage.enter,
+.rune-layout-empty.enter {
+  animation: rune-fade-up 0.55s ease backwards;
 }
 
 /* Вертикальный эллипс-«яйцо»: фиксированное соотношение 2:3 (высота больше
@@ -1476,6 +1520,11 @@ background: rgba(246, 240, 253, 0.2);
   .rune-layout-print-scene .rune-layout-spread-item img {
     animation: none;
   }
+  /* 🎬 Без stagger-появления плиток в печати: анимация с fill backwards
+     держит opacity 0 до старта — печать могла бы уловить плитки невидимыми */
+  .rune-layout-print-scene .rune-layout-spread-item {
+    animation: none;
+  }
   /* Крест в печати — с полупрозрачным светло-лиловым фоном плиток: экранная
       вуаль rgba(246,240,253,.12) на белой бумаге не видна, и крест сливался
       с фоном. print-color-adjust: exact обязывает браузер напечатать фон. */
@@ -1581,6 +1630,9 @@ background: rgba(246, 240, 253, 0.2);
   width: min(940px, 100%);
 }
 
+/* 🎬 Кнопки выбора раскладки проявляются по одной (stagger-задержки ниже).
+   Кнопки видны только на странице выбора — печать их не перерисовывает,
+   поэтому здесь обычная (не .enter) анимация. */
 .rune-layout-choice-btn {
   padding: 10px 14px;
   border-radius: 10px;
@@ -1592,6 +1644,13 @@ background: rgba(246, 240, 253, 0.2);
   cursor: pointer;
   transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
   min-width: min(420px, calc(100vw - 32px));
+  animation: rune-fade-up 0.45s ease backwards;
+}
+.rune-layout-choice-btn:nth-child(2) { animation-delay: 0.12s; }
+@media (prefers-reduced-motion: reduce) {
+  .rune-layout-stage.enter,
+  .rune-layout-empty.enter,
+  .rune-layout-choice-btn { animation: none; }
 }
 
 .rune-layout-choice-btn:hover {
@@ -1633,7 +1692,8 @@ background: rgba(246, 240, 253, 0.2);
   background: rgba(74, 222, 128, 0.35);
 }
 
-/* Пустое состояние: нет фото */
+/* Пустое состояние: нет фото (анимация появления — через класс .enter,
+   см. правило .rune-layout-empty.enter выше) */
 .rune-layout-empty {
   flex: 1 1 auto;
   min-height: 0;
@@ -1778,6 +1838,22 @@ background: rgba(246, 240, 253, 0.2);
   outline-offset: 2px;
   border-radius: 10px;
 }
+/* 🎬 Плитки креста проявляются волной от руны 1 к 7 — но ТОЛЬКО пока на
+   контейнере есть класс .enter (он включается при генерации/восстановлении
+   раскладки и снимается по таймеру, когда волна доиграла). Без этого
+   window.print() «перезапускал» бы CSS-анимации после закрытия диалога
+   печати (при печати #root скрывается через display:none, а после —
+   возвращается), и крест проявлялся бы заново при каждой печати.
+   Задержка по позиции задаётся inline в TSX (animationDelay по индексу).
+   transform в keyframes повторяет базовый translate(-50%, -50%) — иначе
+   анимация перекрыла бы позиционирование плитки. */
+@keyframes rune-tile-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.rune-layout-spread.enter .rune-layout-spread-item {
+  animation: rune-tile-in 0.45s ease backwards;
+}
 .rune-layout-spread-item img {
   /* Рисунок руны занимает 78% плитки (увеличен с 70%): по краям остаётся
      воздушная полоса фона, номерок висит снаружи угла и не наезжает на
@@ -1792,6 +1868,25 @@ background: rgba(246, 240, 253, 0.2);
   filter: drop-shadow(0 0 3px rgba(246, 240, 253, 0.9));
 }
 
+/* 💡 Проявление свечения руны: вспышка золотого ореола, которая стихает
+   до базовой дымки. Раньше keyframes отсутствовал — браузер молча игнорировал
+   анимацию проявления (ссылка на имя была, определения нет). */
+@keyframes rune-glow-fade-in {
+  0% {
+    opacity: 0;
+    filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.95))
+            drop-shadow(0 0 6px rgba(255, 215, 0, 0.8));
+  }
+  60% {
+    opacity: 1;
+    filter: drop-shadow(0 0 9px rgba(255, 215, 0, 0.85));
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(246, 240, 253, 0.9));
+  }
+}
+
 /* 💓 Пульсация свечения руны — мягкая «дыхательная» волна золотого света.
    Задержки по позициям сдвигают фазы: волна бежит по кресту от руны 1 к 7. */
 @keyframes rune-glow-pulse {
@@ -1804,7 +1899,14 @@ background: rgba(246, 240, 253, 0.2);
   }
 }
 .rune-layout-spread-item img {
-  animation: rune-glow-fade-in 1.8s ease-out forwards,
+  animation: rune-glow-pulse 2.6s ease-in-out infinite;
+}
+/* 🎬 Пока играет волна появления (.enter на контейнере) — к пульсации
+   добавляется проявление свечения: картинки всплывают из темноты золотой
+   вспышкой. После снятия .enter остаётся только пульсация — печать не может
+   «переиграть» проявление. */
+.rune-layout-spread.enter .rune-layout-spread-item img {
+  animation: rune-glow-fade-in 1.8s ease-out backwards,
              rune-glow-pulse 2.6s ease-in-out infinite;
 }
 .rune-layout-spread-item.pos-2 img { animation-delay: 0.3s; }
@@ -1815,7 +1917,10 @@ background: rgba(246, 240, 253, 0.2);
 .rune-layout-spread-item.pos-7 img { animation-delay: 1.8s; }
 /* Уважаем настройку «меньше анимации» в системе. */
 @media (prefers-reduced-motion: reduce) {
-  .rune-layout-spread-item img {
+  .rune-layout-spread-item,
+  .rune-layout-spread.enter .rune-layout-spread-item,
+  .rune-layout-spread-item img,
+  .rune-layout-spread.enter .rune-layout-spread-item img {
     animation: none;
   }
 }
