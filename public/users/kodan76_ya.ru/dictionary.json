@@ -3870,5 +3870,708 @@
       "1778594680020"
     ],
     "textAlign": "center"
+  },
+  {
+    "word": "тъхъва",
+    "transcription": "тэльхЭльва",
+    "translation": "бесславие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "248",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680012",
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "хевэш",
+    "transcription": "хервЭш",
+    "translation": "бесславие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "249",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхуусаъфо",
+    "transcription": "тэльхурусАльфо",
+    "translation": "бессистемный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "250",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватхуусепэ",
+    "transcription": "ватхурусерпЭ",
+    "translation": "бессистемный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "251",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхуусаъли",
+    "transcription": "тэльхурусАльлИ",
+    "translation": "бессистемность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "252",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватхуусещи",
+    "transcription": "ватхурусерщИ",
+    "translation": "бессистемность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "253",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "шуусаъфо",
+    "transcription": "шурусАльфо",
+    "translation": "бессильный (несильный)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "254",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979",
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватуусэпэ",
+    "transcription": "ватурусэпЭ",
+    "translation": "бессильный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "255",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "шуусаъ",
+    "transcription": "шурусАль",
+    "translation": "бессилие (несилие)",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "256",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979",
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватуусэш",
+    "transcription": "ватурусЭш",
+    "translation": "бессилие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "257",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватсебгно",
+    "transcription": "ватсербЭйно",
+    "translation": "бессеребреник",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "258",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхмъжитофо",
+    "transcription": "тэльхмэльжИтофо",
+    "translation": "бессвязный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "259",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватмъжитофо",
+    "transcription": "ватмэльжИтофо",
+    "translation": "бессвязный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "260",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхътдгтфо",
+    "transcription": "тэльхэльтдЭйтфо",
+    "translation": "беспроцентный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "261",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватътдэтофо",
+    "transcription": "ватэльтдЭтофо",
+    "translation": "беспроцентный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "262",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватпрэтакеопэ",
+    "transcription": "ватпрэтакеропЭ",
+    "translation": "беспроигрышный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "263",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватфчолафо",
+    "transcription": "ватфайолафо",
+    "translation": "беспроволочный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "264",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхносъфо",
+    "transcription": "тэльхносЭльфо",
+    "translation": "беспочвенный, беспричинный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "265",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватсомеофо",
+    "transcription": "ватсомЕрофо",
+    "translation": "беспримерный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "266",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватчзодъфо",
+    "transcription": "ватайзодЭльфо",
+    "translation": "беспрецедентный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "267",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ътцеъфо",
+    "transcription": "эльтцерЭльфо",
+    "translation": "беспрерывный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "268",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхптпопвиьфо",
+    "transcription": "тэльхпретпопвИньофо",
+    "translation": "беспрепятственный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "269",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватпопвиьпэ",
+    "transcription": "ватпопвиньопЭ",
+    "translation": "беспрепятственный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "270",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ват вэдэлэш",
+    "transcription": "ват вэдэлЭш",
+    "translation": "беспрекословно, безоговорочно",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "271",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679972"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "зотээд",
+    "transcription": "зотэрЭд",
+    "translation": "беспредельщик",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "272",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхзотофо",
+    "transcription": "тэльхзОтофо",
+    "translation": "беспредельный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "273",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватзотофо",
+    "transcription": "ватзОтофо",
+    "translation": "беспредельный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "274",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхзотоли",
+    "transcription": "тэльхзОтоли",
+    "translation": "беспредельность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "275",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватзотоли",
+    "transcription": "ватзОтоли",
+    "translation": "беспредельность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "276",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "зотээ",
+    "transcription": "зотэрэ",
+    "translation": "беспредел",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "277",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхравъфо",
+    "transcription": "тэльхравЭльфо",
+    "translation": "бесправный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "278",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватравопэ",
+    "transcription": "ватравопЭ",
+    "translation": "бесправный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "279",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхравъ",
+    "transcription": "тэльхравЭль",
+    "translation": "бесправие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "280",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватравош",
+    "transcription": "ватравОш",
+    "translation": "бесправие",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "281",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхфчземепэ",
+    "transcription": "тэльхфайзермерпЭ",
+    "translation": "беспощадный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "282",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватфчземепэ",
+    "transcription": "ватфайзермерпЭ",
+    "translation": "беспощадный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "283",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхфчземещи",
+    "transcription": "тэльхфайзермерщи",
+    "translation": "беспощадность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "284",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватфчземещи",
+    "transcription": "ватфайзермерщи",
+    "translation": "беспощадность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "285",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхтомефо",
+    "transcription": "тэльхтомЕрфо",
+    "translation": "беспошлинный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "286",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ваттомефо",
+    "transcription": "ваттомерфо",
+    "translation": "беспошлинный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "287",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхносъфо",
+    "transcription": "тэльхносЭльфо",
+    "translation": "беспочвенный, беспричинный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "288",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватносэпэ",
+    "transcription": "ватносэпЭ",
+    "translation": "беспочвенный",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "289",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "тъхносъли",
+    "transcription": "тэльхносЭльли",
+    "translation": "беспочвенность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "290",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594679979"
+    ],
+    "textAlign": "center"
+  },
+  {
+    "word": "ватносэщи",
+    "transcription": "ватносэщИ",
+    "translation": "беспочвенность",
+    "example": "",
+    "example2": "",
+    "transcription2": "",
+    "audio": "",
+    "audio2": "",
+    "id": "291",
+    "createdAt": "2026-11-17T15:01:19.704Z",
+    "category": [
+      "1778594680020"
+    ],
+    "textAlign": "center"
   }
 ]
