@@ -3,6 +3,7 @@
 import { DATA_FILE, USERS_FILE, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from './constants'
 import {
   fetchGitHubFile,
+  fetchGitHubFileRaw,
   updateGitHubFile,
   isRetryableGitHubError,
   getHeaders,
@@ -63,11 +64,25 @@ export const updateDictionary = async (newData, currentSha, user) => {
 // Импорт словаря из файла: заменяет содержимое целевого файла (общий словарь
 // для админа, личный файл — для обычного пользователя). С повторами при
 // временных сбоях, как у addWord.
+// После записи сразу проверяет, что файл читается корректно; если нет —
+// автоматически откатывает на предыдущую версию и выбрасывает ошибку.
 export const importDictionary = async (newData, user = null) => {
   const fileName = getWriteFileName(user)
   const arr = Array.isArray(newData) ? newData : []
   const maxRetries = 4
   let lastError = null
+
+  // 💾 Бэкап текущего состояния для возможного отката
+  let oldSha: string | null = null
+  let oldData: any[] | null = null
+  try {
+    const current = await fetchGitHubFile(fileName)
+    oldSha = current.sha
+    oldData = Array.isArray(current.data) ? [...current.data] : []
+  } catch (e) {
+    console.warn(`importDictionary: не удалось прочитать текущий файл для бэкапа:`, e)
+  }
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const { sha, exists, ok } = await fetchGitHubFile(fileName)
@@ -75,6 +90,35 @@ export const importDictionary = async (newData, user = null) => {
         throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
       }
       await updateGitHubFile(fileName, arr, sha)
+
+      // 🔍 ПОСТ-ПРОВЕРКА: сразу читаем файл обратно, чтобы убедиться, что он не сломан
+      // (например, записан не в том формате шифрования и не расшифровывается).
+      const verify = await fetchGitHubFile(fileName)
+      if (!verify.ok || !Array.isArray(verify.data)) {
+        const detail = `ok=${verify.ok}, isArray=${Array.isArray(verify.data)}, exists=${verify.exists}`
+        console.warn(`importDictionary: файл не проходит проверку чтения после записи (${detail}). Откат на предыдущую версию.`)
+
+        // Откат: пишем старые данные под актуальным SHA (получаем через raw-файл, т.к. verify.sha может быть null)
+        if (oldSha != null && oldData != null) {
+          try {
+            const raw = await fetchGitHubFileRaw(fileName)
+            const currentSha = raw.sha || oldSha
+            await updateGitHubFile(fileName, oldData, currentSha)
+            throw new Error(
+              `Импорт отменён: после записи файл не удалось прочитать. Данные откатаны на предыдущую версию (${oldData.length} слов).`
+            )
+          } catch (rollbackErr) {
+            throw new Error(
+              `Импорт отменён: файл не читается после записи. Откат не удался: ${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}. Требуется ручное восстановление через git.`
+            )
+          }
+        } else {
+          throw new Error(
+            `Импорт отменён: файл не читается после записи, и нет бэкапа для отката. Требуется ручное восстановление через git.`
+          )
+        }
+      }
+
       return arr
     } catch (error) {
       lastError = error
