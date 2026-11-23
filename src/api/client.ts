@@ -125,6 +125,16 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
         textToParse = await decrypt(cleaned)
       } catch (decErr) {
         console.error(`Decrypt ${fileName} error:`, decErr)
+        // Файл зашифрован, но ключ не подошёл. Попробуем прочитать как есть —
+        // возможно, файл записан открытым JSON (без префикса ENC:v1:) или
+        // зашифрован другим ключом. Если это валидный JSON — вернём как есть.
+        try {
+          const fallback = JSON.parse(cleaned)
+          if (Array.isArray(fallback)) {
+            console.warn(`${fileName}: зашифрован, но читается как открытый JSON (ключ не совпал?)`)
+            return { data: fallback, sha: fileSha, ok: true, exists: true }
+          }
+        } catch { /* не JSON — оставляем ошибку расшифровки */ }
         // Файл существует, но не читается — не теряем факт его существования,
         // чтобы запись не превратилась в "HTTP 422: sha wasn't supplied" и не затёрла данные
         return { data: [], sha: null, ok: false, exists: true }
