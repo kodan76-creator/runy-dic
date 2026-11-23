@@ -500,6 +500,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       setEncryptResult(null)
     } catch (err) {
       console.error('loadFilesStatus error:', err)
+      showMessage(err instanceof Error ? err.message : 'Ошибка проверки файлов', 'error')
     }
     setFilesStatusLoading(false)
   }

@@ -11,6 +11,7 @@ import {
   LOGS_FILE,
   CATEGORIES_FILE,
   QUEUE_FILE,
+  TOKEN,
 } from './constants'
 import { fetchGitHubFileRaw, getHeaders, utf8ToBase64 } from './client'
 import { getDictionaryFileNameForEmail } from '../dictionaryAccess'
@@ -180,6 +181,9 @@ const listPersonalFilesFromFavorites = async () => {
 }
 
 export const checkFilesEncryptionStatus = async () => {
+  if (!TOKEN) {
+    throw new Error('VITE_GITHUB_TOKEN не задан. Настройте токен GitHub в переменных окружения хостинга.')
+  }
   let allFiles = [...KNOWN_FILES]
 
   // 1. Пытаемся получить ПОЛНЫЙ список JSON-файлов из репозитория
