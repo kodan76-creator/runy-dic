@@ -1,7 +1,7 @@
 // src/api/auth.js
 // Аутентификация и управление пользователями/администраторами
 import { USERS_FILE, ADMINS_FILE } from './constants'
-import { fetchGitHubFile, updateGitHubFile } from './client'
+import { fetchGitHubFile, safeUpdateGitHubFile } from './client'
 import { addLog } from './logs'
 import { ensureUserAudioFolder } from './audio'
 import { ensureUserDictionaryFile } from './dictionary'
@@ -112,7 +112,7 @@ export const registerUser = async (email, password) => {
     devices: [{ id: deviceId, type: deviceType, addedAt: now, lastLoginAt: now }], // 🚦 привязанные устройства: 1 телефон + 1 компьютер
     registeredAt: now
   }
-  await updateGitHubFile(USERS_FILE, [...users, newUser], sha)
+  await safeUpdateGitHubFile(USERS_FILE, [...users, newUser], sha)
   addLog({ action: 'register', userEmail: email, details: 'Регистрация', deviceId }).catch(() => {})
   recordRegistration() // 🚦 фиксируем регистрацию на этом устройстве
   ensureUserAudioFolder(email).catch(e => console.error('Failed to create user audio folder on register:', e))
@@ -149,7 +149,7 @@ export const verifyUser = async (email, password) => {
         // Привязываем новое устройство к аккаунту
         const { data: users, sha } = await fetchGitHubFile(USERS_FILE)
         const updated = users.map(u => u.id === user.id ? { ...u, devices: limit.devices } : u)
-        await updateGitHubFile(USERS_FILE, updated, sha)
+        await safeUpdateGitHubFile(USERS_FILE, updated, sha)
         addLog({ action: 'device_added', userEmail: email, details: `Новое устройство (${deviceType === 'mobile' ? 'телефон' : 'компьютер'})`, deviceId, deviceType }).catch(() => {})
       } catch (e) {
         console.error('Failed to save login device:', e)
@@ -179,7 +179,7 @@ export const blockUser = async (userId, adminEmail) => {
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: true, blockedAt: new Date().toISOString(), blockedBy: adminEmail } : u
   )
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   addLog({ action: 'user_blocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
 }
 
@@ -188,7 +188,7 @@ export const unblockUser = async (userId, adminEmail) => {
   const updated = users.map(u =>
     u.id === userId ? { ...u, isBlocked: false, blockedAt: null, blockedBy: null } : u
   )
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   addLog({ action: 'user_unblocked', userEmail: users.find(u => u.id === userId)?.email, adminEmail }).catch(() => {})
 }
 
@@ -256,7 +256,7 @@ export const updateUser = async (userId, updatedData, adminEmail) => {
 
     return next
   })
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   const changedUser = updated.find(u => u.id === userId)
   addLog({
     action: 'user_updated',
@@ -290,7 +290,7 @@ export const saveRuneLayoutType = async (userEmail, layoutType) => {
       ? { ...u, runeLayoutType: layoutType }
       : u
   )
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   const changed = updated.find(u => String(u?.email || '').toLowerCase() === String(userEmail).toLowerCase())
   addLog({ action: 'rune_layout_type_updated', userEmail, details: `Тип раскладки: ${layoutType}` }).catch(() => {})
   const { passwordHash: _, ...safeUser } = changed
@@ -309,7 +309,7 @@ export const logoutAllDevices = async (userId, adminEmail) => {
     if (u.id !== userId) return u
     return { ...u, sessionVersion: (u.sessionVersion || 0) + 1 }
   })
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   const changedUser = updated.find(u => u.id === userId)
   addLog({
     action: 'logout_all_devices',
@@ -331,7 +331,7 @@ export const unbindDevice = async (userId, deviceId, adminEmail) => {
     const devices = Array.isArray(u.devices) ? u.devices.filter(d => d.id !== deviceId) : []
     return { ...u, devices }
   })
-  await updateGitHubFile(USERS_FILE, updated, sha)
+  await safeUpdateGitHubFile(USERS_FILE, updated, sha)
   const changedUser = updated.find(u => u.id === userId)
   addLog({
     action: 'device_unbound',
@@ -349,7 +349,7 @@ export const deleteUser = async (userId, adminEmail) => {
   // молча пропускалась бы: UI показал бы «удалён» при нулевом результате.
   if (!user) throw new Error('Пользователь не найден')
   const filtered = users.filter(u => u.id !== userId)
-  await updateGitHubFile(USERS_FILE, filtered, sha)
+  await safeUpdateGitHubFile(USERS_FILE, filtered, sha)
   addLog({ action: 'user_deleted', userEmail: user?.email, adminEmail }).catch(() => {})
 
   // 🗑️ Файлы пользователя не удаляем безвозвратно, а переносим в корзину

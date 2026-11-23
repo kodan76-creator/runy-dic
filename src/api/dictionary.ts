@@ -5,6 +5,7 @@ import {
   fetchGitHubFile,
   fetchGitHubFileRaw,
   updateGitHubFile,
+  safeUpdateGitHubFile,
   isRetryableGitHubError,
   getHeaders,
 } from './client'
@@ -58,7 +59,7 @@ export const getDictionary = async (user) => {
 
 export const updateDictionary = async (newData, currentSha, user) => {
   const fileName = getDictionaryFileName(user)
-  return updateGitHubFile(fileName, newData, currentSha)
+  return safeUpdateGitHubFile(fileName, newData, currentSha)
 }
 
 // Импорт словаря из файла: заменяет содержимое целевого файла (общий словарь
@@ -204,7 +205,7 @@ export const ensureUserDictionaryFile = async (userOrEmail) => {
     return { fileName, exists: true, created: false }
   }
 
-  await updateGitHubFile(fileName, [], null)
+  await safeUpdateGitHubFile(fileName, [], null)
   return { fileName, exists: false, created: true }
 }
 
@@ -238,7 +239,7 @@ export const addWord = async (wordData, userEmail, user = null) => {
       if (exists === true && !ok) {
         throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
       }
-      await updateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
+      await safeUpdateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
       return newWord
     } catch (error) {
       lastError = error
@@ -278,7 +279,7 @@ export const updateWord = async (id, updatedData, user = null) => {
     throw new Error('Запись не найдена или доступ запрещён')
   }
   arr[idx] = { ...arr[idx], ...updatedData }
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return arr[idx]
 }
 
@@ -305,7 +306,7 @@ export const deleteWord = async (id, user = null) => {
     throw new Error('Запись не найдена или доступ запрещён')
   }
   const removed = arr.splice(idx, 1)
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
 
   // Удалить ID из всех личных файлов избранного пользователей
   try {
@@ -423,7 +424,7 @@ export const moveWordUp = async (id, user = null) => {
   const idx = arr.findIndex(w => w.id === id)
   if (idx <= 0) return false
   ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return true
 }
 
@@ -442,7 +443,7 @@ export const moveWordDown = async (id, user = null) => {
   const idx = arr.findIndex(w => w.id === id)
   if (idx === -1 || idx >= arr.length - 1) return false
   ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return true
 }
 
@@ -463,7 +464,7 @@ export const moveWordToTop = async (id, user = null) => {
   if (idx <= 0) return false
   const [item] = arr.splice(idx, 1)
   arr.unshift(item)
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return true
 }
 
@@ -484,7 +485,7 @@ export const moveWordToBottom = async (id, user = null) => {
   if (idx === -1 || idx >= arr.length - 1) return false
   const [item] = arr.splice(idx, 1)
   arr.push(item)
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return true
 }
 
@@ -510,7 +511,7 @@ export const moveWordToPosition = async (id, position, user = null) => {
   if (idx === target) return false
   const [item] = arr.splice(idx, 1)
   arr.splice(target, 0, item)
-  await updateGitHubFile(fileName, arr, sha)
+  await safeUpdateGitHubFile(fileName, arr, sha)
   return true
 }
 
@@ -535,7 +536,7 @@ export const flushOfflineChanges = async (user: any = null) => {
           }
         }
         if (changed) {
-          await updateGitHubFile(USERS_FILE, users, sha)
+          await safeUpdateGitHubFile(USERS_FILE, users, sha)
           removeOfflineChanges(bindChanges.map(c => c.queuedAt))
         }
       }

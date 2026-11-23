@@ -6,11 +6,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const h = vi.hoisted(() => ({
   fetchGitHubFile: vi.fn(),
   updateGitHubFile: vi.fn(),
+  safeUpdateGitHubFile: vi.fn(),
 }))
 
 vi.mock('./client', () => ({
   fetchGitHubFile: h.fetchGitHubFile,
   updateGitHubFile: h.updateGitHubFile,
+  safeUpdateGitHubFile: h.safeUpdateGitHubFile,
 }))
 vi.mock('./audio', () => ({
   emailToFolderName: (e: string) => String(e || '').toLowerCase().replace(/[^a-z0-9._-]/g, '_'),
@@ -65,8 +67,8 @@ describe('getCategories', () => {
   it('только что добавленная своя категория оказывается самой первой в списке', async () => {
     const created = await addPersonalCategory({ name: 'Новейшая' }, 'user@x.ru')
     // Так категории легли в личный файл (новая — в начало)
-    const personalAfterAdd = h.updateGitHubFile.mock.calls[0][1] as any[]
-    h.updateGitHubFile.mockClear()
+    const personalAfterAdd = h.safeUpdateGitHubFile.mock.calls[0][1] as any[]
+    h.safeUpdateGitHubFile.mockClear()
     h.fetchGitHubFile.mockImplementation(async (name: string) => name === MAIN
       ? { data: mainCats, sha: 'sha-main', ok: true, exists: true }
       : { data: personalAfterAdd, sha: 'sha-personal', ok: true, exists: true })
@@ -92,35 +94,35 @@ describe('addPersonalCategory', () => {
     const created = await addPersonalCategory({ name: 'Новая' }, 'user@x.ru')
 
     expect(h.fetchGitHubFile).toHaveBeenCalledWith(PERSONAL)
-    expect(h.updateGitHubFile).toHaveBeenCalledTimes(1)
-    const [file, arr, sha] = h.updateGitHubFile.mock.calls[0]
+    expect(h.safeUpdateGitHubFile).toHaveBeenCalledTimes(1)
+    const [file, arr, sha] = h.safeUpdateGitHubFile.mock.calls[0]
     expect(file).toBe(PERSONAL)
     expect(sha).toBe('sha-personal')
     expect(arr[0]).toMatchObject({ name: 'Новая', personal: true, createdBy: 'user@x.ru' })
     expect(arr[0].id).toMatch(/^u\d+$/)
     expect(arr).toHaveLength(2) // новая + существовавшая
     expect(created.id).toBe(arr[0].id)
-    expect(h.updateGitHubFile).not.toHaveBeenCalledWith(MAIN, expect.anything(), expect.anything())
+    expect(h.safeUpdateGitHubFile).not.toHaveBeenCalledWith(MAIN, expect.anything(), expect.anything())
   })
 
   it('без пользователя — ошибка, ничего не пишется', async () => {
     await expect(addPersonalCategory({ name: 'x' }, '')).rejects.toThrow('Пользователь не указан')
-    expect(h.updateGitHubFile).not.toHaveBeenCalled()
+    expect(h.safeUpdateGitHubFile).not.toHaveBeenCalled()
   })
 })
 
 describe('deletePersonalCategory', () => {
   it('удаляет только из личного файла', async () => {
     await expect(deletePersonalCategory('u1', 'user@x.ru')).resolves.toBe(true)
-    const [file, arr] = h.updateGitHubFile.mock.calls[0]
+    const [file, arr] = h.safeUpdateGitHubFile.mock.calls[0]
     expect(file).toBe(PERSONAL)
     expect(arr).toEqual([])
-    expect(h.updateGitHubFile).not.toHaveBeenCalledWith(MAIN, expect.anything(), expect.anything())
+    expect(h.safeUpdateGitHubFile).not.toHaveBeenCalledWith(MAIN, expect.anything(), expect.anything())
   })
 
   it('чужой (основной) id не удаляется и файл не перезаписывается', async () => {
     await expect(deletePersonalCategory('1', 'user@x.ru')).resolves.toBe(false)
-    expect(h.updateGitHubFile).not.toHaveBeenCalled()
+    expect(h.safeUpdateGitHubFile).not.toHaveBeenCalled()
   })
 })
 

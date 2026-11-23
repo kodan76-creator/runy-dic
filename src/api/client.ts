@@ -246,6 +246,72 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
   throw new Error(`Остановлена попытка обновить ${fileName}: конфликт версий после нескольких попыток`)
 }
 
+// 🛡️ Безопасная запись с бэкапом, верификацией и автооткатом.
+// Перед записью сохраняет текущее состояние файла. После успешной PUT-запроса
+// сразу читает файл обратно и проверяет валидатором (по умолчанию: ok && Array.isArray(data)).
+// Если проверка не прошла — откатывает файл на бэкап и выбрасывает ошибку.
+// Это защищает от случая, когда импорт/редактирование пишет файл в неверном формате
+// (например, открытый JSON вместо зашифрованного ENC:v1:), и словарь перестаёт загружаться.
+export const safeUpdateGitHubFile = async (
+  fileName: string,
+  newData: unknown,
+  currentSha?: string | null,
+  options?: { verify?: boolean; validator?: (result: GitHubFileResult) => boolean }
+): Promise<any> => {
+  const { verify = true, validator = (r: GitHubFileResult) => r.ok && Array.isArray(r.data) } = options || {}
+
+  // 💾 Бэкап текущего состояния для возможного отката
+  let oldSha: string | null = null
+  let oldData: any = null
+  try {
+    const current = await fetchGitHubFile(fileName)
+    oldSha = current.sha
+    oldData = current.data
+  } catch (e) {
+    console.warn(`safeUpdateGitHubFile: бэкап не удался для ${fileName}`, e)
+  }
+
+  // 📝 Запись
+  const result = await updateGitHubFile(fileName, newData, currentSha)
+
+  if (!verify) return result
+
+  // 🔍 Верификация: читаем файл обратно и проверяем
+  try {
+    const verifyResult = await fetchGitHubFile(fileName)
+    if (!validator(verifyResult)) {
+      console.warn(`safeUpdateGitHubFile: верификация не прошла для ${fileName}`, verifyResult)
+      if (oldSha != null && oldData != null) {
+        try {
+          const raw = await fetchGitHubFileRaw(fileName)
+          const rollbackSha = raw.sha || oldSha
+          await updateGitHubFile(fileName, oldData, rollbackSha)
+        } catch (rollbackErr) {
+          throw new Error(
+            `Запись отменена: файл ${fileName} не прошел проверку. Откат не удался: ${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}`
+          )
+        }
+      }
+      throw new Error(
+        `Запись отменена: файл ${fileName} не прошел проверку после записи. Данные откатаны на предыдущую версию.`
+      )
+    }
+  } catch (e) {
+    if (e.message && (e.message.includes('Запись отменена') || e.message.includes('не прошел проверку'))) throw e
+    // Ошибка при самом чтении для верификации (сеть) — тоже пробуем откат
+    if (oldSha != null && oldData != null) {
+      try {
+        const raw = await fetchGitHubFileRaw(fileName)
+        const rollbackSha = raw.sha || oldSha
+        await updateGitHubFile(fileName, oldData, rollbackSha)
+      } catch {}
+    }
+    throw e
+  }
+
+  return result
+}
+
 // 🔒 Сериализация записей в один файл.
 // GitHub Contents API НЕ поддерживает параллельные запросы к одному файлу —
 // одновременные GET→PUT гонятся и возвращают 409/422. Очередь выполняет

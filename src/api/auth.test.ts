@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const h = vi.hoisted(() => ({
   fetchGitHubFile: vi.fn(),
   updateGitHubFile: vi.fn(),
+  safeUpdateGitHubFile: vi.fn(),
   addLog: vi.fn(async () => ({})),
   archiveUserFolders: vi.fn(async () => ({ moved: 0, errors: [] as string[] })),
 }))
@@ -13,6 +14,7 @@ const h = vi.hoisted(() => ({
 vi.mock('./client', () => ({
   fetchGitHubFile: h.fetchGitHubFile,
   updateGitHubFile: h.updateGitHubFile,
+  safeUpdateGitHubFile: h.safeUpdateGitHubFile,
 }))
 vi.mock('./logs', () => ({ addLog: h.addLog }))
 vi.mock('./audio', () => ({ ensureUserAudioFolder: vi.fn(async () => ({ created: false })) }))
@@ -57,7 +59,7 @@ describe('deleteUser', () => {
     const archive = await deleteUser('u1', 'admin@x.ru')
 
     expect(archive).toEqual({ moved: 3, errors: [] })
-    const [file, data, sha] = h.updateGitHubFile.mock.calls[0]
+    const [file, data, sha] = h.safeUpdateGitHubFile.mock.calls[0]
     expect(file).toBe('users.json')
     expect(data.map((u: { id: string }) => u.id)).toEqual(['u2'])
     expect(sha).toBe('sha-users')
@@ -72,7 +74,7 @@ describe('deleteUser', () => {
     const archive = await deleteUser('u1', 'admin@x.ru')
 
     expect(archive.errors).toEqual(['boom'])
-    expect(h.updateGitHubFile).toHaveBeenCalled()
+    expect(h.safeUpdateGitHubFile).toHaveBeenCalled()
     warn.mockRestore()
   })
 })

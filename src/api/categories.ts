@@ -4,7 +4,7 @@
 // своей админке добавляет/удаляет только свои; в объединённом списке личные идут
 // первыми, самая новая — в самом верху списка.
 import { CATEGORIES_FILE, USERS_DIR } from './constants'
-import { fetchGitHubFile, updateGitHubFile } from './client'
+import { fetchGitHubFile, safeUpdateGitHubFile } from './client'
 import { emailToFolderName } from './audio'
 
 /** Путь к файлу личных категорий пользователя. */
@@ -43,20 +43,20 @@ export const getCategories = async (userEmail?: string | null) => {
 export const addCategory = async (categoryData, userEmail) => {
   const { data: cats, sha } = await getCategories()
   const newCat = { ...categoryData, id: Date.now().toString(), createdAt: new Date().toISOString(), createdBy: userEmail }
-  await updateGitHubFile(CATEGORIES_FILE, [newCat, ...cats], sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, [newCat, ...cats], sha)
   return newCat
 }
 
 export const updateCategory = async (id, updatedData) => {
   const { data: cats, sha } = await getCategories()
   const updated = cats.map(c => c.id === id ? { ...c, ...updatedData } : c)
-  await updateGitHubFile(CATEGORIES_FILE, updated, sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, updated, sha)
 }
 
 export const deleteCategory = async (id) => {
   const { data: cats, sha } = await getCategories()
   const filtered = cats.filter(c => c.id !== id)
-  await updateGitHubFile(CATEGORIES_FILE, filtered, sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, filtered, sha)
 }
 
 /**
@@ -84,7 +84,7 @@ export const moveCategoryUp = async (id) => {
   if (idx <= 0) return // already first
   const arr = [...cats]
   ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
-  await updateGitHubFile(CATEGORIES_FILE, arr, sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, arr, sha)
 }
 
 export const moveCategoryDown = async (id) => {
@@ -93,7 +93,7 @@ export const moveCategoryDown = async (id) => {
   if (idx === -1 || idx >= cats.length - 1) return // already last
   const arr = [...cats]
   ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
-  await updateGitHubFile(CATEGORIES_FILE, arr, sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, arr, sha)
 }
 
 export const moveCategoryToTop = async (id) => {
@@ -103,7 +103,7 @@ export const moveCategoryToTop = async (id) => {
   const arr = [...cats]
   const [item] = arr.splice(idx, 1)
   arr.unshift(item)
-  await updateGitHubFile(CATEGORIES_FILE, arr, sha)
+  await safeUpdateGitHubFile(CATEGORIES_FILE, arr, sha)
 }
 
 // ── 🏷 Личные категории пользователя ──────────────────────────────────
@@ -126,7 +126,7 @@ export const addPersonalCategory = async (categoryData, userEmail) => {
     createdBy: userEmail,
     personal: true,
   }
-  await updateGitHubFile(file, [newCat, ...(Array.isArray(cats) ? cats : [])], sha)
+  await safeUpdateGitHubFile(file, [newCat, ...(Array.isArray(cats) ? cats : [])], sha)
   return newCat
 }
 
@@ -137,6 +137,6 @@ export const deletePersonalCategory = async (id, userEmail) => {
   const list = Array.isArray(cats) ? cats : []
   const next = list.filter(c => c.id !== id)
   if (next.length === list.length) return false // такого id в личном файле нет
-  await updateGitHubFile(file, next, sha)
+  await safeUpdateGitHubFile(file, next, sha)
   return true
 }

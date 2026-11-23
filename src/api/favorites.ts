@@ -2,7 +2,7 @@
 // Избранное пользователей — личный файл в папке пользователя:
 // public/users/<email_folder>/favorites.json
 import { QUEUE_FILE, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from './constants'
-import { fetchGitHubFile, updateGitHubFile, getHeaders } from './client'
+import { fetchGitHubFile, safeUpdateGitHubFile, getHeaders } from './client'
 import { emailToFolderName } from './audio'
 
 // 📁 Путь к файлу избранного конкретного пользователя
@@ -37,7 +37,7 @@ export const removeWordFromAllFavorites = async (wordId: string | number) => {
       if (!sha || !Array.isArray(data)) continue
       const normalized = data.map(String)
       if (normalized.includes(idStr)) {
-        await updateGitHubFile(fileName, normalized.filter(f => f !== idStr), sha)
+        await safeUpdateGitHubFile(fileName, normalized.filter(f => f !== idStr), sha)
       }
     } catch (e) {
       console.error(`Failed to remove word from ${fileName}:`, e)
@@ -79,7 +79,7 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUp
         const { data: qdata, sha: qsha } = await fetchGitHubFile(QUEUE_FILE)
         const qarr = Array.isArray(qdata) ? qdata : []
         qarr.push(entry)
-        await updateGitHubFile(QUEUE_FILE, qarr, qsha)
+        await safeUpdateGitHubFile(QUEUE_FILE, qarr, qsha)
         return true
       } catch (e) {
         if (e.message && (e.message.includes('409') || e.message.includes('Conflict'))) {
@@ -111,13 +111,13 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUp
       const qFavs = Array.isArray(latest.favorites) ? latest.favorites.map(String) : []
 
       const { sha: currentSha } = await fetchGitHubFile(fileName)
-      await updateGitHubFile(fileName, qFavs, currentSha)
+      await safeUpdateGitHubFile(fileName, qFavs, currentSha)
 
       // Удалить обработанные записи из глобальной очереди
       const remaining = queueArr.filter(q =>
         !(String(q.userEmail).toLowerCase() === String(userEmail).toLowerCase() && myEntries.includes(q))
       )
-      await updateGitHubFile(QUEUE_FILE, remaining, qsha)
+      await safeUpdateGitHubFile(QUEUE_FILE, remaining, qsha)
     } catch (e) {
       console.warn('Failed to process favorites queue:', e)
     }
@@ -132,7 +132,7 @@ export const updateFavoritesForUser = async (userEmail, favoritesArray, clientUp
       // Записать текущее состояние избранного в личный файл пользователя
       const { sha } = await fetchGitHubFile(fileName)
       const normalized = (favoritesArray || []).map(String)
-      await updateGitHubFile(fileName, normalized, sha)
+      await safeUpdateGitHubFile(fileName, normalized, sha)
       return true
     } catch (error) {
       if (error.message && (error.message.includes('409') || error.message.includes('Conflict'))) {
