@@ -1042,6 +1042,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           actualIndex={actualIdx}
           wordsLength={words.length}
           categories={categories}
+          searchTerm={committedSearch}
           onMoveToTop={handleMoveWordToTop}
           onMoveUp={handleMoveWordUp}
           onMoveDown={handleMoveWordDown}

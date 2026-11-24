@@ -2,6 +2,7 @@
 // Карточка слова в админ-панели (сетка слов).
 import { memo, useEffect, useState } from 'react'
 import { categoryLabel } from '../../api/categories'
+import { highlightSearch as highlight } from '../../utils/highlightSearch'
 
 type WordItemProps = {
   word: any
@@ -15,6 +16,8 @@ type WordItemProps = {
   actualIndex?: number
   wordsLength: number
   categories: any[]
+  /** Устоявшийся поисковый запрос: совпадения подсвечиваются в тексте карточки. */
+  searchTerm?: string
   onMoveToTop: (id: any) => void
   onMoveUp: (id: any) => void
   onMoveDown: (id: any) => void
@@ -37,6 +40,7 @@ function WordItem({
   actualIndex,
   wordsLength,
   categories,
+  searchTerm,
   onMoveToTop,
   onMoveUp,
   onMoveDown,
@@ -65,17 +69,17 @@ function WordItem({
       <span className="word-number">{idx + 1}.</span>
       <div className="word-content">
         <div className="word-row">
-          <h4 className="word-title">{word.word}</h4>
-          {word.transcription && <span className="word-transcription">[{word.transcription}]</span>}
+          <h4 className="word-title">{highlight(word.word, searchTerm)}</h4>
+          {word.transcription && <span className="word-transcription">[{highlight(word.transcription, searchTerm)}]</span>}
         </div>
-        <p className="word-translation">{word.translation}</p>
+        <p className="word-translation">{highlight(word.translation, searchTerm)}</p>
         {categoryLabels.length > 0 && (
           <div className="word-category">({categoryLabels.join('; ')})</div>
         )}
         <div className="examples">
-          {word.example && <span className="word-example">{word.example}</span>}
-          {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{word.example2}</span></>}
-          {word.transcription2 && <span className="word-transcription2">[{word.transcription2}]</span>}
+          {word.example && <span className="word-example">{highlight(word.example, searchTerm)}</span>}
+          {word.example2 && <><span className="word-dash"> — </span><span className="word-example2">{highlight(word.example2, searchTerm)}</span></>}
+          {word.transcription2 && <span className="word-transcription2">[{highlight(word.transcription2, searchTerm)}]</span>}
         </div>
         {word.audio && (
           <p className="word-audio">

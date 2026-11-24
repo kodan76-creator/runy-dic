@@ -43,3 +43,26 @@ describe('WordItem: категории', () => {
     expect(document.querySelector('.word-category')).toBeNull()
   })
 })
+
+describe('WordItem: подсветка поиска', () => {
+  const word = {
+    id: 3,
+    word: 'БОГ',
+    transcription: 'bog',
+    translation: 'бог',
+    example: 'Один бог',
+  }
+
+  it('подсвечивает найденное в слове, переводе и примере без учёта регистра', () => {
+    const { container } = render(<WordItem {...baseProps} word={word} searchTerm="бог" />)
+
+    const marks = Array.from(container.querySelectorAll('mark.search-hit'))
+    expect(marks.map(m => m.textContent)).toEqual(['БОГ', 'бог', 'бог'])
+    expect(container.querySelector('.word-title')?.textContent).toBe('БОГ')
+  })
+
+  it('не подсвечивает ничего без поискового запроса', () => {
+    const { container } = render(<WordItem {...baseProps} word={word} />)
+    expect(container.querySelector('mark.search-hit')).toBeNull()
+  })
+})

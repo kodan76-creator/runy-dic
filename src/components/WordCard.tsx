@@ -2,23 +2,11 @@
 // Карточка слова на главном экране пользователя
 import '../App.css'
 import { categoryLabel } from '../api/categories'
+import { highlightSearch as highlight } from '../utils/highlightSearch'
 
 const getDictionarySourceLabel = (item) => (
   item.__dictionarySource === 'shared' ? 'Общий словарь' : 'Личный словарь'
 )
-
-// Подсветка совпадений поиска: оборачивает все вхождения в <mark class="search-hit">
-const highlight = (text, searchTerm) => {
-  if (!text || !searchTerm || !searchTerm.trim()) return text
-  const term = searchTerm.trim()
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const parts = String(text).split(new RegExp(`(${escaped})`, 'ig'))
-  return parts.map((part, i) =>
-    part.toLowerCase() === term.toLowerCase()
-      ? <mark key={i} className="search-hit">{part}</mark>
-      : part
-  )
-}
 
 export default function WordCard({ item, categories, isFavorite, onToggleFavorite, onPlayAudio, onScrollTop, searchTerm = '' }) {
   const renderCategory = (category) => {
