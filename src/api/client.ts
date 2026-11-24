@@ -97,6 +97,24 @@ export const getGitHubFileSha = async (filePath: string): Promise<string | null>
   }
 }
 
+// GitHub Contents API не отдаёт содержимое файлов больше 1 МБ: в ответе есть
+// sha и size, но content пустой (encoding: "none"). Такие файлы (например,
+// зашифрованный dictionary.json) читаем через Git Blob API — он поддерживает
+// блобы до 100 МБ и возвращает тот же контент в base64.
+const fetchLargeBlobContent = async (sha: string, fileName: string): Promise<string | null> => {
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/blobs/${sha}`
+    const response = await githubFetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    if (!response.ok) return null
+    const blob = await response.json()
+    if (blob?.encoding !== 'base64' || typeof blob.content !== 'string') return null
+    return base64ToUtf8(blob.content)
+  } catch (error) {
+    warnFetchFailure(fileName, error, 'FetchBlob')
+    return null
+  }
+}
+
 // ✅ Всегда возвращаем { data, sha, ok, exists }
 export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResult<any[]>> => {
   // Сети нет — GitHub API недоступен: читатели сами возьмут локальный кэш,
@@ -112,10 +130,20 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
     }
 
     const fileData = await response.json()
-    const fileSha = fileData.sha || null
-    if (!fileData.content) return { data: [], sha: fileSha, ok: true, exists: Boolean(fileSha) }
+    const fileSha: string | null = fileData.sha || null
 
-    const raw = base64ToUtf8(fileData.content)
+    let raw: string
+    if (fileData.content) {
+      raw = base64ToUtf8(fileData.content)
+    } else if (fileSha) {
+      // Файл >1 МБ: contents API вернул только sha — читаем блоб целиком
+      const blobContent = await fetchLargeBlobContent(fileSha, fileName)
+      if (blobContent === null) return { data: [], sha: fileSha, ok: false, exists: true }
+      raw = blobContent
+    } else {
+      return { data: [], sha: null, ok: true, exists: false }
+    }
+
     const cleaned = raw.replace(/^\uFEFF/, '').trim()
 
     // 🔐 Расшифровка: если данные зашифрованы — расшифровываем
@@ -178,9 +206,20 @@ export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawRes
       throw new Error(`HTTP ${response.status}`)
     }
     const fileData = await response.json()
-    if (!fileData.content) return { data: null, sha: null }
-    const raw = base64ToUtf8(fileData.content)
-    return { data: raw.replace(/^\uFEFF/, '').trim(), sha: fileData.sha }
+    const fileSha: string | null = fileData.sha || null
+    if (!fileSha) return { data: null, sha: null }
+
+    // ⚠️ SHA возвращается даже для файлов >1 МБ, у которых contents API не
+    // отдаёт content. Возвращаем sha в любом случае: иначе «Безопасность»
+    // показывает «не найден», а запись может затереть существующий файл.
+    let raw: string | null = null
+    if (fileData.content) {
+      raw = base64ToUtf8(fileData.content)
+    } else {
+      raw = await fetchLargeBlobContent(fileSha, fileName)
+    }
+    if (raw === null) return { data: null, sha: fileSha }
+    return { data: raw.replace(/^\uFEFF/, '').trim(), sha: fileSha }
   } catch (error) {
     warnFetchFailure(fileName, error, 'FetchRaw')
     return { data: null, sha: null }
@@ -207,6 +246,12 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
       // если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
       // Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
       if (!workingSha && sha) {
+        throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+      }
+      // sha есть, а содержимое прочитать не удалось (например, не открылся
+      // большой блоб) — писать нельзя: можно потерять данные или записать
+      // открытый JSON вместо зашифрованного.
+      if (sha && data == null) {
         throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
       }
 
@@ -314,7 +359,9 @@ export const safeUpdateGitHubFile = async (
         const raw = await fetchGitHubFileRaw(fileName)
         const rollbackSha = raw.sha || oldSha
         await updateGitHubFile(fileName, oldData, rollbackSha)
-      } catch {}
+      } catch {
+        // откат не удался — пробрасываем исходную ошибку записи ниже
+      }
     }
     throw e
   }

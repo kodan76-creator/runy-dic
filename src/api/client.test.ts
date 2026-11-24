@@ -90,6 +90,56 @@ describe('fetchGitHubFile', () => {
     await expect(fetchGitHubFileRaw('users.json')).resolves.toEqual({ data: null, sha: null })
     expect(fetchSpy).not.toHaveBeenCalled()
   })
+
+  it('файл >1 МБ: contents API вернул только sha — читаем блоб и парсим JSON', async () => {
+    const words = [{ id: '1', word: 'test', translation: 'test' }]
+    const fetchSpy = vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes('/git/blobs/')
+        ? { encoding: 'base64', content: btoa(JSON.stringify(words)) }
+        : { sha: 'big-file-sha', content: '', encoding: 'none', size: 1081047 },
+    }))
+    vi.stubGlobal('fetch', fetchSpy)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const result = await fetchGitHubFile('dictionary.json')
+
+    expect(result).toMatchObject({ ok: true, exists: true, sha: 'big-file-sha' })
+    expect(result.data).toEqual(words)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(warnSpy).not.toHaveBeenCalled()
+  })
+
+  it('большой файл: если блоб недоступен — ok:false, но sha и exists сохранены', async () => {
+    const fetchSpy = vi.fn(async (url: string) => ({
+      ok: !url.includes('/git/blobs/'),
+      json: async () => ({ sha: 'big-file-sha', content: '', encoding: 'none' }),
+    }))
+    vi.stubGlobal('fetch', fetchSpy)
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    await expect(fetchGitHubFile('dictionary.json')).resolves.toMatchObject({
+      data: [], sha: 'big-file-sha', ok: false, exists: true,
+    })
+    await expect(fetchGitHubFileRaw('dictionary.json')).resolves.toEqual({
+      data: null, sha: 'big-file-sha',
+    })
+  })
+
+  it('файл >1 МБ: fetchGitHubFileRaw возвращает текст из Blob API', async () => {
+    const text = 'ENC:v1:some-encrypted-payload'
+    const fetchSpy = vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes('/git/blobs/')
+        ? { encoding: 'base64', content: btoa(text) }
+        : { sha: 'big-file-sha', content: '', encoding: 'none', size: 1081047 },
+    }))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    await expect(fetchGitHubFileRaw('dictionary.json')).resolves.toEqual({
+      data: text, sha: 'big-file-sha',
+    })
+  })
 })
 
 describe('fetchWithTimeout', () => {
