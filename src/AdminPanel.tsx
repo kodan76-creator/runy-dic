@@ -41,6 +41,15 @@ function isTabAllowed(tab: string, restricted: boolean): boolean {
   return !restricted || !ADMIN_ONLY_TABS.includes(tab)
 }
 
+// Ищем карточку в полном списке: у оплаченного пользователя id общего и
+// личного словарей могут совпадать, поэтому личные слова приоритетнее.
+const findWordIndexById = (arr: any[], id: unknown): number => {
+  const key = String(id)
+  let idx = arr.findIndex(w => String(w?.id) === key && w?.__dictionarySource !== 'shared')
+  if (idx === -1) idx = arr.findIndex(w => String(w?.id) === key)
+  return idx
+}
+
 function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [adminUser, setAdminUser] = useState(getSavedAdmin)
   const [email, setEmail] = useState('')
@@ -87,6 +96,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (msgTimeoutRef.current) clearTimeout(msgTimeoutRef.current)
     msgTimeoutRef.current = setTimeout(() => setMessage(''), ms)
   }, [])
+
   const [formData, setFormData] = useState({
     word: '', transcription: '', translation: '', category: [],
     example: '', example2: '', transcription2: '',
@@ -113,11 +123,26 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }, [error])
   const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' && !navigator.onLine)
   const [searchTerm, setSearchTerm] = useState('')
-  const [positionInputs, setPositionInputs] = useState({})
+  // Значение поля поиска обновляется сразу, а фильтрация — с небольшой
+  // задержкой: иначе каждый символ перерисовывал все 900+ карточек.
+  const [committedSearch, setCommittedSearch] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => setCommittedSearch(searchTerm.trim().toLowerCase()), 150)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const changeSearchTerm = useCallback((value: string) => {
+    setSearchTerm(value)
+    if (!value) setCommittedSearch('')
+  }, [])
+
   const [userSearchTerm, setUserSearchTerm] = useState('')
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
   const [userRoleFilter, setUserRoleFilter] = useState('all')
   const wordsListRef = useRef(null)
+  // Фоновые рефреши могут пересекаться: применяем только последний результат.
+  const wordsRefreshSeqRef = useRef(0)
 
   // 💾 Сохраняем/восстанавливаем позицию прокрутки списка слов при обновлении страницы
   useScrollRestoration(wordsListRef, 'scroll_admin_words', [words.length])
@@ -263,6 +288,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' })
   const [catEditingId, setCatEditingId] = useState(null)
 
+  // Кэш и прогрев аудио не нужны для отрисовки: делаем их после кадра,
+  // чтобы JSON на 1 МБ не блокировал ввод и прокрутку.
+  const scheduleDictionaryBackgroundWork = useCallback((arr: any[]) => {
+    if (!activeUser?.email) return
+    setTimeout(() => {
+      // Для обычного пользователя помечаем слова личными, чтобы на странице
+      // пользователя счётчик «Личных» считался корректно.
+      const cacheArr = isRestrictedUser
+        ? arr.map(w => ({ ...w, __dictionarySource: 'personal' }))
+        : arr
+      cacheDictionaryForOffline(activeUser.email, cacheArr)
+      const audioFolder = isRestrictedUser ? emailToFolderName(activeUser.email) : ''
+      precacheUrls(collectAudioUrls(arr, audioFolder))
+    }, 0)
+  }, [activeUser, isRestrictedUser])
+
   const loadWords = useCallback(async () => {
     setLoading(true)
     try {
@@ -284,7 +325,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           if (Array.isArray(cachedCats)) setCategories(cachedCats)
           // Прогреваем аудио из кэша, чтобы оно играло офлайн
           const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-          precacheUrls(collectAudioUrls(cached, audioFolder))
+          setTimeout(() => precacheUrls(collectAudioUrls(cached, audioFolder)), 0)
         } else {
           setError('Нет интернета. Словарь не загружен — оффлайн-копия ещё не сохранена.')
         }
@@ -292,18 +333,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         setWords(arr)
         setIsOffline(false)
         setError('')
-        // Кэшируем словарь для оффлайн-режима (для обычного пользователя
-        // помечаем слова как личные, чтобы на странице пользователя
-        // счётчик «Личных» считался корректно)
-        if (activeUser?.email) {
-          const cacheArr = isRestrictedUser
-            ? arr.map(w => ({ ...w, __dictionarySource: 'personal' }))
-            : arr
-          cacheDictionaryForOffline(activeUser.email, cacheArr)
-        }
-        // 🎵 Прогреваем аудио в кэше SW, чтобы оно играло оффлайн
-        const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-        precacheUrls(collectAudioUrls(arr, audioFolder))
+        scheduleDictionaryBackgroundWork(arr)
       }
     } catch (err) {
       setError('Ошибка: ' + err.message)
@@ -317,40 +347,80 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       }
     }
     setLoading(false)
-  }, [isRestrictedUser, activeUser, setLoading, setWords, setError, setIsOffline])
-  // Обновление списка после записи на GitHub — как кнопка «Обновить», но с повторами,
-  // пока GitHub не отдаст актуальный порядок карточек
+  }, [isRestrictedUser, activeUser, setLoading, setWords, setError, setIsOffline, scheduleDictionaryBackgroundWork])
+
+  // Тихий рефреш после записи: локальное состояние уже обновлено оптимистично,
+  // поэтому достаточно одного чтения — без повторов и JSON.stringify 1 МБ.
   const refreshWordsAfterWrite = useCallback(async () => {
-    // 🌐 Оффлайн: читаем актуальный список из кэша (изменения уже применены к нему)
+    const seq = ++wordsRefreshSeqRef.current
     if (!isOnline()) {
       if (activeUser?.email) {
         const cached = getCachedDictionary(activeUser.email)
-        if (Array.isArray(cached)) setWords(cached)
+        if (Array.isArray(cached) && seq === wordsRefreshSeqRef.current) setWords(cached)
       }
       return
     }
-    const beforeJson = JSON.stringify(words)
-    for (let attempt = 0; attempt < 4; attempt++) {
-      try {
-        const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
-        const { data } = await getDictionary(dictionaryOwner)
-        const arr = Array.isArray(data) ? data : []
-        setWords(arr)
-        // Обновляем и оффлайн-кэш, чтобы копия была свежей
-        if (activeUser?.email) {
-          const cacheArr = isRestrictedUser
-            ? arr.map(w => ({ ...w, __dictionarySource: 'personal' }))
-            : arr
-          cacheDictionaryForOffline(activeUser.email, cacheArr)
-        }
-        // 🎵 Прогреваем аудио (после загрузки/правок словаря)
-        const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-        precacheUrls(collectAudioUrls(arr, audioFolder))
-        if (JSON.stringify(arr) !== beforeJson) return
-      } catch { /* пробуем ещё раз */ }
-      await new Promise(res => setTimeout(res, 400))
-    }
-  }, [words, isRestrictedUser, activeUser, setWords])
+    try {
+      const dictionaryOwner = isRestrictedUser ? activeUser?.email : activeUser
+      const { data, ok } = await getDictionary(dictionaryOwner)
+      if (!Array.isArray(data) || (ok === false && data.length === 0)) return
+      if (seq !== wordsRefreshSeqRef.current) return
+      setWords(data)
+      scheduleDictionaryBackgroundWork(data)
+    } catch { /* оптимистичное состояние уже применено */ }
+  }, [isRestrictedUser, activeUser, scheduleDictionaryBackgroundWork])
+
+  // ⚡ Оптимистичные правки: карточка отвечает на действие сразу, не дожидаясь
+  // ответа GitHub. Фоновая перезагрузка потом сверяет результат.
+  const applyLocalMove = useCallback((id, kind, position?) => {
+    setWords(prev => {
+      const arr = [...prev]
+      const idx = findWordIndexById(arr, id)
+      if (idx === -1) return prev
+      if (kind === 'up') {
+        if (idx === 0) return prev
+        ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
+      } else if (kind === 'down') {
+        if (idx >= arr.length - 1) return prev
+        ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
+      } else if (kind === 'top') {
+        if (idx === 0) return prev
+        arr.unshift(arr.splice(idx, 1)[0])
+      } else if (kind === 'bottom') {
+        if (idx === arr.length - 1) return prev
+        arr.push(arr.splice(idx, 1)[0])
+      } else if (kind === 'position') {
+        const target = Math.min(Math.max(parseInt(position, 10) - 1, 0), arr.length - 1)
+        if (idx === target) return prev
+        arr.splice(target, 0, arr.splice(idx, 1)[0])
+      }
+      return arr
+    })
+  }, [])
+
+  const applyLocalWordSave = useCallback((saved: any, wasEditing: boolean, editingIdValue: any) => {
+    setWords(prev => {
+      if (wasEditing) {
+        const idx = findWordIndexById(prev, editingIdValue)
+        if (idx === -1) return prev
+        const next = [...prev]
+        next[idx] = { ...next[idx], ...saved }
+        return next
+      }
+      const decorated = isRestrictedUser && activeUser?.paid
+        ? { ...saved, __dictionarySource: 'personal' }
+        : saved
+      return [...prev, decorated]
+    })
+  }, [isRestrictedUser, activeUser])
+
+  const applyLocalDelete = useCallback((id) => {
+    setWords(prev => {
+      const idx = findWordIndexById(prev, id)
+      if (idx === -1) return prev
+      return prev.filter((_, i) => i !== idx)
+    })
+  }, [])
 
   // 🧿 Обновление списка рун после записи на GitHub — как refreshWordsAfterWrite,
   // но для рун: повторяем запросы, пока GitHub не отдаст актуальные данные
@@ -490,7 +560,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
   }, [])
 
-  const loadFilesStatus = async () => {
+  const loadFilesStatus = useCallback(async () => {
     setFilesStatusLoading(true)
     try {
       const status = await checkFilesEncryptionStatus()
@@ -503,21 +573,30 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       showMessage(err instanceof Error ? err.message : 'Ошибка проверки файлов', 'error')
     }
     setFilesStatusLoading(false)
-  }
+  }, [showMessage])
 
   // Автозагрузка статуса файлов при открытии вкладки "Безопасность"
   useEffect(() => {
     if (activeTab === 'security' && !isRestrictedUser) {
       loadFilesStatus()
     }
-  }, [activeTab, isRestrictedUser])
+  }, [activeTab, isRestrictedUser, loadFilesStatus])
+
+  // Строки для поиска подготавливаем один раз при загрузке словаря, а не на
+  // каждый символ в поле поиска.
+  const searchIndex = useMemo(() => words.map(w =>
+    `${String(w?.word ?? '').toLowerCase()}\u0000${String(w?.translation ?? '').toLowerCase()}`
+  ), [words])
 
   const filteredWords = useMemo(() => {
-    return words.filter(w =>
-      w.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      w.translation?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [searchTerm, words])
+    const term = committedSearch
+    if (!term) return words
+    const result: any[] = []
+    for (let i = 0; i < words.length; i++) {
+      if (searchIndex[i].includes(term)) result.push(words[i])
+    }
+    return result
+  }, [committedSearch, searchIndex, words])
 
   // Быстрый поиск индекса карточки в полном списке (вместо O(n²) findIndex в map)
   const wordIndexMap = useMemo(() => {
@@ -604,16 +683,21 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
+    const savedId = editingId
     try {
       if (editingId) {
-        await updateWord(editingId, formData, activeUser)
+        const saved = await updateWord(editingId, formData, activeUser)
+        applyLocalWordSave(saved, true, savedId)
         showMessage('✅ Карточка обновлена')
       } else {
-        await addWord(formData, activeUser?.email, activeUser)
+        const created = await addWord(formData, activeUser?.email, activeUser)
+        applyLocalWordSave(created, false, null)
         showMessage('✅ Карточка добавлена')
       }
       setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
-      setEditingId(null); await loadWords()
+      setEditingId(null)
+      // Сверяемся с сервером в фоне — пользователь уже видит результат.
+      void refreshWordsAfterWrite()
     } catch (err) {
       setError(err.message)
       showMessage('❌ ' + err.message, 'error')
@@ -864,53 +948,58 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       }
     }, [activeUser, isRestrictedUser, categories, setEditingId, setFormData, setError])
 
-    const handleDelete = useCallback(async (id, wordOwnerEmail) => {
-      if (window.confirm('Удалить эту карточку?')) {
-        const isAdmin = activeUser?.role === 'admin'
-        const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(wordOwnerEmail || '').toLowerCase()
-        if (!isAdmin && !isOwner && !isRestrictedUser) {
-          setError('Недостаточно прав для удаления этой записи')
-          return
-        }
-        try {
-          await deleteWord(id, activeUser)
-          await loadWords()
-          showMessage('✅ Карточка удалена')
-        } catch (err) {
-          setError('Ошибка удаления: ' + err.message)
-          showMessage('❌ ' + err.message, 'error')
-        }
+  const handleDelete = useCallback(async (id, wordOwnerEmail) => {
+    if (window.confirm('Удалить эту карточку?')) {
+      const isAdmin = activeUser?.role === 'admin'
+      const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(wordOwnerEmail || '').toLowerCase()
+      if (!isAdmin && !isOwner && !isRestrictedUser) {
+        setError('Недостаточно прав для удаления этой записи')
+        return
       }
-    }, [activeUser, isRestrictedUser, loadWords, showMessage, setError])
+      try {
+        await deleteWord(id, activeUser)
+        applyLocalDelete(id)
+        showMessage('✅ Карточка удалена')
+        void refreshWordsAfterWrite()
+      } catch (err) {
+        setError('Ошибка удаления: ' + err.message)
+        showMessage('❌ ' + err.message, 'error')
+      }
+    }
+  }, [activeUser, isRestrictedUser, applyLocalDelete, refreshWordsAfterWrite, showMessage, setError])
 
   const handleMoveWordUp = useCallback(async (id) => {
     try {
       const moved = await moveWordUp(id, activeUser)
-      if (moved) await refreshWordsAfterWrite()
+      if (moved) applyLocalMove(id, 'up')
       showMessage(moved ? '✅ Карточка перемещена вверх' : 'Карточка уже вверху')
+      if (moved) void refreshWordsAfterWrite()
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  }, [activeUser, applyLocalMove, refreshWordsAfterWrite, showMessage, setError])
   const handleMoveWordDown = useCallback(async (id) => {
     try {
       const moved = await moveWordDown(id, activeUser)
-      if (moved) await refreshWordsAfterWrite()
+      if (moved) applyLocalMove(id, 'down')
       showMessage(moved ? '✅ Карточка перемещена вниз' : 'Карточка уже внизу')
+      if (moved) void refreshWordsAfterWrite()
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  }, [activeUser, applyLocalMove, refreshWordsAfterWrite, showMessage, setError])
   const handleMoveWordToTop = useCallback(async (id) => {
     try {
       const moved = await moveWordToTop(id, activeUser)
-      if (moved) await refreshWordsAfterWrite()
+      if (moved) applyLocalMove(id, 'top')
       showMessage(moved ? '✅ Карточка перемещена в начало' : 'Карточка уже в начале')
+      if (moved) void refreshWordsAfterWrite()
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  }, [activeUser, applyLocalMove, refreshWordsAfterWrite, showMessage, setError])
   const handleMoveWordToBottom = useCallback(async (id) => {
     try {
       const moved = await moveWordToBottom(id, activeUser)
-      if (moved) await refreshWordsAfterWrite()
+      if (moved) applyLocalMove(id, 'bottom')
       showMessage(moved ? '✅ Карточка перемещена в конец' : 'Карточка уже в конце')
+      if (moved) void refreshWordsAfterWrite()
     } catch (err) { setError('Ошибка перемещения: ' + err.message); showMessage('❌ ' + err.message, 'error') }
-  }, [activeUser, refreshWordsAfterWrite, showMessage, setError])
+  }, [activeUser, applyLocalMove, refreshWordsAfterWrite, showMessage, setError])
   const handleMoveWordToPosition = useCallback(async (id, posStr) => {
     const pos = parseInt(posStr, 10)
     if (isNaN(pos) || pos < 1 || pos > words.length) {
@@ -919,20 +1008,20 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     }
     try {
       const moved = await moveWordToPosition(id, pos, activeUser)
-      setPositionInputs(prev => { const next = { ...prev }; delete next[id]; return next })
-      if (moved) await refreshWordsAfterWrite()
+      if (moved) applyLocalMove(id, 'position', pos)
       showMessage(moved ? '✅ Позиция обновлена' : 'Позиция не изменилась')
+      if (moved) void refreshWordsAfterWrite()
     } catch (err) {
       setError('Ошибка перемещения: ' + err.message)
       showMessage('❌ ' + err.message, 'error')
     }
-  }, [activeUser, refreshWordsAfterWrite, showMessage, setError, words.length, setPositionInputs])
+  }, [activeUser, applyLocalMove, refreshWordsAfterWrite, showMessage, setError, words.length])
 
   // Мемоизация сетки карточек: перерисовываем карточки только когда меняются сами данные,
   // а не при вводе символов в любом поле формы (иначе 900+ карточек перерисовываются на каждое нажатие)
   const wordsGrid = useMemo(() => {
     if (!(filteredWords.length > 0)) {
-      return <div className="no-results">{searchTerm ? 'Ничего не найдено' : 'Словарь пуст'}</div>
+      return <div className="no-results">{committedSearch ? 'Ничего не найдено' : 'Словарь пуст'}</div>
     }
     return filteredWords.map((word, idx) => {
       const isAdmin = activeUser?.role === 'admin'
@@ -950,14 +1039,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           canEdit={canEdit}
           isFirst={isFirst}
           isLast={isLast}
-          positionValue={positionInputs[word.id] ?? actualIdx + 1}
+          actualIndex={actualIdx}
           wordsLength={words.length}
           categories={categories}
           onMoveToTop={handleMoveWordToTop}
           onMoveUp={handleMoveWordUp}
           onMoveDown={handleMoveWordDown}
           onMoveToBottom={handleMoveWordToBottom}
-          onPositionChange={(id, value) => setPositionInputs(prev => ({ ...prev, [id]: value }))}
           onPositionSubmit={handleMoveWordToPosition}
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -966,7 +1054,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         />
       )
     })
-  }, [filteredWords, searchTerm, categories, words, wordIndexMap, positionInputs, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
+  }, [filteredWords, committedSearch, categories, words, wordIndexMap, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
 
   // Categories handlers
   const handleCategorySubmit = async (e) => {
@@ -1369,7 +1457,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           <DictionaryTab
             words={words}
             searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            setSearchTerm={changeSearchTerm}
             formData={formData}
             setFormData={setFormData}
             categories={categories}

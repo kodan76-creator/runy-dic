@@ -17,35 +17,61 @@ let cachedPassphrase: string | null = null
  */
 const LEGACY_PASSPHRASES: string[] = []
 
-/**
- * Создать AES-ключ из парольной фразы через PBKDF2 (без кэша, для перебора ключей)
- */
+// PBKDF2 со 100 000 итераций — дорогая операция. Один и тот же файл
+// читается несколько раз подряд (чтение → бэкап → проверка → обновление),
+// поэтому кэшируем выведенный ключ по (парольная фраза, соль).
+const derivedKeyCache = new Map<string, Promise<CryptoKey>>()
+
+const bytesToBase64 = (bytes: Uint8Array): string => {
+  const chunk = 0x8000
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
+  }
+  return btoa(binary)
+}
+
+const base64ToBytes = (str: string): Uint8Array => {
+  const binary = atob(str)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
+
 /**
  * Derive AES key from passphrase and salt (if provided). If salt is omitted,
  * the legacy fixed salt is used for backward compatibility.
  */
-const deriveKey = async (passphrase: string, salt?: Uint8Array<ArrayBuffer>) => {
+const deriveKey = (passphrase: string, salt?: Uint8Array<ArrayBuffer>): Promise<CryptoKey> => {
   const encoder = new TextEncoder()
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(passphrase),
-    { name: 'PBKDF2' },
-    false,
-    ['deriveKey']
-  )
-  const saltBytes: BufferSource = salt ?? encoder.encode(LEGACY_SALT)
-  return crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt: saltBytes,
-      iterations: PBKDF2_ITERATIONS,
-      hash: 'SHA-256'
-    },
-    keyMaterial,
-    { name: ALGO, length: KEY_LENGTH },
-    false,
-    ['encrypt', 'decrypt']
-  )
+  const cacheKey = `${passphrase}\u0000${salt ? bytesToBase64(salt) : LEGACY_SALT}`
+  const cached = derivedKeyCache.get(cacheKey)
+  if (cached) return cached
+
+  const pending = (async () => {
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(passphrase),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    )
+    const saltBytes: BufferSource = salt ?? encoder.encode(LEGACY_SALT)
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: saltBytes,
+        iterations: PBKDF2_ITERATIONS,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: ALGO, length: KEY_LENGTH },
+      false,
+      ['encrypt', 'decrypt']
+    )
+  })()
+  derivedKeyCache.set(cacheKey, pending)
+  return pending
 }
 
 /**
@@ -101,11 +127,7 @@ const decryptWithFallback = async (data: string) => {
   }
 
   const base64 = data.slice(ENCRYPTION_PREFIX.length)
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
-  }
+  const bytes = base64ToBytes(base64)
 
   // Try new format: salt(16) | iv(12) | ciphertext
   if (bytes.length > 28) {
@@ -170,12 +192,8 @@ export const encrypt = async (plaintext) => {
   combined.set(iv, salt.length)
   combined.set(encryptedBytes, salt.length + iv.length)
 
-  // Конвертируем в base64
-  let binary = ''
-  for (let i = 0; i < combined.length; i++) {
-    binary += String.fromCharCode(combined[i])
-  }
-  return ENCRYPTION_PREFIX + btoa(binary)
+  // Конвертируем в base64 (порционно — обычный цикл по байтам тормозил на 1 МБ)
+  return ENCRYPTION_PREFIX + bytesToBase64(combined)
 }
 
 /**

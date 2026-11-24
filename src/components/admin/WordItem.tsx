@@ -1,13 +1,40 @@
 // src/components/admin/WordItem.jsx
 // Карточка слова в админ-панели (сетка слов).
+import { memo, useEffect, useState } from 'react'
 import { categoryLabel } from '../../api/categories'
-export default function WordItem({
+
+type WordItemProps = {
+  word: any
+  idx: number
+  canEdit: boolean
+  isFirst: boolean
+  isLast: boolean
+  // positionValue и onPositionChange оставлены для совместимости со старыми
+  // вызывающими; AdminPanel теперь использует actualIndex и локальное поле.
+  positionValue?: number | string
+  actualIndex?: number
+  wordsLength: number
+  categories: any[]
+  onMoveToTop: (id: any) => void
+  onMoveUp: (id: any) => void
+  onMoveDown: (id: any) => void
+  onMoveToBottom: (id: any) => void
+  onPositionChange?: (id: any, value: string) => void
+  onPositionSubmit: (id: any, value: string | number) => void
+  onEdit: (word: any) => void
+  onDelete: (id: any, owner?: any) => void
+  onPlayAudio: (file: string) => void
+  onScrollTop: () => void
+}
+
+function WordItem({
   word,
   idx,
   canEdit,
   isFirst,
   isLast,
   positionValue,
+  actualIndex,
   wordsLength,
   categories,
   onMoveToTop,
@@ -20,7 +47,13 @@ export default function WordItem({
   onDelete,
   onPlayAudio,
   onScrollTop,
-}) {
+}: WordItemProps) {
+  // Номер позиции живёт внутри карточки: раньше он хранился в состоянии
+  // AdminPanel, и ввод цифры перерисовывал все 900+ карточек сразу.
+  const defaultPosition = actualIndex != null ? actualIndex + 1 : (positionValue ?? idx + 1)
+  const [localPosition, setLocalPosition] = useState(String(defaultPosition))
+  useEffect(() => { setLocalPosition(String(defaultPosition)) }, [defaultPosition])
+
   // Подписи категорий: значения резолвятся по справочнику, id удалённой
   // категории скрывается — он не должен отображаться цифрами
   const categoryLabels = (Array.isArray(word.category) ? word.category : [word.category])
@@ -72,15 +105,18 @@ export default function WordItem({
               min="1"
               max={wordsLength}
               className="word-position-input"
-              value={positionValue}
-              onChange={(e) => onPositionChange(word.id, e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onPositionSubmit(word.id, positionValue) } }}
+              value={localPosition}
+              onChange={(e) => {
+                setLocalPosition(e.target.value)
+                onPositionChange?.(word.id, e.target.value)
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onPositionSubmit(word.id, localPosition) } }}
               title="Номер позиции"
             />
             <button
               type="button"
               className="word-position-btn"
-              onClick={() => onPositionSubmit(word.id, positionValue)}
+              onClick={() => onPositionSubmit(word.id, localPosition)}
               title="Установить позицию"
             >№</button>
           </div>
@@ -93,3 +129,6 @@ export default function WordItem({
     </div>
   )
 }
+
+// Мемоизация: при вводе в форму/поиск неизменившиеся карточки не перерисовываются.
+export default memo(WordItem)

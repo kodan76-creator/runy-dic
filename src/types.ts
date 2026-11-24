@@ -118,6 +118,8 @@ export interface GitHubFileResult<T = unknown> {
   sha: string | null
   ok: boolean
   exists: boolean | null
+  /** Признак формата прочитанного файла — позволяет не перечитывать его перед записью. */
+  encrypted?: boolean
 }
 
 export interface GitHubRawResult {

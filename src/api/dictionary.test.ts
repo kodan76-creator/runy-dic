@@ -25,7 +25,7 @@ vi.mock('./offline', () => ({
   cacheDictionaryForOffline: vi.fn(),
 }))
 
-import { getDictionary, removeCategoryFromAllWords } from './dictionary'
+import { getDictionary, removeCategoryFromAllWords, addWord, updateWord, moveWordUp } from './dictionary'
 
 const USER_FILE = 'public/users/user_x.ru/dictionary.json'
 const WORDS = [
@@ -110,5 +110,55 @@ describe('getDictionary', () => {
 
     expect(result.data.map((w: any) => w.word)).toEqual(['общее', 'личное'])
     expect(result.data[1]).toMatchObject({ __dictionarySource: 'personal' })
+  })
+})
+
+// ⚡ Регресс скорости: одна операция со словарём = одно чтение + одна запись.
+// Раньше безопасная запись дополнительно читала файл для бэкапа, для проверки
+// формата и для верификации после PUT — 4 запроса 1 МБ на каждое действие.
+describe('запись словаря без лишних чтений', () => {
+  const admin: any = { role: 'admin' }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    h.fetchGitHubFile.mockResolvedValue({
+      data: [{ id: '1', word: 'а' }, { id: '2', word: 'б' }, { id: '3', word: 'в' }],
+      sha: 'sha-1',
+      ok: true,
+      exists: true,
+      encrypted: true,
+    })
+  })
+
+  it('addWord обновляет файл после одного чтения и передаёт формат в запись', async () => {
+    await addWord({ word: 'новое' }, 'admin@example.com', admin)
+
+    expect(h.fetchGitHubFile).toHaveBeenCalledTimes(1)
+    expect(h.updateGitHubFile).toHaveBeenCalledTimes(1)
+    const [file, arr, sha, options] = h.updateGitHubFile.mock.calls[0] as any
+    expect(file).toBe('dictionary.json')
+    expect(arr).toHaveLength(4)
+    expect(sha).toBe('sha-1')
+    expect(options).toEqual({ encrypted: true, pretty: false })
+  })
+
+  it('updateWord меняет только нужную карточку', async () => {
+    const saved = await updateWord('2', { word: 'исправленное' }, admin)
+
+    expect(h.fetchGitHubFile).toHaveBeenCalledTimes(1)
+    expect(h.updateGitHubFile).toHaveBeenCalledTimes(1)
+    expect(saved).toMatchObject({ id: '2', word: 'исправленное' })
+    const arr = h.updateGitHubFile.mock.calls[0][1] as any[]
+    expect(arr.map(w => w.word)).toEqual(['а', 'исправленное', 'в'])
+  })
+
+  it('moveWordUp переставляет карточку без повторного чтения файла', async () => {
+    const moved = await moveWordUp('3', admin)
+
+    expect(moved).toBe(true)
+    expect(h.fetchGitHubFile).toHaveBeenCalledTimes(1)
+    expect(h.updateGitHubFile).toHaveBeenCalledTimes(1)
+    const arr = h.updateGitHubFile.mock.calls[0][1] as any[]
+    expect(arr.map(w => w.id)).toEqual(['1', '3', '2'])
   })
 })

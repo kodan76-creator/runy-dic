@@ -27,9 +27,13 @@ export const getDictionary = async (user) => {
   try {
     // If the user is a paid regular user, return merged view of shared dictionary and personal file
     if (user && typeof user === 'object' && user.role === 'user' && user.paid) {
-      const shared = await fetchGitHubFile(DATA_FILE)
       const personalName = getDictionaryFileNameForEmail(user.email)
-      const personal = await fetchGitHubFile(personalName)
+      // Два словаря читаются параллельно: при оплаченном пользователе иначе
+      // задержка складывалась из двух последовательных запросов к GitHub.
+      const [shared, personal] = await Promise.all([
+        fetchGitHubFile(DATA_FILE),
+        fetchGitHubFile(personalName),
+      ])
       const sharedArr = Array.isArray(shared.data) ? shared.data.map(item => ({ ...item, __dictionarySource: 'shared' })) : []
       const personalArr = Array.isArray(personal.data) ? personal.data.map(item => ({ ...item, __dictionarySource: 'personal' })) : []
 
@@ -212,6 +216,56 @@ export const ensureUserDictionaryFile = async (userOrEmail) => {
   return { fileName, exists: false, created: true }
 }
 
+// ⚡ Один чтение файла + одна запись на операцию со словарём.
+// Раньше каждое перемещение/сохранение читало 1 МБ файл 3–4 раза (данные,
+// бэкап, проверка формата перед PUT, верификация после PUT). Теперь формат и
+// sha берём из одного чтения, а результат PUT уже содержит записанные данные.
+type DictionaryMutation = {
+  next: any[]
+  changed: boolean
+  value?: any
+}
+
+const wait = (ms: number) => new Promise((res) => setTimeout(res, ms))
+
+const mutateDictionaryFile = async (
+  fileName: string,
+  mutate: (arr: any[]) => DictionaryMutation,
+  maxRetries = 3
+) => {
+  let lastError: unknown = null
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const { data, sha, exists, ok, encrypted } = await fetchGitHubFile(fileName)
+      // Файл есть (или его существование неизвестно из-за сбоя сети), но он не
+      // прочитан — писать нельзя: можно затереть словарь пустым массивом.
+      if (!ok && exists !== false) {
+        throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
+      }
+      const arr = Array.isArray(data) ? [...data] : []
+      const { next, changed, value } = mutate(arr)
+      if (!changed) return { changed: false as const, next: arr, sha: sha as string | null, value }
+      await updateGitHubFile(fileName, next, sha, { encrypted: encrypted ?? true, pretty: false })
+      return { changed: true as const, next, sha: sha as string | null, value }
+    } catch (error) {
+      lastError = error
+      const retryable = isRetryableGitHubError(error) ||
+        /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
+      if (retryable && attempt < maxRetries - 1) {
+        await wait(300 + attempt * 250)
+        continue
+      }
+      throw error
+    }
+  }
+  throw lastError
+}
+
+const wordIndexById = (arr: any[], id: unknown): number => {
+  const key = String(id)
+  return arr.findIndex(w => w != null && String(w.id) === key)
+}
+
 export const addWord = async (wordData, userEmail, user = null) => {
   const target = user || userEmail
   const fileName = getWriteFileName(target)
@@ -231,32 +285,8 @@ export const addWord = async (wordData, userEmail, user = null) => {
     return newWord
   }
 
-  // Повторные попытки при временных сбоях чтения (rate-limit, конфликт версий),
-  // чтобы операция не падала с "HTTP 422: sha wasn't supplied"
-  const maxRetries = 4
-  let lastError = null
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const { data: dict, sha, exists, ok } = await fetchGitHubFile(fileName)
-      // Файл существует, но не читается — прерываем, чтобы не потерять данные
-      if (exists === true && !ok) {
-        throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
-      }
-      await safeUpdateGitHubFile(fileName, [...(Array.isArray(dict) ? dict : []), newWord], sha)
-      return newWord
-    } catch (error) {
-      lastError = error
-      const retryable = isRetryableGitHubError(error) ||
-        /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
-      if (retryable && attempt < maxRetries - 1) {
-        console.warn(`addWord: ${error.message || error}, повторная попытка ${attempt + 1}/${maxRetries}`)
-        await new Promise(res => setTimeout(res, 400 + attempt * 300))
-        continue
-      }
-      throw error
-    }
-  }
-  throw lastError
+  await mutateDictionaryFile(fileName, arr => ({ next: [...arr, newWord], changed: true }))
+  return newWord
 }
 
 export const updateWord = async (id, updatedData, user = null) => {
@@ -275,15 +305,20 @@ export const updateWord = async (id, updatedData, user = null) => {
     return { id, ...updatedData }
   }
 
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? dict : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1) {
-    throw new Error('Запись не найдена или доступ запрещён')
-  }
-  arr[idx] = { ...arr[idx], ...updatedData }
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return arr[idx]
+  const { value } = await mutateDictionaryFile(fileName, arr => {
+    const idx = wordIndexById(arr, id)
+    if (idx === -1) {
+      throw new Error('Запись не найдена или доступ запрещён')
+    }
+    const updated = { ...arr[idx], ...updatedData }
+    if (JSON.stringify(updated) === JSON.stringify(arr[idx])) {
+      return { next: arr, changed: false, value: updated }
+    }
+    const next = [...arr]
+    next[idx] = updated
+    return { next, changed: true, value: updated }
+  })
+  return value ?? { id, ...updatedData }
 }
 
 export const deleteWord = async (id, user = null) => {
@@ -302,14 +337,15 @@ export const deleteWord = async (id, user = null) => {
     return { id }
   }
 
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? dict : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1) {
-    throw new Error('Запись не найдена или доступ запрещён')
-  }
-  const removed = arr.splice(idx, 1)
-  await safeUpdateGitHubFile(fileName, arr, sha)
+  const { value } = await mutateDictionaryFile(fileName, arr => {
+    const idx = wordIndexById(arr, id)
+    if (idx === -1) {
+      throw new Error('Запись не найдена или доступ запрещён')
+    }
+    const next = [...arr]
+    const [removed] = next.splice(idx, 1)
+    return { next, changed: true, value: removed }
+  })
 
   // Удалить ID из всех личных файлов избранного пользователей
   try {
@@ -318,7 +354,7 @@ export const deleteWord = async (id, user = null) => {
     console.error('Failed to remove word from favorites after deletion:', e)
   }
 
-  return removed[0]
+  return value
 }
 
 // 🏷 Убрать id категории из словарей после её удаления из справочника.
@@ -412,6 +448,27 @@ const getCachedArray = (user) => {
   return Array.isArray(cached) ? cached : []
 }
 
+// Общий онлайн-путь перемещений: одно чтение + одна запись вместо цепочки
+// «read → backup → format check → PUT → verify».
+const moveWordOnline = async (
+  fileName: string,
+  id: unknown,
+  transform: (next: any[], idx: number) => boolean,
+  missingThrows = false
+) => {
+  const { changed } = await mutateDictionaryFile(fileName, arr => {
+    const idx = wordIndexById(arr, id)
+    if (idx === -1) {
+      if (missingThrows) throw new Error('Запись не найдена или доступ запрещён')
+      return { next: arr, changed: false }
+    }
+    const next = [...arr]
+    if (!transform(next, idx)) return { next: arr, changed: false }
+    return { next, changed: true }
+  })
+  return changed
+}
+
 export const moveWordUp = async (id, user = null) => {
   const fileName = getWriteFileName(user)
   if (!isOnline()) {
@@ -422,13 +479,11 @@ export const moveWordUp = async (id, user = null) => {
     ;[reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]]
     return applyOfflineMove(fileName, user, reordered)
   }
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? [...dict] : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx <= 0) return false
-  ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return true
+  return moveWordOnline(fileName, id, (next, idx) => {
+    if (idx <= 0) return false
+    ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
+    return true
+  })
 }
 
 export const moveWordDown = async (id, user = null) => {
@@ -441,13 +496,11 @@ export const moveWordDown = async (id, user = null) => {
     ;[reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]]
     return applyOfflineMove(fileName, user, reordered)
   }
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? [...dict] : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1 || idx >= arr.length - 1) return false
-  ;[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return true
+  return moveWordOnline(fileName, id, (next, idx) => {
+    if (idx >= next.length - 1) return false
+    ;[next[idx], next[idx + 1]] = [next[idx + 1], next[idx]]
+    return true
+  })
 }
 
 export const moveWordToTop = async (id, user = null) => {
@@ -461,14 +514,12 @@ export const moveWordToTop = async (id, user = null) => {
     reordered.unshift(item)
     return applyOfflineMove(fileName, user, reordered)
   }
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? [...dict] : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx <= 0) return false
-  const [item] = arr.splice(idx, 1)
-  arr.unshift(item)
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return true
+  return moveWordOnline(fileName, id, (next, idx) => {
+    if (idx <= 0) return false
+    const [item] = next.splice(idx, 1)
+    next.unshift(item)
+    return true
+  })
 }
 
 export const moveWordToBottom = async (id, user = null) => {
@@ -482,14 +533,12 @@ export const moveWordToBottom = async (id, user = null) => {
     reordered.push(item)
     return applyOfflineMove(fileName, user, reordered)
   }
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? [...dict] : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1 || idx >= arr.length - 1) return false
-  const [item] = arr.splice(idx, 1)
-  arr.push(item)
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return true
+  return moveWordOnline(fileName, id, (next, idx) => {
+    if (idx >= next.length - 1) return false
+    const [item] = next.splice(idx, 1)
+    next.push(item)
+    return true
+  })
 }
 
 // Переместить карточку на указанную позицию (1-индексная)
@@ -506,16 +555,13 @@ export const moveWordToPosition = async (id, position, user = null) => {
     reordered.splice(target, 0, item)
     return applyOfflineMove(fileName, user, reordered)
   }
-  const { data: dict, sha } = await fetchGitHubFile(fileName)
-  const arr = Array.isArray(dict) ? [...dict] : []
-  const idx = arr.findIndex(w => w.id === id)
-  if (idx === -1) throw new Error('Запись не найдена или доступ запрещён')
-  const target = Math.min(Math.max(parseInt(position, 10) - 1, 0), arr.length - 1)
-  if (idx === target) return false
-  const [item] = arr.splice(idx, 1)
-  arr.splice(target, 0, item)
-  await safeUpdateGitHubFile(fileName, arr, sha)
-  return true
+  return moveWordOnline(fileName, id, (next, idx) => {
+    const target = Math.min(Math.max(parseInt(position, 10) - 1, 0), next.length - 1)
+    if (idx === target) return false
+    const [item] = next.splice(idx, 1)
+    next.splice(target, 0, item)
+    return true
+  }, true)
 }
 
 // 🌐 Синхронизация: воспроизводит все отложенные оффлайн-изменения для
@@ -554,16 +600,20 @@ export const flushOfflineChanges = async (user: any = null) => {
   const mine = all.filter(c => c.fileName === fileName)
   if (mine.length === 0) return 0
 
-  const { data: dict, sha, ok } = await fetchGitHubFile(fileName)
+  const { data: dict, sha, ok, encrypted } = await fetchGitHubFile(fileName)
   if (!ok) throw new Error('Не удалось прочитать файл для синхронизации')
   let arr = Array.isArray(dict) ? [...dict] : []
   const applied: number[] = []
   for (const change of mine) {
-    const before = JSON.stringify(arr)
+    const before = arr
     arr = applyOfflineChange(arr, change)
-    if (JSON.stringify(arr) !== before) applied.push(change.queuedAt)
+    // applyOfflineChange всегда возвращает новый массив: сравниваем ссылки
+    // элементов, а не JSON.stringify всего словаря (1 МБ на каждую запись).
+    if (arr.length !== before.length || arr.some((w, i) => w !== before[i])) {
+      applied.push(change.queuedAt)
+    }
   }
-  await updateGitHubFile(fileName, arr, sha)
+  await updateGitHubFile(fileName, arr, sha, { encrypted: encrypted ?? true, pretty: false })
   removeOfflineChanges(applied)
   return applied.length
 }

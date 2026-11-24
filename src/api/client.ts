@@ -80,15 +80,36 @@ export const warnFetchFailure = (fileName: string, error: unknown, kind = 'Fetch
   }
 }
 
-export const utf8ToBase64 = (str: string): string => btoa(unescape(encodeURIComponent(str)))
-export const base64ToUtf8 = (str: string): string => decodeURIComponent(escape(atob(str)))
+// Быстрые base64-преобразования через TypedArray: deprecated escape/unescape
+// и построчный String.fromCharCode тормозили на 1 МБ словаре.
+const base64ToBytes = (str: string): Uint8Array => {
+  const binary = atob(str)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
+
+const bytesToBase64 = (bytes: Uint8Array): string => {
+  const chunk = 0x8000
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
+  }
+  return btoa(binary)
+}
+
+export const utf8ToBase64 = (str: string): string =>
+  bytesToBase64(new TextEncoder().encode(str))
+
+export const base64ToUtf8 = (str: string): string =>
+  new TextDecoder().decode(base64ToBytes(str))
 
 // Получить SHA файла без декодирования контента (для бинарных файлов)
 export const getGitHubFileSha = async (filePath: string): Promise<string | null> => {
   if (isBrowserOffline()) return null
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`
-    const resp = await githubFetch(url, { headers: getHeaders() })
+    const resp = await githubFetch(url, { headers: getHeaders(), cache: 'no-cache' })
     if (!resp.ok) return null
     const data = await resp.json()
     return data.sha || null
@@ -160,7 +181,7 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
           const fallback = JSON.parse(cleaned)
           if (Array.isArray(fallback)) {
             console.warn(`${fileName}: зашифрован, но читается как открытый JSON (ключ не совпал?)`)
-            return { data: fallback, sha: fileSha, ok: true, exists: true }
+            return { data: fallback, sha: fileSha, ok: true, exists: true, encrypted: false }
           }
         } catch { /* не JSON — оставляем ошибку расшифровки */ }
         // Файл существует, но не читается — не теряем факт его существования,
@@ -185,8 +206,16 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
       return { data: [], sha: null, ok: false, exists: true }
     }
 
-    // ✅ Возвращаем { data, sha, ok, exists }
-    return { data: Array.isArray(content) ? content : [], sha: fileSha, ok: true, exists: true }
+    // ✅ Возвращаем { data, sha, ok, exists, encrypted }.
+    // encrypted используется при записи: не нужно повторно скачивать тот же
+    // 1 МБ файл только чтобы узнать, в каком формате его сохранить.
+    return {
+      data: Array.isArray(content) ? content : [],
+      sha: fileSha,
+      ok: true,
+      exists: true,
+      encrypted: isEncrypted(cleaned),
+    }
   } catch (error) {
     // Сетевой сбой → тихий троттлинг-лог (без стека и без спама раз в минуту)
     warnFetchFailure(fileName, error)
@@ -226,10 +255,34 @@ export const fetchGitHubFileRaw = async (fileName: string): Promise<GitHubRawRes
   }
 }
 
-export const updateGitHubFile = async (fileName: string, newData: unknown, currentSha?: string | null): Promise<any> => {
+export interface UpdateFileOptions {
+  /** Формат уже прочитанного файла. Если задан — повторное чтение перед записью не нужно. */
+  encrypted?: boolean
+  /** Отступ JSON. Для больших словарей компактная запись заметно быстрее. */
+  pretty?: boolean
+}
+
+export const updateGitHubFile = async (
+  fileName: string,
+  newData: unknown,
+  currentSha?: string | null,
+  options: UpdateFileOptions = {}
+): Promise<any> => {
+  const { encrypted: knownEncrypted, pretty = true } = options
   let attempts = 0
   const maxAttempts = 4
   let workingSha = currentSha || null
+
+  // При knownEncrypted формат уже известен из того же чтения, из которого
+  // взяты данные и sha. Повторно скачивать 1 МБ блоб только для isEncrypted() —
+  // лишняя сетевая задержка на каждое сохранение/перемещение.
+  const refreshSha = async (): Promise<string | null> => {
+    if (knownEncrypted === undefined) {
+      const { sha } = await fetchGitHubFileRaw(fileName)
+      return sha
+    }
+    return getGitHubFileSha(fileName)
+  }
 
   while (attempts < maxAttempts) {
     try {
@@ -237,29 +290,31 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
         throw new Error('Не задан VITE_GITHUB_TOKEN. Добавьте токен GitHub в .env и перезапустите приложение.')
       }
 
-      // Узнаём текущее состояние файла: существует ли он и в каком формате (зашифрован/открытый).
-      // Это нужно, чтобы НЕ «самошифровать» файлы при обычных записях:
-      // открытый файл → пишем открытым, зашифрованный → шифруем.
-      const { data, sha } = await fetchGitHubFileRaw(fileName)
+      // 🔐 Сохраняем текущий формат файла при записи: открытый файл пишем
+      // открытым, зашифрованный — зашифрованным. Формат либо передан вызывающим,
+      // либо определяется из файла (старый путь).
+      let shouldEncrypt: boolean
+      if (knownEncrypted !== undefined) {
+        shouldEncrypt = knownEncrypted
+      } else {
+        const { data, sha } = await fetchGitHubFileRaw(fileName)
 
-      // ⚠️ Защита от "HTTP 422: Invalid request. \"sha\" wasn't supplied.":
-      // если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
-      // Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
-      if (!workingSha && sha) {
-        throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+        // ⚠️ Защита от "HTTP 422: Invalid request. \"sha\" wasn't supplied.":
+        // если sha не передан, но файл уже существует на GitHub — значит, чтение не удалось.
+        // Не пишем вслепую: иначе GitHub вернёт 422 или мы затёрли бы существующие данные.
+        if (!workingSha && sha) {
+          throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+        }
+        // sha есть, а содержимое прочитать не удалось (например, не открылся
+        // большой блоб) — писать нельзя: можно потерять данные или записать
+        // открытый JSON вместо зашифрованного.
+        if (sha && data == null) {
+          throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
+        }
+        shouldEncrypt = sha ? isEncrypted(data) : true
       }
-      // sha есть, а содержимое прочитать не удалось (например, не открылся
-      // большой блоб) — писать нельзя: можно потерять данные или записать
-      // открытый JSON вместо зашифрованного.
-      if (sha && data == null) {
-        throw new Error(`Не удалось прочитать файл "${fileName}" перед записью. Обновите страницу и попробуйте ещё раз.`)
-      }
 
-      // 🔐 Сохраняем текущий формат файла при записи.
-      const shouldEncrypt = sha ? isEncrypted(data) : true
-
-      // 📄 Пишем красиво (отступ 2 пробела), чтобы JSON был читаемым.
-      const payload = JSON.stringify(newData, null, 2)
+      const payload = JSON.stringify(newData, null, pretty ? 2 : 0)
       const content = shouldEncrypt ? utf8ToBase64(await encrypt(payload)) : utf8ToBase64(payload)
       const body: Record<string, string> = { message: `Update ${fileName}`, content, branch: GITHUB_BRANCH }
       if (workingSha) body.sha = workingSha
@@ -274,7 +329,7 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
         const msg = `HTTP ${response.status}: ${err.message || response.statusText}`
         if (isRetryableGitHubError(msg) && attempts < maxAttempts - 1) {
           attempts++
-          const { sha: latestSha } = await fetchGitHubFileRaw(fileName)
+          const latestSha = await refreshSha()
           if (latestSha) workingSha = latestSha
           await new Promise(res => setTimeout(res, 300 + attempts * 250))
           continue
@@ -289,7 +344,7 @@ export const updateGitHubFile = async (fileName: string, newData: unknown, curre
       warnFetchFailure(fileName, error, 'Update')
       if (isRetryableGitHubError(error) && attempts < maxAttempts - 1) {
         attempts++
-        const { sha: latestSha } = await fetchGitHubFileRaw(fileName)
+        const latestSha = await refreshSha()
         if (latestSha) workingSha = latestSha
         await new Promise(res => setTimeout(res, 300 + attempts * 250))
         continue
