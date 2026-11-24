@@ -222,8 +222,14 @@ export const checkFilesEncryptionStatus = async () => {
       }
       const status = encrypted ? 'encrypted' : broken ? 'broken' : 'plain'
       results.push({ file: fileName, encrypted, status, broken })
-    } catch {
-      results.push({ file: fileName, encrypted: null, status: 'error', broken: false })
+    } catch (err: any) {
+      const msg = err?.message || String(err)
+      // 401/403 — проблема с токеном GitHub, файл существует, но нет доступа
+      if (msg.includes('401') || msg.includes('403') || msg.includes('Bad credentials') || msg.includes('Forbidden')) {
+        results.push({ file: fileName, encrypted: null, status: 'error', broken: false, error: 'Нет доступа к GitHub API — проверьте VITE_GITHUB_TOKEN на хостинге' })
+      } else {
+        results.push({ file: fileName, encrypted: null, status: 'error', broken: false, error: msg })
+      }
     }
   }
   return results

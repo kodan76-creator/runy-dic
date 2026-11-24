@@ -121,7 +121,7 @@ export default function SecurityTab({
                       {f.encrypted === false && f.status === 'broken' && '⚠️ Сломан'}
                       {f.encrypted === false && f.status === 'plain' && '📄 Открытый'}
                       {f.status === 'not_found' && '⏭️ Не найден'}
-                      {f.status === 'error' && '❌ Ошибка'}
+                      {f.status === 'error' && (f.error ? `❌ ${f.error}` : '❌ Ошибка')}
                     </td>
                   </tr>
                 ))}
