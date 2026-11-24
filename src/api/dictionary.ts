@@ -33,15 +33,18 @@ export const getDictionary = async (user) => {
       const sharedArr = Array.isArray(shared.data) ? shared.data.map(item => ({ ...item, __dictionarySource: 'shared' })) : []
       const personalArr = Array.isArray(personal.data) ? personal.data.map(item => ({ ...item, __dictionarySource: 'personal' })) : []
 
-      // Merge with deduplication by id when available, otherwise by word+translation
+      // Дедупликация только ВНУТРИ каждого словаря. id уникален в рамках
+      // одного файла, но общий и личный словари оба нумеруются с "1" —
+      // ключ должен включать источник, иначе личные слова исчезают как дубли.
       const map = new Map()
-      const add = (it) => {
+      const add = (it, source: 'shared' | 'personal') => {
         if (!it) return
-        const key = it.id ? `id:${it.id}` : `w:${String(it.word||'')}_t:${String(it.translation||'')}`
+        const identity = it.id ? `id:${it.id}` : `w:${String(it.word||'')}_t:${String(it.translation||'')}`
+        const key = `${source}:${identity}`
         if (!map.has(key)) map.set(key, it)
       }
-      sharedArr.forEach(add)
-      personalArr.forEach(add)
+      sharedArr.forEach(it => add(it, 'shared'))
+      personalArr.forEach(it => add(it, 'personal'))
       // ok = оба источника доступны. При слабом интернете один из запросов
       // может вернуть ok:false (пустые данные) — тогда вызывающий упадёт
       // на офлайн-кэш, а полученные частично данные всё равно покажет.

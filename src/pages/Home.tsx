@@ -1085,7 +1085,7 @@ export default function Home({ user, onLogout, onUserUpdate }) {
           <div className="results" ref={resultsRef}>
             {filtered.length > 0 ? filtered.map(item => (
               <WordCard
-                key={item.id}
+                key={`${item.__dictionarySource || 'personal'}:${item.id}`}
                 item={item}
                 categories={categories}
                 searchTerm={searchTerm}

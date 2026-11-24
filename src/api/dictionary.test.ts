@@ -25,7 +25,7 @@ vi.mock('./offline', () => ({
   cacheDictionaryForOffline: vi.fn(),
 }))
 
-import { removeCategoryFromAllWords } from './dictionary'
+import { getDictionary, removeCategoryFromAllWords } from './dictionary'
 
 const USER_FILE = 'public/users/user_x.ru/dictionary.json'
 const WORDS = [
@@ -91,5 +91,24 @@ describe('removeCategoryFromAllWords', () => {
     expect(requested).not.toContain('public/users/_deleted/gone.ru/dictionary.json')
     expect(requested).not.toContain('categories.json')
     expect(updated).toBe(2) // оба словаря содержали удаляемый id
+  })
+})
+
+describe('getDictionary', () => {
+  it('оплаченный пользователь видит личные слова с id, совпадающими с общими', async () => {
+    h.fetchGitHubFile.mockImplementation(async (name: string) => {
+      if (name === 'dictionary.json') {
+        return { data: [{ id: '1', word: 'общее' }], sha: 's1', ok: true, exists: true }
+      }
+      if (name === USER_FILE) {
+        return { data: [{ id: '1', word: 'личное' }], sha: 's2', ok: true, exists: true }
+      }
+      return { data: [], sha: null, ok: true, exists: false }
+    })
+
+    const result = await getDictionary({ role: 'user', paid: true, email: 'user@x.ru' })
+
+    expect(result.data.map((w: any) => w.word)).toEqual(['общее', 'личное'])
+    expect(result.data[1]).toMatchObject({ __dictionarySource: 'personal' })
   })
 })
