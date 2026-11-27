@@ -120,6 +120,10 @@ html, body { height: 100%; background-color: var(--app-accent); }
 .dictionary-toolbar .search-wrapper { max-width: none; margin: 0; min-width: 0; }
 .words-count { margin: 0; color: var(--app-accent); text-align: left; font-size: 18px; padding-top: 0; white-space: nowrap; }
 .word-save-status { color: var(--app-accent); font-size: 13px; font-weight: 600; white-space: nowrap; opacity: 0.8; }
+.words-nav { display: flex; gap: 4px; }
+.words-nav-btn { padding: 5px 9px; border: 2px solid var(--surface-border); border-radius: 8px; background: var(--surface); color: var(--app-accent); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.words-nav-btn:hover:not(:disabled) { background: var(--app-accent-soft); }
+.words-nav-btn:disabled { opacity: 0.45; cursor: default; }
 
 /* КАТЕГОРИИ */
 .categories-section { background: var(--surface); padding: 15px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 20px var(--shadow-md); border: 2px solid var(--surface-border); border-top: none; }

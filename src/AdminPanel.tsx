@@ -157,6 +157,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // Сколько карточек отрисовано одновременно. Полный словарь (>900) в DOM
   // тормозит ввод даже при мемоизации — показываем по порциям.
   const [visibleWordsLimit, setVisibleWordsLimit] = useState(WORDS_PAGE_SIZE)
+  // true — показываем последнюю порцию (переход «К последней»), а не первую.
+  const [visibleFromEnd, setVisibleFromEnd] = useState(false)
+  const pendingWordsScrollRef = useRef<'top' | 'bottom' | null>(null)
 
   // Обновление сетки помечаем как переход: поле ввода остаётся отзывчивым,
   // даже если React ещё пересобирает видимые карточки с подсветкой.
@@ -164,6 +167,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     startTransition(() => {
       setCommittedSearch(value)
       setVisibleWordsLimit(WORDS_PAGE_SIZE)
+      setVisibleFromEnd(false)
     })
   }, [])
 
@@ -195,6 +199,8 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // После замены словаря/смены пользователя показываем снова первую порцию.
   useEffect(() => {
     setVisibleWordsLimit(WORDS_PAGE_SIZE)
+    setVisibleFromEnd(false)
+    pendingWordsScrollRef.current = null
   }, [words.length, activeUser?.email])
 
   // 🛡 Страховка на случай смены активного пользователя без перезагрузки:
@@ -314,6 +320,22 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       // last resort
       try { window.scrollTo({ top: 0 }) } catch { /* ignore */ }
     }
+  }, [])
+
+  // Переход к краю списка карточек. Прокручиваем сам контейнер .words-list —
+  // страница при этом остаётся на месте, а не дёргается целиком.
+  const scrollWordsToEdge = useCallback((edge: 'top' | 'bottom') => {
+    const el = (wordsListRef.current || document.querySelector('.words-list')) as HTMLElement | null
+    const canScrollList = Boolean(el && el.scrollHeight > el.clientHeight &&
+      /auto|scroll/.test(getComputedStyle(el).overflowY))
+    // На десктопе прокручивается .words-list, на мобильном он растёт вместе
+    // со страницей — там двигаем документ целиком.
+    const target = canScrollList ? el : (document.scrollingElement || document.documentElement) as HTMLElement | null
+    if (!target) return
+    const top = edge === 'bottom'
+      ? Math.max(0, target.scrollHeight - target.clientHeight)
+      : 0
+    try { target.scrollTop = top } catch { /* jsdom / не прокручиваемый контейнер */ }
   }, [])
   const [authLoading, setAuthLoading] = useState(false)
 
@@ -663,6 +685,36 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     words.forEach((w, i) => map.set(w.id, i))
     return map
   }, [words])
+
+  // Навигация по списку без полной отрисовки словаря: показываем только
+  // последнюю (или первую) порцию, а прокрутку ставим после перерисовки.
+  const jumpWordsTo = useCallback((edge: 'top' | 'bottom') => {
+    pendingWordsScrollRef.current = edge
+    // Не даём useScrollRestoration вернуть прежнюю позицию после прыжка.
+    try { sessionStorage.setItem('scroll_admin_words', '0') } catch { /* ignore */ }
+    if (edge === 'bottom') {
+      setVisibleFromEnd(true)
+      setVisibleWordsLimit(WORDS_PAGE_SIZE)
+    } else {
+      setVisibleFromEnd(false)
+      setVisibleWordsLimit(WORDS_PAGE_SIZE)
+    }
+    // Если нужная порция уже показана, state не изменится и эффект не сработает.
+    scrollWordsToEdge(edge)
+  }, [scrollWordsToEdge])
+
+  const goToFirstWord = useCallback(() => jumpWordsTo('top'), [jumpWordsTo])
+  const goToLastWord = useCallback(() => {
+    if (filteredWords.length > 0) jumpWordsTo('bottom')
+  }, [filteredWords.length, jumpWordsTo])
+
+  useEffect(() => {
+    const edge = pendingWordsScrollRef.current
+    if (!edge) return
+    pendingWordsScrollRef.current = null
+    const raf = window.requestAnimationFrame(() => scrollWordsToEdge(edge))
+    return () => window.cancelAnimationFrame(raf)
+  }, [visibleFromEnd, visibleWordsLimit, filteredWords.length, scrollWordsToEdge])
 
   const filteredUsers = useMemo(() => {
     const term = userSearchTerm.trim().toLowerCase()
@@ -1106,9 +1158,13 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (!(filteredWords.length > 0)) {
       return <div className="no-results">{committedSearch ? 'Ничего не найдено' : 'Словарь пуст'}</div>
     }
-    const visibleWords = filteredWords.slice(0, visibleWordsLimit)
+    const visibleStart = visibleFromEnd
+      ? Math.max(0, filteredWords.length - visibleWordsLimit)
+      : 0
+    const visibleWords = filteredWords.slice(visibleStart, visibleStart + visibleWordsLimit)
     const hiddenCount = filteredWords.length - visibleWords.length
-    const cards = visibleWords.map((word, idx) => {
+    const cards = visibleWords.map((word, i) => {
+      const idx = visibleStart + i
       const isAdmin = activeUser?.role === 'admin'
       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
       // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
@@ -1148,12 +1204,27 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           className="load-more-words"
           onClick={() => setVisibleWordsLimit(limit => limit + WORDS_PAGE_SIZE)}
         >
-          Показать ещё {Math.min(WORDS_PAGE_SIZE, hiddenCount)} из {hiddenCount}
+          {visibleFromEnd
+            ? `Показать предыдущие ${Math.min(WORDS_PAGE_SIZE, hiddenCount)} из ${hiddenCount}`
+            : `Показать ещё ${Math.min(WORDS_PAGE_SIZE, hiddenCount)} из ${hiddenCount}`}
+        </button>
+      )
+    }
+    if (visibleFromEnd) {
+      cards.push(
+        <button type="button" key="go-first-word" className="load-more-words" onClick={goToFirstWord}>
+          ⏮ Вернуться к первой
+        </button>
+      )
+    } else if (hiddenCount > 0) {
+      cards.push(
+        <button type="button" key="go-last-word" className="load-more-words" onClick={goToLastWord}>
+          ⏭ Перейти к последней
         </button>
       )
     }
     return cards
-  }, [filteredWords, visibleWordsLimit, committedSearch, categories, words, wordIndexMap, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
+  }, [filteredWords, visibleWordsLimit, visibleFromEnd, committedSearch, categories, words, wordIndexMap, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop, goToFirstWord, goToLastWord])
 
   // Categories handlers
   const handleCategorySubmit = async (e) => {
@@ -1564,6 +1635,10 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             setEditingId={setEditingId}
             loading={loading}
             savingWordsCount={savingWordsCount}
+            onGoToFirstWord={goToFirstWord}
+            onGoToLastWord={goToLastWord}
+            visibleFromEnd={visibleFromEnd}
+            canJumpWords={filteredWords.length > WORDS_PAGE_SIZE}
             error={error}
             audioUploading={audioUploading}
             isRecording={isRecording}

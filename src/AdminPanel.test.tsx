@@ -382,6 +382,26 @@ describe('AdminPanel: порционная отрисовка сетки сло�
     expect(document.querySelectorAll('.word-item')).toHaveLength(150)
     expect(screen.queryByRole('button', { name: /Показать ещё/ })).toBeNull()
   })
+
+  it('переход к последней карточке не загружает весь словарь в DOM', async () => {
+    render(<AdminPanel currentUser={null} onAdminLogin={vi.fn()} onAdminLogout={vi.fn()} />)
+
+    expect(await screen.findByText('Слово 0')).toBeInTheDocument()
+    expect(screen.queryByText('Слово 149')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: /К последней/ }))
+
+    expect(screen.getByText('Слово 149')).toBeInTheDocument()
+    expect(screen.queryByText('Слово 0')).toBeNull()
+    expect(document.querySelectorAll('.word-item')).toHaveLength(100)
+    expect(screen.getByRole('button', { name: /К первой/ })).not.toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: /К первой/ }))
+
+    expect(screen.getByText('Слово 0')).toBeInTheDocument()
+    expect(screen.queryByText('Слово 149')).toBeNull()
+    expect(document.querySelectorAll('.word-item')).toHaveLength(100)
+  })
 })
 
 // ── Обновление карточки не должно ждать запись всего словаря ─────────────────

@@ -14,6 +14,10 @@ export default function DictionaryTab({
   setEditingId,
   loading,
   savingWordsCount = 0,
+  onGoToFirstWord = () => {},
+  onGoToLastWord = () => {},
+  visibleFromEnd = false,
+  canJumpWords = false,
   error,
   audioUploading,
   isRecording,
@@ -139,6 +143,28 @@ export default function DictionaryTab({
       <div className="dictionary-toolbar">
         <h3 className="words-count">📚 Все слова ({words.length})</h3>
         {savingWordsCount > 0 && <span className="word-save-status">💾 Сохраняем…</span>}
+        {canJumpWords && (
+          <div className="words-nav" role="group" aria-label="Навигация по словарю">
+            <button
+              type="button"
+              className="words-nav-btn"
+              onClick={onGoToFirstWord}
+              disabled={!visibleFromEnd}
+              title="Показать первые карточки"
+            >
+              ⏮ К первой
+            </button>
+            <button
+              type="button"
+              className="words-nav-btn"
+              onClick={onGoToLastWord}
+              disabled={visibleFromEnd}
+              title="Показать последние карточки"
+            >
+              К последней ⏭
+            </button>
+          </div>
+        )}
         <button
           type="button"
           className="export-btn"
