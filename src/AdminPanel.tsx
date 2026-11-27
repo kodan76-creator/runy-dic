@@ -132,6 +132,14 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     name: '', graphic: '', letter: '', image: '', imageUpdatedAt: 0, power: '', keywords: '', description: '', textAlign: 'center'
   })
   const [loading, setLoading] = useState(false)
+  // Счётчик фоновых сохранений карточек: форма не блокируется, но пользователь
+  // видит, что запись ещё идёт. Порядок ответов не важен — применяем только
+  // последнюю правку для этой карточки.
+  const [savingWordsCount, setSavingWordsCount] = useState(0)
+  // Токены ведутся по id карточки: ошибка старой правки не должна отменять
+  // более свежую правку другой карточки.
+  const wordSaveSeqRef = useRef(0)
+  const wordSaveTokensRef = useRef(new Map<any, number>())
   const [error, setError] = useState('')
   // 🕐 Ошибка/предупреждение в форме не должно висеть вечно: раньше баннер
   // (например, «Такая категория уже есть») оставался навсегда до submit или
@@ -437,21 +445,33 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     })
   }, [])
 
-  const applyLocalWordSave = useCallback((saved: any, wasEditing: boolean, editingIdValue: any) => {
+  // Оптимистичная правка: заменяем карточку по id (в том числе временный id
+  // новой карточки после ответа сервера), а не только добавляем в конец.
+  const applyLocalWordSave = useCallback((saved: any, idToReplace?: any) => {
     setWords(prev => {
-      if (wasEditing) {
-        const idx = findWordIndexById(prev, editingIdValue)
-        if (idx === -1) return prev
-        const next = [...prev]
-        next[idx] = { ...next[idx], ...saved }
-        return next
-      }
       const decorated = isRestrictedUser && activeUser?.paid
         ? { ...saved, __dictionarySource: 'personal' }
         : saved
-      return [...prev, decorated]
+      const idx = findWordIndexById(prev, idToReplace ?? saved?.id)
+      if (idx === -1) return [...prev, decorated]
+      const next = [...prev]
+      next[idx] = { ...next[idx], ...decorated }
+      return next
     })
   }, [isRestrictedUser, activeUser])
+
+  const rollbackLocalWordSave = useCallback((id: any, previous: any | null) => {
+    setWords(prev => {
+      if (previous) {
+        const idx = findWordIndexById(prev, id)
+        if (idx === -1) return prev
+        const next = [...prev]
+        next[idx] = previous
+        return next
+      }
+      return prev.filter(w => String(w?.id) !== String(id))
+    })
+  }, [])
 
   const applyLocalDelete = useCallback((id) => {
     setWords(prev => {
@@ -721,27 +741,51 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setError(''); setLoading(true)
+    e.preventDefault()
+    setError('')
+
+    const draft = { ...formData }
     const savedId = editingId
+    const wasEditing = savedId != null
+    const previousIdx = wasEditing ? findWordIndexById(words, savedId) : -1
+    const previous = wasEditing && previousIdx !== -1 ? words[previousIdx] : null
+    // Временный id нужен, чтобы заменить оптимистично добавленную карточку
+    // настоящим id из GitHub, не дожидаясь ответа для отрисовки списка.
+    const localId = wasEditing ? savedId : `pending-${Date.now()}-${++wordSaveSeqRef.current}`
+    const token = (wordSaveTokensRef.current.get(localId) || 0) + 1
+    wordSaveTokensRef.current.set(localId, token)
+    const isCurrent = () => wordSaveTokensRef.current.get(localId) === token
+    const optimistic = wasEditing ? { ...previous, ...draft, id: savedId } : { ...draft, id: localId }
+
+    // ⚡ Показываем результат сразу. PUT всего словаря (1–30 МБ) идёт в фоне.
+    applyLocalWordSave(optimistic, localId)
+    setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
+    setEditingId(null)
+    setSavingWordsCount(n => n + 1)
+    showMessage(wasEditing ? '💾 Сохраняем карточку…' : '💾 Добавляем карточку…')
+
     try {
-      if (editingId) {
-        const saved = await updateWord(editingId, formData, activeUser)
-        applyLocalWordSave(saved, true, savedId)
-        showMessage('✅ Карточка обновлена')
-      } else {
-        const created = await addWord(formData, activeUser?.email, activeUser)
-        applyLocalWordSave(created, false, null)
-        showMessage('✅ Карточка добавлена')
+      const saved = wasEditing
+        ? await updateWord(savedId, draft, activeUser)
+        : await addWord(draft, activeUser?.email, activeUser)
+      // Если пока шла запись пользователь правил ту же карточку ещё раз —
+      // её более свежая оптимистичная версия уже в state, старый ответ не применяем.
+      if (isCurrent()) {
+        applyLocalWordSave(saved, localId)
+        showMessage(wasEditing ? '✅ Карточка обновлена' : '✅ Карточка добавлена')
       }
-      setFormData({ word: '', transcription: '', translation: '', category: [], example: '', example2: '', transcription2: '', audio: '', audio2: '', textAlign: 'center' })
-      setEditingId(null)
-      // Сверяемся с сервером в фоне — пользователь уже видит результат.
-      void refreshWordsAfterWrite()
     } catch (err) {
-      setError(err.message)
-      showMessage('❌ ' + err.message, 'error')
+      if (isCurrent()) {
+        rollbackLocalWordSave(localId, previous)
+        setFormData(draft)
+        setEditingId(savedId)
+        setError(err.message)
+        showMessage('❌ ' + err.message, 'error')
+      }
+    } finally {
+      if (isCurrent()) wordSaveTokensRef.current.delete(localId)
+      setSavingWordsCount(n => Math.max(0, n - 1))
     }
-    setLoading(false)
   }
 
   // Импорт словаря: replace — заменить всё, merge — добавить к существующим.
@@ -1519,6 +1563,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
             editingId={editingId}
             setEditingId={setEditingId}
             loading={loading}
+            savingWordsCount={savingWordsCount}
             error={error}
             audioUploading={audioUploading}
             isRecording={isRecording}

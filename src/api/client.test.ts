@@ -140,6 +140,38 @@ describe('fetchGitHubFile', () => {
       data: text, sha: 'big-file-sha',
     })
   })
+
+  it('условный GET по ETag: 304 без тела, данные берутся из кэша', async () => {
+    const words = [{ id: '1', word: 'word' }]
+    const etag = '"dictionary-etag-1"'
+    const fetchSpy = vi.fn(async (_url: string, init?: RequestInit) => {
+      const headers = (init?.headers || {}) as Record<string, string>
+      if (headers['If-None-Match'] === etag) {
+        return {
+          status: 304,
+          ok: false,
+          headers: { get: () => null },
+          json: async () => ({}),
+        }
+      }
+      return {
+        status: 200,
+        ok: true,
+        headers: { get: (name: string) => name.toLowerCase() === 'etag' ? etag : null },
+        json: async () => ({ sha: 'sha-1', content: btoa(JSON.stringify(words)) }),
+      }
+    })
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const first = await fetchGitHubFile('conditional-dictionary.json')
+    expect(first.etag).toBe(etag)
+
+    const second = await fetchGitHubFile('conditional-dictionary.json', { conditional: true })
+    expect(second.notModified).toBe(true)
+    expect(second.data).toEqual(words)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(((fetchSpy.mock.calls[1][1] as RequestInit).headers as Record<string, string>)['If-None-Match']).toBe(etag)
+  })
 })
 
 describe('fetchWithTimeout', () => {

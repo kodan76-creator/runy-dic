@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import AdminPanel from './AdminPanel'
-import { getDictionary, getCategories, addWord, getRunes, updateRune, deleteImageFile } from './githubApi'
+import { getDictionary, getCategories, addWord, updateWord, getRunes, updateRune, deleteImageFile } from './githubApi'
 
 // ── Моки: панель не должна ходить в сеть и в кэши ────────────────────────────
 vi.mock('./githubApi', () => {
@@ -381,5 +381,64 @@ describe('AdminPanel: порционная отрисовка сетки сло�
     fireEvent.click(screen.getByRole('button', { name: /Показать ещё/ }))
     expect(document.querySelectorAll('.word-item')).toHaveLength(150)
     expect(screen.queryByRole('button', { name: /Показать ещё/ })).toBeNull()
+  })
+})
+
+// ── Обновление карточки не должно ждать запись всего словаря ─────────────────
+// Раньше кнопка висела «Сохранение…» пока GitHub не перезапишет 1–30 МБ,
+// и только потом карточка менялась в списке. Теперь правка видна сразу.
+describe('AdminPanel: оптимистичное обновление карточки', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    localStorage.setItem('admin_active_tab', 'dictionary')
+    localStorage.setItem('adminUser', JSON.stringify({ email: 'admin@example.com', role: 'admin' }))
+    vi.mocked(getDictionary).mockResolvedValue({
+      data: [{ id: '1', word: 'Старое слово', translation: 'Старый перевод' }],
+      sha: null,
+      ok: true,
+      exists: true,
+    })
+    vi.mocked(updateWord).mockReset()
+    vi.mocked(updateWord).mockResolvedValue({ id: '1', word: 'Новое слово', translation: 'Новый перевод' })
+  })
+
+  afterEach(() => {
+    vi.mocked(getDictionary).mockResolvedValue({ data: [], sha: null, ok: true, exists: true })
+  })
+
+  const openEditor = async () => {
+    render(<AdminPanel currentUser={null} onAdminLogin={vi.fn()} onAdminLogout={vi.fn()} />)
+    await screen.findByText('Старое слово')
+    fireEvent.click(document.querySelector('.word-item .edit-btn') as HTMLElement)
+    const wordInput = screen.getByPlaceholderText('Слово на рунном языке') as HTMLTextAreaElement
+    fireEvent.change(wordInput, { target: { value: 'Новое слово' } })
+    return wordInput
+  }
+
+  it('показывает новое значение до ответа GitHub', async () => {
+    let resolveSave!: (value: any) => void
+    vi.mocked(updateWord).mockImplementationOnce(() => new Promise(resolve => { resolveSave = resolve }))
+
+    await openEditor()
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    // Ответ ещё не пришёл, но карточку уже видно, форма свободна для работы.
+    expect(document.querySelector('.word-title')).toHaveTextContent('Новое слово')
+    expect(screen.getByText('💾 Сохраняем…')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Добавить' })).not.toBeDisabled()
+
+    await act(async () => { resolveSave({ id: '1', word: 'Новое слово', translation: 'Старый перевод' }) })
+    expect(screen.queryByText('💾 Сохраняем…')).toBeNull()
+  })
+
+  it('при ошибке записи возвращает прежнее значение и черновик формы', async () => {
+    vi.mocked(updateWord).mockRejectedValueOnce(new Error('HTTP 500'))
+
+    await openEditor()
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    await waitFor(() => expect(document.querySelector('.word-title')).toHaveTextContent('Старое слово'))
+    expect((screen.getByPlaceholderText('Слово на рунном языке') as HTMLTextAreaElement).value).toBe('Новое слово')
+    expect(screen.getByRole('button', { name: 'Обновить' })).toBeInTheDocument()
   })
 })

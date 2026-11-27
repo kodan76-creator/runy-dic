@@ -13,6 +13,7 @@ export default function DictionaryTab({
   editingId,
   setEditingId,
   loading,
+  savingWordsCount = 0,
   error,
   audioUploading,
   isRecording,
@@ -137,6 +138,7 @@ export default function DictionaryTab({
     <div className="form-section">
       <div className="dictionary-toolbar">
         <h3 className="words-count">📚 Все слова ({words.length})</h3>
+        {savingWordsCount > 0 && <span className="word-save-status">💾 Сохраняем…</span>}
         <button
           type="button"
           className="export-btn"

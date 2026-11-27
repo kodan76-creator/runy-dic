@@ -8,6 +8,7 @@ import {
   safeUpdateGitHubFile,
   isRetryableGitHubError,
   getHeaders,
+  withWriteLock,
 } from './client'
 import { getDictionaryFileNameForEmail, resolveDictionaryFile } from '../dictionaryAccess'
 import {
@@ -233,32 +234,38 @@ const mutateDictionaryFile = async (
   mutate: (arr: any[]) => DictionaryMutation,
   maxRetries = 3
 ) => {
-  let lastError: unknown = null
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const { data, sha, exists, ok, encrypted } = await fetchGitHubFile(fileName)
-      // Файл есть (или его существование неизвестно из-за сбоя сети), но он не
-      // прочитан — писать нельзя: можно затереть словарь пустым массивом.
-      if (!ok && exists !== false) {
-        throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
+  // GitHub не допускает параллельные GET→PUT одного файла: несколько быстрых
+  // правок подряд должны выстроиться в очередь, иначе 409/422 замедляют запись.
+  return withWriteLock(fileName, async () => {
+    let lastError: unknown = null
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Условный GET: если файл не изменился с прошлого чтения, GitHub вернёт
+        // 304 без 1+ МБ тела — сохранение карточки не ждёт повторной загрузки словаря.
+        const { data, sha, exists, ok, encrypted } = await fetchGitHubFile(fileName, { conditional: true })
+        // Файл есть (или его существование неизвестно из-за сбоя сети), но он не
+        // прочитан — писать нельзя: можно затереть словарь пустым массивом.
+        if (!ok && exists !== false) {
+          throw new Error(`Не удалось прочитать файл словаря (${fileName}). Обновите страницу и попробуйте ещё раз.`)
+        }
+        const arr = Array.isArray(data) ? [...data] : []
+        const { next, changed, value } = mutate(arr)
+        if (!changed) return { changed: false as const, next: arr, sha: sha as string | null, value }
+        await updateGitHubFile(fileName, next, sha, { encrypted: encrypted ?? true, pretty: false })
+        return { changed: true as const, next, sha: sha as string | null, value }
+      } catch (error) {
+        lastError = error
+        const retryable = isRetryableGitHubError(error) ||
+          /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
+        if (retryable && attempt < maxRetries - 1) {
+          await wait(300 + attempt * 250)
+          continue
+        }
+        throw error
       }
-      const arr = Array.isArray(data) ? [...data] : []
-      const { next, changed, value } = mutate(arr)
-      if (!changed) return { changed: false as const, next: arr, sha: sha as string | null, value }
-      await updateGitHubFile(fileName, next, sha, { encrypted: encrypted ?? true, pretty: false })
-      return { changed: true as const, next, sha: sha as string | null, value }
-    } catch (error) {
-      lastError = error
-      const retryable = isRetryableGitHubError(error) ||
-        /Failed to fetch|NetworkError|Не удалось прочитать/.test(error?.message || String(error))
-      if (retryable && attempt < maxRetries - 1) {
-        await wait(300 + attempt * 250)
-        continue
-      }
-      throw error
     }
-  }
-  throw lastError
+    throw lastError
+  })
 }
 
 const wordIndexById = (arr: any[], id: unknown): number => {

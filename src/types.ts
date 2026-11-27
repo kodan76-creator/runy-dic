@@ -120,6 +120,10 @@ export interface GitHubFileResult<T = unknown> {
   exists: boolean | null
   /** Признак формата прочитанного файла — позволяет не перечитывать его перед записью. */
   encrypted?: boolean
+  /** ETag последнего чтения: следующий запрос может быть условным (304 без тела). */
+  etag?: string | null
+  /** GitHub ответил 304 — данные не менялись, вызывающий может взять их из кэша. */
+  notModified?: boolean
 }
 
 export interface GitHubRawResult {

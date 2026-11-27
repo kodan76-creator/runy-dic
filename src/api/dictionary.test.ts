@@ -13,6 +13,7 @@ vi.mock('./client', () => ({
   updateGitHubFile: h.updateGitHubFile,
   isRetryableGitHubError: vi.fn(() => false),
   getHeaders: vi.fn(() => ({})),
+  withWriteLock: vi.fn((_fileName: string, task: () => Promise<unknown>) => task()),
 }))
 vi.mock('./favorites', () => ({ removeWordFromAllFavorites: vi.fn(async () => {}) }))
 vi.mock('./offline', () => ({

@@ -80,6 +80,22 @@ export const warnFetchFailure = (fileName: string, error: unknown, kind = 'Fetch
   }
 }
 
+// Кэш последнего прочитанного файла. Используется только для условных GET
+// (If-None-Match): GitHub отвечает 304 без тела, и 1–30 МБ словаря не скачиваются
+// заново на каждое сохранение. После PUT кэш обновляется новыми данными/sha.
+type CachedFileSnapshot = {
+  data: any[]
+  sha: string | null
+  encrypted: boolean
+  etag: string | null
+}
+
+const fileSnapshots = new Map<string, CachedFileSnapshot>()
+
+const rememberFileSnapshot = (fileName: string, snapshot: CachedFileSnapshot): void => {
+  fileSnapshots.set(fileName, snapshot)
+}
+
 // Быстрые base64-преобразования через TypedArray: deprecated escape/unescape
 // и построчный String.fromCharCode тормозили на 1 МБ словаре.
 const base64ToBytes = (str: string): Uint8Array => {
@@ -136,20 +152,42 @@ const fetchLargeBlobContent = async (sha: string, fileName: string): Promise<str
   }
 }
 
-// ✅ Всегда возвращаем { data, sha, ok, exists }
-export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResult<any[]>> => {
+// ✅ Всегда возвращаем { data, sha, ok, exists }.
+// options.conditional — сделать If-None-Match по ETag последнего чтения: если
+// файл не менялся, GitHub вернёт 304 без тела и мы используем кэшированные данные.
+export const fetchGitHubFile = async (
+  fileName: string,
+  options: { conditional?: boolean } = {}
+): Promise<GitHubFileResult<any[]>> => {
   // Сети нет — GitHub API недоступен: читатели сами возьмут локальный кэш,
   // поэтому не шумим в консоль и не ждём таймаут
   if (isBrowserOffline()) return { data: [], sha: null, ok: false, exists: null }
   try {
+    const cached = options.conditional ? fileSnapshots.get(fileName) : undefined
+    const headers = getHeaders()
+    if (cached?.etag) headers['If-None-Match'] = cached.etag
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${fileName}?ref=${GITHUB_BRANCH}&t=${Date.now()}`
-    const response = await githubFetch(url, { headers: getHeaders(), cache: 'no-cache' })
+    const response = await githubFetch(url, { headers, cache: 'no-cache' })
+
+    if (response.status === 304 && cached) {
+      return {
+        data: cached.data,
+        sha: cached.sha,
+        ok: true,
+        exists: true,
+        encrypted: cached.encrypted,
+        etag: cached.etag,
+        notModified: true,
+      }
+    }
+
     if (!response.ok) {
       if (response.status === 404) return { data: [], sha: null, ok: true, exists: false }
       const errText = await response.text().catch(() => '')
       throw new Error(`HTTP ${response.status}: ${errText}`)
     }
 
+    const etag: string | null = response.headers?.get?.('etag') ?? null
     const fileData = await response.json()
     const fileSha: string | null = fileData.sha || null
 
@@ -169,7 +207,8 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
 
     // 🔐 Расшифровка: если данные зашифрованы — расшифровываем
     let textToParse = cleaned
-    if (isEncrypted(cleaned)) {
+    let encrypted = isEncrypted(cleaned)
+    if (encrypted) {
       try {
         textToParse = await decrypt(cleaned)
       } catch (decErr) {
@@ -181,7 +220,9 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
           const fallback = JSON.parse(cleaned)
           if (Array.isArray(fallback)) {
             console.warn(`${fileName}: зашифрован, но читается как открытый JSON (ключ не совпал?)`)
-            return { data: fallback, sha: fileSha, ok: true, exists: true, encrypted: false }
+            encrypted = false
+            rememberFileSnapshot(fileName, { data: [...fallback], sha: fileSha, encrypted, etag })
+            return { data: fallback, sha: fileSha, ok: true, exists: true, encrypted, etag }
           }
         } catch { /* не JSON — оставляем ошибку расшифровки */ }
         // Файл существует, но не читается — не теряем факт его существования,
@@ -206,16 +247,12 @@ export const fetchGitHubFile = async (fileName: string): Promise<GitHubFileResul
       return { data: [], sha: null, ok: false, exists: true }
     }
 
-    // ✅ Возвращаем { data, sha, ok, exists, encrypted }.
+    // ✅ Возвращаем { data, sha, ok, exists, encrypted, etag }.
     // encrypted используется при записи: не нужно повторно скачивать тот же
     // 1 МБ файл только чтобы узнать, в каком формате его сохранить.
-    return {
-      data: Array.isArray(content) ? content : [],
-      sha: fileSha,
-      ok: true,
-      exists: true,
-      encrypted: isEncrypted(cleaned),
-    }
+    const data = Array.isArray(content) ? content : []
+    rememberFileSnapshot(fileName, { data: [...data], sha: fileSha, encrypted, etag })
+    return { data, sha: fileSha, ok: true, exists: true, encrypted, etag }
   } catch (error) {
     // Сетевой сбой → тихий троттлинг-лог (без стека и без спама раз в минуту)
     warnFetchFailure(fileName, error)
@@ -277,6 +314,8 @@ export const updateGitHubFile = async (
   // взяты данные и sha. Повторно скачивать 1 МБ блоб только для isEncrypted() —
   // лишняя сетевая задержка на каждое сохранение/перемещение.
   const refreshSha = async (): Promise<string | null> => {
+    // Конфликт версий: закешированный ETag больше не соответствует файлу.
+    fileSnapshots.delete(fileName)
     if (knownEncrypted === undefined) {
       const { sha } = await fetchGitHubFileRaw(fileName)
       return sha
@@ -337,7 +376,22 @@ export const updateGitHubFile = async (
         throw new Error(msg)
       }
 
-      return await response.json()
+      const result = await response.json()
+      // После PUT кэш должен описывать новое состояние файла: иначе следующий
+      // conditional GET с прежним ETag вернёт 304 и мы возьмём устаревшие данные.
+      const newSha: string | null = result?.content?.sha || result?.sha || workingSha || null
+      const newEtag: string | null = response.headers?.get?.('etag') || (newSha ? `"${newSha}"` : null)
+      if (Array.isArray(newData)) {
+        rememberFileSnapshot(fileName, {
+          data: [...newData],
+          sha: newSha,
+          encrypted: shouldEncrypt,
+          etag: newEtag,
+        })
+      } else {
+        fileSnapshots.delete(fileName)
+      }
+      return result
     } catch (error) {
       // 🌐 Сетевые сбои и конфликты (409/422) — тихий троттлинг-лог вместо
       // console.error: запись повторяется, а консоль не засоряется
