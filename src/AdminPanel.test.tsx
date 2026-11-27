@@ -347,3 +347,39 @@ describe('AdminPanel: предупреждения формы не висят в
     }
   })
 })
+
+// ── Большая сетка слов не должна целиком жить в DOM ──────────────────────────
+// Раньше поиск/подсветка перерисовывали все 900+ карточек, из-за чего ввод в
+// админке подтормаживал и грузил CPU. Показываем порцию и догружаем остальное.
+describe('AdminPanel: порционная отрисовка сетки слов', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    localStorage.setItem('admin_active_tab', 'dictionary')
+    localStorage.setItem('adminUser', JSON.stringify({ email: 'admin@example.com', role: 'admin' }))
+    vi.mocked(getDictionary).mockResolvedValue({
+      data: Array.from({ length: 150 }, (_, i) => ({
+        id: i + 1,
+        word: `Слово ${i}`,
+        translation: `Перевод ${i}`,
+      })),
+      sha: null,
+      ok: true,
+      exists: true,
+    })
+  })
+
+  afterEach(() => {
+    vi.mocked(getDictionary).mockResolvedValue({ data: [], sha: null, ok: true, exists: true })
+  })
+
+  it('сначала показывает 100 карточек, остальные — по кнопке «Показать ещё»', async () => {
+    render(<AdminPanel currentUser={null} onAdminLogin={vi.fn()} onAdminLogout={vi.fn()} />)
+
+    expect(await screen.findByText('Слово 0')).toBeInTheDocument()
+    expect(document.querySelectorAll('.word-item')).toHaveLength(100)
+
+    fireEvent.click(screen.getByRole('button', { name: /Показать ещё/ }))
+    expect(document.querySelectorAll('.word-item')).toHaveLength(150)
+    expect(screen.queryByRole('button', { name: /Показать ещё/ })).toBeNull()
+  })
+})

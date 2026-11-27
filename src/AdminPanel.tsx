@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback, startTransition } from 'react'
 import { verifyAdmin, verifyUser, getDictionary, addWord, updateWord, deleteWord, moveWordUp, moveWordDown, moveWordToTop, moveWordToBottom, moveWordToPosition, getUsers, updateUser, blockUser, unblockUser, deleteUser, logoutAllDevices, unbindDevice, getLogs, clearLogs, getCategories, addCategory, updateCategory, deleteCategory, moveCategoryUp, moveCategoryDown, moveCategoryToTop, addPersonalCategory, deletePersonalCategory, getRunes, addRune, updateRune, deleteRune, moveRuneUp, moveRuneDown, moveRuneToTop, moveRuneToEnd, ensureUserDictionaryFile, uploadAudioFile, deleteAudioFile, uploadImageFile, deleteImageFile, buildImageUrl, invalidateImageCache, migrateAllFiles, checkFilesEncryptionStatus, decryptFiles, encryptFiles, emailToFolderName, importDictionary, humanizeImportError, normalizeImportIds, removeCategoryFromAllWords, flushOfflineChanges, collectAudioUrls, precacheUrls } from './githubApi'
 import DictionaryTab from './components/admin/DictionaryTab'
 import RunesTab from './components/admin/RunesTab'
@@ -37,6 +37,26 @@ const getSavedAdmin = () => {
 // без этой проверки пользователь увидел бы секцию, открытую раньше админом
 // (например, «Пользователи» с поиском и фильтрами).
 const ADMIN_ONLY_TABS = ['runes', 'categories', 'users', 'logs', 'security']
+
+// Сотни карточек в DOM — главный источник задержки при вводе: даже при
+// мемоизации сетки поиск/подсветка перерисовывала все 900+ элементов.
+// Показываем порцию и догружаем остальное по кнопке.
+const WORDS_PAGE_SIZE = 100
+
+/** Выполнить тяжёлую фоновую работу, когда браузер свободен. */
+const runWhenIdle = (fn: () => void): (() => void) => {
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    const idleWindow = window as Window & {
+      requestIdleCallback: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number
+      cancelIdleCallback: (handle: number) => void
+    }
+    const handle = idleWindow.requestIdleCallback(() => fn(), { timeout: 3000 })
+    return () => idleWindow.cancelIdleCallback(handle)
+  }
+  const handle = setTimeout(fn, 0)
+  return () => clearTimeout(handle)
+}
+
 function isTabAllowed(tab: string, restricted: boolean): boolean {
   return !restricted || !ADMIN_ONLY_TABS.includes(tab)
 }
@@ -126,16 +146,28 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // Значение поля поиска обновляется сразу, а фильтрация — с небольшой
   // задержкой: иначе каждый символ перерисовывал все 900+ карточек.
   const [committedSearch, setCommittedSearch] = useState('')
+  // Сколько карточек отрисовано одновременно. Полный словарь (>900) в DOM
+  // тормозит ввод даже при мемоизации — показываем по порциям.
+  const [visibleWordsLimit, setVisibleWordsLimit] = useState(WORDS_PAGE_SIZE)
+
+  // Обновление сетки помечаем как переход: поле ввода остаётся отзывчивым,
+  // даже если React ещё пересобирает видимые карточки с подсветкой.
+  const commitSearch = useCallback((value: string) => {
+    startTransition(() => {
+      setCommittedSearch(value)
+      setVisibleWordsLimit(WORDS_PAGE_SIZE)
+    })
+  }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => setCommittedSearch(searchTerm.trim().toLowerCase()), 150)
+    const timer = setTimeout(() => commitSearch(searchTerm.trim().toLowerCase()), 150)
     return () => clearTimeout(timer)
-  }, [searchTerm])
+  }, [searchTerm, commitSearch])
 
   const changeSearchTerm = useCallback((value: string) => {
     setSearchTerm(value)
-    if (!value) setCommittedSearch('')
-  }, [])
+    if (!value) commitSearch('')
+  }, [commitSearch])
 
   const [userSearchTerm, setUserSearchTerm] = useState('')
   const [userPaymentFilter, setUserPaymentFilter] = useState('all')
@@ -151,6 +183,11 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   const activeUser = (adminUser && adminUser.role === 'admin') ? adminUser : (currentUser && ['admin', 'user'].includes(currentUser.role) ? currentUser : null)
   // A non-admin (regular) user is restricted and should not be treated as admin here
   const isRestrictedUser = activeUser?.role === 'user'
+
+  // После замены словаря/смены пользователя показываем снова первую порцию.
+  useEffect(() => {
+    setVisibleWordsLimit(WORDS_PAGE_SIZE)
+  }, [words.length, activeUser?.email])
 
   // 🛡 Страховка на случай смены активного пользователя без перезагрузки:
   // если текущая вкладка недоступна restricted-пользователю — возвращаемся
@@ -292,7 +329,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
   // чтобы JSON на 1 МБ не блокировал ввод и прокрутку.
   const scheduleDictionaryBackgroundWork = useCallback((arr: any[]) => {
     if (!activeUser?.email) return
-    setTimeout(() => {
+    // JSON.stringify/запись ~1 МБ в localStorage заметно тормозит ввод, если
+    // попадает в тот же кадр. Откладываем до простоя браузера.
+    return runWhenIdle(() => {
       // Для обычного пользователя помечаем слова личными, чтобы на странице
       // пользователя счётчик «Личных» считался корректно.
       const cacheArr = isRestrictedUser
@@ -301,7 +340,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
       cacheDictionaryForOffline(activeUser.email, cacheArr)
       const audioFolder = isRestrictedUser ? emailToFolderName(activeUser.email) : ''
       precacheUrls(collectAudioUrls(arr, audioFolder))
-    }, 0)
+    })
   }, [activeUser, isRestrictedUser])
 
   const loadWords = useCallback(async () => {
@@ -325,7 +364,7 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
           if (Array.isArray(cachedCats)) setCategories(cachedCats)
           // Прогреваем аудио из кэша, чтобы оно играло офлайн
           const audioFolder = isRestrictedUser && activeUser?.email ? emailToFolderName(activeUser.email) : ''
-          setTimeout(() => precacheUrls(collectAudioUrls(cached, audioFolder)), 0)
+          runWhenIdle(() => precacheUrls(collectAudioUrls(cached, audioFolder)))
         } else {
           setError('Нет интернета. Словарь не загружен — оффлайн-копия ещё не сохранена.')
         }
@@ -1023,7 +1062,9 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
     if (!(filteredWords.length > 0)) {
       return <div className="no-results">{committedSearch ? 'Ничего не найдено' : 'Словарь пуст'}</div>
     }
-    return filteredWords.map((word, idx) => {
+    const visibleWords = filteredWords.slice(0, visibleWordsLimit)
+    const hiddenCount = filteredWords.length - visibleWords.length
+    const cards = visibleWords.map((word, idx) => {
       const isAdmin = activeUser?.role === 'admin'
       const isOwner = activeUser?.role === 'user' && String(activeUser.email).toLowerCase() === String(word.createdBy || '').toLowerCase()
       // В пользовательском режиме все видимые слова — его личный словарь, поэтому редактирование доступно всегда
@@ -1055,7 +1096,20 @@ function AdminPanel({ currentUser, onAdminLogin, onAdminLogout }) {
         />
       )
     })
-  }, [filteredWords, committedSearch, categories, words, wordIndexMap, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
+    if (hiddenCount > 0) {
+      cards.push(
+        <button
+          type="button"
+          key="load-more-words"
+          className="load-more-words"
+          onClick={() => setVisibleWordsLimit(limit => limit + WORDS_PAGE_SIZE)}
+        >
+          Показать ещё {Math.min(WORDS_PAGE_SIZE, hiddenCount)} из {hiddenCount}
+        </button>
+      )
+    }
+    return cards
+  }, [filteredWords, visibleWordsLimit, committedSearch, categories, words, wordIndexMap, isRestrictedUser, activeUser, handleMoveWordToTop, handleMoveWordUp, handleMoveWordDown, handleMoveWordToBottom, handleMoveWordToPosition, handleEdit, handleDelete, playAudioFile, scrollWordsToTop])
 
   // Categories handlers
   const handleCategorySubmit = async (e) => {
